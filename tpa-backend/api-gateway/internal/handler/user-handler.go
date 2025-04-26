@@ -4,7 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	pb "github.com/Wenfuuu/tpa-web/service-user/proto"
+	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
+	pb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 	"github.com/gin-gonic/gin"
 )
 

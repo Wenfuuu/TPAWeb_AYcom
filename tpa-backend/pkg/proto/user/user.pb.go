@@ -4,7 +4,7 @@
 // 	protoc        v6.30.2
 // source: user.proto
 
-package userpb
+package user
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -844,7 +844,7 @@ const file_user_proto_rawDesc = "" +
 	"UpdateUser\x12\x17.user.UpdateUserRequest\x1a\x12.user.UserResponse\x12?\n" +
 	"\n" +
 	"DeleteUser\x12\x17.user.DeleteUserRequest\x1a\x18.user.DeleteUserResponse\x12B\n" +
-	"\vGetAllUsers\x12\x18.user.GetAllUsersRequest\x1a\x19.user.GetAllUsersResponseB=Z;github.com/Wenfuuu/tpa-web/service-user/proto/userpb;userpbb\x06proto3"
+	"\vGetAllUsers\x12\x18.user.GetAllUsersRequest\x1a\x19.user.GetAllUsersResponseB+Z)github.com/Wenfuuu/tpa-web/pkg/proto/userb\x06proto3"
 
 var (
 	file_user_proto_rawDescOnce sync.Once

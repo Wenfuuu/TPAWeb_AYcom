@@ -12,7 +12,10 @@ COPY api-gateway/go.mod .
 COPY api-gateway/go.sum .
 
 # copy needed services
-COPY service-user ../service-user
+# COPY service-user ../service-user
+
+# copy proto packages
+COPY pkg ../pkg
 
 RUN go mod download
 

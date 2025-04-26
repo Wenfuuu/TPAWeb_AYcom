@@ -5,7 +5,8 @@ import (
 	"context"
 
 	"github.com/Wenfuuu/tpa-web/service-user/handler"
-	pb "github.com/Wenfuuu/tpa-web/service-user/proto"
+	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
+	pb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 )
 
 type UserServer struct {

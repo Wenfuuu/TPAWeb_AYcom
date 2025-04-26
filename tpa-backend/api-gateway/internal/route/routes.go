@@ -4,7 +4,8 @@ import (
 	"net/http"
 
 	"github.com/Wenfuuu/tpa-web/api-gateway/internal/handler"
-	pb "github.com/Wenfuuu/tpa-web/service-user/proto"
+	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
+	pb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
 )

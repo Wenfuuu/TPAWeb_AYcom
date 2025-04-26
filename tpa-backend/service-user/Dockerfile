@@ -11,7 +11,8 @@ RUN go mod init github.com/Wenfuuu/tpa-web/service-user
 COPY service-user/go.mod . 
 COPY service-user/go.sum .
 
-# copy needed services
+# copy proto packages
+COPY pkg ../pkg
 
 RUN go mod download
 

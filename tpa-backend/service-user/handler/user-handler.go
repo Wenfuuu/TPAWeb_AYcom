@@ -6,7 +6,8 @@ import (
 	"errors"
 
 	"github.com/Wenfuuu/tpa-web/service-user/model"
-	pb "github.com/Wenfuuu/tpa-web/service-user/proto"
+	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
+	pb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 	"github.com/Wenfuuu/tpa-web/service-user/repository"
 	"github.com/Wenfuuu/tpa-web/service-user/utils"
 	"google.golang.org/grpc/codes"
