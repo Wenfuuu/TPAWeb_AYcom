@@ -1,10 +1,10 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { navigate } from 'svelte-routing';
-    import FileUpload from '../lib/components/FileUpload.svelte';
-    import FormInput from '../lib/components/FormInput.svelte';
-    import PasswordInput from '../lib/components/PasswordInput.svelte';
-    import Button from '../lib/components/Button.svelte';
+    import { onMount } from "svelte";
+    import { navigate } from "svelte-routing";
+    import FileUpload from "../lib/components/FileUpload.svelte";
+    import FormInput from "../lib/components/FormInput.svelte";
+    import PasswordInput from "../lib/components/PasswordInput.svelte";
+    import Button from "../lib/components/Button.svelte";
     import {
         validateName,
         validateUsername,
@@ -24,8 +24,8 @@
         type MonthOption,
         type DayOption,
         type YearOption
-    } from '../lib/utils/registerValidation';
-    import { uploadProfilePicture, uploadBannerImage } from '../lib/utils/supabaseStorage';
+    } from "../lib/utils/registerValidation";
+    import { uploadProfilePicture, uploadBannerImage } from "../lib/utils/supabaseStorage";
 
     // Define the API data structure
     type ApiFormData = {
@@ -51,41 +51,41 @@
         resendCountdown: 0,
         recaptchaVerified: false,
         formData: {
-            name: '',
-            username: '',
-            email: '',
-            password: '',
-            confirmPassword: '',
-            gender: '',
+            name: "",
+            username: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+            gender: "",
             profilePicture: null as File | null,
-            profilePicturePreview: '',
+            profilePicturePreview: "",
             banner: null as File | null,
-            bannerPreview: '',
-            birthDay: '',
-            birthMonth: '',
-            birthYear: '',
-            securityQuestion: '',
-            securityAnswer: '',
+            bannerPreview: "",
+            birthDay: "",
+            birthMonth: "",
+            birthYear: "",
+            securityQuestion: "",
+            securityAnswer: "",
             subscribeToNewsletter: false,
-            verificationCode: ''
+            verificationCode: ""
         } as FormData,
         // Store the Supabase URLs separately
-        profilePictureUrl: '',
-        bannerUrl: '',
+        profilePictureUrl: "",
+        bannerUrl: "",
         errors: {
-            name: '',
-            username: '',
-            email: '',
-            password: '',
-            confirmPassword: '',
-            gender: '',
-            profilePicture: '',
-            banner: '',
-            dateOfBirth: '',
-            securityQuestion: '',
-            securityAnswer: '',
-            verificationCode: '',
-            general: ''
+            name: "",
+            username: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+            gender: "",
+            profilePicture: "",
+            banner: "",
+            dateOfBirth: "",
+            securityQuestion: "",
+            securityAnswer: "",
+            verificationCode: "",
+            general: ""
         } as ErrorMessages,
         passwordValidations: {
             length: false,
@@ -101,21 +101,21 @@
           { id: 5, text: "What was your childhood nickname?" }
         ] as SecurityQuestion[],
         months: [
-          { value: '01', text: 'January' },
-          { value: '02', text: 'February' },
-          { value: '03', text: 'March' },
-          { value: '04', text: 'April' },
-          { value: '05', text: 'May' },
-          { value: '06', text: 'June' },
-          { value: '07', text: 'July' },
-          { value: '08', text: 'August' },
-          { value: '09', text: 'September' },
-          { value: '10', text: 'October' },
-          { value: '11', text: 'November' },
-          { value: '12', text: 'December' }
+          { value: "01", text: "January" },
+          { value: "02", text: "February" },
+          { value: "03", text: "March" },
+          { value: "04", text: "April" },
+          { value: "05", text: "May" },
+          { value: "06", text: "June" },
+          { value: "07", text: "July" },
+          { value: "08", text: "August" },
+          { value: "09", text: "September" },
+          { value: "10", text: "October" },
+          { value: "11", text: "November" },
+          { value: "12", text: "December" }
         ] as MonthOption[],
         days: Array.from({ length: 31 }, (_, i) => {
-          const d = (i + 1).toString().padStart(2, '0');
+          const d = (i + 1).toString().padStart(2, "0");
           return { value: d, text: d };
         }) as DayOption[],
         years: (() => {
@@ -125,32 +125,32 @@
               return { value: year, text: year };
           });
         })() as YearOption[],
-        captchaImg: '',
-        captchaAnswer: '',
+        captchaImg: "",
+        captchaAnswer: "",
     });
 
     // Handle file uploads
-    function handleFileUpload(event: Event, type: 'profilePicture' | 'banner'): void {
+    function handleFileUpload(event: Event, type: "profilePicture" | "banner"): void {
         const target = event.target as HTMLInputElement;
         const file = target.files?.[0];
         if (!file) return;
-        
+
         // Validate file type
-        const validTypes: string[] = ['image/jpeg', 'image/png', 'image/gif'];
+        const validTypes: string[] = ["image/jpeg", "image/png", "image/gif"];
         if (!validTypes.includes(file.type)) {
-            state.errors[type] = 'Please upload a valid image file (JPEG, PNG, or GIF)';
+            state.errors[type] = "Please upload a valid image file (JPEG, PNG, or GIF)";
             return;
         }
-        
+
         // Validate file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
-            state.errors[type] = 'File size should not exceed 5MB';
+            state.errors[type] = "File size should not exceed 5MB";
             return;
         }
-        
+
         // Clear previous error
-        state.errors[type] = '';
-        
+        state.errors[type] = "";
+
         // Set file and create preview
         state.formData[type] = file;
         const reader = new FileReader();
@@ -166,39 +166,39 @@
     // Upload images to Supabase and get URLs
     async function uploadImagesToSupabase(): Promise<boolean> {
         state.uploadingImages = true;
-        
+
         try {
             // Upload profile picture if exists
             if (state.formData.profilePicture) {
                 const profileUrl = await uploadProfilePicture(state.formData.profilePicture);
-                
+
                 if (!profileUrl) {
-                    state.errors.profilePicture = 'Failed to upload profile picture';
+                    state.errors.profilePicture = "Failed to upload profile picture";
                     state.uploadingImages = false;
                     return false;
                 }
-                
+
                 state.profilePictureUrl = profileUrl;
             }
-            
+
             // Upload banner if exists
             if (state.formData.banner) {
                 const bannerUrl = await uploadBannerImage(state.formData.banner);
-                
+
                 if (!bannerUrl) {
-                    state.errors.banner = 'Failed to upload banner image';
+                    state.errors.banner = "Failed to upload banner image";
                     state.uploadingImages = false;
                     return false;
                 }
-                
+
                 state.bannerUrl = bannerUrl;
             }
-            
+
             state.uploadingImages = false;
             return true;
         } catch (error) {
-            console.error('Error uploading images:', error);
-            state.errors.general = 'Error uploading images. Please try again.';
+            // console.error("Error uploading images:", error);
+            state.errors.general = "Error uploading images. Please try again.";
             state.uploadingImages = false;
             return false;
         }
@@ -208,15 +208,15 @@
     function prepareApiData(): ApiFormData {
         // Format date of birth
         const dob = `${state.formData.birthYear}-${state.formData.birthMonth}-${state.formData.birthDay}`;
-        
+
         return {
             name: state.formData.name,
             username: state.formData.username,
             email: state.formData.email,
             password: state.formData.password,
             gender: state.formData.gender,
-            profilePicture: state.profilePictureUrl || '',
-            banner: state.bannerUrl || '',
+            profilePicture: state.profilePictureUrl || "",
+            banner: state.bannerUrl || "",
             dateOfBirth: dob,
             securityQuestion: state.formData.securityQuestion,
             securityAnswer: state.formData.securityAnswer
@@ -226,7 +226,7 @@
     // Handle step 1 submission
     async function handleStep1Submit(): Promise<void> {
         state.isLoading = true;
-        state.errors.general = '';
+        state.errors.general = "";
 
         // Validate using external functions
         state.errors.name = validateName(state.formData);
@@ -244,7 +244,7 @@
         state.errors.securityQuestion = sec.question;
         state.errors.securityAnswer = sec.answer;
 
-        const stepValid = 
+        const stepValid =
             !state.errors.name &&
             !state.errors.username &&
             !state.errors.email &&
@@ -261,7 +261,7 @@
         if (stepValid) {
             // Upload images to Supabase
             const uploadSuccess = await uploadImagesToSupabase();
-            
+
             if (uploadSuccess) {
                 await sendVerificationCode();
                 state.currentStep = 2;
@@ -299,7 +299,7 @@
         try {
             await sendVerificationCode();
         } catch (error) {
-            state.errors.general = 'Failed to resend verification code. Please try again.';
+            state.errors.general = "Failed to resend verification code. Please try again.";
         } finally {
             state.isLoading = false;
         }
@@ -307,15 +307,15 @@
 
     async function handleStep2Submit(): Promise<void> {
         state.isLoading = true;
-        state.errors.general = '';
+        state.errors.general = "";
         state.errors.verificationCode = validateVerificationCode(state.formData);
         if (!state.errors.verificationCode) {
             const isVerified = await verifyCode();
             if (isVerified) {
                 await completeRegistration();
-                navigate('/login');
+                navigate("/login");
             } else {
-                state.errors.verificationCode = 'Invalid verification code';
+                state.errors.verificationCode = "Invalid verification code";
             }
         }
         state.isLoading = false;
@@ -324,7 +324,7 @@
     async function verifyCode(): Promise<boolean> {
         return new Promise(resolve => {
             setTimeout(() => {
-                resolve(state.formData.verificationCode === '12345');
+                resolve(state.formData.verificationCode === "12345");
             }, 1000);
         });
     }
@@ -333,37 +333,37 @@
         try {
             // Prepare the data for API submission
             const apiData = prepareApiData();
-            
+
             // Send the data to your API
             const response = await fetch("http://localhost:8080/api/users/register", {
                 method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify(apiData)
             });
-            
+
             if (!response.ok) {
                 throw new Error(`Registration failed: ${response.statusText}`);
             }
-            
+
             const data = await response.json();
-            console.log('Registration completed with data:', data);
-            
+            console.log("Registration completed with data:", data);
+
             return new Promise(resolve => {
                 setTimeout(() => {
                     resolve();
                 }, 1000);
             });
         } catch (error) {
-            console.error('Registration error:', error);
-            state.errors.general = 'Registration failed. Please try again.';
+            // console.error("Registration error:", error);
+            state.errors.general = "Registration failed. Please try again.";
             throw error;
         }
     }
 
     function handleGoogleAuth(): void {
-      console.log('Google authentication initiated');
+      console.log("Google authentication initiated");
     }
 
     type captcha = {
@@ -373,18 +373,18 @@
     async function onRecaptchaVerify() {
       const res = await fetch("http://localhost:8080/captcha", {
         method: "GET"
-      })
+      });
 
-      const data: captcha = await res.json()
-      console.log(data)
-      state.captchaImg = data.image
-      state.captchaAnswer = data.answer
+      const data: captcha = await res.json();
+      console.log(data);
+      state.captchaImg = data.image;
+      state.captchaAnswer = data.answer;
 
       state.recaptchaVerified = true;
     }
 
     onMount(() => {
-        console.log('Component mounted, reCAPTCHA would be initialized here');
+        console.log("Component mounted, reCAPTCHA would be initialized here");
     });
 
     function goBackToStep1(): void {
@@ -392,23 +392,23 @@
     }
 
     function goToLandingPage(): void {
-        navigate('/');
+        navigate("/");
     }
 
     // Testing API endpoint with the new data structure
     async function register() {
       // First upload images to Supabase
       await uploadImagesToSupabase();
-      
+
       // Then prepare the API data
       const apiData = prepareApiData();
       console.log(JSON.stringify(apiData));
-      
+
       // Send the request
       const res = await fetch("http://localhost:8080/api/users/register", {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         },
         body: JSON.stringify(apiData)
       });
@@ -421,14 +421,14 @@
 <main class="register-page">
   <div class="register-container">
     <div class="register-header">
-      <button class="close-button" onclick={goToLandingPage}>×</button>
+      <button class="close-button" type="button" onclick={goToLandingPage}>×</button>
       <div class="logo">AY</div>
     </div>
 
     {#if state.currentStep === 1}
       <div class="register-content">
         <h1>Create your account</h1>
-        <button class="google-auth-button" onclick={handleGoogleAuth}>
+        <button class="google-auth-button" type="button" onclick={handleGoogleAuth}>
           <span class="google-icon">G</span>
           Sign up with Google
         </button>
@@ -437,7 +437,7 @@
         </div>
 
         <form>
-          <FormInput 
+          <FormInput
             id="name"
             type="text"
             label="Name"
@@ -448,7 +448,7 @@
             maxlength={50}
             showCharCount={true}
           />
-          <FormInput 
+          <FormInput
             id="username"
             type="text"
             label="Username"
@@ -457,7 +457,7 @@
             error={state.errors.username}
             onBlur={async () => state.errors.username = await validateUsername(state.formData)}
           />
-          <FormInput 
+          <FormInput
             id="email"
             type="email"
             label="Email"
@@ -466,7 +466,7 @@
             error={state.errors.email}
             onBlur={async () => state.errors.email = await validateEmail(state.formData)}
           />
-          <PasswordInput 
+          <PasswordInput
             id="password"
             label="Password"
             bind:value={state.formData.password}
@@ -482,10 +482,10 @@
           />
           <div class="form-group">
             <label for="confirmPassword">Confirm Password</label>
-            <input 
-              type="password" 
-              id="confirmPassword" 
-              bind:value={state.formData.confirmPassword} 
+            <input
+              type="password"
+              id="confirmPassword"
+              bind:value={state.formData.confirmPassword}
               onblur={() => state.errors.confirmPassword = validateConfirmPassword(state.formData)}
               class:error={state.errors.confirmPassword}
               placeholder="Confirm your password"
@@ -498,21 +498,21 @@
             <p>Gender</p>
             <div class="radio-group">
               <label class="radio-label">
-                <input 
-                  type="radio" 
-                  name="gender" 
-                  value="male" 
-                  bind:group={state.formData.gender} 
+                <input
+                  type="radio"
+                  name="gender"
+                  value="male"
+                  bind:group={state.formData.gender}
                   onchange={() => state.errors.gender = validateGender(state.formData)}
                 />
                 Male
               </label>
               <label class="radio-label">
-                <input 
-                  type="radio" 
-                  name="gender" 
-                  value="female" 
-                  bind:group={state.formData.gender} 
+                <input
+                  type="radio"
+                  name="gender"
+                  value="female"
+                  bind:group={state.formData.gender}
                   onchange={() => state.errors.gender = validateGender(state.formData)}
                 />
                 Female
@@ -522,22 +522,22 @@
               <p class="error-message">{state.errors.gender}</p>
             {/if}
           </div>
-          <FileUpload 
+          <FileUpload
             id="profilePicture"
             label="Profile Picture"
-            fileName={state.formData.profilePicture ? (state.formData.profilePicture as File).name : 'Choose file'}
+            fileName={state.formData.profilePicture ? (state.formData.profilePicture as File).name : "Choose file"}
             previewUrl={state.formData.profilePicturePreview}
             error={state.errors.profilePicture}
-            onFileChange={(e) => handleFileUpload(e, 'profilePicture')}
+            onFileChange={(e) => handleFileUpload(e, "profilePicture")}
           />
-          <FileUpload 
+          <FileUpload
             id="banner"
             label="Banner Image"
-            fileName={state.formData.banner ? (state.formData.banner as File).name : 'Choose file'}
+            fileName={state.formData.banner ? (state.formData.banner as File).name : "Choose file"}
             previewUrl={state.formData.bannerPreview}
             error={state.errors.banner}
             isBanner={true}
-            onFileChange={(e) => handleFileUpload(e, 'banner')}
+            onFileChange={(e) => handleFileUpload(e, "banner")}
           />
           <div class="form-group">
             <p>Date of birth</p>
@@ -548,7 +548,7 @@
               <div class="select-wrapper">
                 <select bind:value={state.formData.birthMonth} onchange={() => state.errors.dateOfBirth = validateDateOfBirth(state.formData)}>
                   <option value="" disabled selected>Month</option>
-                  {#each state.months as month}
+                  {#each state.months as month (month.value)}
                     <option value={month.value}>{month.text}</option>
                   {/each}
                 </select>
@@ -556,7 +556,7 @@
               <div class="select-wrapper">
                 <select bind:value={state.formData.birthDay} onchange={() => state.errors.dateOfBirth = validateDateOfBirth(state.formData)}>
                   <option value="" disabled selected>Day</option>
-                  {#each state.days as day}
+                  {#each state.days as day (day.value)}
                     <option value={day.value}>{day.text}</option>
                   {/each}
                 </select>
@@ -564,7 +564,7 @@
               <div class="select-wrapper">
                 <select bind:value={state.formData.birthYear} onchange={() => state.errors.dateOfBirth = validateDateOfBirth(state.formData)}>
                   <option value="" disabled selected>Year</option>
-                  {#each state.years as year}
+                  {#each state.years as year (year.value)}
                     <option value={year.value}>{year.text}</option>
                   {/each}
                 </select>
@@ -577,9 +577,9 @@
           <div class="form-group">
             <label for="securityQuestion">Security Question</label>
             <div class="select-wrapper full-width">
-              <select 
-                id="securityQuestion" 
-                bind:value={state.formData.securityQuestion} 
+              <select
+                id="securityQuestion"
+                bind:value={state.formData.securityQuestion}
                 onchange={() => {
                   const sec = validateSecurityQuestion(state.formData);
                   state.errors.securityQuestion = sec.question;
@@ -587,7 +587,7 @@
                 }}
               >
                 <option value="" disabled selected>Select a security question</option>
-                {#each state.securityQuestions as question}
+                {#each state.securityQuestions as question (question.id)}
                   <option value={question.id}>{question.text}</option>
                 {/each}
               </select>
@@ -597,7 +597,7 @@
             {/if}
           </div>
           {#if state.formData.securityQuestion}
-            <FormInput 
+            <FormInput
               id="securityAnswer"
               type="text"
               label="Security Answer"
@@ -620,7 +620,7 @@
             <div id="recaptcha-container">
               <img src={state.captchaImg} alt="">
               <button type="button" class="recaptcha-button" onclick={onRecaptchaVerify}>
-                {state.recaptchaVerified ? '✓ Verified' : 'Click to verify reCAPTCHA'}
+                {state.recaptchaVerified ? "✓ Verified" : "Click to verify reCAPTCHA"}
               </button>
             </div>
             {#if !state.recaptchaVerified}
@@ -644,10 +644,10 @@
         <form onsubmit={handleStep2Submit}>
           <div class="form-group">
             <label for="verificationCode">Verification code</label>
-            <input 
-              type="text" 
-              id="verificationCode" 
-              bind:value={state.formData.verificationCode} 
+            <input
+              type="text"
+              id="verificationCode"
+              bind:value={state.formData.verificationCode}
               oninput={() => state.errors.verificationCode = validateVerificationCode(state.formData)}
               class:error={state.errors.verificationCode}
               placeholder="Enter 5 digit code"
@@ -669,7 +669,7 @@
           <div class="form-actions">
             <button type="button" class="secondary-button" onclick={goBackToStep1}>Back</button>
             <button type="submit" class="primary-button" disabled={state.isLoading}>
-              {state.isLoading ? 'Verifying...' : 'Next'}
+              {state.isLoading ? "Verifying..." : "Next"}
             </button>
           </div>
         </form>
@@ -699,7 +699,7 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     padding: 20px;
   }
-  
+
   .register-container {
     background-color: #000;
     border-radius: 16px;
@@ -708,7 +708,7 @@
     overflow: hidden;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   }
-  
+
   .register-header {
     padding: 16px;
     display: flex;
@@ -716,7 +716,7 @@
     justify-content: space-between;
     border-bottom: 1px solid #2f3336;
   }
-  
+
   .close-button {
     background: none;
     border: none;
@@ -732,27 +732,27 @@
     justify-content: center;
     border-radius: 50%;
   }
-  
+
   .close-button:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
-  
+
   .logo {
     font-size: 28px;
     font-weight: 900;
     color: #fff;
   }
-  
+
   .register-content {
     padding: 24px;
   }
-  
+
   h1 {
     font-size: 24px;
     font-weight: 700;
     margin: 0 0 24px 0;
   }
-  
+
   .google-auth-button {
     width: 100%;
     padding: 12px;
@@ -769,11 +769,11 @@
     margin-bottom: 16px;
     transition: background-color 0.2s;
   }
-  
+
   .google-auth-button:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
-  
+
   .google-icon {
     background-color: #fff;
     color: #000;
@@ -786,30 +786,30 @@
     margin-right: 8px;
     font-weight: bold;
   }
-  
+
   .divider {
     display: flex;
     align-items: center;
     margin: 16px 0;
     color: #6e767d;
   }
-  
+
   .divider::before,
   .divider::after {
     content: "";
     flex: 1;
     border-bottom: 1px solid #2f3336;
   }
-  
+
   .divider span {
     padding: 0 10px;
     font-size: 14px;
   }
-  
+
   .form-group {
     margin-bottom: 20px;
   }
-  
+
   label {
     display: block;
     font-size: 14px;
@@ -825,7 +825,7 @@
     margin-bottom: 8px;
     color: #e7e9ea;
   }
-  
+
   input[type="password"] {
     width: 100%;
     padding: 12px;
@@ -836,57 +836,57 @@
     font-size: 16px;
     box-sizing: border-box;
   }
-  
+
   input.error {
     border-color: #f4212e;
   }
-  
+
   .error-message {
     color: #f4212e;
     font-size: 13px;
     margin-top: 4px;
   }
-  
+
   .general-error {
     margin-bottom: 16px;
   }
-  
+
   .radio-group {
     display: flex;
     gap: 16px;
   }
-  
+
   .radio-label {
     display: flex;
     align-items: center;
     cursor: pointer;
   }
-  
+
   .radio-label input {
     margin-right: 8px;
   }
-  
+
   .dob-info {
     font-size: 13px;
     color: #6e767d;
     margin-top: 0;
     margin-bottom: 12px;
   }
-  
+
   .dob-selects {
     display: flex;
     gap: 12px;
   }
-  
+
   .select-wrapper {
     position: relative;
     flex: 1;
   }
-  
+
   .full-width {
     width: 100%;
   }
-  
+
   select {
     width: 100%;
     padding: 12px;
@@ -898,7 +898,7 @@
     appearance: none;
     cursor: pointer;
   }
-  
+
   .select-wrapper::after {
     content: "▼";
     font-size: 12px;
@@ -909,26 +909,26 @@
     transform: translateY(-50%);
     pointer-events: none;
   }
-  
+
   .checkbox-group {
     display: flex;
     align-items: center;
   }
-  
+
   .checkbox-label {
     display: flex;
     align-items: center;
     cursor: pointer;
   }
-  
+
   .checkbox-label input {
     margin-right: 8px;
   }
-  
+
   .recaptcha {
     margin-bottom: 24px;
   }
-  
+
   .recaptcha-button {
     width: 100%;
     padding: 12px;
@@ -939,19 +939,19 @@
     cursor: pointer;
     text-align: center;
   }
-  
+
   .recaptcha-info {
     font-size: 13px;
     color: #6e767d;
     margin-top: 4px;
   }
-  
+
   .form-actions {
     display: flex;
     justify-content: space-between;
     gap: 12px;
   }
-  
+
   .primary-button,
   .secondary-button {
     flex: 1;
@@ -962,38 +962,38 @@
     cursor: pointer;
     transition: background-color 0.2s;
   }
-  
+
   .primary-button {
     background-color: #1d9bf0;
     color: white;
     border: none;
   }
-  
+
   .primary-button:hover:not(:disabled) {
     background-color: #1a8cd8;
   }
-  
+
   .primary-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
-  
+
   .secondary-button {
     background-color: transparent;
     color: #fff;
     border: 1px solid #2f3336;
   }
-  
+
   .secondary-button:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
-  
+
   .verification-info {
     font-size: 15px;
     color: #6e767d;
     margin-bottom: 24px;
   }
-  
+
   .text-button {
     background: none;
     border: none;
@@ -1002,20 +1002,20 @@
     cursor: pointer;
     padding: 0;
   }
-  
+
   .text-button:hover:not(:disabled) {
     text-decoration: underline;
   }
-  
+
   .text-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
-  
+
   .resend-code {
     margin-bottom: 24px;
   }
-  
+
   /* Responsive styles */
   @media (max-width: 480px) {
     .register-container {
@@ -1023,12 +1023,12 @@
       height: 100vh;
       border-radius: 0;
     }
-    
+
     .dob-selects {
       flex-direction: column;
       gap: 8px;
     }
-    
+
     .form-actions {
       flex-direction: column;
     }

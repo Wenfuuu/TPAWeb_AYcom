@@ -31,7 +31,7 @@ export async function uploadRegistrationFile(
       });
 
     if (error) {
-      console.error("Error uploading file:", error);
+      // console.error("Error uploading file:", error);
       throw error;
     }
 

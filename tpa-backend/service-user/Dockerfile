@@ -4,14 +4,22 @@ WORKDIR /app
 
 RUN go mod init github.com/Wenfuuu/tpa-web/service-user
 
-COPY go.mod ./
-COPY go.sum ./
+# COPY go.mod ./
+# COPY go.sum ./
+# RUN go mod download
+
+COPY service-user/go.mod . 
+COPY service-user/go.sum .
+
+# copy needed services
+
 RUN go mod download
 
 # Install Air for hot reload
 RUN go install github.com/air-verse/air@latest
 
-COPY . .
+# COPY . .
+COPY service-user/. .
 
 EXPOSE 8080
 

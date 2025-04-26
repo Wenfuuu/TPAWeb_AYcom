@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Router, Link, Route } from "svelte-routing";
+  import { Router, Route } from "svelte-routing";
   import LandingPage from "./page/LandingPage.svelte";
   import RegisterPage from "./page/RegisterPage.svelte";
 
@@ -19,5 +19,5 @@
 </Router>
 
 <style>
-  
+
 </style>

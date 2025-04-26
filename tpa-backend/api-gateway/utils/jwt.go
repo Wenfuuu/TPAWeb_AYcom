@@ -8,10 +8,15 @@ import (
 	"github.com/google/uuid"
 )
 
+var (
+	AccessTokenExpiry  = time.Minute * 15  // Access token 15 minutes
+	RefreshTokenExpiry = time.Hour * 24 * 7 // Refresh token 7 days
+)
+
 func CreateJWT(userID uuid.UUID) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": userID,
-		"exp":     time.Now().Add(time.Hour * 24).Unix(), // token expires in 24h
+		"exp":     time.Now().Add(time.Hour).Unix(), // token expires in 24h
 	})
 
 	jwtKey := GetDotEnv("JWT_KEY")

@@ -2,10 +2,10 @@
     const { text, type, disabled = false, onClick } = $props();
 </script>
 
-<button 
-    onclick={onClick} 
-    disabled={disabled}
-    type={type}
+<button
+    onclick={onClick}
+    {disabled}
+    {type}
 >
     {text}
 </button>
@@ -28,7 +28,7 @@
     button:hover:not(:disabled) {
         background-color: rgba(255, 255, 255, 0.1);
     }
-  
+
     button:disabled {
         opacity: 0.5;
         cursor: not-allowed;

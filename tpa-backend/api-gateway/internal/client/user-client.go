@@ -3,7 +3,8 @@ package client
 import (
 	"log"
 
-	pb "github.com/Wenfuuu/tpa-web/api-gateway/proto/user"
+	// pb "github.com/Wenfuuu/tpa-web/api-gateway/proto/user"
+	pb "github.com/Wenfuuu/tpa-web/service-user/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

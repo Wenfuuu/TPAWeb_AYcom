@@ -18,7 +18,8 @@ services:
   # API Gateway
   api-gateway:
     build:
-      context: ./tpa-backend/api-gateway
+      context: ./tpa-backend/
+      dockerfile: api-gateway/Dockerfile
     volumes:
       - ./tpa-backend/api-gateway:/app
     ports:
@@ -29,7 +30,8 @@ services:
   # User Service
   service-user:
     build:
-      context: ./tpa-backend/service-user
+      context: ./tpa-backend/
+      dockerfile: service-user/Dockerfile
     volumes:
       - ./tpa-backend/service-user:/app
     ports:
