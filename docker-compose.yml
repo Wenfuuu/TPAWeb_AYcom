@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  # Frontend
+  frontend:
+    build:
+      context: ./tpa-frontend
+    volumes:
+      - ./tpa-frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    working_dir: /app
+    command: npm run dev
+    depends_on:
+      - api-gateway
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./tpa-backend/api-gateway
+    volumes:
+      - ./tpa-backend/api-gateway:/app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - service-user
+
+  # User Service
+  service-user:
+    build:
+      context: ./tpa-backend/service-user
+    volumes:
+      - ./tpa-backend/service-user:/app
+    ports:
+      - "50051:50051"
+    depends_on:
+      - db-user
+
+  # User Database
+  db-user:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: user-service-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - user-data:/var/lib/postgresql/data
+      - ./database/db-user/init:/docker-entrypoint-initdb.d
+
+volumes:
+  user-data:
