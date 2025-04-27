@@ -28,6 +28,7 @@ func CreateJWT(userID string, userRole string) (string, string, error) {
 
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": userID,
+		"user_role": userRole,
 		"exp":     time.Now().Add(RefreshTokenExpiry).Unix(),
 	})
 	refreshTokenString, err := refreshToken.SignedString([]byte(refreshKey))

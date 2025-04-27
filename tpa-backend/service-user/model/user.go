@@ -16,7 +16,6 @@ type LoginUser struct {
 }
 
 type User struct {
-	// ID 	  uint `gorm:"primaryKey" json:id`
 	ID       			uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
 	Name     			string    `json:"name"`
 	Username			string    `json:"username"`
@@ -33,6 +32,14 @@ type User struct {
 	IsPremium       	bool      `json:"isPremium" gorm:"default:false"`
 	Bio             	string    `json:"bio"`
 	CreatedAt        	time.Time `json:"createdAt" gorm:"autoCreateTime"`
+}
+
+type SecurityQuestion struct {
+	ID       uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	UserID   uuid.UUID `gorm:"type:uuid;not null" json:"userId"`
+	User     User      `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
+	Question string    `json:"question"`
+	Answer   string    `json:"answer"`
 }
 
 // BeforeCreate hook will be called automatically by GORM
