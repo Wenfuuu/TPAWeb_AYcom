@@ -1,33 +1,47 @@
 package middleware
 
-// import (
-// 	"net/http"
+import (
+	"context"
+	"net/http"
 
-// 	"github.com/Wenfuuu/tpa-web/api-gateway/utils"
-// 	"github.com/gin-gonic/gin"
-// )
+	authpb "github.com/Wenfuuu/tpa-web/pkg/proto/auth"
+	"github.com/gin-gonic/gin"
+)
 
-// func AuthMiddleware() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		authHeader := c.GetHeader("Authorization")
-// 		if authHeader == "" {
-// 			c.JSON(http.StatusUnauthorized, gin.H{"message": "Authorization header required"})
-// 			c.Abort()
-// 			return
-// 		}
+type AuthMiddleware struct {
+	authClient authpb.AuthServiceClient
+}
 
-// 		tokenString := authHeader[len("Bearer "):]
+func NewAuthMiddleware(authClient authpb.AuthServiceClient) *AuthMiddleware {
+	return &AuthMiddleware{
+		authClient: authClient,
+	}
+}
 
-// 		user_id, err := utils.ParseJWT(tokenString)
-// 		if err != nil {
-// 			c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid token", "error": err.Error()})
-// 			c.Abort()
-// 			return
-// 		}
+func (m* AuthMiddleware) AuthRequired() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Authorization header required"})
+			c.Abort()
+			return
+		}
 
-// 		// You can safely extract what you need
-// 		c.Set("user_id", user_id)
+		accessTokenString := authHeader[len("Bearer "):]
 
-// 		c.Next()
-// 	}
-// }
+		resp, err := m.authClient.CheckAuth(context.Background(), &authpb.CheckAuthRequest{
+			Token: accessTokenString,
+		})
+		if err != nil || !resp.IsAuthenticated {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid or expired token"})
+			c.Abort()
+			return
+		}
+
+		// You can safely extract what you need
+		c.Set("user_id", resp.User.Id)
+		c.Set("user_role", resp.User.Role)
+
+		c.Next()
+	}
+}

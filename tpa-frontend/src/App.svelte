@@ -2,6 +2,8 @@
   import { Router, Route } from "svelte-routing";
   import LandingPage from "./page/LandingPage.svelte";
   import RegisterPage from "./page/RegisterPage.svelte";
+  import HomePage from "./page/HomePage.svelte";
+  import LoginPage from "./page/LoginPage.svelte";
 
   // You need to export the URL prop to make router work
   export let url = "";
@@ -14,6 +16,14 @@
 
   <Route path="/register">
     <RegisterPage />
+  </Route>
+
+  <Route path="/home">
+    <HomePage />
+  </Route>
+
+  <Route path="/login">
+    <LoginPage />
   </Route>
 
 </Router>

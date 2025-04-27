@@ -71,11 +71,47 @@ func (h *AuthHandler) Register(ctx context.Context, req *authpb.AuthRegisterRequ
 
 	})
 	if err != nil {
-		return nil, status.Error(codes.Internal, "Failed to create user")
+		return nil, status.Error(codes.Unauthenticated, "Failed to create user")
 	}
 
 	return &authpb.AuthRegisterResponse{
 		User: h.userToProto(createResp.User),
+	}, nil
+}
+
+func (h *AuthHandler) CheckAuth(ctx context.Context, req *authpb.CheckAuthRequest) (*authpb.CheckAuthResponse, error) {
+	user_id, _, err := utils.ParseAccessToken(req.Token)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "Invalid access token")
+	}
+
+	user, err := h.userClient.GetUser(ctx, &userpb.GetUserRequest{
+		Id: user_id,
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to get user info")
+	}
+
+	return &authpb.CheckAuthResponse{
+		IsAuthenticated: true,
+		User: &authpb.AuthUser{
+			Id:             user.User.Id,
+			Name:           user.User.Name,
+			Username:       user.User.Username,
+			Email:          user.User.Email,
+			Password:       user.User.Password,
+			Gender:         user.User.Gender,
+			ProfilePicture: user.User.ProfilePicture,
+			Banner:         user.User.Banner,
+			DateOfBirth:    user.User.DateOfBirth,
+			IsActive:       user.User.IsActive,
+			IsBanned:       user.User.IsBanned,
+			Role:           user.User.Role,
+			IsSubscribed:   user.User.IsSubscribed,
+			IsPremium:      user.User.IsPremium,
+			Bio:            user.User.Bio,
+			CreatedAt:      user.User.CreatedAt,
+		},
 	}, nil
 }
 

@@ -9,6 +9,7 @@ service AuthService {
   rpc Register(AuthRegisterRequest) returns (AuthRegisterResponse);
   rpc CheckAuth(CheckAuthRequest) returns (CheckAuthResponse);
   rpc AuthorizeAdmin(AuthorizeAdminRequest) returns (AuthorizeAdminResponse);
+  rpc RefreshToken(RefreshTokenRequest) returns (AuthLoginResponse);
 }
 
 message AuthLoginRequest {
@@ -59,6 +60,10 @@ message AuthorizeAdminRequest {
 
 message AuthorizeAdminResponse {
   bool is_authorized = 1;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
 }
 
 message AuthUser {
