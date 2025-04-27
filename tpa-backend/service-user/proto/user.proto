@@ -11,6 +11,7 @@ service UserService {
   rpc UpdateUser(UpdateUserRequest) returns (UserResponse);
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
   rpc GetAllUsers(GetAllUsersRequest) returns (GetAllUsersResponse);
+  rpc UploadImage(UploadImageRequest) returns (UploadImageResponse);
 }
 
 message GetUserByEmailRequest {
@@ -75,6 +76,15 @@ message GetAllUsersRequest {} // empty request
 
 message GetAllUsersResponse {
   repeated User users = 1; // a list of users
+}
+
+message UploadImageRequest {
+  bytes image_data = 1;
+  string filename = 2;
+}
+
+message UploadImageResponse {
+  string image_url = 2;
 }
 
 message User {

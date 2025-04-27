@@ -2,7 +2,9 @@ package handler
 
 import (
 	"context"
+	"io"
 	"net/http"
+	"strings"
 
 	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
 	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
@@ -28,4 +30,48 @@ func(h *UserHandler) GetAllUsers(c *gin.Context) {
 	}
 	
 	c.JSON(http.StatusOK, resp.Users)
+}
+
+func(h *UserHandler) UploadImage(c *gin.Context) {
+	// Get file from request
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
+		return
+	}
+
+	// Validate file type
+	if !strings.HasPrefix(file.Header.Get("Content-Type"), "image/") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "File must be an image"})
+		return
+	}
+
+	// Open the file
+	f, err := file.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open file"})
+		return
+	}
+	defer f.Close()
+
+	// Read file contents
+	fileBytes, err := io.ReadAll(f)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read file"})
+		return
+	}
+
+	resp, err := h.Client.UploadImage(context.Background(), &userpb.UploadImageRequest{
+		ImageData: fileBytes,
+		Filename: file.Filename,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"url": resp.ImageUrl,
+	})
 }

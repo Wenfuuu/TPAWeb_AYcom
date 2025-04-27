@@ -43,3 +43,7 @@ func (s *UserServer) DeleteUser(ctx context.Context, req *userpb.DeleteUserReque
 func (s *UserServer) GetAllUsers(ctx context.Context, req *userpb.GetAllUsersRequest) (*userpb.GetAllUsersResponse, error) {
 	return s.userHandler.GetAllUsers(ctx, req)
 }
+
+func (s *UserServer) UploadImage(ctx context.Context, req *userpb.UploadImageRequest) (*userpb.UploadImageResponse, error) {
+	return s.userHandler.UploadImage(ctx, req)
+}

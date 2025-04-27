@@ -649,6 +649,102 @@ func (x *GetAllUsersResponse) GetUsers() []*User {
 	return nil
 }
 
+type UploadImageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ImageData     []byte                 `protobuf:"bytes,1,opt,name=image_data,json=imageData,proto3" json:"image_data,omitempty"`
+	Filename      string                 `protobuf:"bytes,2,opt,name=filename,proto3" json:"filename,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadImageRequest) Reset() {
+	*x = UploadImageRequest{}
+	mi := &file_user_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadImageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadImageRequest) ProtoMessage() {}
+
+func (x *UploadImageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadImageRequest.ProtoReflect.Descriptor instead.
+func (*UploadImageRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *UploadImageRequest) GetImageData() []byte {
+	if x != nil {
+		return x.ImageData
+	}
+	return nil
+}
+
+func (x *UploadImageRequest) GetFilename() string {
+	if x != nil {
+		return x.Filename
+	}
+	return ""
+}
+
+type UploadImageResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ImageUrl      string                 `protobuf:"bytes,2,opt,name=image_url,json=imageUrl,proto3" json:"image_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadImageResponse) Reset() {
+	*x = UploadImageResponse{}
+	mi := &file_user_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadImageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadImageResponse) ProtoMessage() {}
+
+func (x *UploadImageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadImageResponse.ProtoReflect.Descriptor instead.
+func (*UploadImageResponse) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *UploadImageResponse) GetImageUrl() string {
+	if x != nil {
+		return x.ImageUrl
+	}
+	return ""
+}
+
 type User struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -673,7 +769,7 @@ type User struct {
 
 func (x *User) Reset() {
 	*x = User{}
-	mi := &file_user_proto_msgTypes[9]
+	mi := &file_user_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -685,7 +781,7 @@ func (x *User) String() string {
 func (*User) ProtoMessage() {}
 
 func (x *User) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[9]
+	mi := &file_user_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -698,7 +794,7 @@ func (x *User) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use User.ProtoReflect.Descriptor instead.
 func (*User) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{9}
+	return file_user_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *User) GetId() string {
@@ -822,7 +918,7 @@ type UserResponse struct {
 
 func (x *UserResponse) Reset() {
 	*x = UserResponse{}
-	mi := &file_user_proto_msgTypes[10]
+	mi := &file_user_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -834,7 +930,7 @@ func (x *UserResponse) String() string {
 func (*UserResponse) ProtoMessage() {}
 
 func (x *UserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[10]
+	mi := &file_user_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -847,7 +943,7 @@ func (x *UserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserResponse.ProtoReflect.Descriptor instead.
 func (*UserResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{10}
+	return file_user_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *UserResponse) GetUser() *User {
@@ -917,7 +1013,13 @@ const file_user_proto_rawDesc = "" +
 	"\x12GetAllUsersRequest\"7\n" +
 	"\x13GetAllUsersResponse\x12 \n" +
 	"\x05users\x18\x01 \x03(\v2\n" +
-	".user.UserR\x05users\"\xb8\x03\n" +
+	".user.UserR\x05users\"O\n" +
+	"\x12UploadImageRequest\x12\x1d\n" +
+	"\n" +
+	"image_data\x18\x01 \x01(\fR\timageData\x12\x1a\n" +
+	"\bfilename\x18\x02 \x01(\tR\bfilename\"2\n" +
+	"\x13UploadImageResponse\x12\x1b\n" +
+	"\timage_url\x18\x02 \x01(\tR\bimageUrl\"\xb8\x03\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
@@ -940,7 +1042,7 @@ const file_user_proto_rawDesc = "" +
 	"created_at\x18\x10 \x01(\tR\tcreatedAt\".\n" +
 	"\fUserResponse\x12\x1e\n" +
 	"\x04user\x18\x01 \x01(\v2\n" +
-	".user.UserR\x04user2\xfc\x02\n" +
+	".user.UserR\x04user2\xc0\x03\n" +
 	"\vUserService\x12A\n" +
 	"\x0eGetUserByEmail\x12\x1b.user.GetUserByEmailRequest\x1a\x12.user.UserResponse\x125\n" +
 	"\bRegister\x12\x15.user.RegisterRequest\x1a\x12.user.UserResponse\x123\n" +
@@ -949,7 +1051,8 @@ const file_user_proto_rawDesc = "" +
 	"UpdateUser\x12\x17.user.UpdateUserRequest\x1a\x12.user.UserResponse\x12?\n" +
 	"\n" +
 	"DeleteUser\x12\x17.user.DeleteUserRequest\x1a\x18.user.DeleteUserResponse\x12B\n" +
-	"\vGetAllUsers\x12\x18.user.GetAllUsersRequest\x1a\x19.user.GetAllUsersResponseB+Z)github.com/Wenfuuu/tpa-web/pkg/proto/userb\x06proto3"
+	"\vGetAllUsers\x12\x18.user.GetAllUsersRequest\x1a\x19.user.GetAllUsersResponse\x12B\n" +
+	"\vUploadImage\x12\x18.user.UploadImageRequest\x1a\x19.user.UploadImageResponseB+Z)github.com/Wenfuuu/tpa-web/pkg/proto/userb\x06proto3"
 
 var (
 	file_user_proto_rawDescOnce sync.Once
@@ -963,7 +1066,7 @@ func file_user_proto_rawDescGZIP() []byte {
 	return file_user_proto_rawDescData
 }
 
-var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_user_proto_goTypes = []any{
 	(*GetUserByEmailRequest)(nil), // 0: user.GetUserByEmailRequest
 	(*RegisterRequest)(nil),       // 1: user.RegisterRequest
@@ -974,27 +1077,31 @@ var file_user_proto_goTypes = []any{
 	(*DeleteUserResponse)(nil),    // 6: user.DeleteUserResponse
 	(*GetAllUsersRequest)(nil),    // 7: user.GetAllUsersRequest
 	(*GetAllUsersResponse)(nil),   // 8: user.GetAllUsersResponse
-	(*User)(nil),                  // 9: user.User
-	(*UserResponse)(nil),          // 10: user.UserResponse
+	(*UploadImageRequest)(nil),    // 9: user.UploadImageRequest
+	(*UploadImageResponse)(nil),   // 10: user.UploadImageResponse
+	(*User)(nil),                  // 11: user.User
+	(*UserResponse)(nil),          // 12: user.UserResponse
 }
 var file_user_proto_depIdxs = []int32{
-	9,  // 0: user.LoginResponse.user:type_name -> user.User
-	9,  // 1: user.GetAllUsersResponse.users:type_name -> user.User
-	9,  // 2: user.UserResponse.user:type_name -> user.User
+	11, // 0: user.LoginResponse.user:type_name -> user.User
+	11, // 1: user.GetAllUsersResponse.users:type_name -> user.User
+	11, // 2: user.UserResponse.user:type_name -> user.User
 	0,  // 3: user.UserService.GetUserByEmail:input_type -> user.GetUserByEmailRequest
 	1,  // 4: user.UserService.Register:input_type -> user.RegisterRequest
 	3,  // 5: user.UserService.GetUser:input_type -> user.GetUserRequest
 	4,  // 6: user.UserService.UpdateUser:input_type -> user.UpdateUserRequest
 	5,  // 7: user.UserService.DeleteUser:input_type -> user.DeleteUserRequest
 	7,  // 8: user.UserService.GetAllUsers:input_type -> user.GetAllUsersRequest
-	10, // 9: user.UserService.GetUserByEmail:output_type -> user.UserResponse
-	10, // 10: user.UserService.Register:output_type -> user.UserResponse
-	10, // 11: user.UserService.GetUser:output_type -> user.UserResponse
-	10, // 12: user.UserService.UpdateUser:output_type -> user.UserResponse
-	6,  // 13: user.UserService.DeleteUser:output_type -> user.DeleteUserResponse
-	8,  // 14: user.UserService.GetAllUsers:output_type -> user.GetAllUsersResponse
-	9,  // [9:15] is the sub-list for method output_type
-	3,  // [3:9] is the sub-list for method input_type
+	9,  // 9: user.UserService.UploadImage:input_type -> user.UploadImageRequest
+	12, // 10: user.UserService.GetUserByEmail:output_type -> user.UserResponse
+	12, // 11: user.UserService.Register:output_type -> user.UserResponse
+	12, // 12: user.UserService.GetUser:output_type -> user.UserResponse
+	12, // 13: user.UserService.UpdateUser:output_type -> user.UserResponse
+	6,  // 14: user.UserService.DeleteUser:output_type -> user.DeleteUserResponse
+	8,  // 15: user.UserService.GetAllUsers:output_type -> user.GetAllUsersResponse
+	10, // 16: user.UserService.UploadImage:output_type -> user.UploadImageResponse
+	10, // [10:17] is the sub-list for method output_type
+	3,  // [3:10] is the sub-list for method input_type
 	3,  // [3:3] is the sub-list for extension type_name
 	3,  // [3:3] is the sub-list for extension extendee
 	0,  // [0:3] is the sub-list for field type_name
@@ -1011,7 +1118,7 @@ func file_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_proto_rawDesc), len(file_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

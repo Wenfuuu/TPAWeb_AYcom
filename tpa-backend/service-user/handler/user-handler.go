@@ -2,17 +2,24 @@
 package handler
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"log"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/Wenfuuu/tpa-web/service-user/model"
+	"github.com/Wenfuuu/tpa-web/service-user/utils"
+
 	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
 	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 	"github.com/Wenfuuu/tpa-web/service-user/repository"
 
 	// "github.com/Wenfuuu/tpa-web/service-user/utils"
+	storage_go "github.com/supabase-community/storage-go"
+	supa "github.com/supabase-community/supabase-go"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -61,7 +68,6 @@ func (h *UserHandler) Register(ctx context.Context, req *userpb.RegisterRequest)
 		IsSubscribed: 	req.IsSubscribed,
 		IsPremium: 		req.IsPremium,
 		Bio: 			req.Bio,
-
 	}
 
 	if err := h.userRepo.Create(&user); err != nil {
@@ -192,6 +198,55 @@ func (h *UserHandler) GetAllUsers(ctx context.Context, req *userpb.GetAllUsersRe
 	return &userpb.GetAllUsersResponse{
 		Users: pbUsers,
 	}, nil
+}
+
+func (h *UserHandler) UploadImage(ctx context.Context, req *userpb.UploadImageRequest) (*userpb.UploadImageResponse, error) {
+	supabaseURL := utils.GetDotEnv("SUPABASE_URL")
+	supabaseKey := utils.GetDotEnv("SUPABASE_KEY")
+	bucketName := utils.GetDotEnv("BUCKET_NAME")
+
+	supabase, err := supa.NewClient(supabaseURL, supabaseKey, nil)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to initialize supabase client")
+	}
+
+	fileExt := strings.ToLower(filepath.Ext(req.Filename))
+    
+    // Determine content type based on file extension
+    contentType := "application/octet-stream" // default
+    switch fileExt {
+    case ".png":
+        contentType = "image/png"
+    case ".jpg", ".jpeg":
+        contentType = "image/jpeg"
+    case ".gif":
+        contentType = "image/gif"
+    case ".webp":
+        contentType = "image/webp"
+    case ".svg":
+        contentType = "image/svg+xml"
+    }
+
+	// Upload to Supabase Storage
+	fileReader := bytes.NewReader(req.ImageData)
+	_, err = supabase.Storage.UploadFile(bucketName, req.Filename, fileReader, storage_go.FileOptions{
+		CacheControl: stringPtr("3600"),
+		ContentType: &contentType,
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to upload image")
+	}
+	
+	// Get public URL
+	publicURL := supabase.Storage.GetPublicUrl(bucketName, req.Filename).SignedURL
+	
+	return &userpb.UploadImageResponse{
+		ImageUrl: publicURL,
+	}, nil
+}
+
+func stringPtr(s string) *string {
+    return &s
 }
 
 // Helper functions

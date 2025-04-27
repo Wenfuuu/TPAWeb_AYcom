@@ -37,6 +37,7 @@
         profilePicture: string; // URL to Supabase image
         banner: string; // URL to Supabase image
         dateOfBirth: string;
+        isSubscribed: boolean;
         securityQuestion?: string;
         securityAnswer?: string;
     };
@@ -218,6 +219,7 @@
             profilePicture: state.profilePictureUrl || "",
             banner: state.bannerUrl || "",
             dateOfBirth: dob,
+            isSubscribed: state.formData.subscribeToNewsletter,
             securityQuestion: state.formData.securityQuestion,
             securityAnswer: state.formData.securityAnswer
         };
@@ -335,7 +337,7 @@
             const apiData = prepareApiData();
 
             // Send the data to your API
-            const response = await fetch("http://localhost:8080/api/users/register", {
+            const response = await fetch("http://localhost:8080/api/auth/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -405,7 +407,7 @@
       console.log(JSON.stringify(apiData));
 
       // Send the request
-      const res = await fetch("http://localhost:8080/api/users/register", {
+      const res = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

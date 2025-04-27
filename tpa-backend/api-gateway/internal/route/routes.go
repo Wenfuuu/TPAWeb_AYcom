@@ -42,6 +42,7 @@ func InitRoutes(
 			// users.PUT("/:id", authMiddleware(), updateUser)
 			// users.DELETE("/:id", authMiddleware(), deleteUser)
 			users.GET("/user", userHandler.GetAllUsers)
+			users.POST("/upload/:type", userHandler.UploadImage)
 		}
 		auth := api.Group("/auth")
 		{
