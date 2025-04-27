@@ -48,6 +48,7 @@ func InitRoutes(
 			auth.POST("/register", authHandler.Register)
 			auth.POST("/login", authHandler.Login)
 			auth.GET("/check", authMiddleware.AuthRequired())
+			auth.GET("/refresh", authHandler.RefreshToken)
 		}
 	}
 

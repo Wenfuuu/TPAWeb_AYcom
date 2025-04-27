@@ -83,3 +83,27 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		"user":          resp.User,
 	})
 }
+
+func (h *AuthHandler) RefreshToken(c *gin.Context) {
+	refreshToken := c.GetHeader("Refresh-token")
+	if refreshToken == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Refresh-token header required"})
+		c.Abort()
+		return
+	}
+
+	resp, err := h.Client.RefreshToken(context.Background(), &authpb.RefreshTokenRequest{
+		RefreshToken: refreshToken,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh tokens"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"access_token":  resp.AccessToken,
+		"refresh_token": resp.RefreshToken,
+		"user":          resp.User,
+	})
+}

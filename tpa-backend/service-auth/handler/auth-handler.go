@@ -115,6 +115,34 @@ func (h *AuthHandler) CheckAuth(ctx context.Context, req *authpb.CheckAuthReques
 	}, nil
 }
 
+func (h *AuthHandler) RefreshToken(ctx context.Context, req *authpb.RefreshTokenRequest) (*authpb.AuthLoginResponse, error) {
+	// Parse refresh token
+	userID, role, err := utils.ParseRefreshToken(req.RefreshToken)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "Invalid refresh token")
+	}
+
+	// Get user info again
+	userResp, err := h.userClient.GetUser(ctx, &userpb.GetUserRequest{
+		Id: userID,
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to get user info")
+	}
+
+	// Create new tokens
+	accessToken, newRefreshToken, err := utils.CreateJWT(userID, role)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to create new tokens")
+	}
+
+	return &authpb.AuthLoginResponse{
+		AccessToken:  accessToken,
+		RefreshToken: newRefreshToken,
+		User:         h.userToProto(userResp.User),
+	}, nil
+}
+
 // Helper functions
 func (h *AuthHandler) userToProto(user *userpb.User) *authpb.AuthUser {
 	return &authpb.AuthUser{

@@ -1,26 +1,11 @@
 <script>
-  import { onMount } from "svelte";
-  import { navigate } from "svelte-routing";
+    import { onMount } from "svelte";
+    import { navigate } from "svelte-routing";
+    import { checkAuth } from "../lib/utils/auth";
 
 
     onMount(async() => {
-        const accessToken = localStorage.getItem("access-token");
-        const res = await fetch("http://localhost:8080/api/auth/check", {
-            headers: {
-                "Authorization": `Bearer ${accessToken}`
-            }
-        });
-
-        if(res.status === 401){
-            // change to check refresh token
-            console.log("not authenticated, redirecting back to login page")
-            navigate("/login")
-        }
-
-        const refreshToken = localStorage.getItem("refresh-token");
-        const response = await fetch("http://localhost:8080/api/auth/refresh", {
-            
-        })
+        checkAuth(navigate)
     })
 
 </script>

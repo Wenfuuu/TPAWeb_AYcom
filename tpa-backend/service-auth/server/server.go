@@ -28,3 +28,10 @@ func (s *AuthServer) Register(ctx context.Context, req *authpb.AuthRegisterReque
 }
 
 //TODO: authentication & authorization (role)
+func (s *AuthServer) CheckAuth(ctx context.Context, req *authpb.CheckAuthRequest) (*authpb.CheckAuthResponse, error) {
+	return s.authHandler.CheckAuth(ctx, req)
+}
+
+func (s *AuthServer) RefreshToken(ctx context.Context, req *authpb.RefreshTokenRequest) (*authpb.AuthLoginResponse, error) {
+	return s.authHandler.RefreshToken(ctx, req)
+}

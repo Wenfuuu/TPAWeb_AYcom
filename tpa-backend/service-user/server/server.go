@@ -24,10 +24,6 @@ func (s *UserServer) Register(ctx context.Context, req *userpb.RegisterRequest) 
 	return s.userHandler.Register(ctx, req)
 }
 
-// func (s *UserServer) Login(ctx context.Context, req *userpb.LoginRequest) (*userpb.LoginResponse, error) {
-// 	return s.userHandler.Login(ctx, req)
-// }
-
 func(s *UserServer) GetUserByEmail(ctx context.Context, req *userpb.GetUserByEmailRequest) (*userpb.UserResponse, error) {
 	return s.userHandler.GetUserByEmail(ctx, req)
 }
