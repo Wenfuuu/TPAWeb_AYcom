@@ -32,6 +32,10 @@ func (s *AuthServer) CheckAuth(ctx context.Context, req *authpb.CheckAuthRequest
 	return s.authHandler.CheckAuth(ctx, req)
 }
 
+func (s *AuthServer) AuthorizeAdmin(ctx context.Context, req *authpb.AuthorizeAdminRequest) (*authpb.AuthorizeAdminResponse, error) {
+	return s.authHandler.AuthorizeAdmin(ctx, req)
+}
+
 func (s *AuthServer) RefreshToken(ctx context.Context, req *authpb.RefreshTokenRequest) (*authpb.AuthLoginResponse, error) {
 	return s.authHandler.RefreshToken(ctx, req)
 }

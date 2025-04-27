@@ -45,3 +45,27 @@ func (m* AuthMiddleware) AuthRequired() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func (m* AuthMiddleware) AdminRequired() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Authorization header required"})
+			c.Abort()
+			return
+		}
+
+		accessTokenString := authHeader[len("Bearer "):]
+
+		resp, err := m.authClient.AuthorizeAdmin(context.Background(), &authpb.AuthorizeAdminRequest{
+			Token: accessTokenString,
+		})
+		if err != nil || !resp.IsAuthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid token or not authorized"})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}

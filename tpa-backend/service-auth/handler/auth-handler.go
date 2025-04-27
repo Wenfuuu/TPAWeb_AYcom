@@ -68,7 +68,6 @@ func (h *AuthHandler) Register(ctx context.Context, req *authpb.AuthRegisterRequ
 		IsSubscribed: 	req.IsSubscribed,
 		IsPremium: 		req.IsPremium,
 		Bio: 			req.Bio,
-
 	})
 	if err != nil {
 		return nil, status.Error(codes.Unauthenticated, "Failed to create user")
@@ -112,6 +111,28 @@ func (h *AuthHandler) CheckAuth(ctx context.Context, req *authpb.CheckAuthReques
 			Bio:            user.User.Bio,
 			CreatedAt:      user.User.CreatedAt,
 		},
+	}, nil
+}
+
+func (h *AuthHandler) AuthorizeAdmin(ctx context.Context, req *authpb.AuthorizeAdminRequest) (*authpb.AuthorizeAdminResponse, error) {
+	user_id, _, err := utils.ParseAccessToken(req.Token)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "Invalid access token")
+	}
+
+	user, err := h.userClient.GetUser(ctx, &userpb.GetUserRequest{
+		Id: user_id,
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to get user info")
+	}
+
+	if user.User.Role == "user" {
+		return nil, status.Error(codes.Unauthenticated, "You are not authorized to access this page")
+	}
+
+	return &authpb.AuthorizeAdminResponse{
+		IsAuthorized: true,
 	}, nil
 }
 

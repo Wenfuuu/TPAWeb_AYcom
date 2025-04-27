@@ -5,12 +5,6 @@ const supabaseUrl = "https://nyijguoyjemxmdyzzdry.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55aWpndW95amVteG1keXp6ZHJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU2NTI4MTMsImV4cCI6MjA2MTIyODgxM30.cGZzeD6ojLZjxPu9SpFGkjnkPCAnUNQy8GFCXkLD8uk";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-/**
- * Upload a file to Supabase Storage during registration
- * @param file The file to upload
- * @param fileType The type of file ('profile' or 'banner')
- * @returns The URL of the uploaded file or null if upload failed
- */
 export async function uploadRegistrationFile(
   file: File,
   fileType: "profile" | "banner"
@@ -47,20 +41,10 @@ export async function uploadRegistrationFile(
   }
 }
 
-/**
- * Upload a profile picture during registration
- * @param file The image file
- * @returns The URL of the uploaded profile picture
- */
 export async function uploadProfilePicture(file: File): Promise<string | null> {
   return uploadRegistrationFile(file, "profile");
 }
 
-/**
- * Upload a banner image during registration
- * @param file The image file
- * @returns The URL of the uploaded banner
- */
 export async function uploadBannerImage(file: File): Promise<string | null> {
   return uploadRegistrationFile(file, "banner");
 }

@@ -1,12 +1,13 @@
 <script>
     import { onMount } from "svelte";
     import { navigate } from "svelte-routing";
-    import { checkAuth } from "../lib/utils/auth";
+    import { checkAdmin, checkAuth } from "../lib/utils/auth";
 
 
     onMount(async() => {
-        checkAuth(navigate)
-    })
+        checkAuth(navigate);
+        // checkAdmin(navigate);
+    });
 
 </script>
 

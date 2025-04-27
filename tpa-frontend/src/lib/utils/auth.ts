@@ -27,3 +27,18 @@ export async function checkAuth(navigate: (path: string) => void) {
         }
     }
 }
+
+export async function checkAdmin(navigate: (path: string) => void) {
+    const accessToken = localStorage.getItem("access-token");
+    // console.log(accessToken)
+    const res = await fetch("http://localhost:8080/api/auth/admin", {
+        headers: {
+            "Authorization": `Bearer ${accessToken}`
+        }
+    });
+
+    if(!res.ok){
+        // change this later to home page if not admin (not authorized)
+        navigate("/");
+    }
+}
