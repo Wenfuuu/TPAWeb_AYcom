@@ -4,12 +4,15 @@ package handler
 import (
 	"context"
 	"errors"
+	"log"
+	"time"
 
 	"github.com/Wenfuuu/tpa-web/service-user/model"
 	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
-	pb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
+	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 	"github.com/Wenfuuu/tpa-web/service-user/repository"
-	"github.com/Wenfuuu/tpa-web/service-user/utils"
+
+	// "github.com/Wenfuuu/tpa-web/service-user/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -25,7 +28,7 @@ func NewUserHandler() *UserHandler {
 	}
 }
 
-func (h *UserHandler) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.UserResponse, error) {
+func (h *UserHandler) Register(ctx context.Context, req *userpb.RegisterRequest) (*userpb.UserResponse, error) {
 	// Validate input
 	if err := validateRegisterRequest(req); err != nil {
 		return nil, err
@@ -40,6 +43,8 @@ func (h *UserHandler) Register(ctx context.Context, req *pb.RegisterRequest) (*p
 		return nil, status.Error(codes.AlreadyExists, "Email already registered")
 	}
 
+	log.Println("Received password:", req.Password)
+
 	// Create new user
 	user := model.User{
 		Name:           req.Name,
@@ -53,6 +58,10 @@ func (h *UserHandler) Register(ctx context.Context, req *pb.RegisterRequest) (*p
 		IsActive: 		req.IsActive,
 		IsBanned: 		req.IsBanned,
 		Role: 			req.Role,
+		IsSubscribed: 	req.IsSubscribed,
+		IsPremium: 		req.IsPremium,
+		Bio: 			req.Bio,
+
 	}
 
 	if err := h.userRepo.Create(&user); err != nil {
@@ -62,13 +71,43 @@ func (h *UserHandler) Register(ctx context.Context, req *pb.RegisterRequest) (*p
 	return h.userToResponse(&user), nil
 }
 
-func (h *UserHandler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
-	// Validate input
-	if err := validateLoginRequest(req); err != nil {
-		return nil, err
+// func (h *UserHandler) Login(ctx context.Context, req *userpb.LoginRequest) (*userpb.LoginResponse, error) {
+// 	// Validate input
+// 	if err := validateLoginRequest(req); err != nil {
+// 		return nil, err
+// 	}
+
+// 	// Find user by email
+// 	user, err := h.userRepo.FindByEmail(req.Email)
+// 	if err != nil {
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			return nil, status.Error(codes.NotFound, "User not found")
+// 		}
+// 		return nil, status.Error(codes.Internal, "Database error")
+// 	}
+
+// 	// Verify password
+// 	if !utils.ComparePassword(user.Password, req.Password) {
+// 		return nil, status.Error(codes.Unauthenticated, "Invalid credentials")
+// 	}
+
+// 	// Generate JWT token
+// 	token, err := utils.CreateJWT(user.ID)
+// 	if err != nil {
+// 		return nil, status.Error(codes.Internal, "Failed to generate token")
+// 	}
+
+// 	return &userpb.LoginResponse{
+// 		Token: token,
+// 		User:  h.userToProto(user),
+// 	}, nil
+// }
+
+func (h *UserHandler) GetUserByEmail(ctx context.Context, req *userpb.GetUserByEmailRequest) (*userpb.UserResponse, error) {
+	if req.Email == "" {
+		return nil, status.Error(codes.InvalidArgument, "Email is required")
 	}
 
-	// Find user by email
 	user, err := h.userRepo.FindByEmail(req.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -77,24 +116,10 @@ func (h *UserHandler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Logi
 		return nil, status.Error(codes.Internal, "Database error")
 	}
 
-	// Verify password
-	if !utils.ComparePassword(user.Password, req.Password) {
-		return nil, status.Error(codes.Unauthenticated, "Invalid credentials")
-	}
-
-	// Generate JWT token
-	token, err := utils.CreateJWT(user.ID)
-	if err != nil {
-		return nil, status.Error(codes.Internal, "Failed to generate token")
-	}
-
-	return &pb.LoginResponse{
-		Token: token,
-		User:  h.userToProto(user),
-	}, nil
+	return h.userToResponse(user), nil
 }
 
-func (h *UserHandler) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.UserResponse, error) {
+func (h *UserHandler) GetUser(ctx context.Context, req *userpb.GetUserRequest) (*userpb.UserResponse, error) {
 	if req.Id == "" {
 		return nil, status.Error(codes.InvalidArgument, "User ID is required")
 	}
@@ -110,7 +135,7 @@ func (h *UserHandler) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.
 	return h.userToResponse(user), nil
 }
 
-func (h *UserHandler) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UserResponse, error) {
+func (h *UserHandler) UpdateUser(ctx context.Context, req *userpb.UpdateUserRequest) (*userpb.UserResponse, error) {
 	if req.Id == "" {
 		return nil, status.Error(codes.InvalidArgument, "User ID is required")
 	}
@@ -135,7 +160,7 @@ func (h *UserHandler) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest)
 	return h.userToResponse(user), nil
 }
 
-func (h *UserHandler) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*pb.DeleteUserResponse, error) {
+func (h *UserHandler) DeleteUser(ctx context.Context, req *userpb.DeleteUserRequest) (*userpb.DeleteUserResponse, error) {
 	if req.Id == "" {
 		return nil, status.Error(codes.InvalidArgument, "User ID is required")
 	}
@@ -148,30 +173,30 @@ func (h *UserHandler) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest)
 		return nil, status.Error(codes.NotFound, "User not found")
 	}
 
-	return &pb.DeleteUserResponse{
+	return &userpb.DeleteUserResponse{
 		Success: true,
 	}, nil
 }
 
-func (h *UserHandler) GetAllUsers(ctx context.Context, req *pb.GetAllUsersRequest) (*pb.GetAllUsersResponse, error) {
+func (h *UserHandler) GetAllUsers(ctx context.Context, req *userpb.GetAllUsersRequest) (*userpb.GetAllUsersResponse, error) {
 	modelUsers, err := h.userRepo.GetAllUsers()
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Database error")
 	}
 
-	var pbUsers []*pb.User
+	var pbUsers []*userpb.User
 	for _, u := range modelUsers {
 		pbUsers = append(pbUsers, h.userToProto(&u))
 	}
 
-	return &pb.GetAllUsersResponse{
+	return &userpb.GetAllUsersResponse{
 		Users: pbUsers,
 	}, nil
 }
 
 // Helper functions
-func (h *UserHandler) userToProto(user *model.User) *pb.User {
-	return &pb.User{
+func (h *UserHandler) userToProto(user *model.User) *userpb.User {
+	return &userpb.User{
 		Id:        		user.ID.String(),
 		Name: 			user.Name,
 		Username: 		user.Username,
@@ -184,26 +209,23 @@ func (h *UserHandler) userToProto(user *model.User) *pb.User {
 		IsActive: 		user.IsActive,
 		IsBanned: 		user.IsBanned,
 		Role: 			user.Role,
+		IsSubscribed: 	user.IsSubscribed,
+		IsPremium: 		user.IsPremium,
+		Bio: 			user.Bio,
+		CreatedAt: 		user.CreatedAt.Format(time.RFC3339),
 	}
 }
 
-func (h *UserHandler) userToResponse(user *model.User) *pb.UserResponse {
-	return &pb.UserResponse{
+func (h *UserHandler) userToResponse(user *model.User) *userpb.UserResponse {
+	return &userpb.UserResponse{
 		User: h.userToProto(user),
 	}
 }
 
 // Validation functions
-func validateRegisterRequest(req *pb.RegisterRequest) error {
+func validateRegisterRequest(req *userpb.RegisterRequest) error {
 	if req.Email == "" || req.Password == "" {
 		return status.Error(codes.InvalidArgument, "Missing required fields")
-	}
-	return nil
-}
-
-func validateLoginRequest(req *pb.LoginRequest) error {
-	if req.Email == "" || req.Password == "" {
-		return status.Error(codes.InvalidArgument, "Email and password are required")
 	}
 	return nil
 }

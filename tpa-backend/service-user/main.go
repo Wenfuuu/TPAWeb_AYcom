@@ -5,7 +5,7 @@ import (
 	"github.com/Wenfuuu/tpa-web/service-user/utils"
 	"github.com/Wenfuuu/tpa-web/service-user/server"
 	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
-	pb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
+	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 	"google.golang.org/grpc"
 	"fmt"
 	"log"
@@ -18,7 +18,7 @@ func main() {
 	database.Migrate(db)
 	database.Seed(db)
 
-	port := utils.GetDotEnv("SERVICE_USER_PORT")
+	port := utils.GetDotEnv("GRPC_PORT")
 	if port == "" {
 		port = "50051"
 	}
@@ -30,7 +30,7 @@ func main() {
 	
 	grpcServer := grpc.NewServer()
 	userServer := server.NewUserServer()
-	pb.RegisterUserServiceServer(grpcServer, userServer)
+	userpb.RegisterUserServiceServer(grpcServer, userServer)
 
 	log.Printf("User service listening on port %s", port)
 	if err := grpcServer.Serve(lis); err != nil {

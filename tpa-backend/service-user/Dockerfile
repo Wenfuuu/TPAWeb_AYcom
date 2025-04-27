@@ -22,7 +22,7 @@ RUN go install github.com/air-verse/air@latest
 # COPY . .
 COPY service-user/. .
 
-EXPOSE 8080
+EXPOSE 50051
 
 # Default command for development
 CMD ["air"]

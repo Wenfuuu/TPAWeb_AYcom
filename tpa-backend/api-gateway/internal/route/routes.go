@@ -5,7 +5,8 @@ import (
 
 	"github.com/Wenfuuu/tpa-web/api-gateway/internal/handler"
 	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
-	pb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
+	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
+	authpb "github.com/Wenfuuu/tpa-web/pkg/proto/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
 )
@@ -17,9 +18,14 @@ func generateCaptcha() (string, string){
 	return b64s, ans
 }
 
-func InitRoutes(r *gin.Engine, userClient pb.UserServiceClient) {
+func InitRoutes(
+	r *gin.Engine, 
+	userClient userpb.UserServiceClient,
+	authClient authpb.AuthServiceClient,
+) {
 
 	userHandler := handler.NewUserHandler(userClient)
+	authHandler := handler.NewAuthHandler(authClient)
 
 	r.GET("/captcha", func(c *gin.Context) {
 		captchaImage, captchaAns := generateCaptcha()
@@ -30,12 +36,17 @@ func InitRoutes(r *gin.Engine, userClient pb.UserServiceClient) {
 	{
 		users := api.Group("/users")
 		{
-			users.POST("/register", userHandler.RegisterUser)
-			users.POST("/login", userHandler.LoginUser)
+			// users.POST("/register", userHandler.RegisterUser)
+			// users.POST("/login", userHandler.LoginUser)
 			// users.GET("/me", authMiddleware(), getProfile)
 			// users.PUT("/:id", authMiddleware(), updateUser)
 			// users.DELETE("/:id", authMiddleware(), deleteUser)
 			users.GET("/user", userHandler.GetAllUsers)
+		}
+		auth := api.Group("/auth")
+		{
+			auth.POST("/register", authHandler.Register)
+			auth.POST("/login", authHandler.Login)
 		}
 	}
 

@@ -1,8 +1,11 @@
 package model
 
 import (
-	"github.com/Wenfuuu/tpa-web/service-user/utils"
+	"time"
 
+	// "github.com/Wenfuuu/tpa-web/service-user/utils"
+
+	// "github.com/Wenfuuu/tpa-web/service-user/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -26,17 +29,21 @@ type User struct {
 	IsActive        	bool      `json:"isActive" gorm:"default:true"`
 	IsBanned        	bool      `json:"isBanned" gorm:"default:false"`
 	Role            	string    `json:"role" gorm:"default:'user'"`
+	IsSubscribed    	bool      `json:"isSubscribed"`
+	IsPremium       	bool      `json:"isPremium" gorm:"default:false"`
+	Bio             	string    `json:"bio"`
+	CreatedAt        	time.Time `json:"createdAt" gorm:"autoCreateTime"`
 }
 
 // BeforeCreate hook will be called automatically by GORM
 func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
 	user.ID = uuid.New()
 
-	hashedPassword, err := utils.EncryptPassword(user.Password)
-	if err != nil {
-		return err
-	}
-	user.Password = string(hashedPassword)
+	// hashedPassword, err := utils.EncryptPassword(user.Password)
+	// if err != nil {
+	// 	return err
+	// }
+	// user.Password = hashedPassword
 
 	return
 }

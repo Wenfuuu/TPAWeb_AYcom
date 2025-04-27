@@ -21,6 +21,50 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type GetUserByEmailRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserByEmailRequest) Reset() {
+	*x = GetUserByEmailRequest{}
+	mi := &file_user_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserByEmailRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserByEmailRequest) ProtoMessage() {}
+
+func (x *GetUserByEmailRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserByEmailRequest.ProtoReflect.Descriptor instead.
+func (*GetUserByEmailRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *GetUserByEmailRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
 type RegisterRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Name           string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -34,13 +78,17 @@ type RegisterRequest struct {
 	IsActive       bool                   `protobuf:"varint,9,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
 	IsBanned       bool                   `protobuf:"varint,10,opt,name=is_banned,json=isBanned,proto3" json:"is_banned,omitempty"`
 	Role           string                 `protobuf:"bytes,11,opt,name=role,proto3" json:"role,omitempty"`
+	IsSubscribed   bool                   `protobuf:"varint,12,opt,name=is_subscribed,json=isSubscribed,proto3" json:"is_subscribed,omitempty"`
+	IsPremium      bool                   `protobuf:"varint,13,opt,name=is_premium,json=isPremium,proto3" json:"is_premium,omitempty"`
+	Bio            string                 `protobuf:"bytes,14,opt,name=bio,proto3" json:"bio,omitempty"`
+	CreatedAt      string                 `protobuf:"bytes,15,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *RegisterRequest) Reset() {
 	*x = RegisterRequest{}
-	mi := &file_user_proto_msgTypes[0]
+	mi := &file_user_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -52,7 +100,7 @@ func (x *RegisterRequest) String() string {
 func (*RegisterRequest) ProtoMessage() {}
 
 func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[0]
+	mi := &file_user_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -65,7 +113,7 @@ func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterRequest.ProtoReflect.Descriptor instead.
 func (*RegisterRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{0}
+	return file_user_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *RegisterRequest) GetName() string {
@@ -145,54 +193,30 @@ func (x *RegisterRequest) GetRole() string {
 	return ""
 }
 
-type LoginRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
-	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *LoginRequest) Reset() {
-	*x = LoginRequest{}
-	mi := &file_user_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *LoginRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*LoginRequest) ProtoMessage() {}
-
-func (x *LoginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[1]
+func (x *RegisterRequest) GetIsSubscribed() bool {
 	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
+		return x.IsSubscribed
 	}
-	return mi.MessageOf(x)
+	return false
 }
 
-// Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
-func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *LoginRequest) GetEmail() string {
+func (x *RegisterRequest) GetIsPremium() bool {
 	if x != nil {
-		return x.Email
+		return x.IsPremium
+	}
+	return false
+}
+
+func (x *RegisterRequest) GetBio() string {
+	if x != nil {
+		return x.Bio
 	}
 	return ""
 }
 
-func (x *LoginRequest) GetPassword() string {
+func (x *RegisterRequest) GetCreatedAt() string {
 	if x != nil {
-		return x.Password
+		return x.CreatedAt
 	}
 	return ""
 }
@@ -307,6 +331,10 @@ type UpdateUserRequest struct {
 	IsActive       bool                   `protobuf:"varint,10,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
 	IsBanned       bool                   `protobuf:"varint,11,opt,name=is_banned,json=isBanned,proto3" json:"is_banned,omitempty"`
 	Role           string                 `protobuf:"bytes,12,opt,name=role,proto3" json:"role,omitempty"`
+	IsSubscribed   bool                   `protobuf:"varint,13,opt,name=is_subscribed,json=isSubscribed,proto3" json:"is_subscribed,omitempty"`
+	IsPremium      bool                   `protobuf:"varint,14,opt,name=is_premium,json=isPremium,proto3" json:"is_premium,omitempty"`
+	Bio            string                 `protobuf:"bytes,15,opt,name=bio,proto3" json:"bio,omitempty"`
+	CreatedAt      string                 `protobuf:"bytes,16,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -421,6 +449,34 @@ func (x *UpdateUserRequest) GetIsBanned() bool {
 func (x *UpdateUserRequest) GetRole() string {
 	if x != nil {
 		return x.Role
+	}
+	return ""
+}
+
+func (x *UpdateUserRequest) GetIsSubscribed() bool {
+	if x != nil {
+		return x.IsSubscribed
+	}
+	return false
+}
+
+func (x *UpdateUserRequest) GetIsPremium() bool {
+	if x != nil {
+		return x.IsPremium
+	}
+	return false
+}
+
+func (x *UpdateUserRequest) GetBio() string {
+	if x != nil {
+		return x.Bio
+	}
+	return ""
+}
+
+func (x *UpdateUserRequest) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
 	}
 	return ""
 }
@@ -607,6 +663,10 @@ type User struct {
 	IsActive       bool                   `protobuf:"varint,10,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
 	IsBanned       bool                   `protobuf:"varint,11,opt,name=is_banned,json=isBanned,proto3" json:"is_banned,omitempty"`
 	Role           string                 `protobuf:"bytes,12,opt,name=role,proto3" json:"role,omitempty"`
+	IsSubscribed   bool                   `protobuf:"varint,13,opt,name=is_subscribed,json=isSubscribed,proto3" json:"is_subscribed,omitempty"`
+	IsPremium      bool                   `protobuf:"varint,14,opt,name=is_premium,json=isPremium,proto3" json:"is_premium,omitempty"`
+	Bio            string                 `protobuf:"bytes,15,opt,name=bio,proto3" json:"bio,omitempty"`
+	CreatedAt      string                 `protobuf:"bytes,16,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -725,6 +785,34 @@ func (x *User) GetRole() string {
 	return ""
 }
 
+func (x *User) GetIsSubscribed() bool {
+	if x != nil {
+		return x.IsSubscribed
+	}
+	return false
+}
+
+func (x *User) GetIsPremium() bool {
+	if x != nil {
+		return x.IsPremium
+	}
+	return false
+}
+
+func (x *User) GetBio() string {
+	if x != nil {
+		return x.Bio
+	}
+	return ""
+}
+
+func (x *User) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
 type UserResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
@@ -774,7 +862,9 @@ var File_user_proto protoreflect.FileDescriptor
 const file_user_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"user.proto\x12\x04user\"\xbe\x02\n" +
+	"user.proto\x12\x04user\"-\n" +
+	"\x15GetUserByEmailRequest\x12\x14\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\"\xb3\x03\n" +
 	"\x0fRegisterRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
@@ -787,16 +877,19 @@ const file_user_proto_rawDesc = "" +
 	"\tis_active\x18\t \x01(\bR\bisActive\x12\x1b\n" +
 	"\tis_banned\x18\n" +
 	" \x01(\bR\bisBanned\x12\x12\n" +
-	"\x04role\x18\v \x01(\tR\x04role\"@\n" +
-	"\fLoginRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"E\n" +
+	"\x04role\x18\v \x01(\tR\x04role\x12#\n" +
+	"\ris_subscribed\x18\f \x01(\bR\fisSubscribed\x12\x1d\n" +
+	"\n" +
+	"is_premium\x18\r \x01(\bR\tisPremium\x12\x10\n" +
+	"\x03bio\x18\x0e \x01(\tR\x03bio\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x0f \x01(\tR\tcreatedAt\"E\n" +
 	"\rLoginResponse\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12\x1e\n" +
 	"\x04user\x18\x02 \x01(\v2\n" +
 	".user.UserR\x04user\" \n" +
 	"\x0eGetUserRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\xd0\x02\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\xc5\x03\n" +
 	"\x11UpdateUserRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
@@ -810,7 +903,13 @@ const file_user_proto_rawDesc = "" +
 	"\tis_active\x18\n" +
 	" \x01(\bR\bisActive\x12\x1b\n" +
 	"\tis_banned\x18\v \x01(\bR\bisBanned\x12\x12\n" +
-	"\x04role\x18\f \x01(\tR\x04role\"#\n" +
+	"\x04role\x18\f \x01(\tR\x04role\x12#\n" +
+	"\ris_subscribed\x18\r \x01(\bR\fisSubscribed\x12\x1d\n" +
+	"\n" +
+	"is_premium\x18\x0e \x01(\bR\tisPremium\x12\x10\n" +
+	"\x03bio\x18\x0f \x01(\tR\x03bio\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x10 \x01(\tR\tcreatedAt\"#\n" +
 	"\x11DeleteUserRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\".\n" +
 	"\x12DeleteUserResponse\x12\x18\n" +
@@ -818,7 +917,7 @@ const file_user_proto_rawDesc = "" +
 	"\x12GetAllUsersRequest\"7\n" +
 	"\x13GetAllUsersResponse\x12 \n" +
 	"\x05users\x18\x01 \x03(\v2\n" +
-	".user.UserR\x05users\"\xc3\x02\n" +
+	".user.UserR\x05users\"\xb8\x03\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
@@ -832,13 +931,19 @@ const file_user_proto_rawDesc = "" +
 	"\tis_active\x18\n" +
 	" \x01(\bR\bisActive\x12\x1b\n" +
 	"\tis_banned\x18\v \x01(\bR\bisBanned\x12\x12\n" +
-	"\x04role\x18\f \x01(\tR\x04role\".\n" +
+	"\x04role\x18\f \x01(\tR\x04role\x12#\n" +
+	"\ris_subscribed\x18\r \x01(\bR\fisSubscribed\x12\x1d\n" +
+	"\n" +
+	"is_premium\x18\x0e \x01(\bR\tisPremium\x12\x10\n" +
+	"\x03bio\x18\x0f \x01(\tR\x03bio\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x10 \x01(\tR\tcreatedAt\".\n" +
 	"\fUserResponse\x12\x1e\n" +
 	"\x04user\x18\x01 \x01(\v2\n" +
-	".user.UserR\x04user2\xeb\x02\n" +
-	"\vUserService\x125\n" +
-	"\bRegister\x12\x15.user.RegisterRequest\x1a\x12.user.UserResponse\x120\n" +
-	"\x05Login\x12\x12.user.LoginRequest\x1a\x13.user.LoginResponse\x123\n" +
+	".user.UserR\x04user2\xfc\x02\n" +
+	"\vUserService\x12A\n" +
+	"\x0eGetUserByEmail\x12\x1b.user.GetUserByEmailRequest\x1a\x12.user.UserResponse\x125\n" +
+	"\bRegister\x12\x15.user.RegisterRequest\x1a\x12.user.UserResponse\x123\n" +
 	"\aGetUser\x12\x14.user.GetUserRequest\x1a\x12.user.UserResponse\x129\n" +
 	"\n" +
 	"UpdateUser\x12\x17.user.UpdateUserRequest\x1a\x12.user.UserResponse\x12?\n" +
@@ -860,30 +965,30 @@ func file_user_proto_rawDescGZIP() []byte {
 
 var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_user_proto_goTypes = []any{
-	(*RegisterRequest)(nil),     // 0: user.RegisterRequest
-	(*LoginRequest)(nil),        // 1: user.LoginRequest
-	(*LoginResponse)(nil),       // 2: user.LoginResponse
-	(*GetUserRequest)(nil),      // 3: user.GetUserRequest
-	(*UpdateUserRequest)(nil),   // 4: user.UpdateUserRequest
-	(*DeleteUserRequest)(nil),   // 5: user.DeleteUserRequest
-	(*DeleteUserResponse)(nil),  // 6: user.DeleteUserResponse
-	(*GetAllUsersRequest)(nil),  // 7: user.GetAllUsersRequest
-	(*GetAllUsersResponse)(nil), // 8: user.GetAllUsersResponse
-	(*User)(nil),                // 9: user.User
-	(*UserResponse)(nil),        // 10: user.UserResponse
+	(*GetUserByEmailRequest)(nil), // 0: user.GetUserByEmailRequest
+	(*RegisterRequest)(nil),       // 1: user.RegisterRequest
+	(*LoginResponse)(nil),         // 2: user.LoginResponse
+	(*GetUserRequest)(nil),        // 3: user.GetUserRequest
+	(*UpdateUserRequest)(nil),     // 4: user.UpdateUserRequest
+	(*DeleteUserRequest)(nil),     // 5: user.DeleteUserRequest
+	(*DeleteUserResponse)(nil),    // 6: user.DeleteUserResponse
+	(*GetAllUsersRequest)(nil),    // 7: user.GetAllUsersRequest
+	(*GetAllUsersResponse)(nil),   // 8: user.GetAllUsersResponse
+	(*User)(nil),                  // 9: user.User
+	(*UserResponse)(nil),          // 10: user.UserResponse
 }
 var file_user_proto_depIdxs = []int32{
 	9,  // 0: user.LoginResponse.user:type_name -> user.User
 	9,  // 1: user.GetAllUsersResponse.users:type_name -> user.User
 	9,  // 2: user.UserResponse.user:type_name -> user.User
-	0,  // 3: user.UserService.Register:input_type -> user.RegisterRequest
-	1,  // 4: user.UserService.Login:input_type -> user.LoginRequest
+	0,  // 3: user.UserService.GetUserByEmail:input_type -> user.GetUserByEmailRequest
+	1,  // 4: user.UserService.Register:input_type -> user.RegisterRequest
 	3,  // 5: user.UserService.GetUser:input_type -> user.GetUserRequest
 	4,  // 6: user.UserService.UpdateUser:input_type -> user.UpdateUserRequest
 	5,  // 7: user.UserService.DeleteUser:input_type -> user.DeleteUserRequest
 	7,  // 8: user.UserService.GetAllUsers:input_type -> user.GetAllUsersRequest
-	10, // 9: user.UserService.Register:output_type -> user.UserResponse
-	2,  // 10: user.UserService.Login:output_type -> user.LoginResponse
+	10, // 9: user.UserService.GetUserByEmail:output_type -> user.UserResponse
+	10, // 10: user.UserService.Register:output_type -> user.UserResponse
 	10, // 11: user.UserService.GetUser:output_type -> user.UserResponse
 	10, // 12: user.UserService.UpdateUser:output_type -> user.UserResponse
 	6,  // 13: user.UserService.DeleteUser:output_type -> user.DeleteUserResponse

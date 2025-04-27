@@ -5,12 +5,16 @@ package user;
 option go_package = "github.com/Wenfuuu/tpa-web/pkg/proto/user";
 
 service UserService {
+  rpc GetUserByEmail(GetUserByEmailRequest) returns (UserResponse);
   rpc Register(RegisterRequest) returns (UserResponse);
-  rpc Login(LoginRequest) returns (LoginResponse);
   rpc GetUser(GetUserRequest) returns (UserResponse);
   rpc UpdateUser(UpdateUserRequest) returns (UserResponse);
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
   rpc GetAllUsers(GetAllUsersRequest) returns (GetAllUsersResponse);
+}
+
+message GetUserByEmailRequest {
+  string email = 1;
 }
 
 message RegisterRequest {
@@ -25,11 +29,10 @@ message RegisterRequest {
   bool is_active = 9;
   bool is_banned = 10;
   string role = 11;
-}
-
-message LoginRequest {
-  string email = 1;
-  string password = 2;
+  bool is_subscribed = 12;
+  bool is_premium = 13;
+  string bio = 14;
+  string created_at = 15;
 }
 
 message LoginResponse {
@@ -54,6 +57,10 @@ message UpdateUserRequest {
   bool is_active = 10;
   bool is_banned = 11;
   string role = 12;
+  bool is_subscribed = 13;
+  bool is_premium = 14;
+  string bio = 15;
+  string created_at = 16;
 }
 
 message DeleteUserRequest {
@@ -83,6 +90,10 @@ message User {
   bool is_active = 10;
   bool is_banned = 11;
   string role = 12;
+  bool is_subscribed = 13;
+  bool is_premium = 14;
+  string bio = 15;
+  string created_at = 16;
 }
 
 message UserResponse {

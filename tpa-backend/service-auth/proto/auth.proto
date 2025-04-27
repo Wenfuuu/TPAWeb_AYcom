@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "github.com/Wenfuuu/tpa-web/pkg/proto/auth";
+
+service AuthService {
+  rpc Login(AuthLoginRequest) returns (AuthLoginResponse);
+  rpc Register(AuthRegisterRequest) returns (AuthRegisterResponse);
+  rpc CheckAuth(CheckAuthRequest) returns (CheckAuthResponse);
+  rpc AuthorizeAdmin(AuthorizeAdminRequest) returns (AuthorizeAdminResponse);
+}
+
+message AuthLoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message AuthLoginResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  AuthUser user = 3;
+}
+
+message AuthRegisterRequest {
+  string name = 1;
+  string username = 2;
+  string email = 3;
+  string password = 4;
+  string gender = 5;
+  string profile_picture = 6;
+  string banner = 7;
+  string date_of_birth = 8;
+  bool is_active = 9;
+  bool is_banned = 10;
+  string role = 11;
+  bool is_subscribed = 12;
+  bool is_premium = 13;
+  string bio = 14;
+  string created_at = 15;
+}
+
+message AuthRegisterResponse {
+  AuthUser user = 1;
+}
+
+message CheckAuthRequest {
+  string token = 1;
+}
+
+message CheckAuthResponse {
+  bool is_authenticated = 1;
+  AuthUser user = 2;
+}
+
+message AuthorizeAdminRequest {
+  string token = 1;
+}
+
+message AuthorizeAdminResponse {
+  bool is_authorized = 1;
+}
+
+message AuthUser {
+  string id = 1;
+  string name = 2;
+  string username = 3;
+  string email = 4;
+  string password = 5;
+  string gender = 6;
+  string profile_picture = 7;
+  string banner = 8;
+  string date_of_birth = 9;
+  bool is_active = 10;
+  bool is_banned = 11;
+  string role = 12;
+  bool is_subscribed = 13;
+  bool is_premium = 14;
+  string bio = 15;
+  string created_at = 16;
+}

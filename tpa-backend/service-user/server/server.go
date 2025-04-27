@@ -6,11 +6,11 @@ import (
 
 	"github.com/Wenfuuu/tpa-web/service-user/handler"
 	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
-	pb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
+	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 )
 
 type UserServer struct {
-	pb.UnimplementedUserServiceServer
+	userpb.UnimplementedUserServiceServer
 	userHandler *handler.UserHandler
 }
 
@@ -20,26 +20,30 @@ func NewUserServer() *UserServer {
 	}
 }
 
-func (s *UserServer) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.UserResponse, error) {
+func (s *UserServer) Register(ctx context.Context, req *userpb.RegisterRequest) (*userpb.UserResponse, error) {
 	return s.userHandler.Register(ctx, req)
 }
 
-func (s *UserServer) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
-	return s.userHandler.Login(ctx, req)
+// func (s *UserServer) Login(ctx context.Context, req *userpb.LoginRequest) (*userpb.LoginResponse, error) {
+// 	return s.userHandler.Login(ctx, req)
+// }
+
+func(s *UserServer) GetUserByEmail(ctx context.Context, req *userpb.GetUserByEmailRequest) (*userpb.UserResponse, error) {
+	return s.userHandler.GetUserByEmail(ctx, req)
 }
 
-func (s *UserServer) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.UserResponse, error) {
+func (s *UserServer) GetUser(ctx context.Context, req *userpb.GetUserRequest) (*userpb.UserResponse, error) {
 	return s.userHandler.GetUser(ctx, req)
 }
 
-func (s *UserServer) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UserResponse, error) {
+func (s *UserServer) UpdateUser(ctx context.Context, req *userpb.UpdateUserRequest) (*userpb.UserResponse, error) {
 	return s.userHandler.UpdateUser(ctx, req)
 }
 
-func (s *UserServer) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*pb.DeleteUserResponse, error) {
+func (s *UserServer) DeleteUser(ctx context.Context, req *userpb.DeleteUserRequest) (*userpb.DeleteUserResponse, error) {
 	return s.userHandler.DeleteUser(ctx, req)
 }
 
-func (s *UserServer) GetAllUsers(ctx context.Context, req *pb.GetAllUsersRequest) (*pb.GetAllUsersResponse, error) {
+func (s *UserServer) GetAllUsers(ctx context.Context, req *userpb.GetAllUsersRequest) (*userpb.GetAllUsersResponse, error) {
 	return s.userHandler.GetAllUsers(ctx, req)
 }

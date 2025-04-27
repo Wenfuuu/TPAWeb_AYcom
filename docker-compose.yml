@@ -25,6 +25,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
+      - service-auth
       - service-user
 
   # User Service
@@ -37,7 +38,18 @@ services:
     ports:
       - "50051:50051"
     depends_on:
+      - service-auth
       - db-user
+
+  # Auth Service
+  service-auth:
+    build:
+      context: ./tpa-backend/
+      dockerfile: service-auth/Dockerfile
+    volumes:
+      - ./tpa-backend/service-auth:/app
+    ports:
+      - "50052:50052"
 
   # User Database
   db-user:
