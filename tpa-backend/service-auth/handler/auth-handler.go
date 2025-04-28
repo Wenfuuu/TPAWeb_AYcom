@@ -2,28 +2,50 @@ package handler
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
+	// "fmt"
+	"log"
 	"math/rand"
 	"time"
 
+	"github.com/Wenfuuu/tpa-web/pkg/messaging"
 	authpb "github.com/Wenfuuu/tpa-web/pkg/proto/auth"
 	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 	"github.com/Wenfuuu/tpa-web/service-auth/utils"
+	"github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"gopkg.in/gomail.v2"
+	// "gopkg.in/gomail.v2"
 )
 
 type AuthHandler struct {
 	userClient userpb.UserServiceClient
 	rdb *redis.Client
+	rabbitChannel *amqp091.Channel
 }
 
 func NewAuthHandler(userClient userpb.UserServiceClient) *AuthHandler {
+	ch, err := utils.GetRabbitMQChannel()
+    if err != nil {
+        log.Fatalf("Failed to get RabbitMQ channel for AuthHandler: %v", err)
+    }
+
+	exchangeName := "email_exchange"
+    err = ch.ExchangeDeclare(
+        exchangeName,     // name
+        "direct",         // type
+        true,             // durable
+        false,            // auto-deleted
+        false,            // internal
+        false,            // no-wait
+        nil,              // arguments
+    )
+
 	return &AuthHandler{
 		userClient: userClient,
 		rdb: createRedisClient(),
+		rabbitChannel: ch,
 	}
 }
 
@@ -183,27 +205,37 @@ func (h *AuthHandler) SendVerificationCode(ctx context.Context, req *authpb.Send
 		}, err
 	}
 
-	m := gomail.NewMessage()
-	m.SetHeader("From", "bertrand13022005@gmail.com")
-	m.SetHeader("To", req.Email)
-	m.SetHeader("Subject", "Your Verification Code")
-	m.SetBody("text/plain", fmt.Sprintf("Your verification code is: %s", code))
-
-	email := utils.GetDotEnv("EMAIL")
-	pass := utils.GetDotEnv("EMAIL_PASS")
-	d := gomail.NewDialer(
-		"smtp.gmail.com",
-		587,
-		email,
-		pass,
-	)
-
-	err = d.DialAndSend(m)
-	if err != nil {
-		return &authpb.SendVerificationCodeResponse{
-			Success: false,
-		}, err
+	// rabbitmq logic here
+	payload := messaging.VerificationEmailPayload{
+		Email: req.Email,
+		Code: code,
 	}
+
+	body, err := json.Marshal(payload)
+    if err != nil {
+        log.Printf("Failed to marshal verification email payload: %v", err)
+        return nil, status.Error(codes.Internal, "Failed to process request (marshal)")
+    }
+
+	exchangeName := "email_exchange"
+    routingKey := "verification_email"
+	err = h.rabbitChannel.PublishWithContext(
+		context.Background(),
+		exchangeName,
+		routingKey,
+		false,
+		false,
+		amqp091.Publishing{
+            ContentType: "application/json",
+            Body:        body,
+            DeliveryMode: amqp091.Persistent, // Make message persistent (survive broker restart)
+        },
+	)
+	if err != nil {
+        log.Printf("Failed to publish verification email message: %v", err)
+        return nil, status.Error(codes.Internal, "Failed to queue email request")
+    }
+    log.Printf("Successfully published verification email request for %s", req.Email)
 
 	return &authpb.SendVerificationCodeResponse{
 		Success: true,

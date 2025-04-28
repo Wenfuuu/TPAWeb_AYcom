@@ -88,38 +88,6 @@ func (h *UserHandler) Register(ctx context.Context, req *userpb.RegisterRequest)
 	return h.userToResponse(&user), nil
 }
 
-// func (h *UserHandler) Login(ctx context.Context, req *userpb.LoginRequest) (*userpb.LoginResponse, error) {
-// 	// Validate input
-// 	if err := validateLoginRequest(req); err != nil {
-// 		return nil, err
-// 	}
-
-// 	// Find user by email
-// 	user, err := h.userRepo.FindByEmail(req.Email)
-// 	if err != nil {
-// 		if errors.Is(err, gorm.ErrRecordNotFound) {
-// 			return nil, status.Error(codes.NotFound, "User not found")
-// 		}
-// 		return nil, status.Error(codes.Internal, "Database error")
-// 	}
-
-// 	// Verify password
-// 	if !utils.ComparePassword(user.Password, req.Password) {
-// 		return nil, status.Error(codes.Unauthenticated, "Invalid credentials")
-// 	}
-
-// 	// Generate JWT token
-// 	token, err := utils.CreateJWT(user.ID)
-// 	if err != nil {
-// 		return nil, status.Error(codes.Internal, "Failed to generate token")
-// 	}
-
-// 	return &userpb.LoginResponse{
-// 		Token: token,
-// 		User:  h.userToProto(user),
-// 	}, nil
-// }
-
 func (h *UserHandler) GetUserByEmail(ctx context.Context, req *userpb.GetUserByEmailRequest) (*userpb.UserResponse, error) {
 	if req.Email == "" {
 		return nil, status.Error(codes.InvalidArgument, "Email is required")

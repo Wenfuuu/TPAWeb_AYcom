@@ -51,6 +51,22 @@ services:
       - ./tpa-backend/service-auth:/app
     ports:
       - "50052:50052"
+    depends_on:
+      - service-email
+      - rabbitmq
+
+  # Email Service
+  service-email:
+    build:
+      context: ./tpa-backend/
+      dockerfile: service-email/Dockerfile
+    volumes:
+      - ./tpa-backend/service-email:/app
+    ports:
+      - "50053:50053"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   # User Database
   db-user:
@@ -65,11 +81,32 @@ services:
       - user-data:/var/lib/postgresql/data
       - ./database/db-user/init:/docker-entrypoint-initdb.d
 
+  # Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Redis
   redis:
     image: redis:latest
     ports:
       - "6379:6379"
+    volumes:
+      - redis-data:/data
 
 volumes:
   user-data:
+  rabbitmq-data:
+  redis-data:
