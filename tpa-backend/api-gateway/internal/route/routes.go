@@ -1,22 +1,67 @@
 package route
 
 import (
+	"encoding/json"
 	"net/http"
+	"net/url"
 
 	"github.com/Wenfuuu/tpa-web/api-gateway/internal/handler"
 	"github.com/Wenfuuu/tpa-web/api-gateway/internal/middleware"
+
 	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
 	authpb "github.com/Wenfuuu/tpa-web/pkg/proto/auth"
 	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 	"github.com/gin-gonic/gin"
-	"github.com/mojocn/base64Captcha"
+	// "github.com/mojocn/base64Captcha"
 )
 
-func generateCaptcha() (string, string){
-	driver := base64Captcha.NewDriverDigit(100, 240, 4, 0.7, 80)
-	captcha := base64Captcha.NewCaptcha(driver, base64Captcha.DefaultMemStore)
-	_, b64s, ans, _ := captcha.Generate()
-	return b64s, ans
+// func generateCaptcha() (string, string){
+// 	driver := base64Captcha.NewDriverDigit(100, 240, 4, 0.7, 80)
+// 	captcha := base64Captcha.NewCaptcha(driver, base64Captcha.DefaultMemStore)
+// 	_, b64s, ans, _ := captcha.Generate()
+// 	return b64s, ans
+// }
+
+const recaptchaSecret = "6Le5ySYrAAAAAKMMRBku5GFQxZnzfSjftwKO9yQS"
+
+type RecaptchaResponse struct {
+    Success     bool     `json:"success"`
+    ChallengeTS string   `json:"challenge_ts"`
+    Hostname    string   `json:"hostname"`
+    ErrorCodes  []string `json:"error-codes,omitempty"`
+}
+
+func verifyRecaptcha(c *gin.Context) {
+	// Define a struct for expected JSON request body
+    type RequestBody struct {
+        Token string `json:"token"`
+    }
+
+    var reqBody RequestBody
+    if err := c.ShouldBindJSON(&reqBody); err != nil || reqBody.Token == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+        return
+    }
+
+    // Post to Google's reCAPTCHA verification API using application/x-www-form-urlencoded
+    resp, err := http.PostForm("https://www.google.com/recaptcha/api/siteverify",
+        url.Values{
+            "secret":   {recaptchaSecret},
+            "response": {reqBody.Token},
+        })
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify reCAPTCHA"})
+        return
+    }
+    defer resp.Body.Close()
+
+    var recaptchaResp RecaptchaResponse
+    if err := json.NewDecoder(resp.Body).Decode(&recaptchaResp); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode reCAPTCHA response"})
+        return
+    }
+
+    c.JSON(http.StatusOK, recaptchaResp)
 }
 
 func InitRoutes(
@@ -29,10 +74,13 @@ func InitRoutes(
 	authHandler := handler.NewAuthHandler(authClient)
 	authMiddleware := middleware.NewAuthMiddleware(authClient)
 
-	r.GET("/captcha", func(c *gin.Context) {
-		captchaImage, captchaAns := generateCaptcha()
-		c.JSON(http.StatusOK, gin.H{"image": captchaImage, "answer": captchaAns})
-	})
+	// r.GET("/captcha", func(c *gin.Context) {
+	// 	captchaImage, captchaAns := generateCaptcha()
+	// 	c.JSON(http.StatusOK, gin.H{"image": captchaImage, "answer": captchaAns})
+	// })
+
+	// const recaptchaSecret = "6Le5ySYrAAAAAKMMRBku5GFQxZnzfSjftwKO9yQS"
+	r.POST("/verify-recaptcha", verifyRecaptcha)
 
 	api := r.Group("/api")
 	{

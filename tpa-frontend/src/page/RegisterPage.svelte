@@ -1,3 +1,11 @@
+<script module lang="ts">
+  declare global {
+    interface Window {
+      recaptchaCallback: (token: string) => void;
+    }
+  }
+</script>
+
 <script lang="ts">
   import { onMount } from "svelte";
   import { navigate } from "svelte-routing";
@@ -388,21 +396,38 @@
     image: string;
     answer: string;
   };
-  async function onRecaptchaVerify() {
-    const res = await fetch("http://localhost:8080/captcha", {
-      method: "GET",
-    });
 
-    const data: captcha = await res.json();
-    console.log(data);
-    state.captchaImg = data.image;
-    state.captchaAnswer = data.answer;
-
-    state.recaptchaVerified = true;
+  function onRecaptchaCallback(token: string): void {
+    fetch("http://localhost:8080/verify-recaptcha", {
+      method: "POST",
+      // headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          state.recaptchaVerified = true;
+        } else {
+          state.errors.general = "reCAPTCHA verification failed";
+        }
+      })
+      .catch(() => {
+        state.errors.general = "Error verifying reCAPTCHA";
+      });
   }
 
   onMount(() => {
     console.log("Component mounted, reCAPTCHA would be initialized here");
+    // Assign the global callback used by reCAPTCHA v2
+    window.recaptchaCallback = onRecaptchaCallback;
+    // Dynamically load the reCAPTCHA script if not already on the page
+    if (!document.querySelector('script[src="https://www.google.com/recaptcha/api.js"]')) {
+      const script = document.createElement("script");
+      script.src = "https://www.google.com/recaptcha/api.js";
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    }
   });
 
   function goBackToStep1(): void {
@@ -675,23 +700,12 @@
             </label>
           </div>
           <div class="form-group recaptcha">
-            <div id="recaptcha-container">
-              <img src={state.captchaImg} alt="" />
-              <button
-                type="button"
-                class="recaptcha-button"
-                onclick={onRecaptchaVerify}
-              >
-                {state.recaptchaVerified
-                  ? "✓ Verified"
-                  : "Click to verify reCAPTCHA"}
-              </button>
+            <div
+              id="recaptcha-container"
+              class="g-recaptcha"
+              data-sitekey="6Le5ySYrAAAAADAVGZm_Gug20l8ge7D0IQgwg6f3"
+              data-callback="recaptchaCallback">
             </div>
-            {#if !state.recaptchaVerified}
-              <p class="recaptcha-info">
-                Please verify that you're not a robot
-              </p>
-            {/if}
           </div>
           {#if state.errors.general}
             <p class="error-message general-error">{state.errors.general}</p>
@@ -1018,23 +1032,6 @@
 
   .recaptcha {
     margin-bottom: 24px;
-  }
-
-  .recaptcha-button {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #2f3336;
-    background-color: #000;
-    color: #fff;
-    border-radius: 4px;
-    cursor: pointer;
-    text-align: center;
-  }
-
-  .recaptcha-info {
-    font-size: 13px;
-    color: #6e767d;
-    margin-top: 4px;
   }
 
   .form-actions {
