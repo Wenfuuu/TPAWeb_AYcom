@@ -30,7 +30,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		DateOfBirth 		string `json:"dateOfBirth" binding:"required"`
 		SecurityQuestion 	string `json:"securityQuestion" binding:"required"`
 		SecurityAnswer 		string `json:"securityAnswer" binding:"required"`
-		IsSubscribed 		bool `json:"isSubscribed" binding:"required"`
+		IsSubscribed 		bool `json:"isSubscribed"`
 	}
 
 	if err := c.ShouldBindJSON(&requestBody); err != nil {

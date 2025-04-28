@@ -71,3 +71,15 @@ func (r *UserRepository) EmailExists(email string) (bool, error) {
 	}
 	return false, result.Error
 }
+
+func (r *UserRepository) UsernameExists(username string) (bool, error) {
+	var user model.User
+	result := r.DB.Where("username = ?", username).First(&user)
+	if result.Error == nil {
+		return true, nil
+	}
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
+	return false, result.Error
+}

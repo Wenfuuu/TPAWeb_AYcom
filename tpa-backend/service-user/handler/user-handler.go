@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"log"
 	"path/filepath"
 	"strings"
 	"time"
@@ -41,8 +40,17 @@ func (h *UserHandler) Register(ctx context.Context, req *userpb.RegisterRequest)
 		return nil, err
 	}
 
+	// Check if username already exists
+	exists, err := h.userRepo.UsernameExists(req.Username)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+	if exists {
+		return nil, status.Error(codes.AlreadyExists, "Username already registered")
+	}
+
 	// Check if email already exists
-	exists, err := h.userRepo.EmailExists(req.Email)
+	exists, err = h.userRepo.EmailExists(req.Email)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Database error")
 	}
@@ -50,7 +58,7 @@ func (h *UserHandler) Register(ctx context.Context, req *userpb.RegisterRequest)
 		return nil, status.Error(codes.AlreadyExists, "Email already registered")
 	}
 
-	log.Println("Received password:", req.Password)
+	// log.Println("Received password:", req.Password)
 
 	// Create new user
 	user := model.User{
@@ -74,7 +82,7 @@ func (h *UserHandler) Register(ctx context.Context, req *userpb.RegisterRequest)
 		return nil, status.Error(codes.Internal, "Failed to create user")
 	}
 
-	log.Printf(req.SecurityQuestion)
+	// log.Printf(req.SecurityQuestion)
 	securityQuestion := model.SecurityQuestion{
 		UserID:   user.ID,
 		Question: req.SecurityQuestion, 
