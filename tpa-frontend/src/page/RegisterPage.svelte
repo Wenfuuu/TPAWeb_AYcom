@@ -280,38 +280,30 @@
       !state.errors.dateOfBirth &&
       !state.errors.securityQuestion &&
       !state.errors.securityAnswer &&
-      !state.recaptchaVerified;
+      state.recaptchaVerified;
 
     console.log(stepValid);
     if (stepValid) {
       console.log("heading to next step");
-      // Upload images to Supabase
-      // const uploadSuccess = await uploadImagesToSupabase();
 
-      // if (uploadSuccess) {
-        // await sendVerificationCode();
-      // const res = await fetch("http://localhost:8080/api/auth/send-token", {
-        
-      // });
+      await sendVerificationCode()
 
       state.currentStep = 2;
-      // }
     }
     state.isLoading = false;
   }
 
-  // async function sendVerificationCode(): Promise<void> {
-  //   return new Promise((resolve) => {
-  //     setTimeout(() => {
-  //       state.verificationCodeSent = true;
-  //       state.verificationCodeExpiry = new Date(
-  //         new Date().getTime() + 5 * 60000
-  //       );
-  //       startResendCountdown();
-  //       resolve();
-  //     }, 1000);
-  //   });
-  // }
+  async function sendVerificationCode(): Promise<void> {
+    let apiData = {
+      email: state.formData.email
+    }
+
+    const res = await fetch("http://localhost:8080/api/auth/send-code", {
+      method: "POST",
+      body: JSON.stringify(apiData)
+    });
+    startResendCountdown()
+  }
 
   function startResendCountdown(): void {
     state.resendDisabled = true;
@@ -328,6 +320,7 @@
   async function handleResendCode(): Promise<void> {
     if (state.resendDisabled) return;
     state.isLoading = true;
+    
     try {
       await sendVerificationCode();
     } catch (error) {
@@ -339,70 +332,46 @@
   }
 
   async function handleStep2Submit(): Promise<void> {
-    state.isLoading = true;
     state.errors.general = "";
     state.errors.verificationCode = validateVerificationCode(state.formData);
     if (!state.errors.verificationCode) {
       const isVerified = await verifyCode();
+      console.log("code verify: " + isVerified)
       if (isVerified) {
-        await completeRegistration();
+        await register();
         navigate("/login");
       } else {
         state.errors.verificationCode = "Invalid verification code";
       }
     }
-    state.isLoading = false;
   }
 
   async function verifyCode(): Promise<boolean> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(state.formData.verificationCode === "12345");
-      }, 1000);
-    });
-  }
+    let apiData = {
+      email: state.formData.email,
+      code: state.formData.verificationCode
+    };
 
-  async function completeRegistration(): Promise<void> {
     try {
-      // Prepare the data for API submission
-      const apiData = prepareApiData();
-
-      // Send the data to your API
-      const response = await fetch("http://localhost:8080/api/auth/register", {
+      const res = await fetch("http://localhost:8080/api/auth/verify-code", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(apiData),
+        body: JSON.stringify(apiData)
       });
 
-      if (!response.ok) {
-        throw new Error(`Registration failed: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log("Registration completed with data:", data);
-
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 1000);
-      });
+      const data = await res.json();
+      return data.verified;
     } catch (error) {
-      // console.error("Registration error:", error);
-      state.errors.general = "Registration failed. Please try again.";
-      throw error;
-    }
+      console.error("Error verifying code:", error);
+      return false;
+    };
   }
+
+  // async function completeRegistration(): Promise<void> {
+  // }
 
   function handleGoogleAuth(): void {
     console.log("Google authentication initiated");
   }
-
-  type captcha = {
-    image: string;
-    answer: string;
-  };
 
   function onRecaptchaCallback(token: string): void {
     fetch("http://localhost:8080/verify-recaptcha", {
@@ -734,7 +703,7 @@
         <p class="verification-info">
           Enter 5 digit code to verify {state.formData.email}
         </p>
-        <form onsubmit={handleStep2Submit}>
+        <form>
           <div class="form-group">
             <label for="verificationCode">Verification code</label>
             <input
@@ -776,9 +745,10 @@
               onclick={goBackToStep1}>Back</button
             >
             <button
-              type="submit"
+              type="button"
               class="primary-button"
               disabled={state.isLoading}
+              onclick={handleStep2Submit}
             >
               {state.isLoading ? "Verifying..." : "Next"}
             </button>
