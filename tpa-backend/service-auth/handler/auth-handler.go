@@ -225,9 +225,7 @@ func (h *AuthHandler) VerifyCode(ctx context.Context, req *authpb.VerifyCodeRequ
 			Verified: true,
 		}, nil
 	} else {
-		return &authpb.VerifyCodeResponse{
-			Verified: false,
-		}, nil
+		return nil, status.Error(codes.Unauthenticated, "Invalid verification code")
 	}
 }
 

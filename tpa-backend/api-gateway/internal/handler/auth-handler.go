@@ -130,11 +130,37 @@ func (h *AuthHandler) SendVerificationCode(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Failed to send code"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send code"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"send_code": resp.Success,
+	})
+}
+
+func (h *AuthHandler) VerifyCode(c *gin.Context) {
+	var requestBody struct {
+		Email	string `json:"email" binding:"required,email"`
+		Code	string `json:"code" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := h.Client.VerifyCode(context.Background(), &authpb.VerifyCodeRequest{
+		Email: requestBody.Email,
+		Code: requestBody.Code,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Code is not valid or already expired"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"verified": resp.Verified,
 	})
 }
