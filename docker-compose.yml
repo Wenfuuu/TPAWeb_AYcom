@@ -39,6 +39,7 @@ services:
       - "50051:50051"
     depends_on:
       - service-auth
+      - redis
       - db-user
 
   # Auth Service
@@ -63,6 +64,12 @@ services:
     volumes:
       - user-data:/var/lib/postgresql/data
       - ./database/db-user/init:/docker-entrypoint-initdb.d
+
+  # Redis
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
 
 volumes:
   user-data:

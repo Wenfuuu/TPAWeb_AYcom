@@ -39,3 +39,11 @@ func (s *AuthServer) AuthorizeAdmin(ctx context.Context, req *authpb.AuthorizeAd
 func (s *AuthServer) RefreshToken(ctx context.Context, req *authpb.RefreshTokenRequest) (*authpb.AuthLoginResponse, error) {
 	return s.authHandler.RefreshToken(ctx, req)
 }
+
+func (s *AuthServer) SendVerificationCode(ctx context.Context, req *authpb.SendVerificationCodeRequest) (*authpb.SendVerificationCodeResponse, error) {
+	return s.authHandler.SendVerificationCode(ctx, req)
+}
+
+func (s *AuthServer) VerifyCode(ctx context.Context, req *authpb.VerifyCodeRequest) (*authpb.VerifyCodeResponse, error) {
+	return s.authHandler.VerifyCode(ctx, req)
+}

@@ -113,3 +113,28 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		"user":          resp.User,
 	})
 }
+
+
+func (h *AuthHandler) SendVerificationCode(c *gin.Context) {
+	var requestBody struct {
+		Email	string `json:"email" binding:"required,email"`
+	}
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := h.Client.SendVerificationCode(context.Background(), &authpb.SendVerificationCodeRequest{
+		Email: requestBody.Email,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Failed to send code"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"send_code": resp.Success,
+	})
+}

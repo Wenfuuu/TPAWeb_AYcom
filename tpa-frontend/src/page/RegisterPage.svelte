@@ -248,6 +248,7 @@
 
   // Handle step 1 submission
   async function handleStep1Submit(): Promise<void> {
+    // console.log("heading to next step")
     state.isLoading = true;
     state.errors.general = "";
 
@@ -279,32 +280,38 @@
       !state.errors.dateOfBirth &&
       !state.errors.securityQuestion &&
       !state.errors.securityAnswer &&
-      state.recaptchaVerified;
+      !state.recaptchaVerified;
 
+    console.log(stepValid);
     if (stepValid) {
+      console.log("heading to next step");
       // Upload images to Supabase
-      const uploadSuccess = await uploadImagesToSupabase();
+      // const uploadSuccess = await uploadImagesToSupabase();
 
-      if (uploadSuccess) {
-        await sendVerificationCode();
-        state.currentStep = 2;
-      }
+      // if (uploadSuccess) {
+        // await sendVerificationCode();
+      // const res = await fetch("http://localhost:8080/api/auth/send-token", {
+        
+      // });
+
+      state.currentStep = 2;
+      // }
     }
     state.isLoading = false;
   }
 
-  async function sendVerificationCode(): Promise<void> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        state.verificationCodeSent = true;
-        state.verificationCodeExpiry = new Date(
-          new Date().getTime() + 5 * 60000
-        );
-        startResendCountdown();
-        resolve();
-      }, 1000);
-    });
-  }
+  // async function sendVerificationCode(): Promise<void> {
+  //   return new Promise((resolve) => {
+  //     setTimeout(() => {
+  //       state.verificationCodeSent = true;
+  //       state.verificationCodeExpiry = new Date(
+  //         new Date().getTime() + 5 * 60000
+  //       );
+  //       startResendCountdown();
+  //       resolve();
+  //     }, 1000);
+  //   });
+  // }
 
   function startResendCountdown(): void {
     state.resendDisabled = true;
@@ -406,6 +413,7 @@
       .then(res => res.json())
       .then(data => {
         if (data.success) {
+          console.log("success recaptcha");
           state.recaptchaVerified = true;
         } else {
           state.errors.general = "reCAPTCHA verification failed";
@@ -421,7 +429,7 @@
     // Assign the global callback used by reCAPTCHA v2
     window.recaptchaCallback = onRecaptchaCallback;
     // Dynamically load the reCAPTCHA script if not already on the page
-    if (!document.querySelector('script[src="https://www.google.com/recaptcha/api.js"]')) {
+    if (!document.querySelector("script[src=\"https://www.google.com/recaptcha/api.js\"]")) {
       const script = document.createElement("script");
       script.src = "https://www.google.com/recaptcha/api.js";
       script.async = true;
@@ -715,7 +723,7 @@
               text="Next"
               type="button"
               disabled={state.isLoading}
-              onClick={register}
+              onClick={handleStep1Submit}
             />
           </div>
         </form>

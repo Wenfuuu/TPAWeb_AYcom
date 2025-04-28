@@ -15,13 +15,6 @@ import (
 	// "github.com/mojocn/base64Captcha"
 )
 
-// func generateCaptcha() (string, string){
-// 	driver := base64Captcha.NewDriverDigit(100, 240, 4, 0.7, 80)
-// 	captcha := base64Captcha.NewCaptcha(driver, base64Captcha.DefaultMemStore)
-// 	_, b64s, ans, _ := captcha.Generate()
-// 	return b64s, ans
-// }
-
 const recaptchaSecret = "6Le5ySYrAAAAAKMMRBku5GFQxZnzfSjftwKO9yQS"
 
 type RecaptchaResponse struct {
@@ -74,12 +67,6 @@ func InitRoutes(
 	authHandler := handler.NewAuthHandler(authClient)
 	authMiddleware := middleware.NewAuthMiddleware(authClient)
 
-	// r.GET("/captcha", func(c *gin.Context) {
-	// 	captchaImage, captchaAns := generateCaptcha()
-	// 	c.JSON(http.StatusOK, gin.H{"image": captchaImage, "answer": captchaAns})
-	// })
-
-	// const recaptchaSecret = "6Le5ySYrAAAAAKMMRBku5GFQxZnzfSjftwKO9yQS"
 	r.POST("/verify-recaptcha", verifyRecaptcha)
 
 	api := r.Group("/api")
@@ -99,6 +86,7 @@ func InitRoutes(
 			auth.GET("/check", authMiddleware.AuthRequired())
 			auth.GET("/refresh", authHandler.RefreshToken)
 			auth.GET("/admin", authMiddleware.AdminRequired())
+			auth.POST("/send-token", authHandler.SendVerificationCode)
 		}
 	}
 

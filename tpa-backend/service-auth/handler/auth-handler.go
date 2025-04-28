@@ -2,21 +2,28 @@ package handler
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
+	"time"
 
 	authpb "github.com/Wenfuuu/tpa-web/pkg/proto/auth"
 	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 	"github.com/Wenfuuu/tpa-web/service-auth/utils"
+	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gopkg.in/gomail.v2"
 )
 
 type AuthHandler struct {
 	userClient userpb.UserServiceClient
+	rdb *redis.Client
 }
 
 func NewAuthHandler(userClient userpb.UserServiceClient) *AuthHandler {
 	return &AuthHandler{
 		userClient: userClient,
+		rdb: createRedisClient(),
 	}
 }
 
@@ -166,6 +173,64 @@ func (h *AuthHandler) RefreshToken(ctx context.Context, req *authpb.RefreshToken
 	}, nil
 }
 
+func (h *AuthHandler) SendVerificationCode(ctx context.Context, req *authpb.SendVerificationCodeRequest) (*authpb.SendVerificationCodeResponse, error) {
+	code := generateRandomCode(5)
+
+	err := h.rdb.Set(ctx, "verify:"+req.Email, code, 5*time.Minute).Err()
+	if err != nil {
+		return &authpb.SendVerificationCodeResponse{
+			Success: false,
+		}, err
+	}
+
+	m := gomail.NewMessage()
+	m.SetHeader("From", "bertrand13022005@gmail.com")
+	m.SetHeader("To", req.Email)
+	m.SetHeader("Subject", "Your Verification Code")
+	m.SetBody("text/plain", fmt.Sprintf("Your verification code is: %s", code))
+
+	email := utils.GetDotEnv("EMAIL")
+	pass := utils.GetDotEnv("EMAIL_PASS")
+	d := gomail.NewDialer(
+		"smtp.gmail.com",
+		587,
+		email,
+		pass,
+	)
+
+	err = d.DialAndSend(m)
+	if err != nil {
+		return &authpb.SendVerificationCodeResponse{
+			Success: false,
+		}, err
+	}
+
+	return &authpb.SendVerificationCodeResponse{
+		Success: true,
+	}, nil
+}
+
+func (h *AuthHandler) VerifyCode(ctx context.Context, req *authpb.VerifyCodeRequest) (*authpb.VerifyCodeResponse, error) {
+	storedCode, err := h.rdb.Get(ctx, "verify:"+req.Email).Result()
+	if err == redis.Nil {
+		return &authpb.VerifyCodeResponse{
+			Verified: false,
+		}, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	if storedCode == req.Code {
+		return &authpb.VerifyCodeResponse{
+			Verified: true,
+		}, nil
+	} else {
+		return &authpb.VerifyCodeResponse{
+			Verified: false,
+		}, nil
+	}
+}
+
 // Helper functions
 func (h *AuthHandler) userToProto(user *userpb.User) *authpb.AuthUser {
 	return &authpb.AuthUser{
@@ -186,4 +251,24 @@ func (h *AuthHandler) userToProto(user *userpb.User) *authpb.AuthUser {
 		Bio: 			user.Bio,
 		CreatedAt: 		user.CreatedAt,
 	}
+}
+
+func createRedisClient() *redis.Client {
+	redisAddr := utils.GetDotEnv("REDIS_ADDR")
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     redisAddr, 
+		Password: "",           
+		DB:       0,            
+	})
+	return rdb
+}
+
+func generateRandomCode(length int) string {
+	rand.Seed(time.Now().UnixNano()) // important to avoid repeating numbers
+	digits := []rune("0123456789")
+	code := make([]rune, length)
+	for i := range code {
+		code[i] = digits[rand.Intn(len(digits))]
+	}
+	return string(code)
 }
