@@ -61,6 +61,16 @@ func (h *AuthHandler) Login(ctx context.Context, req *authpb.AuthLoginRequest) (
 		return nil, status.Error(codes.Unauthenticated, "Invalid credentials")
 	}
 
+	// check activated
+	if !userResp.GetUser().IsActive {
+		return nil, status.Error(codes.Unauthenticated, "Account not activated")
+	}
+
+	// check banned
+	if !userResp.GetUser().IsBanned {
+		return nil, status.Error(codes.Unauthenticated, "Account is banned")
+	}
+
 	// Create token
 	accessToken, refreshToken, err := utils.CreateJWT(userResp.User.Id, userResp.User.Role)
 	if err != nil {
