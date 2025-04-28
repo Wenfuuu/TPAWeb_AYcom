@@ -1,436 +1,458 @@
 <script lang="ts">
-    import { onMount } from "svelte";
-    import { navigate } from "svelte-routing";
-    import FileUpload from "../lib/components/FileUpload.svelte";
-    import FormInput from "../lib/components/FormInput.svelte";
-    import PasswordInput from "../lib/components/PasswordInput.svelte";
-    import Button from "../lib/components/Button.svelte";
-    import {
-        validateName,
-        validateUsername,
-        validateEmail,
-        validatePassword,
-        validateConfirmPassword,
-        validateGender,
-        validateDateOfBirth,
-        validateSecurityQuestion,
-        validateProfilePicture,
-        validateBanner,
-        validateVerificationCode,
-        type FormData,
-        type ErrorMessages,
-        type PasswordValidations,
-        type SecurityQuestion,
-        type MonthOption,
-        type DayOption,
-        type YearOption
-    } from "../lib/utils/registerValidation";
-    import { uploadProfilePicture, uploadBannerImage } from "../lib/utils/supabaseStorage";
+  import { onMount } from "svelte";
+  import { navigate } from "svelte-routing";
+  import FileUpload from "../lib/components/FileUpload.svelte";
+  import FormInput from "../lib/components/FormInput.svelte";
+  import PasswordInput from "../lib/components/PasswordInput.svelte";
+  import Button from "../lib/components/Button.svelte";
+  import {
+    validateName,
+    validateUsername,
+    validateEmail,
+    validatePassword,
+    validateConfirmPassword,
+    validateGender,
+    validateDateOfBirth,
+    validateSecurityQuestion,
+    validateProfilePicture,
+    validateBanner,
+    validateVerificationCode,
+    type FormData,
+    type ErrorMessages,
+    type PasswordValidations,
+    type SecurityQuestion,
+    type MonthOption,
+    type DayOption,
+    type YearOption,
+  } from "../lib/utils/registerValidation";
+  import {
+    uploadProfilePicture,
+    uploadBannerImage,
+  } from "../lib/utils/supabaseStorage";
 
-    // Define the API data structure
-    type ApiFormData = {
-        name: string;
-        username: string;
-        email: string;
-        password: string;
-        gender: string;
-        profilePicture: string; // URL to Supabase image
-        banner: string; // URL to Supabase image
-        dateOfBirth: string;
-        isSubscribed: boolean;
-        securityQuestion?: string;
-        securityAnswer?: string;
-    };
+  // Define the API data structure
+  type ApiFormData = {
+    name: string;
+    username: string;
+    email: string;
+    password: string;
+    gender: string;
+    profilePicture: string; // URL to Supabase image
+    banner: string; // URL to Supabase image
+    dateOfBirth: string;
+    isSubscribed: boolean;
+    securityQuestion: string;
+    securityAnswer: string;
+  };
 
-    const state = $state({
-        currentStep: 1,
-        isLoading: false,
-        uploadingImages: false,
-        verificationCodeSent: false,
-        verificationCodeExpiry: null as Date | null,
-        resendDisabled: false,
-        resendCountdown: 0,
-        recaptchaVerified: false,
-        formData: {
-            name: "",
-            username: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
-            gender: "",
-            profilePicture: null as File | null,
-            profilePicturePreview: "",
-            banner: null as File | null,
-            bannerPreview: "",
-            birthDay: "",
-            birthMonth: "",
-            birthYear: "",
-            securityQuestion: "",
-            securityAnswer: "",
-            subscribeToNewsletter: false,
-            verificationCode: ""
-        } as FormData,
-        // Store the Supabase URLs separately
-        profilePictureUrl: "",
-        bannerUrl: "",
-        errors: {
-            name: "",
-            username: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
-            gender: "",
-            profilePicture: "",
-            banner: "",
-            dateOfBirth: "",
-            securityQuestion: "",
-            securityAnswer: "",
-            verificationCode: "",
-            general: ""
-        } as ErrorMessages,
-        passwordValidations: {
-            length: false,
-            uppercase: false,
-            lowercase: false,
-            number: false,
-        } as PasswordValidations,
-        securityQuestions: [
-          { id: 1, text: "What was the name of your first pet?" },
-          { id: 2, text: "What city were you born in?" },
-          { id: 3, text: "What is your favorite video game?" },
-          { id: 4, text: "What was the name of your first school?" },
-          { id: 5, text: "What was your childhood nickname?" }
-        ] as SecurityQuestion[],
-        months: [
-          { value: "01", text: "January" },
-          { value: "02", text: "February" },
-          { value: "03", text: "March" },
-          { value: "04", text: "April" },
-          { value: "05", text: "May" },
-          { value: "06", text: "June" },
-          { value: "07", text: "July" },
-          { value: "08", text: "August" },
-          { value: "09", text: "September" },
-          { value: "10", text: "October" },
-          { value: "11", text: "November" },
-          { value: "12", text: "December" }
-        ] as MonthOption[],
-        days: Array.from({ length: 31 }, (_, i) => {
-          const d = (i + 1).toString().padStart(2, "0");
-          return { value: d, text: d };
-        }) as DayOption[],
-        years: (() => {
-          const currentYear = new Date().getFullYear();
-          return Array.from({ length: 100 }, (_, i) => {
-              const year = (currentYear - i).toString();
-              return { value: year, text: year };
-          });
-        })() as YearOption[],
-        captchaImg: "",
-        captchaAnswer: "",
-    });
+  const securityQuestions = [
+    { id: 1, text: "What was the name of your first pet?" },
+    { id: 2, text: "What city were you born in?" },
+    { id: 3, text: "What is your favorite video game?" },
+    { id: 4, text: "What was the name of your first school?" },
+    { id: 5, text: "What was your childhood nickname?" },
+  ];
 
-    // Handle file uploads
-    function handleFileUpload(event: Event, type: "profilePicture" | "banner"): void {
-        const target = event.target as HTMLInputElement;
-        const file = target.files?.[0];
-        if (!file) return;
-
-        // Validate file type
-        const validTypes: string[] = ["image/jpeg", "image/png", "image/gif"];
-        if (!validTypes.includes(file.type)) {
-            state.errors[type] = "Please upload a valid image file (JPEG, PNG, or GIF)";
-            return;
-        }
-
-        // Validate file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            state.errors[type] = "File size should not exceed 5MB";
-            return;
-        }
-
-        // Clear previous error
-        state.errors[type] = "";
-
-        // Set file and create preview
-        state.formData[type] = file;
-        const reader = new FileReader();
-        reader.onload = (e: ProgressEvent<FileReader>) => {
-            if (e.target?.result) {
-                state.formData[`${type}Preview`] = e.target.result as string;
-            }
-        };
-        reader.readAsDataURL(file);
-    }
-
-    // Upload images to Supabase and get URLs
-    // Upload images to Supabase and get URLs
-    async function uploadImagesToSupabase(): Promise<boolean> {
-        state.uploadingImages = true;
-
-        try {
-            // Upload profile picture if exists
-            if (state.formData.profilePicture) {
-                const profileUrl = await uploadProfilePicture(state.formData.profilePicture);
-
-                if (!profileUrl) {
-                    state.errors.profilePicture = "Failed to upload profile picture";
-                    state.uploadingImages = false;
-                    return false;
-                }
-
-                state.profilePictureUrl = profileUrl;
-            }
-
-            // Upload banner if exists
-            if (state.formData.banner) {
-                const bannerUrl = await uploadBannerImage(state.formData.banner);
-
-                if (!bannerUrl) {
-                    state.errors.banner = "Failed to upload banner image";
-                    state.uploadingImages = false;
-                    return false;
-                }
-
-                state.bannerUrl = bannerUrl;
-            }
-
-            state.uploadingImages = false;
-            return true;
-        } catch (error) {
-            // console.error("Error uploading images:", error);
-            state.errors.general = "Error uploading images. Please try again.";
-            state.uploadingImages = false;
-            return false;
-        }
-    }
-
-    // Prepare data for API submission
-    function prepareApiData(): ApiFormData {
-        // Format date of birth
-        const dob = `${state.formData.birthYear}-${state.formData.birthMonth}-${state.formData.birthDay}`;
-
-        return {
-            name: state.formData.name,
-            username: state.formData.username,
-            email: state.formData.email,
-            password: state.formData.password,
-            gender: state.formData.gender,
-            profilePicture: state.profilePictureUrl || "",
-            banner: state.bannerUrl || "",
-            dateOfBirth: dob,
-            isSubscribed: state.formData.subscribeToNewsletter,
-            securityQuestion: state.formData.securityQuestion,
-            securityAnswer: state.formData.securityAnswer
-        };
-    }
-
-    // Handle step 1 submission
-    async function handleStep1Submit(): Promise<void> {
-        state.isLoading = true;
-        state.errors.general = "";
-
-        // Validate using external functions
-        state.errors.name = validateName(state.formData);
-        state.errors.username = await validateUsername(state.formData);
-        state.errors.email = await validateEmail(state.formData);
-        const pwdRes = validatePassword(state.formData);
-        state.errors.password = pwdRes.error;
-        state.passwordValidations = pwdRes.validations;
-        state.errors.confirmPassword = validateConfirmPassword(state.formData);
-        state.errors.gender = validateGender(state.formData);
-        state.errors.profilePicture = validateProfilePicture(state.formData);
-        state.errors.banner = validateBanner(state.formData);
-        state.errors.dateOfBirth = validateDateOfBirth(state.formData);
-        const sec = validateSecurityQuestion(state.formData);
-        state.errors.securityQuestion = sec.question;
-        state.errors.securityAnswer = sec.answer;
-
-        const stepValid =
-            !state.errors.name &&
-            !state.errors.username &&
-            !state.errors.email &&
-            !state.errors.password &&
-            !state.errors.confirmPassword &&
-            !state.errors.gender &&
-            !state.errors.profilePicture &&
-            !state.errors.banner &&
-            !state.errors.dateOfBirth &&
-            !state.errors.securityQuestion &&
-            !state.errors.securityAnswer &&
-            state.recaptchaVerified;
-
-        if (stepValid) {
-            // Upload images to Supabase
-            const uploadSuccess = await uploadImagesToSupabase();
-
-            if (uploadSuccess) {
-                await sendVerificationCode();
-                state.currentStep = 2;
-            }
-        }
-        state.isLoading = false;
-    }
-
-    async function sendVerificationCode(): Promise<void> {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                state.verificationCodeSent = true;
-                state.verificationCodeExpiry = new Date(new Date().getTime() + 5 * 60000);
-                startResendCountdown();
-                resolve();
-            }, 1000);
-        });
-    }
-
-    function startResendCountdown(): void {
-        state.resendDisabled = true;
-        state.resendCountdown = 60;
-        const interval = setInterval(() => {
-            state.resendCountdown--;
-            if (state.resendCountdown <= 0) {
-                clearInterval(interval);
-                state.resendDisabled = false;
-            }
-        }, 1000);
-    }
-
-    async function handleResendCode(): Promise<void> {
-        if (state.resendDisabled) return;
-        state.isLoading = true;
-        try {
-            await sendVerificationCode();
-        } catch (error) {
-            state.errors.general = "Failed to resend verification code. Please try again.";
-        } finally {
-            state.isLoading = false;
-        }
-    }
-
-    async function handleStep2Submit(): Promise<void> {
-        state.isLoading = true;
-        state.errors.general = "";
-        state.errors.verificationCode = validateVerificationCode(state.formData);
-        if (!state.errors.verificationCode) {
-            const isVerified = await verifyCode();
-            if (isVerified) {
-                await completeRegistration();
-                navigate("/login");
-            } else {
-                state.errors.verificationCode = "Invalid verification code";
-            }
-        }
-        state.isLoading = false;
-    }
-
-    async function verifyCode(): Promise<boolean> {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                resolve(state.formData.verificationCode === "12345");
-            }, 1000);
-        });
-    }
-
-    async function completeRegistration(): Promise<void> {
-        try {
-            // Prepare the data for API submission
-            const apiData = prepareApiData();
-
-            // Send the data to your API
-            const response = await fetch("http://localhost:8080/api/auth/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(apiData)
-            });
-
-            if (!response.ok) {
-                throw new Error(`Registration failed: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            console.log("Registration completed with data:", data);
-
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    resolve();
-                }, 1000);
-            });
-        } catch (error) {
-            // console.error("Registration error:", error);
-            state.errors.general = "Registration failed. Please try again.";
-            throw error;
-        }
-    }
-
-    function handleGoogleAuth(): void {
-      console.log("Google authentication initiated");
-    }
-
-    type captcha = {
-        image: string;
-        answer: string;
-      }
-    async function onRecaptchaVerify() {
-      const res = await fetch("http://localhost:8080/captcha", {
-        method: "GET"
+  const state = $state({
+    currentStep: 1,
+    isLoading: false,
+    uploadingImages: false,
+    verificationCodeSent: false,
+    verificationCodeExpiry: null as Date | null,
+    resendDisabled: false,
+    resendCountdown: 0,
+    recaptchaVerified: false,
+    formData: {
+      name: "",
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      gender: "",
+      profilePicture: null as File | null,
+      profilePicturePreview: "",
+      banner: null as File | null,
+      bannerPreview: "",
+      birthDay: "",
+      birthMonth: "",
+      birthYear: "",
+      securityQuestion: "",
+      securityAnswer: "",
+      subscribeToNewsletter: false,
+      verificationCode: "",
+    } as FormData,
+    // Store the Supabase URLs separately
+    profilePictureUrl: "",
+    bannerUrl: "",
+    errors: {
+      name: "",
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      gender: "",
+      profilePicture: "",
+      banner: "",
+      dateOfBirth: "",
+      securityQuestion: "",
+      securityAnswer: "",
+      verificationCode: "",
+      general: "",
+    } as ErrorMessages,
+    passwordValidations: {
+      length: false,
+      uppercase: false,
+      lowercase: false,
+      number: false,
+    } as PasswordValidations,
+    months: [
+      { value: "01", text: "January" },
+      { value: "02", text: "February" },
+      { value: "03", text: "March" },
+      { value: "04", text: "April" },
+      { value: "05", text: "May" },
+      { value: "06", text: "June" },
+      { value: "07", text: "July" },
+      { value: "08", text: "August" },
+      { value: "09", text: "September" },
+      { value: "10", text: "October" },
+      { value: "11", text: "November" },
+      { value: "12", text: "December" },
+    ] as MonthOption[],
+    days: Array.from({ length: 31 }, (_, i) => {
+      const d = (i + 1).toString().padStart(2, "0");
+      return { value: d, text: d };
+    }) as DayOption[],
+    years: (() => {
+      const currentYear = new Date().getFullYear();
+      return Array.from({ length: 100 }, (_, i) => {
+        const year = (currentYear - i).toString();
+        return { value: year, text: year };
       });
+    })() as YearOption[],
+    captchaImg: "",
+    captchaAnswer: "",
+  });
 
-      const data: captcha = await res.json();
-      console.log(data);
-      state.captchaImg = data.image;
-      state.captchaAnswer = data.answer;
+  // Handle file uploads
+  function handleFileUpload(
+    event: Event,
+    type: "profilePicture" | "banner"
+  ): void {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+    if (!file) return;
 
-      state.recaptchaVerified = true;
+    // Validate file type
+    const validTypes: string[] = ["image/jpeg", "image/png", "image/gif"];
+    if (!validTypes.includes(file.type)) {
+      state.errors[type] =
+        "Please upload a valid image file (JPEG, PNG, or GIF)";
+      return;
     }
 
-    onMount(() => {
-        console.log("Component mounted, reCAPTCHA would be initialized here");
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      state.errors[type] = "File size should not exceed 5MB";
+      return;
+    }
+
+    // Clear previous error
+    state.errors[type] = "";
+
+    // Set file and create preview
+    state.formData[type] = file;
+    const reader = new FileReader();
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      if (e.target?.result) {
+        state.formData[`${type}Preview`] = e.target.result as string;
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Upload images to Supabase and get URLs
+  // Upload images to Supabase and get URLs
+  async function uploadImagesToSupabase(): Promise<boolean> {
+    state.uploadingImages = true;
+
+    try {
+      // Upload profile picture if exists
+      if (state.formData.profilePicture) {
+        const profileUrl = await uploadProfilePicture(
+          state.formData.profilePicture
+        );
+
+        if (!profileUrl) {
+          state.errors.profilePicture = "Failed to upload profile picture";
+          state.uploadingImages = false;
+          return false;
+        }
+
+        state.profilePictureUrl = profileUrl;
+      }
+
+      // Upload banner if exists
+      if (state.formData.banner) {
+        const bannerUrl = await uploadBannerImage(state.formData.banner);
+
+        if (!bannerUrl) {
+          state.errors.banner = "Failed to upload banner image";
+          state.uploadingImages = false;
+          return false;
+        }
+
+        state.bannerUrl = bannerUrl;
+      }
+
+      state.uploadingImages = false;
+      return true;
+    } catch (error) {
+      // console.error("Error uploading images:", error);
+      state.errors.general = "Error uploading images. Please try again.";
+      state.uploadingImages = false;
+      return false;
+    }
+  }
+
+  // Prepare data for API submission
+  function prepareApiData(): ApiFormData {
+    // Format date of birth
+    const dob = `${state.formData.birthYear}-${state.formData.birthMonth}-${state.formData.birthDay}`;
+
+    return {
+      name: state.formData.name,
+      username: state.formData.username,
+      email: state.formData.email,
+      password: state.formData.password,
+      gender: state.formData.gender,
+      profilePicture: state.profilePictureUrl || "",
+      banner: state.bannerUrl || "",
+      dateOfBirth: dob,
+      securityQuestion:
+        securityQuestions.find(
+          (q) => q.id.toString() === state.formData.securityQuestion
+        )?.text || "",
+      securityAnswer: state.formData.securityAnswer,
+      isSubscribed: state.formData.subscribeToNewsletter,
+    };
+  }
+
+  // Handle step 1 submission
+  async function handleStep1Submit(): Promise<void> {
+    state.isLoading = true;
+    state.errors.general = "";
+
+    // Validate using external functions
+    state.errors.name = validateName(state.formData);
+    state.errors.username = await validateUsername(state.formData);
+    state.errors.email = await validateEmail(state.formData);
+    const pwdRes = validatePassword(state.formData);
+    state.errors.password = pwdRes.error;
+    state.passwordValidations = pwdRes.validations;
+    state.errors.confirmPassword = validateConfirmPassword(state.formData);
+    state.errors.gender = validateGender(state.formData);
+    state.errors.profilePicture = validateProfilePicture(state.formData);
+    state.errors.banner = validateBanner(state.formData);
+    state.errors.dateOfBirth = validateDateOfBirth(state.formData);
+    const sec = validateSecurityQuestion(state.formData);
+    state.errors.securityQuestion = sec.question;
+    state.errors.securityAnswer = sec.answer;
+
+    const stepValid =
+      !state.errors.name &&
+      !state.errors.username &&
+      !state.errors.email &&
+      !state.errors.password &&
+      !state.errors.confirmPassword &&
+      !state.errors.gender &&
+      !state.errors.profilePicture &&
+      !state.errors.banner &&
+      !state.errors.dateOfBirth &&
+      !state.errors.securityQuestion &&
+      !state.errors.securityAnswer &&
+      state.recaptchaVerified;
+
+    if (stepValid) {
+      // Upload images to Supabase
+      const uploadSuccess = await uploadImagesToSupabase();
+
+      if (uploadSuccess) {
+        await sendVerificationCode();
+        state.currentStep = 2;
+      }
+    }
+    state.isLoading = false;
+  }
+
+  async function sendVerificationCode(): Promise<void> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        state.verificationCodeSent = true;
+        state.verificationCodeExpiry = new Date(
+          new Date().getTime() + 5 * 60000
+        );
+        startResendCountdown();
+        resolve();
+      }, 1000);
     });
+  }
 
-    function goBackToStep1(): void {
-        state.currentStep = 1;
+  function startResendCountdown(): void {
+    state.resendDisabled = true;
+    state.resendCountdown = 60;
+    const interval = setInterval(() => {
+      state.resendCountdown--;
+      if (state.resendCountdown <= 0) {
+        clearInterval(interval);
+        state.resendDisabled = false;
+      }
+    }, 1000);
+  }
+
+  async function handleResendCode(): Promise<void> {
+    if (state.resendDisabled) return;
+    state.isLoading = true;
+    try {
+      await sendVerificationCode();
+    } catch (error) {
+      state.errors.general =
+        "Failed to resend verification code. Please try again.";
+    } finally {
+      state.isLoading = false;
     }
+  }
 
-    function goToLandingPage(): void {
-        navigate("/");
+  async function handleStep2Submit(): Promise<void> {
+    state.isLoading = true;
+    state.errors.general = "";
+    state.errors.verificationCode = validateVerificationCode(state.formData);
+    if (!state.errors.verificationCode) {
+      const isVerified = await verifyCode();
+      if (isVerified) {
+        await completeRegistration();
+        navigate("/login");
+      } else {
+        state.errors.verificationCode = "Invalid verification code";
+      }
     }
+    state.isLoading = false;
+  }
 
-    // Testing API endpoint with the new data structure
-    async function register() {
-      // First upload images to Supabase
-      await uploadImagesToSupabase();
+  async function verifyCode(): Promise<boolean> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(state.formData.verificationCode === "12345");
+      }, 1000);
+    });
+  }
 
-      // Then prepare the API data
+  async function completeRegistration(): Promise<void> {
+    try {
+      // Prepare the data for API submission
       const apiData = prepareApiData();
-      console.log(JSON.stringify(apiData));
 
-      // Send the request
-      const res = await fetch("http://localhost:8080/api/auth/register", {
+      // Send the data to your API
+      const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(apiData)
+        body: JSON.stringify(apiData),
       });
 
-      const data = await res.json();
-      console.log(data);
+      if (!response.ok) {
+        throw new Error(`Registration failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("Registration completed with data:", data);
+
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 1000);
+      });
+    } catch (error) {
+      // console.error("Registration error:", error);
+      state.errors.general = "Registration failed. Please try again.";
+      throw error;
     }
+  }
+
+  function handleGoogleAuth(): void {
+    console.log("Google authentication initiated");
+  }
+
+  type captcha = {
+    image: string;
+    answer: string;
+  };
+  async function onRecaptchaVerify() {
+    const res = await fetch("http://localhost:8080/captcha", {
+      method: "GET",
+    });
+
+    const data: captcha = await res.json();
+    console.log(data);
+    state.captchaImg = data.image;
+    state.captchaAnswer = data.answer;
+
+    state.recaptchaVerified = true;
+  }
+
+  onMount(() => {
+    console.log("Component mounted, reCAPTCHA would be initialized here");
+  });
+
+  function goBackToStep1(): void {
+    state.currentStep = 1;
+  }
+
+  function goToLandingPage(): void {
+    navigate("/");
+  }
+
+  // Testing API endpoint with the new data structure
+  async function register() {
+    // First upload images to Supabase
+    await uploadImagesToSupabase();
+
+    // Then prepare the API data
+    const apiData = prepareApiData();
+    console.log(JSON.stringify(apiData));
+
+    // Send the request
+    const res = await fetch("http://localhost:8080/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(apiData),
+    });
+
+    const data = await res.json();
+    console.log(data);
+  }
 </script>
 
 <main class="register-page">
   <div class="register-container">
     <div class="register-header">
-      <button class="close-button" type="button" onclick={goToLandingPage}>×</button>
+      <button class="close-button" type="button" onclick={goToLandingPage}
+        >×</button
+      >
       <div class="logo">AY</div>
     </div>
 
     {#if state.currentStep === 1}
       <div class="register-content">
         <h1>Create your account</h1>
-        <button class="google-auth-button" type="button" onclick={handleGoogleAuth}>
+        <button
+          class="google-auth-button"
+          type="button"
+          onclick={handleGoogleAuth}
+        >
           <span class="google-icon">G</span>
           Sign up with Google
         </button>
@@ -446,7 +468,7 @@
             placeholder="Your full name"
             bind:value={state.formData.name}
             error={state.errors.name}
-            onBlur={() => state.errors.name = validateName(state.formData)}
+            onBlur={() => (state.errors.name = validateName(state.formData))}
             maxlength={50}
             showCharCount={true}
           />
@@ -457,7 +479,8 @@
             placeholder="@username"
             bind:value={state.formData.username}
             error={state.errors.username}
-            onBlur={async () => state.errors.username = await validateUsername(state.formData)}
+            onBlur={async () =>
+              (state.errors.username = await validateUsername(state.formData))}
           />
           <FormInput
             id="email"
@@ -466,7 +489,8 @@
             placeholder="email@example.com"
             bind:value={state.formData.email}
             error={state.errors.email}
-            onBlur={async () => state.errors.email = await validateEmail(state.formData)}
+            onBlur={async () =>
+              (state.errors.email = await validateEmail(state.formData))}
           />
           <PasswordInput
             id="password"
@@ -488,7 +512,10 @@
               type="password"
               id="confirmPassword"
               bind:value={state.formData.confirmPassword}
-              onblur={() => state.errors.confirmPassword = validateConfirmPassword(state.formData)}
+              onblur={() =>
+                (state.errors.confirmPassword = validateConfirmPassword(
+                  state.formData
+                ))}
               class:error={state.errors.confirmPassword}
               placeholder="Confirm your password"
             />
@@ -505,7 +532,8 @@
                   name="gender"
                   value="male"
                   bind:group={state.formData.gender}
-                  onchange={() => state.errors.gender = validateGender(state.formData)}
+                  onchange={() =>
+                    (state.errors.gender = validateGender(state.formData))}
                 />
                 Male
               </label>
@@ -515,7 +543,8 @@
                   name="gender"
                   value="female"
                   bind:group={state.formData.gender}
-                  onchange={() => state.errors.gender = validateGender(state.formData)}
+                  onchange={() =>
+                    (state.errors.gender = validateGender(state.formData))}
                 />
                 Female
               </label>
@@ -527,7 +556,9 @@
           <FileUpload
             id="profilePicture"
             label="Profile Picture"
-            fileName={state.formData.profilePicture ? (state.formData.profilePicture as File).name : "Choose file"}
+            fileName={state.formData.profilePicture
+              ? (state.formData.profilePicture as File).name
+              : "Choose file"}
             previewUrl={state.formData.profilePicturePreview}
             error={state.errors.profilePicture}
             onFileChange={(e) => handleFileUpload(e, "profilePicture")}
@@ -535,7 +566,9 @@
           <FileUpload
             id="banner"
             label="Banner Image"
-            fileName={state.formData.banner ? (state.formData.banner as File).name : "Choose file"}
+            fileName={state.formData.banner
+              ? (state.formData.banner as File).name
+              : "Choose file"}
             previewUrl={state.formData.bannerPreview}
             error={state.errors.banner}
             isBanner={true}
@@ -548,7 +581,13 @@
             </p>
             <div class="dob-selects">
               <div class="select-wrapper">
-                <select bind:value={state.formData.birthMonth} onchange={() => state.errors.dateOfBirth = validateDateOfBirth(state.formData)}>
+                <select
+                  bind:value={state.formData.birthMonth}
+                  onchange={() =>
+                    (state.errors.dateOfBirth = validateDateOfBirth(
+                      state.formData
+                    ))}
+                >
                   <option value="" disabled selected>Month</option>
                   {#each state.months as month (month.value)}
                     <option value={month.value}>{month.text}</option>
@@ -556,7 +595,13 @@
                 </select>
               </div>
               <div class="select-wrapper">
-                <select bind:value={state.formData.birthDay} onchange={() => state.errors.dateOfBirth = validateDateOfBirth(state.formData)}>
+                <select
+                  bind:value={state.formData.birthDay}
+                  onchange={() =>
+                    (state.errors.dateOfBirth = validateDateOfBirth(
+                      state.formData
+                    ))}
+                >
                   <option value="" disabled selected>Day</option>
                   {#each state.days as day (day.value)}
                     <option value={day.value}>{day.text}</option>
@@ -564,7 +609,13 @@
                 </select>
               </div>
               <div class="select-wrapper">
-                <select bind:value={state.formData.birthYear} onchange={() => state.errors.dateOfBirth = validateDateOfBirth(state.formData)}>
+                <select
+                  bind:value={state.formData.birthYear}
+                  onchange={() =>
+                    (state.errors.dateOfBirth = validateDateOfBirth(
+                      state.formData
+                    ))}
+                >
                   <option value="" disabled selected>Year</option>
                   {#each state.years as year (year.value)}
                     <option value={year.value}>{year.text}</option>
@@ -588,9 +639,11 @@
                   state.errors.securityAnswer = sec.answer;
                 }}
               >
-                <option value="" disabled selected>Select a security question</option>
-                {#each state.securityQuestions as question (question.id)}
-                  <option value={question.id}>{question.text}</option>
+                <option value="" disabled selected
+                  >Select a security question</option
+                >
+                {#each securityQuestions as question (question.id)}
+                  <option value={question.id.toString()}>{question.text}</option>
                 {/each}
               </select>
             </div>
@@ -614,26 +667,42 @@
           {/if}
           <div class="form-group checkbox-group">
             <label class="checkbox-label">
-              <input type="checkbox" bind:checked={state.formData.subscribeToNewsletter} />
+              <input
+                type="checkbox"
+                bind:checked={state.formData.subscribeToNewsletter}
+              />
               Subscribe to newsletter
             </label>
           </div>
           <div class="form-group recaptcha">
             <div id="recaptcha-container">
-              <img src={state.captchaImg} alt="">
-              <button type="button" class="recaptcha-button" onclick={onRecaptchaVerify}>
-                {state.recaptchaVerified ? "✓ Verified" : "Click to verify reCAPTCHA"}
+              <img src={state.captchaImg} alt="" />
+              <button
+                type="button"
+                class="recaptcha-button"
+                onclick={onRecaptchaVerify}
+              >
+                {state.recaptchaVerified
+                  ? "✓ Verified"
+                  : "Click to verify reCAPTCHA"}
               </button>
             </div>
             {#if !state.recaptchaVerified}
-              <p class="recaptcha-info">Please verify that you're not a robot</p>
+              <p class="recaptcha-info">
+                Please verify that you're not a robot
+              </p>
             {/if}
           </div>
           {#if state.errors.general}
             <p class="error-message general-error">{state.errors.general}</p>
           {/if}
           <div class="form-actions">
-            <Button text="Next" type="button" disabled={state.isLoading} onClick={register} />
+            <Button
+              text="Next"
+              type="button"
+              disabled={state.isLoading}
+              onClick={register}
+            />
           </div>
         </form>
       </div>
@@ -650,7 +719,10 @@
               type="text"
               id="verificationCode"
               bind:value={state.formData.verificationCode}
-              oninput={() => state.errors.verificationCode = validateVerificationCode(state.formData)}
+              oninput={() =>
+                (state.errors.verificationCode = validateVerificationCode(
+                  state.formData
+                ))}
               class:error={state.errors.verificationCode}
               placeholder="Enter 5 digit code"
               maxlength="5"
@@ -661,16 +733,31 @@
             {/if}
           </div>
           <div class="resend-code">
-            <button type="button" class="text-button" onclick={handleResendCode} disabled={state.resendDisabled}>
-              {state.resendDisabled ? `Resend code in ${state.resendCountdown}s` : "Didn't receive a code?"}
+            <button
+              type="button"
+              class="text-button"
+              onclick={handleResendCode}
+              disabled={state.resendDisabled}
+            >
+              {state.resendDisabled
+                ? `Resend code in ${state.resendCountdown}s`
+                : "Didn't receive a code?"}
             </button>
           </div>
           {#if state.errors.general}
             <p class="error-message general-error">{state.errors.general}</p>
           {/if}
           <div class="form-actions">
-            <button type="button" class="secondary-button" onclick={goBackToStep1}>Back</button>
-            <button type="submit" class="primary-button" disabled={state.isLoading}>
+            <button
+              type="button"
+              class="secondary-button"
+              onclick={goBackToStep1}>Back</button
+            >
+            <button
+              type="submit"
+              class="primary-button"
+              disabled={state.isLoading}
+            >
               {state.isLoading ? "Verifying..." : "Next"}
             </button>
           </div>
@@ -681,7 +768,8 @@
 </main>
 
 <style>
-  :global(html), :global(body) {
+  :global(html),
+  :global(body) {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
@@ -698,7 +786,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+      Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
     padding: 20px;
   }
 

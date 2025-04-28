@@ -54,20 +54,22 @@ func (h *AuthHandler) Register(ctx context.Context, req *authpb.AuthRegisterRequ
 
 	// Call User Service to create user
 	createResp, err := h.userClient.Register(ctx, &userpb.RegisterRequest{
-		Name:           req.Name,
-		Username:       req.Username,
-		Email:          req.Email,
-		Password:       hashedPassword,
-		Gender:         req.Gender,
-		ProfilePicture: req.ProfilePicture,
-		Banner:         req.Banner,
-		DateOfBirth:    req.DateOfBirth,
-		IsActive:       req.IsActive,
-		IsBanned:       req.IsBanned,
-		Role:           req.Role,
-		IsSubscribed: 	req.IsSubscribed,
-		IsPremium: 		req.IsPremium,
-		Bio: 			req.Bio,
+		Name:           	req.Name,
+		Username:       	req.Username,
+		Email:          	req.Email,
+		Password:       	hashedPassword,
+		Gender:         	req.Gender,
+		ProfilePicture: 	req.ProfilePicture,
+		Banner:         	req.Banner,
+		DateOfBirth:    	req.DateOfBirth,
+		IsActive:       	req.IsActive,
+		IsBanned:       	req.IsBanned,
+		Role:           	req.Role,
+		SecurityQuestion: 	req.SecurityQuestion,
+		SecurityAnswer: 	req.SecurityAnswer,
+		IsSubscribed: 		req.IsSubscribed,
+		IsPremium: 			req.IsPremium,
+		Bio: 				req.Bio,
 	})
 	if err != nil {
 		return nil, status.Error(codes.Unauthenticated, "Failed to create user")

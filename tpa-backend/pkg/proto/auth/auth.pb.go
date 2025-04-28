@@ -134,24 +134,26 @@ func (x *AuthLoginResponse) GetUser() *AuthUser {
 }
 
 type AuthRegisterRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Name           string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Username       string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
-	Email          string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
-	Password       string                 `protobuf:"bytes,4,opt,name=password,proto3" json:"password,omitempty"`
-	Gender         string                 `protobuf:"bytes,5,opt,name=gender,proto3" json:"gender,omitempty"`
-	ProfilePicture string                 `protobuf:"bytes,6,opt,name=profile_picture,json=profilePicture,proto3" json:"profile_picture,omitempty"`
-	Banner         string                 `protobuf:"bytes,7,opt,name=banner,proto3" json:"banner,omitempty"`
-	DateOfBirth    string                 `protobuf:"bytes,8,opt,name=date_of_birth,json=dateOfBirth,proto3" json:"date_of_birth,omitempty"`
-	IsActive       bool                   `protobuf:"varint,9,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
-	IsBanned       bool                   `protobuf:"varint,10,opt,name=is_banned,json=isBanned,proto3" json:"is_banned,omitempty"`
-	Role           string                 `protobuf:"bytes,11,opt,name=role,proto3" json:"role,omitempty"`
-	IsSubscribed   bool                   `protobuf:"varint,12,opt,name=is_subscribed,json=isSubscribed,proto3" json:"is_subscribed,omitempty"`
-	IsPremium      bool                   `protobuf:"varint,13,opt,name=is_premium,json=isPremium,proto3" json:"is_premium,omitempty"`
-	Bio            string                 `protobuf:"bytes,14,opt,name=bio,proto3" json:"bio,omitempty"`
-	CreatedAt      string                 `protobuf:"bytes,15,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Name             string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Username         string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Email            string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	Password         string                 `protobuf:"bytes,4,opt,name=password,proto3" json:"password,omitempty"`
+	Gender           string                 `protobuf:"bytes,5,opt,name=gender,proto3" json:"gender,omitempty"`
+	ProfilePicture   string                 `protobuf:"bytes,6,opt,name=profile_picture,json=profilePicture,proto3" json:"profile_picture,omitempty"`
+	Banner           string                 `protobuf:"bytes,7,opt,name=banner,proto3" json:"banner,omitempty"`
+	DateOfBirth      string                 `protobuf:"bytes,8,opt,name=date_of_birth,json=dateOfBirth,proto3" json:"date_of_birth,omitempty"`
+	IsActive         bool                   `protobuf:"varint,9,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
+	IsBanned         bool                   `protobuf:"varint,10,opt,name=is_banned,json=isBanned,proto3" json:"is_banned,omitempty"`
+	Role             string                 `protobuf:"bytes,11,opt,name=role,proto3" json:"role,omitempty"`
+	IsSubscribed     bool                   `protobuf:"varint,12,opt,name=is_subscribed,json=isSubscribed,proto3" json:"is_subscribed,omitempty"`
+	SecurityQuestion string                 `protobuf:"bytes,13,opt,name=security_question,json=securityQuestion,proto3" json:"security_question,omitempty"`
+	SecurityAnswer   string                 `protobuf:"bytes,14,opt,name=security_answer,json=securityAnswer,proto3" json:"security_answer,omitempty"`
+	IsPremium        bool                   `protobuf:"varint,15,opt,name=is_premium,json=isPremium,proto3" json:"is_premium,omitempty"`
+	Bio              string                 `protobuf:"bytes,16,opt,name=bio,proto3" json:"bio,omitempty"`
+	CreatedAt        string                 `protobuf:"bytes,17,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *AuthRegisterRequest) Reset() {
@@ -266,6 +268,20 @@ func (x *AuthRegisterRequest) GetIsSubscribed() bool {
 		return x.IsSubscribed
 	}
 	return false
+}
+
+func (x *AuthRegisterRequest) GetSecurityQuestion() string {
+	if x != nil {
+		return x.SecurityQuestion
+	}
+	return ""
+}
+
+func (x *AuthRegisterRequest) GetSecurityAnswer() string {
+	if x != nil {
+		return x.SecurityAnswer
+	}
+	return ""
 }
 
 func (x *AuthRegisterRequest) GetIsPremium() bool {
@@ -737,7 +753,7 @@ const file_auth_proto_rawDesc = "" +
 	"\x11AuthLoginResponse\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x12\"\n" +
-	"\x04user\x18\x03 \x01(\v2\x0e.user.AuthUserR\x04user\"\xb7\x03\n" +
+	"\x04user\x18\x03 \x01(\v2\x0e.user.AuthUserR\x04user\"\x8d\x04\n" +
 	"\x13AuthRegisterRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
@@ -751,12 +767,14 @@ const file_auth_proto_rawDesc = "" +
 	"\tis_banned\x18\n" +
 	" \x01(\bR\bisBanned\x12\x12\n" +
 	"\x04role\x18\v \x01(\tR\x04role\x12#\n" +
-	"\ris_subscribed\x18\f \x01(\bR\fisSubscribed\x12\x1d\n" +
+	"\ris_subscribed\x18\f \x01(\bR\fisSubscribed\x12+\n" +
+	"\x11security_question\x18\r \x01(\tR\x10securityQuestion\x12'\n" +
+	"\x0fsecurity_answer\x18\x0e \x01(\tR\x0esecurityAnswer\x12\x1d\n" +
 	"\n" +
-	"is_premium\x18\r \x01(\bR\tisPremium\x12\x10\n" +
-	"\x03bio\x18\x0e \x01(\tR\x03bio\x12\x1d\n" +
+	"is_premium\x18\x0f \x01(\bR\tisPremium\x12\x10\n" +
+	"\x03bio\x18\x10 \x01(\tR\x03bio\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\x0f \x01(\tR\tcreatedAt\":\n" +
+	"created_at\x18\x11 \x01(\tR\tcreatedAt\":\n" +
 	"\x14AuthRegisterResponse\x12\"\n" +
 	"\x04user\x18\x01 \x01(\v2\x0e.user.AuthUserR\x04user\"(\n" +
 	"\x10CheckAuthRequest\x12\x14\n" +

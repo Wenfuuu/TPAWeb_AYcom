@@ -74,6 +74,17 @@ func (h *UserHandler) Register(ctx context.Context, req *userpb.RegisterRequest)
 		return nil, status.Error(codes.Internal, "Failed to create user")
 	}
 
+	log.Printf(req.SecurityQuestion)
+	securityQuestion := model.SecurityQuestion{
+		UserID:   user.ID,
+		Question: req.SecurityQuestion, 
+		Answer:   req.SecurityAnswer,   
+	}
+
+	if err := h.userRepo.CreateSecurityQuestion(&securityQuestion); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to save security question")
+	}
+
 	return h.userToResponse(&user), nil
 }
 
@@ -212,7 +223,6 @@ func (h *UserHandler) UploadImage(ctx context.Context, req *userpb.UploadImageRe
 
 	fileExt := strings.ToLower(filepath.Ext(req.Filename))
     
-    // Determine content type based on file extension
     contentType := "application/octet-stream" // default
     switch fileExt {
     case ".png":

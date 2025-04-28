@@ -36,9 +36,11 @@ message AuthRegisterRequest {
   bool is_banned = 10;
   string role = 11;
   bool is_subscribed = 12;
-  bool is_premium = 13;
-  string bio = 14;
-  string created_at = 15;
+  string security_question = 13;
+  string security_answer = 14;
+  bool is_premium = 15;
+  string bio = 16;
+  string created_at = 17;
 }
 
 message AuthRegisterResponse {

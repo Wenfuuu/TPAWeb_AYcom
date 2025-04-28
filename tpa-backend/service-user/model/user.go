@@ -38,8 +38,8 @@ type SecurityQuestion struct {
 	ID       uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	UserID   uuid.UUID `gorm:"type:uuid;not null" json:"userId"`
 	User     User      `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
-	Question string    `json:"question"`
-	Answer   string    `json:"answer"`
+	Question string    `json:"securityQuestion"`
+	Answer   string    `json:"securityAnswer"`
 }
 
 // BeforeCreate hook will be called automatically by GORM

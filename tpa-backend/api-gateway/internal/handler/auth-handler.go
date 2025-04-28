@@ -28,6 +28,9 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		ProfilePicture 		string `json:"profilePicture" binding:"required"`
 		Banner 				string `json:"banner" binding:"required"`
 		DateOfBirth 		string `json:"dateOfBirth" binding:"required"`
+		SecurityQuestion 	string `json:"securityQuestion" binding:"required"`
+		SecurityAnswer 		string `json:"securityAnswer" binding:"required"`
+		IsSubscribed 		bool `json:"isSubscribed" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&requestBody); err != nil {
@@ -36,14 +39,17 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	}
 
 	resp, err := h.Client.Register(context.Background(), &authpb.AuthRegisterRequest{
-		Name:           requestBody.Name,
-		Username:       requestBody.Username,
-		Email:          requestBody.Email,
-		Password:       requestBody.Password,
-		Gender:         requestBody.Gender,
-		ProfilePicture: requestBody.ProfilePicture,
-		Banner:         requestBody.Banner,
-		DateOfBirth:    requestBody.DateOfBirth,
+		Name:           	requestBody.Name,
+		Username:       	requestBody.Username,
+		Email:          	requestBody.Email,
+		Password:       	requestBody.Password,
+		Gender:         	requestBody.Gender,
+		ProfilePicture: 	requestBody.ProfilePicture,
+		Banner:         	requestBody.Banner,
+		DateOfBirth:    	requestBody.DateOfBirth,
+		SecurityQuestion: 	requestBody.SecurityQuestion,
+		SecurityAnswer: 	requestBody.SecurityAnswer,
+		IsSubscribed: 		requestBody.IsSubscribed,
 	})
 
 	if err != nil {

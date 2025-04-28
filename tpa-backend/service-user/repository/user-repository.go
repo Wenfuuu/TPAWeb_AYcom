@@ -43,6 +43,10 @@ func (r *UserRepository) FindByID(id string) (*model.User, error) {
 	return &user, nil
 }
 
+func (r *UserRepository) CreateSecurityQuestion(securityQuestion *model.SecurityQuestion) error {
+	return r.DB.Create(securityQuestion).Error
+}
+
 func (r *UserRepository) Create(user *model.User) error {
 	return r.DB.Create(user).Error
 }
