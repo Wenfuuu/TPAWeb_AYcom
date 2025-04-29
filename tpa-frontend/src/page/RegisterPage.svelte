@@ -28,7 +28,6 @@
     type FormData,
     type ErrorMessages,
     type PasswordValidations,
-    type SecurityQuestion,
     type MonthOption,
     type DayOption,
     type YearOption,
@@ -286,7 +285,7 @@
     if (stepValid) {
       console.log("heading to next step");
 
-      await sendVerificationCode()
+      await sendVerificationCode();
 
       state.currentStep = 2;
     }
@@ -294,15 +293,15 @@
   }
 
   async function sendVerificationCode(): Promise<void> {
-    let apiData = {
+    const apiData = {
       email: state.formData.email
-    }
+    };
 
     const res = await fetch("http://localhost:8080/api/auth/send-code", {
       method: "POST",
       body: JSON.stringify(apiData)
     });
-    startResendCountdown()
+    if(res.ok) startResendCountdown();
   }
 
   function startResendCountdown(): void {
@@ -320,7 +319,7 @@
   async function handleResendCode(): Promise<void> {
     if (state.resendDisabled) return;
     state.isLoading = true;
-    
+
     try {
       await sendVerificationCode();
     } catch (error) {
@@ -336,7 +335,7 @@
     state.errors.verificationCode = validateVerificationCode(state.formData);
     if (!state.errors.verificationCode) {
       const isVerified = await verifyCode();
-      console.log("code verify: " + isVerified)
+      console.log("code verify: " + isVerified);
       if (isVerified) {
         await register();
         navigate("/login");
@@ -347,7 +346,7 @@
   }
 
   async function verifyCode(): Promise<boolean> {
-    let apiData = {
+    const apiData = {
       email: state.formData.email,
       code: state.formData.verificationCode
     };

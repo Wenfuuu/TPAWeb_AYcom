@@ -67,7 +67,7 @@ func (h *AuthHandler) Login(ctx context.Context, req *authpb.AuthLoginRequest) (
 	}
 
 	// check banned
-	if !userResp.GetUser().IsBanned {
+	if userResp.GetUser().IsBanned {
 		return nil, status.Error(codes.Unauthenticated, "Account is banned")
 	}
 

@@ -74,8 +74,9 @@ export function validateName(formData: FormData): string {
 export async function validateUsername(formData: FormData): Promise<string> {
     if (!formData.username) return "Username is required";
     if (formData.username.length < 4) return "Username must be at least 4 characters";
-    const isUnique = await checkUsernameUnique(formData.username);
-    return isUnique ? "" : "Username is already taken";
+    // const isUnique = await checkUsernameUnique(formData.username);
+    // return isUnique ? "" : "Username is already taken";
+    return "";
 }
 
 export async function validateEmail(formData: FormData): Promise<string> {
@@ -83,8 +84,9 @@ export async function validateEmail(formData: FormData): Promise<string> {
     if (!formData.email) return "Email is required";
     if (!emailRegex.test(formData.email))
         return "Please enter a valid email address";
-    const isUnique = await checkEmailUnique(formData.email);
-    return isUnique ? "" : "Email is already registered";
+    // const isUnique = await checkEmailUnique(formData.email);
+    // return isUnique ? "" : "Email is already registered";
+    return "";
 }
 
 export function validatePassword(formData: FormData): { error: string; validations: PasswordValidations } {
@@ -148,15 +150,10 @@ export function validateVerificationCode(formData: FormData): string {
     return "";
 }
 
-// Mock implementations for uniqueness checks:
-export async function checkUsernameUnique(username: string): Promise<boolean> {
-    return new Promise(resolve => {
-        setTimeout(() => resolve(!username.includes("taken")), 500);
-    });
-}
+// export async function checkUsernameUnique(username: string): Promise<boolean> {
+//     // for showing the error later
+// }
 
-export async function checkEmailUnique(email: string): Promise<boolean> {
-    return new Promise(resolve => {
-        setTimeout(() => resolve(!email.includes("used")), 500);
-    });
-}
+// export async function checkEmailUnique(email: string): Promise<boolean> {
+//     // for showing the error later
+// }

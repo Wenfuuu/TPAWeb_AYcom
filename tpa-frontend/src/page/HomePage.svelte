@@ -5,8 +5,8 @@
 
 
     onMount(async() => {
-        checkAuth(navigate);
-        // checkAdmin(navigate);
+        await checkAuth(navigate);
+        // await checkAdmin(navigate);
     });
 
 </script>
