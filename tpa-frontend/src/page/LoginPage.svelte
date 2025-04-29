@@ -15,6 +15,7 @@
   let password = "";
   let loading = false;
   let recaptchaVerified = false;
+  let isDarkMode = true; // Default to dark mode
 
   async function handleLogin() {
     loading = true;
@@ -50,6 +51,14 @@
       });
   }
 
+  // Toggle theme function
+  function toggleTheme() {
+    isDarkMode = !isDarkMode;
+    const newTheme = isDarkMode ? "dark" : "light";
+    localStorage.setItem("theme", newTheme);
+    document.documentElement.setAttribute("data-theme", newTheme);
+  }
+
   onMount(async () => {
     console.log("Component mounted, reCAPTCHA would be initialized here");
     // Assign the global callback used by reCAPTCHA v2
@@ -63,10 +72,21 @@
       document.body.appendChild(script);
     }
 
+    // Initialize theme from localStorage
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      isDarkMode = savedTheme === "dark";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+    } else {
+      // Check user's system preference if no saved theme
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      isDarkMode = prefersDark;
+      document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+    }
+
     // add check guest auth here
     await checkGuest(navigate);
   });
-
 </script>
 
 <div class="login-page">
@@ -75,13 +95,37 @@
       <button type="button" aria-label="Close">✕</button>
     </div>
 
+    <div class="theme-toggle">
+      <button type="button" on:click={toggleTheme} aria-label="Toggle theme">
+        {#if isDarkMode}
+          <!-- Sun icon for light mode -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        {:else}
+          <!-- Moon icon for dark mode -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        {/if}
+      </button>
+    </div>
+
     <div class="logo-container">
       <div class="logo">AY</div>
     </div>
 
     <h1>Sign in to AY</h1>
 
-    <button type="button" class="google-button" onclick={handleGoogleLogin}>
+    <button type="button" class="google-button" on:click={handleGoogleLogin}>
       <svg viewBox="0 0 24 24" width="18" height="18">
         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -126,7 +170,7 @@
         type="button"
         class="sign-in-button"
         disabled={loading || !username || !password || !recaptchaVerified}
-        onclick={handleLogin}
+        on:click={handleLogin}
       >
         {#if loading}
           <span class="spinner"></span>
@@ -138,7 +182,7 @@
 
     <button class="forgot-password"
     type="button"
-    onclick={navigateToForgottenPage}>
+    on:click={navigateToForgottenPage}>
       Forgot password?
     </button>
 
@@ -149,16 +193,10 @@
 </div>
 
 <style>
-  /* Global styles */
-  :global(html),
+  /* Apply dark theme by default */
   :global(body) {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-    width: 100%;
-    height: 100%;
-    background-color: #15202b;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--background);
+    color: var(--text-primary);
   }
 
   /* Login page wrapper */
@@ -177,14 +215,15 @@
     width: 100%;
     max-width: 300px;
     padding: 30px 20px;
-    background-color: #000;
-    color: #fff;
+    background-color: var(--card-background);
+    color: var(--text-primary);
     display: flex;
     flex-direction: column;
     align-items: center;
     border-radius: 16px;
     position: relative;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 30px var(--shadow-color);
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
   }
 
   /* Close button */
@@ -197,13 +236,37 @@
   .close-button button {
     background: none;
     border: none;
-    color: #fff;
+    color: var(--text-primary);
     font-size: 16px;
     cursor: pointer;
     padding: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  /* Theme toggle button */
+  .theme-toggle {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+  }
+
+  .theme-toggle button {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+  }
+
+  .theme-toggle button:hover {
+    background-color: var(--button-secondary-hover);
   }
 
   /* Logo */
@@ -215,6 +278,7 @@
   .logo {
     font-size: 28px;
     font-weight: bold;
+    color: var(--text-primary);
   }
 
   /* Heading */
@@ -223,6 +287,7 @@
     margin-bottom: 24px;
     text-align: center;
     font-weight: 700;
+    color: var(--text-primary);
   }
 
   /* Google button */
@@ -233,7 +298,7 @@
     width: 100%;
     padding: 10px 0;
     border-radius: 50px;
-    border: 1px solid #333;
+    border: 1px solid var(--border-color);
     background-color: #fff;
     color: #000;
     font-weight: 500;
@@ -255,16 +320,17 @@
   .divider {
     width: 100%;
     text-align: center;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid var(--divider-color);
     line-height: 0.1em;
     margin: 20px 0;
   }
 
   .divider span {
-    background: #000;
+    background: var(--divider-text-background);
     padding: 0 10px;
-    color: #888;
+    color: var(--text-tertiary);
     font-size: 14px;
+    transition: background-color 0.3s ease;
   }
 
   /* Form */
@@ -281,20 +347,21 @@
     width: 100%;
     padding: 12px;
     border-radius: 4px;
-    border: 1px solid #333;
-    background-color: transparent;
-    color: #fff;
+    border: 1px solid var(--input-border);
+    background-color: var(--input-background);
+    color: var(--text-primary);
     font-size: 14px;
     box-sizing: border-box;
+    transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
   }
 
   input:focus {
     outline: none;
-    border-color: #1d9bf0;
+    border-color: var(--button-primary);
   }
 
   input::placeholder {
-    color: #777;
+    color: var(--text-tertiary);
   }
 
   .recaptcha {
@@ -307,14 +374,19 @@
     padding: 12px;
     border-radius: 50px;
     border: none;
-    background-color: #fff;
-    color: #000;
+    background-color: var(--button-primary);
+    color: var(--button-primary-text);
     font-weight: bold;
     cursor: pointer;
     position: relative;
     margin-bottom: 15px;
     font-size: 15px;
     height: 44px;
+    transition: background-color 0.2s;
+  }
+
+  .sign-in-button:hover:not(:disabled) {
+    background-color: var(--button-primary-hover);
   }
 
   .sign-in-button:disabled {
@@ -327,9 +399,9 @@
     width: 100%;
     padding: 12px;
     border-radius: 50px;
-    border: 1px solid #333;
-    background-color: transparent;
-    color: #fff;
+    border: 1px solid var(--button-secondary-border);
+    background-color: var(--button-secondary-bg);
+    color: var(--button-secondary-text);
     font-weight: 500;
     cursor: pointer;
     margin-bottom: 20px;
@@ -338,18 +410,18 @@
   }
 
   .forgot-password:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--button-secondary-hover);
   }
 
   /* Sign up prompt */
   .signup-prompt {
     font-size: 14px;
-    color: #888;
+    color: var(--text-tertiary);
     margin-top: 10px;
   }
 
   .signup-prompt a {
-    color: #1d9bf0;
+    color: var(--button-primary);
     text-decoration: none;
   }
 
@@ -362,9 +434,9 @@
     display: inline-block;
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--spinner-border);
     border-radius: 50%;
-    border-top-color: #000;
+    border-top-color: var(--spinner-border-top);
     animation: spin 1s ease-in-out infinite;
     position: absolute;
     left: calc(50% - 8px);
