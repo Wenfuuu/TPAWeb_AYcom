@@ -22,3 +22,4 @@ EXPOSE 50052
 
 # Default command for development
 CMD ["air"]
+# CMD ["go", "run", "main.go"]

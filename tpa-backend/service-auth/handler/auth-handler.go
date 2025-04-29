@@ -91,6 +91,38 @@ func (h *AuthHandler) Register(ctx context.Context, req *authpb.AuthRegisterRequ
 		return nil, status.Error(codes.Internal, "Failed to hash password")
 	}
 
+	// Rabbitmq to email service to send success message
+	payload := messaging.EmailPayload{
+		Email: req.Email,
+		Word: "Successfully registered account for AY.com",
+	}
+
+	body, err := json.Marshal(payload)
+    if err != nil {
+        log.Printf("Failed to marshal verification email payload: %v", err)
+        return nil, status.Error(codes.Internal, "Failed to process request (marshal)")
+    }
+
+	exchangeName := "email_exchange"
+    routingKey := "email"
+	err = h.rabbitChannel.PublishWithContext(
+		context.Background(),
+		exchangeName,
+		routingKey,
+		false,
+		false,
+		amqp091.Publishing{
+            ContentType: "application/json",
+            Body:        body,
+            DeliveryMode: amqp091.Persistent, // Make message persistent (survive broker restart)
+        },
+	)
+	if err != nil {
+        log.Printf("Failed to publish email message: %v", err)
+        return nil, status.Error(codes.Internal, "Failed to queue email request")
+    }
+    log.Printf("Successfully published email request for %s", req.Email)
+
 	// Call User Service to create user
 	createResp, err := h.userClient.Register(ctx, &userpb.RegisterRequest{
 		Name:           	req.Name,

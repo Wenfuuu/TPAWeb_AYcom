@@ -29,3 +29,4 @@ EXPOSE 8080
 
 # Default command for development
 CMD ["air"]
+# CMD ["go", "run", "cmd/main.go"]
