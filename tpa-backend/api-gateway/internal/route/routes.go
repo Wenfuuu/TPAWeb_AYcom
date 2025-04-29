@@ -83,9 +83,10 @@ func InitRoutes(
 		{
 			auth.POST("/register", authHandler.Register)
 			auth.POST("/login", authHandler.Login)
-			auth.GET("/check", authMiddleware.AuthRequired())
+			auth.GET("/guest", authMiddleware.CheckGuest())
+			auth.GET("/check", authMiddleware.CheckAuth())
 			auth.GET("/refresh", authHandler.RefreshToken)
-			auth.GET("/admin", authMiddleware.AdminRequired())
+			auth.GET("/admin", authMiddleware.CheckAdmin())
 			auth.POST("/send-code", authHandler.SendVerificationCode)
 			auth.POST("/verify-code", authHandler.VerifyCode)
 		}

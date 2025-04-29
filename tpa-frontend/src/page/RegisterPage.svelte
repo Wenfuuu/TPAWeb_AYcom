@@ -36,6 +36,7 @@
     uploadProfilePicture,
     uploadBannerImage,
   } from "../lib/utils/supabaseStorage";
+  import { checkGuest } from "../lib/utils/auth";
 
   // Define the API data structure
   type ApiFormData = {
@@ -392,7 +393,7 @@
       });
   }
 
-  onMount(() => {
+  onMount(async() => {
     console.log("Component mounted, reCAPTCHA would be initialized here");
     // Assign the global callback used by reCAPTCHA v2
     window.recaptchaCallback = onRecaptchaCallback;
@@ -404,6 +405,8 @@
       script.defer = true;
       document.body.appendChild(script);
     }
+
+    await checkGuest(navigate);
   });
 
   function goBackToStep1(): void {

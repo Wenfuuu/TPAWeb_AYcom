@@ -1,9 +1,19 @@
 <script>
+  import { onMount } from "svelte";
     import { navigate } from "svelte-routing";
+  import { checkGuest } from "../lib/utils/auth";
 
     function register() {
         navigate("/register");
     }
+
+    function login() {
+        navigate("/login");
+    }
+
+    onMount(async() => {
+        await checkGuest(navigate);
+    });
 
 </script>
 
@@ -26,7 +36,7 @@
 
             <div class="signin-section">
             <p class="account-prompt">Already have an account?</p>
-            <button class="sign-in-btn" type="button">Sign in</button>
+            <button class="sign-in-btn" type="button" onclick={login}>Sign in</button>
             </div>
         </div>
         </div>

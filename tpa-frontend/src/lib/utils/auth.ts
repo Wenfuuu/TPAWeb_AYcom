@@ -7,6 +7,21 @@ type LoginResponse = {
     refresh_token: string
 }
 
+export async function checkGuest(navigate: (path: string) => void) {
+    const accessToken = localStorage.getItem("access-token");
+    // console.log(accessToken)
+    const res = await fetch(BASE_API_URL + "/guest", {
+        headers: {
+            "Authorization": `Bearer ${accessToken}`
+        }
+    });
+
+    if(!res.ok) {
+        // meant user are logged in or authenticated, so redirect to home page
+        navigate("/home");
+    }
+}
+
 export async function checkAuth(navigate: (path: string) => void) {
     const accessToken = localStorage.getItem("access-token");
     // console.log(accessToken)
@@ -54,10 +69,10 @@ export async function login(email: string, password: string, navigate: (path: st
     const res = await axios.post(BASE_API_URL + "/login", { email, password });
 
     if (res.status >= 200 && res.status < 300) {
-    // Store tokens if present in response
-    const data: LoginResponse = res.data;
-    localStorage.setItem("access-token", data.access_token);
-    localStorage.setItem("refresh-token", data.refresh_token);
+        // Store tokens if present in response
+        const data: LoginResponse = res.data;
+        localStorage.setItem("access-token", data.access_token);
+        localStorage.setItem("refresh-token", data.refresh_token);
     navigate("/home");
     } else {
         // toast

@@ -8,7 +8,7 @@
 
 <script lang="ts">
   import { navigate } from "svelte-routing";
-  import { login } from "../lib/utils/auth";
+  import { checkGuest, login } from "../lib/utils/auth";
   import { onMount } from "svelte";
 
   let username = "";
@@ -50,7 +50,7 @@
       });
   }
 
-  onMount(() => {
+  onMount(async () => {
     console.log("Component mounted, reCAPTCHA would be initialized here");
     // Assign the global callback used by reCAPTCHA v2
     window.recaptchaCallback = onRecaptchaCallback;
@@ -64,6 +64,7 @@
     }
 
     // add check guest auth here
+    await checkGuest(navigate);
   });
 
 </script>

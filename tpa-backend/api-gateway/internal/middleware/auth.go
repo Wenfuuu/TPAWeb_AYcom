@@ -18,7 +18,30 @@ func NewAuthMiddleware(authClient authpb.AuthServiceClient) *AuthMiddleware {
 	}
 }
 
-func (m* AuthMiddleware) AuthRequired() gin.HandlerFunc {
+func (m *AuthMiddleware) CheckGuest() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.Next()
+			return
+		}
+
+		accessTokenString := authHeader[len("Bearer "):]
+
+		resp, err := m.authClient.CheckAuth(context.Background(), &authpb.CheckAuthRequest{
+			Token: accessTokenString,
+		})
+		if err == nil && resp.IsAuthenticated {
+			c.JSON(http.StatusForbidden, gin.H{"message": "Authenticated users are not allowed"})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
+
+func (m* AuthMiddleware) CheckAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -46,7 +69,7 @@ func (m* AuthMiddleware) AuthRequired() gin.HandlerFunc {
 	}
 }
 
-func (m* AuthMiddleware) AdminRequired() gin.HandlerFunc {
+func (m* AuthMiddleware) CheckAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
