@@ -100,6 +100,53 @@ func (h *ThreadHandler) PostThread(ctx context.Context, req *threadpb.PostThread
 	return h.threadToResponse(&thread), nil
 }
 
+func (h *ThreadHandler) GetAllThreadCategories(ctx context.Context, req *threadpb.GetAllThreadCategoriesRequest) (*threadpb.GetAllThreadCategoriesResponse, error) {
+	modelCategories, err := h.threadRepo.GetAllThreadCategories()
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbThreads []*threadpb.ThreadCategory
+	for _, t := range modelCategories {
+		pbThreads = append(pbThreads, h.categoryToProto(&t))
+	}
+
+	return &threadpb.GetAllThreadCategoriesResponse{
+		ThreadCategories: pbThreads,
+	}, nil
+}
+
+func (h *ThreadHandler) GetAllCommunity(ctx context.Context, req *threadpb.GetAllCommunitiesRequest) (*threadpb.GetAllCommunitiesResponse, error) {
+	modelCommunities, err := h.threadRepo.GetAllCommunity()
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbThreads []*threadpb.Community
+	for _, t := range modelCommunities {
+		pbThreads = append(pbThreads, h.communityToProto(&t))
+	}
+
+	return &threadpb.GetAllCommunitiesResponse{
+		Communities: pbThreads,
+	}, nil
+}
+
+func (h *ThreadHandler) communityToProto(community *model.Community) *threadpb.Community {
+	return &threadpb.Community{
+		Id: 			community.ID.String(),
+		Name: 			community.Name,
+		Description: 	community.Description,
+	}
+}
+
+func (h *ThreadHandler) categoryToProto(category *model.ThreadCategory) *threadpb.ThreadCategory {
+	return &threadpb.ThreadCategory{
+		Id: 	category.ID.String(),
+		Name: 	category.Name,
+	}
+}
+
 func (h *ThreadHandler) threadToProto(thread *model.Thread) *threadpb.Thread {
 	var scheduledAt string
 	if thread.ScheduledAt != nil {

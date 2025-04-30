@@ -32,8 +32,36 @@ func Seed(db *gorm.DB) {
 			CreatedAt:       time.Now(),
 		},
 	}
-
 	for _, element := range threads {
+		db.Create(&element)
+	}
+
+	var categories = []model.ThreadCategory{
+		{
+			Name: "Anime",
+		},
+		{
+			Name: "Manga",
+		},
+		{
+			Name: "Manhwa",
+		},
+	}
+	for _, element := range categories {
+		db.Create(&element)
+	}
+
+	var communities = []model.Community{
+		{
+			Name: "Hololive",
+			Description: "A very special place for everyone",
+		},
+		{
+			Name: "Hoyoverse",
+			Description: "A place that talks about the best game creator",
+		},
+	}
+	for _, element := range communities {
 		db.Create(&element)
 	}
 }

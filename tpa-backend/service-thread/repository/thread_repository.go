@@ -22,6 +22,18 @@ func (r *ThreadRepository) GetAllThreads() ([]model.Thread, error) {
 	return threads, result.Error
 }
 
+func (r *ThreadRepository) GetAllThreadCategories() ([]model.ThreadCategory, error) {
+	var categories []model.ThreadCategory
+	result := r.DB.Find(&categories)
+	return categories, result.Error
+}
+
+func (r *ThreadRepository) GetAllCommunity() ([]model.Community, error) {
+	var communities []model.Community
+	result := r.DB.Find(&communities)
+	return communities, result.Error
+}
+
 func (r *ThreadRepository) Create(thread *model.Thread) error {
 	return r.DB.Create(thread).Error
 }

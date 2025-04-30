@@ -21,6 +21,12 @@
     stats: UserStats;
   };
 
+  // type Thread = {
+
+  // }
+
+  // const threads: Thread[] = [];
+
   // Sample posts data
   const posts: Post[] = [
     {
@@ -34,7 +40,7 @@
       date: "Apr 1",
       content: "Hai sederhana apa yang bikin kalian emosi?",
       images: [
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=200&width=250",
+        "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//kagari.jpg",
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=200&width=250",
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=200&width=250",
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=200&width=250"

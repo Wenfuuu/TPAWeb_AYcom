@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"log"
 	"net/http"
 
 	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
@@ -48,10 +47,6 @@ func (h *ThreadHandler) PostThread(c *gin.Context) {
 		return
 	}
 
-	log.Println(requestBody.UserID)
-	log.Println(requestBody.CategoryID)
-	log.Println(requestBody.CommunityID)
-	log.Println(requestBody.Content)
 	resp, err := h.Client.PostThread(context.Background(), &threadpb.PostThreadRequest{
 		UserId:          requestBody.UserID,
 		CategoryId:      requestBody.CategoryID,
@@ -71,4 +66,26 @@ func (h *ThreadHandler) PostThread(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"thread": resp.Thread,
 	})
+}
+
+func (h *ThreadHandler) GetAllThreadCategories(c *gin.Context) {
+	resp, err := h.Client.GetAllThreadCategories(context.Background(), &threadpb.GetAllThreadCategoriesRequest{})
+		
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	
+	c.JSON(http.StatusOK, resp.ThreadCategories)
+}
+
+func (h *ThreadHandler) GetAllCommunity(c *gin.Context) {
+	resp, err := h.Client.GetAllCommunity(context.Background(), &threadpb.GetAllCommunitiesRequest{})
+		
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	
+	c.JSON(http.StatusOK, resp.Communities)
 }

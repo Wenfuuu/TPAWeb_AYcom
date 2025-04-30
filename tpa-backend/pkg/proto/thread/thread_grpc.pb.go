@@ -19,8 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ThreadService_GetAllThreads_FullMethodName = "/thread.ThreadService/GetAllThreads"
-	ThreadService_PostThread_FullMethodName    = "/thread.ThreadService/PostThread"
+	ThreadService_GetAllThreads_FullMethodName          = "/thread.ThreadService/GetAllThreads"
+	ThreadService_PostThread_FullMethodName             = "/thread.ThreadService/PostThread"
+	ThreadService_GetAllThreadCategories_FullMethodName = "/thread.ThreadService/GetAllThreadCategories"
+	ThreadService_GetAllCommunity_FullMethodName        = "/thread.ThreadService/GetAllCommunity"
 )
 
 // ThreadServiceClient is the client API for ThreadService service.
@@ -29,6 +31,8 @@ const (
 type ThreadServiceClient interface {
 	GetAllThreads(ctx context.Context, in *GetAllThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	PostThread(ctx context.Context, in *PostThreadRequest, opts ...grpc.CallOption) (*ThreadResponse, error)
+	GetAllThreadCategories(ctx context.Context, in *GetAllThreadCategoriesRequest, opts ...grpc.CallOption) (*GetAllThreadCategoriesResponse, error)
+	GetAllCommunity(ctx context.Context, in *GetAllCommunitiesRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error)
 }
 
 type threadServiceClient struct {
@@ -59,12 +63,34 @@ func (c *threadServiceClient) PostThread(ctx context.Context, in *PostThreadRequ
 	return out, nil
 }
 
+func (c *threadServiceClient) GetAllThreadCategories(ctx context.Context, in *GetAllThreadCategoriesRequest, opts ...grpc.CallOption) (*GetAllThreadCategoriesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllThreadCategoriesResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetAllThreadCategories_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) GetAllCommunity(ctx context.Context, in *GetAllCommunitiesRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllCommunitiesResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetAllCommunity_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ThreadServiceServer is the server API for ThreadService service.
 // All implementations must embed UnimplementedThreadServiceServer
 // for forward compatibility.
 type ThreadServiceServer interface {
 	GetAllThreads(context.Context, *GetAllThreadsRequest) (*GetAllThreadsResponse, error)
 	PostThread(context.Context, *PostThreadRequest) (*ThreadResponse, error)
+	GetAllThreadCategories(context.Context, *GetAllThreadCategoriesRequest) (*GetAllThreadCategoriesResponse, error)
+	GetAllCommunity(context.Context, *GetAllCommunitiesRequest) (*GetAllCommunitiesResponse, error)
 	mustEmbedUnimplementedThreadServiceServer()
 }
 
@@ -80,6 +106,12 @@ func (UnimplementedThreadServiceServer) GetAllThreads(context.Context, *GetAllTh
 }
 func (UnimplementedThreadServiceServer) PostThread(context.Context, *PostThreadRequest) (*ThreadResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostThread not implemented")
+}
+func (UnimplementedThreadServiceServer) GetAllThreadCategories(context.Context, *GetAllThreadCategoriesRequest) (*GetAllThreadCategoriesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllThreadCategories not implemented")
+}
+func (UnimplementedThreadServiceServer) GetAllCommunity(context.Context, *GetAllCommunitiesRequest) (*GetAllCommunitiesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllCommunity not implemented")
 }
 func (UnimplementedThreadServiceServer) mustEmbedUnimplementedThreadServiceServer() {}
 func (UnimplementedThreadServiceServer) testEmbeddedByValue()                       {}
@@ -138,6 +170,42 @@ func _ThreadService_PostThread_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_GetAllThreadCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllThreadCategoriesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetAllThreadCategories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetAllThreadCategories_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetAllThreadCategories(ctx, req.(*GetAllThreadCategoriesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_GetAllCommunity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllCommunitiesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetAllCommunity(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetAllCommunity_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetAllCommunity(ctx, req.(*GetAllCommunitiesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ThreadService_ServiceDesc is the grpc.ServiceDesc for ThreadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +220,14 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PostThread",
 			Handler:    _ThreadService_PostThread_Handler,
+		},
+		{
+			MethodName: "GetAllThreadCategories",
+			Handler:    _ThreadService_GetAllThreadCategories_Handler,
+		},
+		{
+			MethodName: "GetAllCommunity",
+			Handler:    _ThreadService_GetAllCommunity_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

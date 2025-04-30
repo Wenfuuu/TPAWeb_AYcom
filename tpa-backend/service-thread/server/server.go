@@ -25,3 +25,11 @@ func (s *ThreadServer) GetAllThreads(ctx context.Context, req *threadpb.GetAllTh
 func (s *ThreadServer) PostThread(ctx context.Context, req *threadpb.PostThreadRequest) (*threadpb.ThreadResponse, error) {
 	return s.threadHandler.PostThread(ctx, req)
 }
+
+func (s *ThreadServer) GetAllThreadCategories(ctx context.Context, req *threadpb.GetAllThreadCategoriesRequest) (*threadpb.GetAllThreadCategoriesResponse, error) {
+	return s.threadHandler.GetAllThreadCategories(ctx, req)
+}
+
+func (s *ThreadServer) GetAllCommunity(ctx context.Context, req *threadpb.GetAllCommunitiesRequest) (*threadpb.GetAllCommunitiesResponse, error) {
+	return s.threadHandler.GetAllCommunity(ctx, req)
+}

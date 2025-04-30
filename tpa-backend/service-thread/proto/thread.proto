@@ -7,12 +7,26 @@ option go_package = "github.com/Wenfuuu/tpa-web/pkg/proto/thread";
 service ThreadService {
     rpc GetAllThreads(GetAllThreadsRequest) returns (GetAllThreadsResponse);
     rpc PostThread(PostThreadRequest) returns (ThreadResponse);
+    rpc GetAllThreadCategories(GetAllThreadCategoriesRequest) returns (GetAllThreadCategoriesResponse);
+    rpc GetAllCommunity(GetAllCommunitiesRequest) returns (GetAllCommunitiesResponse);
 }
 
 message GetAllThreadsRequest {}
 
 message GetAllThreadsResponse {
   repeated Thread threads = 1;
+}
+
+message GetAllThreadCategoriesRequest {}
+
+message GetAllThreadCategoriesResponse {
+  repeated ThreadCategory thread_categories = 1;
+}
+
+message GetAllCommunitiesRequest {}
+
+message GetAllCommunitiesResponse {
+  repeated Community communities = 1;
 }
 
 message PostThreadRequest {
@@ -37,6 +51,17 @@ message Thread {
     string status = 8;
     string scheduled_at = 9;
     string created_at = 10;
+}
+
+message ThreadCategory {
+    string id = 1;
+    string name = 2;
+}
+
+message Community {
+    string id = 1;
+    string name = 2;
+    string description = 3;
 }
 
 message ThreadResponse {
