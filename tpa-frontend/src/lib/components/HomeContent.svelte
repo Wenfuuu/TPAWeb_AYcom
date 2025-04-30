@@ -19,6 +19,13 @@
   let supabaseURLS: string[] = [];
   let currentImageIndex = 0;
 
+  // New variables for category and community selection
+  let selectedCategoryId = "";
+  let isPostingToCommunity = false;
+  let selectedCommunityId = "";
+  let showCategoryDropdown = false;
+  let showCommunityDropdown = false;
+
   type ReplySettingType = "everyone" | "following" | "verified";
   let replySettings: ReplySettingType = "everyone";
   let showReplyOptions = false;
@@ -44,6 +51,16 @@
 
   async function handlePost(): Promise<void> {
     if (newPostText.trim()) {
+      if (!selectedCategoryId) {
+        alert("Please select a category for your thread");
+        return;
+      }
+
+      if (isPostingToCommunity && !selectedCommunityId) {
+        alert("Please select a community to post to");
+        return;
+      }
+
       console.log("Posting:", newPostText, uploadedImages);
 
       // upload images to supabase
@@ -58,8 +75,8 @@
       // console.log(currentUser.id);
       await axios.post("http://localhost:8080/api/threads/post", {
         userId: user?.id,
-        categoryId: "123e4567-e89b-12d3-a456-426614174001",
-        communityId: "123e4567-e89b-12d3-a456-426614174002",
+        categoryId: selectedCategoryId,
+        communityId: selectedCommunityId,
         content: newPostText,
         replyPermission: replySettings,
         isAdvertisement,
@@ -71,6 +88,9 @@
       uploadedImages = [];
       imageFiles = [];
       supabaseURLS = [];
+      selectedCategoryId = "";
+      selectedCommunityId = "";
+      isPostingToCommunity = false;
     }
   }
 
@@ -126,6 +146,38 @@
   function setReplyOption(option: ReplySettingType): void {
     replySettings = option;
     showReplyOptions = false;
+  }
+
+  // New functions for category and community selection
+  function toggleCategoryDropdown(): void {
+    showCategoryDropdown = !showCategoryDropdown;
+    // Close other dropdowns
+    showReplyOptions = false;
+    showCommunityDropdown = false;
+  }
+
+  function selectCategory(categoryId: string): void {
+    selectedCategoryId = categoryId;
+    showCategoryDropdown = false;
+  }
+
+  function toggleCommunityDropdown(): void {
+    showCommunityDropdown = !showCommunityDropdown;
+    // Close other dropdowns
+    showReplyOptions = false;
+    showCategoryDropdown = false;
+  }
+
+  function selectCommunity(communityId: string): void {
+    selectedCommunityId = communityId;
+    showCommunityDropdown = false;
+  }
+
+  function togglePostingType(): void {
+    isPostingToCommunity = !isPostingToCommunity;
+    if (!isPostingToCommunity) {
+      selectedCommunityId = "";
+    }
   }
 </script>
 
@@ -189,6 +241,82 @@
           </div>
         </div>
       {/if}
+
+      <!-- new stuff -->
+       <!-- Post options section -->
+      <div class="post-options">
+        <!-- Category selection -->
+        <div class="option-dropdown">
+          <button type="button" class="option-button" on:click={toggleCategoryDropdown}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path>
+            </svg>
+            {selectedCategoryId ? threadCategories.find(c => c.id === selectedCategoryId)?.name || "Select category" : "Select category"}
+          </button>
+
+          {#if showCategoryDropdown}
+            <div class="dropdown-menu">
+              {#each threadCategories as category (category.id)}
+                <button type="button" class="dropdown-item" on:click={() => selectCategory(category.id)}>
+                  <div class="item-text">
+                    <h4>{category.name}</h4>
+                  </div>
+                  {#if selectedCategoryId === category.id}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  {/if}
+                </button>
+              {/each}
+            </div>
+          {/if}
+        </div>
+
+        <!-- Post type toggle -->
+        <div class="post-type-toggle">
+          <button type="button" class="option-button" on:click={togglePostingType}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            {isPostingToCommunity ? "Posting to community" : "Posting personally"}
+          </button>
+        </div>
+
+        <!-- Community selection (only shown when posting to community) -->
+        {#if isPostingToCommunity}
+          <div class="option-dropdown">
+            <button type="button" class="option-button" on:click={toggleCommunityDropdown}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5Z"></path>
+                <path d="M3 10h18"></path>
+                <path d="M10 3v18"></path>
+              </svg>
+              {selectedCommunityId ? communities.find(c => c.id === selectedCommunityId)?.name || "Select community" : "Select community"}
+            </button>
+
+            {#if showCommunityDropdown}
+              <div class="dropdown-menu">
+                {#each communities as community (community.id)}
+                  <button type="button" class="dropdown-item" on:click={() => selectCommunity(community.id)}>
+                    <div class="item-text">
+                      <h4>{community.name}</h4>
+                      <p>{community.description}</p>
+                    </div>
+                    {#if selectedCommunityId === community.id}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    {/if}
+                  </button>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        {/if}
+      </div>
 
       <div class="reply-settings">
         <button type="button" class="reply-button" on:click={toggleReplyOptions}>
@@ -328,6 +456,12 @@
               </svg>
             </button>
           </div>
+
+          {#if thread.community_id}
+            <div class="post-community">
+              Posted in {communities.find(c => c.id === thread.community_id)?.name || "Community"}
+            </div>
+          {/if}
 
           <div class="post-text">{thread.content}</div>
 
@@ -474,6 +608,83 @@
   /* Hide file input but keep it accessible */
   .hidden-input {
     display: none;
+  }
+
+  /* Post options */
+  .post-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  .option-dropdown {
+    position: relative;
+  }
+
+  .option-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    color: var(--button-primary);
+    font-size: 14px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--card-background);
+    border-radius: 16px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    margin-top: 8px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+  }
+
+  .dropdown-item {
+    width: 100%;
+    background-color: var(--background);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+    text-align: left;
+  }
+
+  .dropdown-item:hover {
+    background-color: var(--hover-background);
+  }
+
+  .item-text h4 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .item-text p {
+    margin: 4px 0 0 0;
+    font-size: 13px;
+    color: var(--text-tertiary);
+  }
+
+  .post-community {
+    color: var(--button-primary);
+    font-size: 14px;
+    margin-bottom: 8px;
   }
 
   /* Image carousel styles */
