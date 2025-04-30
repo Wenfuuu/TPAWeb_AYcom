@@ -91,8 +91,10 @@ func (h *ThreadHandler) PostThread(ctx context.Context, req *threadpb.PostThread
 		})
 	}
 	
-	if err = h.threadRepo.InsertFile(threadFiles); err != nil {
-		return nil, status.Error(codes.Internal, "Failed to save thread files")
+	if len(threadFiles) > 0 {
+		if err = h.threadRepo.InsertFile(threadFiles); err != nil {
+			return nil, status.Error(codes.Internal, "Failed to save thread files")
+		}
 	}
 
 	return h.threadToResponse(&thread), nil

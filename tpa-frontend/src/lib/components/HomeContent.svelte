@@ -1,5 +1,9 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import type { User, UserThread } from "../model/user";
   import { uploadImage } from "../utils/supabaseStorage";
+  import { getAuthUser } from "../utils/auth";
+  import axios from "axios";
 
   type UserStats = {
     replies: number;
@@ -7,16 +11,9 @@
     likes: number;
   };
 
-  type User = {
-    name: string;
-    username: string;
-    verified: boolean;
-    profile: string;
-  };
-
   type Post = {
     id: number;
-    user: User;
+    user: UserThread;
     date: string;
     content: string;
     images: string[];
@@ -68,6 +65,7 @@
     }
   ];
 
+  let currentUser: User;
   let newPostText = "";
   let uploadedImages: string[] = [];
   let imageFiles: File[] = [];
@@ -78,12 +76,37 @@
   let replySettings: ReplySettingType = "everyone";
   let showReplyOptions = false;
 
-  function handlePost(): void {
+  onMount(async() => {
+    const user = await getAuthUser();
+    if(user) {
+      currentUser = user;
+    }
+  });
+
+  async function handlePost(): Promise<void> {
     if (newPostText.trim()) {
       console.log("Posting:", newPostText, uploadedImages);
 
+      // upload images to supabase
+      if (imageFiles.length > 0) {
+        await uploadImagesToSupabase();
+      }
+
       // call api to create thread
-      
+      let isAdvertisement;
+      if(currentUser.role == "user") isAdvertisement = false;
+      else isAdvertisement = true;
+      // console.log(currentUser.id);
+      await axios.post("http://localhost:8080/api/threads/post", {
+        userId: currentUser.id,
+        categoryId: "123e4567-e89b-12d3-a456-426614174001",
+        communityId: "123e4567-e89b-12d3-a456-426614174002",
+        content: newPostText,
+        replyPermission: replySettings,
+        isAdvertisement,
+        scheduledAt: "2025-04-30T15:04:00Z",
+        imageUrls: supabaseURLS
+      });
 
       newPostText = "";
       uploadedImages = [];
@@ -96,6 +119,7 @@
   async function uploadImagesToSupabase(): Promise<boolean> {
     if (!imageFiles || imageFiles.length === 0) return false;
 
+    // upload all image here
     for (const file of imageFiles) {
       const supaURL = await uploadImage(file);
       if (supaURL) {

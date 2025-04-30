@@ -209,6 +209,25 @@ func (h *AuthHandler) AuthorizeAdmin(ctx context.Context, req *authpb.AuthorizeA
 	}, nil
 }
 
+func (h *AuthHandler) GetAuthUser(ctx context.Context, req *authpb.GetAuthUserRequest) (*authpb.AuthLoginResponse, error) {
+	// parse access
+	userID, _, err := utils.ParseAccessToken(req.AccessToken)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "Invalid access token")
+	}
+
+	userResp, err := h.userClient.GetUser(ctx, &userpb.GetUserRequest{
+		Id: userID,
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to get user info")
+	}
+
+	return &authpb.AuthLoginResponse{
+		User:	h.userToProto(userResp.User),
+	}, nil
+}
+
 func (h *AuthHandler) RefreshToken(ctx context.Context, req *authpb.RefreshTokenRequest) (*authpb.AuthLoginResponse, error) {
 	// Parse refresh token
 	userID, role, err := utils.ParseRefreshToken(req.RefreshToken)

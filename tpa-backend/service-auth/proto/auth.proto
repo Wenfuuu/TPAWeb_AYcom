@@ -10,6 +10,7 @@ service AuthService {
   rpc CheckAuth(CheckAuthRequest) returns (CheckAuthResponse);
   rpc AuthorizeAdmin(AuthorizeAdminRequest) returns (AuthorizeAdminResponse);
   rpc RefreshToken(RefreshTokenRequest) returns (AuthLoginResponse);
+  rpc GetAuthUser(GetAuthUserRequest) returns (AuthLoginResponse);
   rpc SendVerificationCode(SendVerificationCodeRequest) returns (SendVerificationCodeResponse);
   rpc VerifyCode(VerifyCodeRequest) returns (VerifyCodeResponse);
 }
@@ -68,6 +69,10 @@ message AuthorizeAdminResponse {
 
 message RefreshTokenRequest {
   string refresh_token = 1;
+}
+
+message GetAuthUserRequest {
+  string access_token = 1;
 }
 
 message SendVerificationCodeRequest {

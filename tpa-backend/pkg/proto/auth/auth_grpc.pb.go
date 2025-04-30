@@ -19,13 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_Login_FullMethodName                = "/user.AuthService/Login"
-	AuthService_Register_FullMethodName             = "/user.AuthService/Register"
-	AuthService_CheckAuth_FullMethodName            = "/user.AuthService/CheckAuth"
-	AuthService_AuthorizeAdmin_FullMethodName       = "/user.AuthService/AuthorizeAdmin"
-	AuthService_RefreshToken_FullMethodName         = "/user.AuthService/RefreshToken"
-	AuthService_SendVerificationCode_FullMethodName = "/user.AuthService/SendVerificationCode"
-	AuthService_VerifyCode_FullMethodName           = "/user.AuthService/VerifyCode"
+	AuthService_Login_FullMethodName                = "/auth.AuthService/Login"
+	AuthService_Register_FullMethodName             = "/auth.AuthService/Register"
+	AuthService_CheckAuth_FullMethodName            = "/auth.AuthService/CheckAuth"
+	AuthService_AuthorizeAdmin_FullMethodName       = "/auth.AuthService/AuthorizeAdmin"
+	AuthService_RefreshToken_FullMethodName         = "/auth.AuthService/RefreshToken"
+	AuthService_GetAuthUser_FullMethodName          = "/auth.AuthService/GetAuthUser"
+	AuthService_SendVerificationCode_FullMethodName = "/auth.AuthService/SendVerificationCode"
+	AuthService_VerifyCode_FullMethodName           = "/auth.AuthService/VerifyCode"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -37,6 +38,7 @@ type AuthServiceClient interface {
 	CheckAuth(ctx context.Context, in *CheckAuthRequest, opts ...grpc.CallOption) (*CheckAuthResponse, error)
 	AuthorizeAdmin(ctx context.Context, in *AuthorizeAdminRequest, opts ...grpc.CallOption) (*AuthorizeAdminResponse, error)
 	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*AuthLoginResponse, error)
+	GetAuthUser(ctx context.Context, in *GetAuthUserRequest, opts ...grpc.CallOption) (*AuthLoginResponse, error)
 	SendVerificationCode(ctx context.Context, in *SendVerificationCodeRequest, opts ...grpc.CallOption) (*SendVerificationCodeResponse, error)
 	VerifyCode(ctx context.Context, in *VerifyCodeRequest, opts ...grpc.CallOption) (*VerifyCodeResponse, error)
 }
@@ -99,6 +101,16 @@ func (c *authServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRe
 	return out, nil
 }
 
+func (c *authServiceClient) GetAuthUser(ctx context.Context, in *GetAuthUserRequest, opts ...grpc.CallOption) (*AuthLoginResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AuthLoginResponse)
+	err := c.cc.Invoke(ctx, AuthService_GetAuthUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *authServiceClient) SendVerificationCode(ctx context.Context, in *SendVerificationCodeRequest, opts ...grpc.CallOption) (*SendVerificationCodeResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SendVerificationCodeResponse)
@@ -128,6 +140,7 @@ type AuthServiceServer interface {
 	CheckAuth(context.Context, *CheckAuthRequest) (*CheckAuthResponse, error)
 	AuthorizeAdmin(context.Context, *AuthorizeAdminRequest) (*AuthorizeAdminResponse, error)
 	RefreshToken(context.Context, *RefreshTokenRequest) (*AuthLoginResponse, error)
+	GetAuthUser(context.Context, *GetAuthUserRequest) (*AuthLoginResponse, error)
 	SendVerificationCode(context.Context, *SendVerificationCodeRequest) (*SendVerificationCodeResponse, error)
 	VerifyCode(context.Context, *VerifyCodeRequest) (*VerifyCodeResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
@@ -154,6 +167,9 @@ func (UnimplementedAuthServiceServer) AuthorizeAdmin(context.Context, *Authorize
 }
 func (UnimplementedAuthServiceServer) RefreshToken(context.Context, *RefreshTokenRequest) (*AuthLoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshToken not implemented")
+}
+func (UnimplementedAuthServiceServer) GetAuthUser(context.Context, *GetAuthUserRequest) (*AuthLoginResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAuthUser not implemented")
 }
 func (UnimplementedAuthServiceServer) SendVerificationCode(context.Context, *SendVerificationCodeRequest) (*SendVerificationCodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendVerificationCode not implemented")
@@ -272,6 +288,24 @@ func _AuthService_RefreshToken_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_GetAuthUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAuthUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GetAuthUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_GetAuthUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GetAuthUser(ctx, req.(*GetAuthUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AuthService_SendVerificationCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SendVerificationCodeRequest)
 	if err := dec(in); err != nil {
@@ -312,7 +346,7 @@ func _AuthService_VerifyCode_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AuthService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "user.AuthService",
+	ServiceName: "auth.AuthService",
 	HandlerType: (*AuthServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -334,6 +368,10 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RefreshToken",
 			Handler:    _AuthService_RefreshToken_Handler,
+		},
+		{
+			MethodName: "GetAuthUser",
+			Handler:    _AuthService_GetAuthUser_Handler,
 		},
 		{
 			MethodName: "SendVerificationCode",
