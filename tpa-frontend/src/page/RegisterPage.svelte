@@ -180,7 +180,6 @@
   }
 
   // Upload images to Supabase and get URLs
-  // Upload images to Supabase and get URLs
   async function uploadImagesToSupabase(): Promise<boolean> {
     state.uploadingImages = true;
 

@@ -21,3 +21,11 @@ func (r *ThreadRepository) GetAllThreads() ([]model.Thread, error) {
 	result := r.DB.Find(&threads)
 	return threads, result.Error
 }
+
+func (r *ThreadRepository) Create(thread *model.Thread) error {
+	return r.DB.Create(thread).Error
+}
+
+func (r *ThreadRepository) InsertFile(files []model.ThreadFiles) error {
+	return r.DB.Create(files).Error
+} 

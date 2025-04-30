@@ -1,17 +1,17 @@
 <script lang="ts">
-  // Define types for our data structures
+  import { uploadImage } from "../utils/supabaseStorage";
+
   type UserStats = {
     replies: number;
     reposts: number;
     likes: number;
-    views: number;
   };
 
   type User = {
     name: string;
     username: string;
     verified: boolean;
-    avatar: string;
+    profile: string;
   };
 
   type Post = {
@@ -32,7 +32,7 @@
         name: "Desdee",
         username: "@NormalSmith",
         verified: true,
-        avatar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=48&width=48"
+        profile: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=48&width=48"
       },
       date: "Apr 1",
       content: "Hai sederhana apa yang bikin kalian emosi?",
@@ -46,8 +46,7 @@
       stats: {
         replies: 221,
         reposts: 33,
-        likes: 2.8,
-        views: 450
+        likes: 2.8
       }
     },
     {
@@ -56,7 +55,7 @@
         name: "BAZNAS",
         username: "@baznasIndonesia",
         verified: true,
-        avatar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=48&width=48"
+        profile: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=48&width=48"
       },
       date: "2h",
       content: "Mari tunaikan kewajiban zakat untuk membantu masyarakat Indonesia",
@@ -64,14 +63,15 @@
       stats: {
         replies: 5,
         reposts: 12,
-        likes: 45,
-        views: 320
+        likes: 45
       }
     }
   ];
 
   let newPostText = "";
   let uploadedImages: string[] = [];
+  let imageFiles: File[] = [];
+  let supabaseURLS: string[] = [];
   let currentImageIndex = 0;
 
   type ReplySettingType = "everyone" | "following" | "mentioned";
@@ -79,13 +79,34 @@
   let showReplyOptions = false;
 
   function handlePost(): void {
-    if (newPostText.trim() || uploadedImages.length > 0) {
+    if (newPostText.trim()) {
       console.log("Posting:", newPostText, uploadedImages);
+
+      // call api to create thread
+      
+
       newPostText = "";
       uploadedImages = [];
+      imageFiles = [];
+      supabaseURLS = [];
     }
   }
 
+  // upload and get urls
+  async function uploadImagesToSupabase(): Promise<boolean> {
+    if (!imageFiles || imageFiles.length === 0) return false;
+
+    for (const file of imageFiles) {
+      const supaURL = await uploadImage(file);
+      if (supaURL) {
+        supabaseURLS.push(supaURL);
+      }
+    }
+
+    return true;
+  }
+
+  // for image preview
   function handleImageUpload(event: Event): void {
     const target = event.target as HTMLInputElement;
     const files = target.files;
@@ -94,6 +115,7 @@
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
+      imageFiles = [...imageFiles, file];
       const reader = new FileReader();
 
       reader.onload = (e: ProgressEvent<FileReader>) => {
@@ -298,7 +320,7 @@
     {#each posts as post (post.id)}
       <div class="post">
         <div class="post-avatar">
-          <img src={post.user.avatar || "/placeholder.svg"} alt={post.user.name} />
+          <img src={post.user.profile || "/placeholder.svg"} alt={post.user.name} />
         </div>
         <div class="post-content">
           <div class="post-header">
@@ -359,13 +381,6 @@
                 <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
               </svg>
               <span>{post.stats.likes}K</span>
-            </button>
-            <button type="button" class="post-action" aria-label="View count">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path>
-                <path d="M12 9a3 3 0 1 0 0 6 3 3 0 1 0 0-6z"></path>
-              </svg>
-              <span>{post.stats.views}K</span>
             </button>
             <button type="button" class="post-action" aria-label="Post Action">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

@@ -6,6 +6,13 @@ import (
 	"gorm.io/gorm"
 )
 
+type ThreadFiles struct {
+	ID       	uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	ThreadID   	uuid.UUID 	`gorm:"type:uuid;not null" json:"threadId"`
+	Thread     	Thread      `gorm:"foreignKey:ThreadID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
+	File		string		`json:"file"`
+}
+
 type Thread struct {
 	ID             uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	UserID         uuid.UUID 	`gorm:"type:uuid;not null" json:"userId"`
@@ -22,5 +29,16 @@ type Thread struct {
 func (thread *Thread) BeforeCreate(tx *gorm.DB) (err error) {
 	thread.ID = uuid.New()
 
+	if thread.ScheduledAt == nil {
+		thread.Status = "published"
+	}else{
+		thread.Status = "scheduled"
+	}
+
+	return
+}
+
+func (threadFile *ThreadFiles) BeforeCreate(tx *gorm.DB) (err error) {
+	threadFile.ID = uuid.New()
 	return
 }

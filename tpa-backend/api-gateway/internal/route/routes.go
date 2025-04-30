@@ -96,6 +96,7 @@ func InitRoutes(
 		thread := api.Group("/threads")
 		{
 			thread.GET("/thread", threadHandler.GetAllThreads)
+			thread.POST("/post", threadHandler.PostThread)
 		}
 	}
 

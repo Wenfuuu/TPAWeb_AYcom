@@ -7,6 +7,8 @@ import (
 
 func Migrate(db *gorm.DB) {
 	db.Migrator().DropTable(&model.Thread{})
+	db.Migrator().DropTable(&model.ThreadFiles{})
 
 	db.AutoMigrate(&model.Thread{})
+	db.AutoMigrate(&model.ThreadFiles{})
 }

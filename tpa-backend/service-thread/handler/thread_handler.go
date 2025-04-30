@@ -2,11 +2,14 @@ package handler
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"time"
 
 	threadpb "github.com/Wenfuuu/tpa-web/pkg/proto/thread"
 	"github.com/Wenfuuu/tpa-web/service-thread/model"
 	"github.com/Wenfuuu/tpa-web/service-thread/repository"
+	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -37,6 +40,64 @@ func (h *ThreadHandler) GetAllThreads(ctx context.Context, req *threadpb.GetAllT
 	}, nil
 }
 
+func (h *ThreadHandler) PostThread(ctx context.Context, req *threadpb.PostThreadRequest) (*threadpb.ThreadResponse, error) {
+	log.Println(req.UserId)
+	log.Println(req.CategoryId)
+	log.Println(req.CommunityId)
+
+	userID, err := uuid.Parse(req.UserId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid user ID: %v", err)
+    }
+
+    categoryID, err := uuid.Parse(req.CategoryId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid category ID: %v", err)
+    }
+
+	communityID, err := uuid.Parse(req.CommunityId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid community ID: %v", err)
+    }
+
+	var scheduledAt *time.Time
+	if req.ScheduledAt != "" {
+		parsedTime, err := time.Parse(time.RFC3339, req.ScheduledAt)
+		if err != nil {
+			return nil, fmt.Errorf("invalid scheduled_at: %v", err)
+		}
+		scheduledAt = &parsedTime
+	}
+
+	thread := model.Thread{
+		UserID: userID,
+		CategoryID: categoryID,
+		CommunityID: communityID,
+		Content: req.Content,
+		ReplyPermission: req.ReplyPermission,
+		IsAdvertisement: req.IsAdvertisement,
+		ScheduledAt: scheduledAt,
+	}
+
+	if err := h.threadRepo.Create(&thread); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to create thread")
+	}
+
+	var threadFiles []model.ThreadFiles
+	for _, url := range req.ImageUrls {
+		threadFiles = append(threadFiles, model.ThreadFiles{
+			ThreadID: thread.ID,
+			File:     url,
+		})
+	}
+	
+	if err = h.threadRepo.InsertFile(threadFiles); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to save thread files")
+	}
+
+	return h.threadToResponse(&thread), nil
+}
+
 func (h *ThreadHandler) threadToProto(thread *model.Thread) *threadpb.Thread {
 	var scheduledAt string
 	if thread.ScheduledAt != nil {
@@ -55,5 +116,11 @@ func (h *ThreadHandler) threadToProto(thread *model.Thread) *threadpb.Thread {
 		Status: 		thread.Status,
 		ScheduledAt: 	scheduledAt,
 		CreatedAt: 		thread.CreatedAt.Format(time.RFC3339),
+	}
+}
+
+func (h *ThreadHandler) threadToResponse(thread *model.Thread) *threadpb.ThreadResponse {
+	return &threadpb.ThreadResponse{
+		Thread: h.threadToProto(thread),
 	}
 }

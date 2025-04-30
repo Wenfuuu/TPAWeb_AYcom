@@ -111,6 +111,7 @@ type PostThreadRequest struct {
 	IsAdvertisement bool                   `protobuf:"varint,6,opt,name=is_advertisement,json=isAdvertisement,proto3" json:"is_advertisement,omitempty"`
 	Status          string                 `protobuf:"bytes,7,opt,name=status,proto3" json:"status,omitempty"`
 	ScheduledAt     string                 `protobuf:"bytes,8,opt,name=scheduled_at,json=scheduledAt,proto3" json:"scheduled_at,omitempty"`
+	ImageUrls       []string               `protobuf:"bytes,9,rep,name=image_urls,json=imageUrls,proto3" json:"image_urls,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -201,46 +202,9 @@ func (x *PostThreadRequest) GetScheduledAt() string {
 	return ""
 }
 
-type PostThreadResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Thread        *Thread                `protobuf:"bytes,1,opt,name=thread,proto3" json:"thread,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PostThreadResponse) Reset() {
-	*x = PostThreadResponse{}
-	mi := &file_thread_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PostThreadResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PostThreadResponse) ProtoMessage() {}
-
-func (x *PostThreadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[3]
+func (x *PostThreadRequest) GetImageUrls() []string {
 	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PostThreadResponse.ProtoReflect.Descriptor instead.
-func (*PostThreadResponse) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *PostThreadResponse) GetThread() *Thread {
-	if x != nil {
-		return x.Thread
+		return x.ImageUrls
 	}
 	return nil
 }
@@ -263,7 +227,7 @@ type Thread struct {
 
 func (x *Thread) Reset() {
 	*x = Thread{}
-	mi := &file_thread_proto_msgTypes[4]
+	mi := &file_thread_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -275,7 +239,7 @@ func (x *Thread) String() string {
 func (*Thread) ProtoMessage() {}
 
 func (x *Thread) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[4]
+	mi := &file_thread_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -288,7 +252,7 @@ func (x *Thread) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Thread.ProtoReflect.Descriptor instead.
 func (*Thread) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{4}
+	return file_thread_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Thread) GetId() string {
@@ -370,7 +334,7 @@ type ThreadResponse struct {
 
 func (x *ThreadResponse) Reset() {
 	*x = ThreadResponse{}
-	mi := &file_thread_proto_msgTypes[5]
+	mi := &file_thread_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -382,7 +346,7 @@ func (x *ThreadResponse) String() string {
 func (*ThreadResponse) ProtoMessage() {}
 
 func (x *ThreadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[5]
+	mi := &file_thread_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -395,7 +359,7 @@ func (x *ThreadResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ThreadResponse.ProtoReflect.Descriptor instead.
 func (*ThreadResponse) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{5}
+	return file_thread_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ThreadResponse) GetThread() *Thread {
@@ -412,7 +376,7 @@ const file_thread_proto_rawDesc = "" +
 	"\fthread.proto\x12\x06thread\"\x16\n" +
 	"\x14GetAllThreadsRequest\"A\n" +
 	"\x15GetAllThreadsResponse\x12(\n" +
-	"\athreads\x18\x01 \x03(\v2\x0e.thread.ThreadR\athreads\"\x9b\x02\n" +
+	"\athreads\x18\x01 \x03(\v2\x0e.thread.ThreadR\athreads\"\xba\x02\n" +
 	"\x11PostThreadRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1f\n" +
 	"\vcategory_id\x18\x02 \x01(\tR\n" +
@@ -422,9 +386,9 @@ const file_thread_proto_rawDesc = "" +
 	"\x10reply_permission\x18\x05 \x01(\tR\x0freplyPermission\x12)\n" +
 	"\x10is_advertisement\x18\x06 \x01(\bR\x0fisAdvertisement\x12\x16\n" +
 	"\x06status\x18\a \x01(\tR\x06status\x12!\n" +
-	"\fscheduled_at\x18\b \x01(\tR\vscheduledAt\"<\n" +
-	"\x12PostThreadResponse\x12&\n" +
-	"\x06thread\x18\x01 \x01(\v2\x0e.thread.ThreadR\x06thread\"\xbf\x02\n" +
+	"\fscheduled_at\x18\b \x01(\tR\vscheduledAt\x12\x1d\n" +
+	"\n" +
+	"image_urls\x18\t \x03(\tR\timageUrls\"\xbf\x02\n" +
 	"\x06Thread\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1f\n" +
@@ -458,28 +422,26 @@ func file_thread_proto_rawDescGZIP() []byte {
 	return file_thread_proto_rawDescData
 }
 
-var file_thread_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_thread_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_thread_proto_goTypes = []any{
 	(*GetAllThreadsRequest)(nil),  // 0: thread.GetAllThreadsRequest
 	(*GetAllThreadsResponse)(nil), // 1: thread.GetAllThreadsResponse
 	(*PostThreadRequest)(nil),     // 2: thread.PostThreadRequest
-	(*PostThreadResponse)(nil),    // 3: thread.PostThreadResponse
-	(*Thread)(nil),                // 4: thread.Thread
-	(*ThreadResponse)(nil),        // 5: thread.ThreadResponse
+	(*Thread)(nil),                // 3: thread.Thread
+	(*ThreadResponse)(nil),        // 4: thread.ThreadResponse
 }
 var file_thread_proto_depIdxs = []int32{
-	4, // 0: thread.GetAllThreadsResponse.threads:type_name -> thread.Thread
-	4, // 1: thread.PostThreadResponse.thread:type_name -> thread.Thread
-	4, // 2: thread.ThreadResponse.thread:type_name -> thread.Thread
-	0, // 3: thread.ThreadService.GetAllThreads:input_type -> thread.GetAllThreadsRequest
-	2, // 4: thread.ThreadService.PostThread:input_type -> thread.PostThreadRequest
-	1, // 5: thread.ThreadService.GetAllThreads:output_type -> thread.GetAllThreadsResponse
-	5, // 6: thread.ThreadService.PostThread:output_type -> thread.ThreadResponse
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	3, // 0: thread.GetAllThreadsResponse.threads:type_name -> thread.Thread
+	3, // 1: thread.ThreadResponse.thread:type_name -> thread.Thread
+	0, // 2: thread.ThreadService.GetAllThreads:input_type -> thread.GetAllThreadsRequest
+	2, // 3: thread.ThreadService.PostThread:input_type -> thread.PostThreadRequest
+	1, // 4: thread.ThreadService.GetAllThreads:output_type -> thread.GetAllThreadsResponse
+	4, // 5: thread.ThreadService.PostThread:output_type -> thread.ThreadResponse
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_thread_proto_init() }
@@ -493,7 +455,7 @@ func file_thread_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_thread_proto_rawDesc), len(file_thread_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

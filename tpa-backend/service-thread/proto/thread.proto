@@ -22,12 +22,8 @@ message PostThreadRequest {
     string content = 4;
     string reply_permission = 5;
     bool is_advertisement = 6;
-    string status = 7;
-    string scheduled_at = 8;
-}
-
-message PostThreadResponse {
-    Thread thread = 1;
+    string scheduled_at = 7;
+    repeated string image_urls = 8;
 }
 
 message Thread {
