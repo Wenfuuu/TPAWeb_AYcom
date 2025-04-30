@@ -1,8 +1,31 @@
 <script lang="ts">
-//   import { onMount } from "svelte";
+  // Define types for our data structures
+  type UserStats = {
+    replies: number;
+    reposts: number;
+    likes: number;
+    views: number;
+  };
+
+  type User = {
+    name: string;
+    username: string;
+    verified: boolean;
+    avatar: string;
+  };
+
+  type Post = {
+    id: number;
+    user: User;
+    date: string;
+    content: string;
+    images: string[];
+    caption?: string;
+    stats: UserStats;
+  };
 
   // Sample posts data
-  const posts = [
+  const posts: Post[] = [
     {
       id: 1,
       user: {
@@ -48,12 +71,56 @@
   ];
 
   let newPostText = "";
+  let uploadedImages: string[] = [];
+  let currentImageIndex = 0;
 
-  function handlePost() {
-    if (newPostText.trim()) {
-      console.log("Posting:", newPostText);
+  type ReplySettingType = "everyone" | "following" | "mentioned";
+  let replySettings: ReplySettingType = "everyone";
+  let showReplyOptions = false;
+
+  function handlePost(): void {
+    if (newPostText.trim() || uploadedImages.length > 0) {
+      console.log("Posting:", newPostText, uploadedImages);
       newPostText = "";
+      uploadedImages = [];
     }
+  }
+
+  function handleImageUpload(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const files = target.files;
+
+    if (!files || files.length === 0) return;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const reader = new FileReader();
+
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        const result = e.target?.result;
+        if (typeof result === "string") {
+          uploadedImages = [...uploadedImages, result];
+        }
+      };
+
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function removeImage(index: number): void {
+    uploadedImages = uploadedImages.filter((_, i) => i !== index);
+    if (currentImageIndex >= uploadedImages.length) {
+      currentImageIndex = Math.max(0, uploadedImages.length - 1);
+    }
+  }
+
+  function toggleReplyOptions(): void {
+    showReplyOptions = !showReplyOptions;
+  }
+
+  function setReplyOption(option: ReplySettingType): void {
+    replySettings = option;
+    showReplyOptions = false;
   }
 </script>
 
@@ -74,29 +141,152 @@
         placeholder="What's happening?"
         bind:value={newPostText}
       ></textarea>
+
+      {#if uploadedImages.length > 0}
+        <div class="image-carousel">
+          <div class="carousel-container">
+            <div class="carousel-images" class:has-multiple={uploadedImages.length > 1}>
+              {#each uploadedImages as image, i (i)}
+                <div class="carousel-image" class:active={i === currentImageIndex}>
+                  <img src={image || "/placeholder.svg"} alt="Uploaded image {i+1}" />
+                  <button type="button" class="edit-button">Edit</button>
+                  <button type="button" class="remove-button" aria-label="Remove Button" on:click={() => removeImage(i)}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+              {/each}
+            </div>
+
+            {#if uploadedImages.length > 1}
+              <div class="carousel-nav">
+                <button type="button" class="nav-button prev" aria-label="Button Prev" disabled={currentImageIndex === 0} on:click={() => currentImageIndex = Math.max(0, currentImageIndex - 1)}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m15 18-6-6 6-6"></path>
+                  </svg>
+                </button>
+                <button type="button" class="nav-button next" aria-label="Button Next" disabled={currentImageIndex === uploadedImages.length - 1} on:click={() => currentImageIndex = Math.min(uploadedImages.length - 1, currentImageIndex + 1)}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m9 18 6-6-6-6"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="carousel-indicators">
+                {#each uploadedImages as _, i (i)}
+                  <span class="indicator" class:active={i === currentImageIndex}></span>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        </div>
+      {/if}
+
+      <div class="reply-settings">
+        <button type="button" class="reply-button" on:click={toggleReplyOptions}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 8h.01"></path>
+            <path d="M11 12h1v4h1"></path>
+          </svg>
+          {#if replySettings === "everyone"}
+            Everyone can reply
+          {:else if replySettings === "following"}
+            People you follow can reply
+          {:else}
+            Only people you mention can reply
+          {/if}
+        </button>
+
+        {#if showReplyOptions}
+          <div class="reply-dropdown">
+            <button type="button" class="reply-option" on:click={() => setReplyOption("everyone")}>
+              <div class="option-icon everyone" class:selected={replySettings === "everyone"}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                </svg>
+              </div>
+              <div class="option-text">
+                <h4>Everyone</h4>
+                <p>Anyone can reply to this post</p>
+              </div>
+            </button>
+
+            <button type="button" class="reply-option" on:click={() => setReplyOption("following")}>
+              <div class="option-icon following" class:selected={replySettings === "following"}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              <div class="option-text">
+                <h4>People you follow</h4>
+                <p>Only people you follow can reply</p>
+              </div>
+            </button>
+
+            <button type="button" class="reply-option" on:click={() => setReplyOption("mentioned")}>
+              <div class="option-icon mentioned" class:selected={replySettings === "mentioned"}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                </svg>
+              </div>
+              <div class="option-text">
+                <h4>Only people you mention</h4>
+                <p>Only people you mention in the post can reply</p>
+              </div>
+            </button>
+          </div>
+        {/if}
+      </div>
+
       <div class="compose-actions">
         <div class="compose-tools">
-          <button type="button" class="tool-button" aria-label="Tool Button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path></svg>
+          <!-- Image upload button -->
+          <label class="tool-button" for="image-upload">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+              <circle cx="9" cy="9" r="2"></circle>
+              <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+            </svg>
+            <input
+              type="file"
+              id="image-upload"
+              accept="image/*"
+              multiple
+              on:change={handleImageUpload}
+              class="hidden-input"
+            />
+          </label>
+
+          <!-- Poll button -->
+          <button type="button" class="tool-button" aria-label="Create poll">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3v18h18"></path>
+              <path d="M18 17V9"></path>
+              <path d="M13 17V5"></path>
+              <path d="M8 17v-3"></path>
+            </svg>
           </button>
-          <button type="button" class="tool-button" aria-label="Tool Button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-          </button>
-          <button type="button" class="tool-button" aria-label="Tool Button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5Z"></path><path d="M12 3a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2Z"></path><path d="M12 19v2"></path><path d="m5 8-3-3"></path><path d="M19 8h3"></path><path d="m16.95 19.5 2.5 2.5"></path><path d="m7.05 19.5-2.5 2.5"></path></svg>
-          </button>
-          <button type="button" class="tool-button" aria-label="Tool Button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" x2="9.01" y1="9" y2="9"></line><line x1="15" x2="15.01" y1="9" y2="9"></line></svg>
-          </button>
-          <button type="button" class="tool-button" aria-label="Tool Button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M8 12h8"></path><path d="M12 8v8"></path></svg>
+
+          <!-- Schedule button -->
+          <button type="button" class="tool-button" aria-label="Schedule post">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
           </button>
         </div>
+
         <button
-        type="button"
-        class="post-button"
-        disabled={!newPostText.trim()}
-        on:click={handlePost}
+          type="button"
+          class="post-button"
+          disabled={!newPostText.trim() && uploadedImages.length === 0}
+          on:click={handlePost}
         >
           Post
         </button>
@@ -195,8 +385,6 @@
   .content-area {
     flex: 1;
     border-right: 1px solid var(--border-color);
-    /* min-width: 50%; */
-    /* max-width: 600px; */
     width: 50%;
     height: 100vh;
     overflow-y: auto;
@@ -283,11 +471,228 @@
     color: var(--text-tertiary);
   }
 
+  /* Hide file input but keep it accessible */
+  .hidden-input {
+    display: none;
+  }
+
+  /* Image carousel styles */
+  .image-carousel {
+    margin: 12px 0;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+  }
+
+  .carousel-container {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    background-color: #000;
+    overflow: hidden;
+  }
+
+  .carousel-images {
+    display: flex;
+    width: 100%;
+    height: 100%;
+  }
+
+  .carousel-images.has-multiple {
+    flex-wrap: nowrap;
+  }
+
+  .carousel-image {
+    position: relative;
+    min-width: 100%;
+    height: 100%;
+    display: none;
+  }
+
+  .carousel-image.active {
+    display: block;
+  }
+
+  .carousel-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .edit-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .remove-button {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .carousel-nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .nav-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .nav-button.prev {
+    left: 8px;
+  }
+
+  .nav-button.next {
+    right: 8px;
+  }
+
+  .carousel-indicators {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+  }
+
+  .indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .indicator.active {
+    background-color: white;
+  }
+
+  /* Reply settings styles */
+  .reply-settings {
+    position: relative;
+    margin: 12px 0;
+  }
+
+  .reply-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: var(--button-primary);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+
+  .reply-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 300px;
+    background-color: var(--card-background);
+    border-radius: 16px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    margin-top: 8px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+  }
+
+  .reply-option {
+    width: 100%;
+    background-color: var(--background);
+    border: none;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+    text-align: left;
+  }
+
+  .reply-option:hover {
+    background-color: var(--hover-background);
+  }
+
+  .option-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--button-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .option-icon.selected {
+    background-color: var(--button-primary);
+  }
+
+  .option-text h4 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .option-text p {
+    margin: 4px 0 0 0;
+    font-size: 13px;
+    color: var(--text-tertiary);
+  }
+
   .compose-actions {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 12px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 12px;
   }
 
   .compose-tools {
@@ -326,6 +731,10 @@
   }
 
   .post-button:hover:not(:disabled) {
+    background-color: var(--button-primary-hover);
+  }
+
+  .post-button:disabled {
     background-color: var(--button-primary-hover);
   }
 

@@ -33,7 +33,7 @@ func main() {
 	authServer := server.NewAuthServer(userClient)
 	authpb.RegisterAuthServiceServer(grpcServer, authServer)
 
-	log.Printf("User service listening on port %s", port)
+	log.Printf("Auth service listening on port %s", port)
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}

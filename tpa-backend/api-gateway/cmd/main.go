@@ -22,6 +22,11 @@ func main() {
 	authServiceAddr := utils.GetDotEnv("AUTH_SERVICE_ADDR")
 	authClient, authConn := client.NewAuthClient(authServiceAddr)
 	defer authConn.Close()
+
+	// thread service
+	threadServiceAddr := utils.GetDotEnv("THREAD_SERVICE_ADDR")
+	threadClient, threadConn := client.NewThreadClient(threadServiceAddr)
+	defer threadConn.Close()
 	
 	r := gin.Default()
 
@@ -35,7 +40,7 @@ func main() {
 	}))
 
 	//setup route
-	route.InitRoutes(r, userClient, authClient)
+	route.InitRoutes(r, userClient, authClient, threadClient)
 
 	port := utils.GetDotEnv("PORT")
 	log.Printf("API Gateway listening on port %s", port)

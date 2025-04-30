@@ -11,6 +11,7 @@ import (
 	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
 	authpb "github.com/Wenfuuu/tpa-web/pkg/proto/auth"
 	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
+	threadpb "github.com/Wenfuuu/tpa-web/pkg/proto/thread"
 	"github.com/gin-gonic/gin"
 	// "github.com/mojocn/base64Captcha"
 )
@@ -61,11 +62,13 @@ func InitRoutes(
 	r *gin.Engine, 
 	userClient userpb.UserServiceClient,
 	authClient authpb.AuthServiceClient,
+	threadClient threadpb.ThreadServiceClient,
 ) {
 
 	userHandler := handler.NewUserHandler(userClient)
 	authHandler := handler.NewAuthHandler(authClient)
 	authMiddleware := middleware.NewAuthMiddleware(authClient)
+	threadHandler := handler.NewThreadHandler(threadClient)
 
 	r.POST("/verify-recaptcha", verifyRecaptcha)
 
@@ -89,6 +92,10 @@ func InitRoutes(
 			auth.GET("/admin", authMiddleware.CheckAdmin())
 			auth.POST("/send-code", authHandler.SendVerificationCode)
 			auth.POST("/verify-code", authHandler.VerifyCode)
+		}
+		thread := api.Group("/threads")
+		{
+			thread.GET("/thread", threadHandler.GetAllThreads)
 		}
 	}
 

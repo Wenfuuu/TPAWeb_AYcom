@@ -48,16 +48,4 @@
     background-color: var(--background);
     color: var(--text-primary);
   }
-
-  /* @media (max-width: 1024px) {
-    .home-container {
-      justify-content: center;
-    }
-  } */
-
-  /* @media (max-width: 768px) {
-    .home-container {
-      flex-direction: column;
-    }
-  } */
 </style>

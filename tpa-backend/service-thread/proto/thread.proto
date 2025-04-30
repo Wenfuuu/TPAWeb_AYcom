@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package thread;
+
+option go_package = "github.com/Wenfuuu/tpa-web/pkg/proto/thread";
+
+service ThreadService {
+    rpc GetAllThreads(GetAllThreadsRequest) returns (GetAllThreadsResponse);
+    rpc PostThread(PostThreadRequest) returns (ThreadResponse);
+}
+
+message GetAllThreadsRequest {}
+
+message GetAllThreadsResponse {
+  repeated Thread threads = 1;
+}
+
+message PostThreadRequest {
+    string user_id = 1;
+    string category_id = 2;
+    string community_id = 3;
+    string content = 4;
+    string reply_permission = 5;
+    bool is_advertisement = 6;
+    string status = 7;
+    string scheduled_at = 8;
+}
+
+message PostThreadResponse {
+    Thread thread = 1;
+}
+
+message Thread {
+    string id = 1;
+    string user_id = 2;
+    string category_id = 3;
+    string community_id = 4;
+    string content = 5;
+    string reply_permission = 6;
+    bool is_advertisement = 7;
+    string status = 8;
+    string scheduled_at = 9;
+    string created_at = 10;
+}
+
+message ThreadResponse {
+    Thread thread = 1;
+}

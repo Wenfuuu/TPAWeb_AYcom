@@ -16,8 +16,22 @@ export async function checkGuest(navigate: (path: string) => void) {
         }
     });
 
-    if(!res.ok) {
-        // meant user are logged in or authenticated, so redirect to home page
+    // guest access token
+    if(res.ok) {
+        // change to check refresh token
+        const refreshToken = localStorage.getItem("refresh-token");
+        // console.log(refreshToken);
+        const response = await fetch(BASE_API_URL + "/refresh", {
+            headers: {
+                "Refresh-token": `${refreshToken}`
+            }
+        });
+
+        if(response.ok){
+            // meant user are logged in or authenticated, so redirect to home page
+            navigate("/home");
+        }
+    }else{
         navigate("/home");
     }
 }

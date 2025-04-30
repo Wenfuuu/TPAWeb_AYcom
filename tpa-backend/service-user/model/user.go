@@ -2,10 +2,6 @@ package model
 
 import (
 	"time"
-
-	// "github.com/Wenfuuu/tpa-web/service-user/utils"
-
-	// "github.com/Wenfuuu/tpa-web/service-user/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -42,15 +38,8 @@ type SecurityQuestion struct {
 	Answer   string    `json:"securityAnswer"`
 }
 
-// BeforeCreate hook will be called automatically by GORM
 func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
 	user.ID = uuid.New()
-
-	// hashedPassword, err := utils.EncryptPassword(user.Password)
-	// if err != nil {
-	// 	return err
-	// }
-	// user.Password = hashedPassword
 
 	return
 }

@@ -68,6 +68,19 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  # Thread Service
+  service-thread:
+    build:
+      context: ./tpa-backend/
+      dockerfile: service-thread/Dockerfile
+    volumes:
+      - ./tpa-backend/service-thread:/app
+    ports:
+      - "50054:50054"
+    depends_on:
+      - redis
+      - db-user
+
   # User Database
   db-user:
     image: postgres:latest
