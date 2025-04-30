@@ -33,3 +33,7 @@ func (s *ThreadServer) GetAllThreadCategories(ctx context.Context, req *threadpb
 func (s *ThreadServer) GetAllCommunity(ctx context.Context, req *threadpb.GetAllCommunitiesRequest) (*threadpb.GetAllCommunitiesResponse, error) {
 	return s.threadHandler.GetAllCommunity(ctx, req)
 }
+
+func (s *ThreadServer) GetAllThreadFile(ctx context.Context, req *threadpb.GetAllThreadFileRequest) (*threadpb.GetAllThreadFileResponse, error) {
+	return s.threadHandler.GetAllThreadFile(ctx, req)
+}

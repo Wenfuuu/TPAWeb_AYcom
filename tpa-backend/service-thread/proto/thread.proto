@@ -9,24 +9,31 @@ service ThreadService {
     rpc PostThread(PostThreadRequest) returns (ThreadResponse);
     rpc GetAllThreadCategories(GetAllThreadCategoriesRequest) returns (GetAllThreadCategoriesResponse);
     rpc GetAllCommunity(GetAllCommunitiesRequest) returns (GetAllCommunitiesResponse);
+    rpc GetAllThreadFile(GetAllThreadFileRequest) returns (GetAllThreadFileResponse);
 }
 
 message GetAllThreadsRequest {}
 
 message GetAllThreadsResponse {
-  repeated Thread threads = 1;
+    repeated Thread threads = 1;
 }
 
 message GetAllThreadCategoriesRequest {}
 
 message GetAllThreadCategoriesResponse {
-  repeated ThreadCategory thread_categories = 1;
+    repeated ThreadCategory thread_categories = 1;
 }
 
 message GetAllCommunitiesRequest {}
 
 message GetAllCommunitiesResponse {
-  repeated Community communities = 1;
+    repeated Community communities = 1;
+}
+
+message GetAllThreadFileRequest {}
+
+message GetAllThreadFileResponse {
+    repeated ThreadFile thread_files = 1;
 }
 
 message PostThreadRequest {
@@ -62,6 +69,12 @@ message Community {
     string id = 1;
     string name = 2;
     string description = 3;
+}
+
+message ThreadFile {
+    string id = 1;
+    string thread_id = 2;
+    string file = 3;
 }
 
 message ThreadResponse {

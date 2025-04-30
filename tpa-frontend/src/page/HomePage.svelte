@@ -1,16 +1,21 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { checkAuth } from "../lib/utils/auth";
+  import { checkAuth, getAuthUser } from "../lib/utils/auth";
   import { navigate } from "svelte-routing";
   import LeftSidebar from "../lib/components/LeftSidebar.svelte";
   import RightSidebar from "../lib/components/RightSidebar.svelte";
   import HomeContent from "../lib/components/HomeContent.svelte";
+  import type { User } from "../lib/model/user";
 
   let isDarkMode = true; // Default to dark mode
+  let user: User | null = null;
 
   // Initialize theme from localStorage on component mount
   onMount(async() => {
     await checkAuth(navigate);
+
+    const usr = await getAuthUser();
+    if(usr) user = usr;
 
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) {
@@ -34,9 +39,8 @@
 </script>
 
 <div class="home-container">
-    <!-- <h1>nigga</h1> -->
-  <LeftSidebar {toggleTheme} {isDarkMode} />
-  <HomeContent />
+  <LeftSidebar {toggleTheme} {isDarkMode} {user} />
+  <HomeContent {user} />
   <RightSidebar />
 </div>
 

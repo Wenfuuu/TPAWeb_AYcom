@@ -23,6 +23,7 @@ const (
 	ThreadService_PostThread_FullMethodName             = "/thread.ThreadService/PostThread"
 	ThreadService_GetAllThreadCategories_FullMethodName = "/thread.ThreadService/GetAllThreadCategories"
 	ThreadService_GetAllCommunity_FullMethodName        = "/thread.ThreadService/GetAllCommunity"
+	ThreadService_GetAllThreadFile_FullMethodName       = "/thread.ThreadService/GetAllThreadFile"
 )
 
 // ThreadServiceClient is the client API for ThreadService service.
@@ -33,6 +34,7 @@ type ThreadServiceClient interface {
 	PostThread(ctx context.Context, in *PostThreadRequest, opts ...grpc.CallOption) (*ThreadResponse, error)
 	GetAllThreadCategories(ctx context.Context, in *GetAllThreadCategoriesRequest, opts ...grpc.CallOption) (*GetAllThreadCategoriesResponse, error)
 	GetAllCommunity(ctx context.Context, in *GetAllCommunitiesRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error)
+	GetAllThreadFile(ctx context.Context, in *GetAllThreadFileRequest, opts ...grpc.CallOption) (*GetAllThreadFileResponse, error)
 }
 
 type threadServiceClient struct {
@@ -83,6 +85,16 @@ func (c *threadServiceClient) GetAllCommunity(ctx context.Context, in *GetAllCom
 	return out, nil
 }
 
+func (c *threadServiceClient) GetAllThreadFile(ctx context.Context, in *GetAllThreadFileRequest, opts ...grpc.CallOption) (*GetAllThreadFileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllThreadFileResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetAllThreadFile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ThreadServiceServer is the server API for ThreadService service.
 // All implementations must embed UnimplementedThreadServiceServer
 // for forward compatibility.
@@ -91,6 +103,7 @@ type ThreadServiceServer interface {
 	PostThread(context.Context, *PostThreadRequest) (*ThreadResponse, error)
 	GetAllThreadCategories(context.Context, *GetAllThreadCategoriesRequest) (*GetAllThreadCategoriesResponse, error)
 	GetAllCommunity(context.Context, *GetAllCommunitiesRequest) (*GetAllCommunitiesResponse, error)
+	GetAllThreadFile(context.Context, *GetAllThreadFileRequest) (*GetAllThreadFileResponse, error)
 	mustEmbedUnimplementedThreadServiceServer()
 }
 
@@ -112,6 +125,9 @@ func (UnimplementedThreadServiceServer) GetAllThreadCategories(context.Context, 
 }
 func (UnimplementedThreadServiceServer) GetAllCommunity(context.Context, *GetAllCommunitiesRequest) (*GetAllCommunitiesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllCommunity not implemented")
+}
+func (UnimplementedThreadServiceServer) GetAllThreadFile(context.Context, *GetAllThreadFileRequest) (*GetAllThreadFileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllThreadFile not implemented")
 }
 func (UnimplementedThreadServiceServer) mustEmbedUnimplementedThreadServiceServer() {}
 func (UnimplementedThreadServiceServer) testEmbeddedByValue()                       {}
@@ -206,6 +222,24 @@ func _ThreadService_GetAllCommunity_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_GetAllThreadFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllThreadFileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetAllThreadFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetAllThreadFile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetAllThreadFile(ctx, req.(*GetAllThreadFileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ThreadService_ServiceDesc is the grpc.ServiceDesc for ThreadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -228,6 +262,10 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllCommunity",
 			Handler:    _ThreadService_GetAllCommunity_Handler,
+		},
+		{
+			MethodName: "GetAllThreadFile",
+			Handler:    _ThreadService_GetAllThreadFile_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

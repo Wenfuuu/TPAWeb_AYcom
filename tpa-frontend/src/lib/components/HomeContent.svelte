@@ -1,92 +1,45 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { User, UserThread } from "../model/user";
+  import { type User, type UserThread } from "../model/user";
   import { uploadImage } from "../utils/supabaseStorage";
-  import { getAuthUser } from "../utils/auth";
   import axios from "axios";
+  import { fetchCommunity, fetchThreadCategory, fetchThreadWithUser, type Community, type Thread, type ThreadCategory } from "../model/thread";
 
-  type UserStats = {
-    replies: number;
-    reposts: number;
-    likes: number;
-  };
+  // let threads: Thread[] = [];
+  let threads: (Thread & { userData: UserThread })[] = [];
+  // let users: User[] = [];
+  let threadCategories: ThreadCategory[] = [];
+  let communities: Community[] = [];
+  // let threadFiles: ThreadFile[] = [];
 
-  type Post = {
-    id: number;
-    user: UserThread;
-    date: string;
-    content: string;
-    images: string[];
-    caption?: string;
-    stats: UserStats;
-  };
-
-  // type Thread = {
-
-  // }
-
-  // const threads: Thread[] = [];
-
-  // Sample posts data
-  const posts: Post[] = [
-    {
-      id: 1,
-      user: {
-        name: "Desdee",
-        username: "@NormalSmith",
-        verified: true,
-        profile: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=48&width=48"
-      },
-      date: "Apr 1",
-      content: "Hai sederhana apa yang bikin kalian emosi?",
-      images: [
-        "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//kagari.jpg",
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=200&width=250",
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=200&width=250",
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=200&width=250"
-      ],
-      caption: "sederhana tapi aku marah",
-      stats: {
-        replies: 221,
-        reposts: 33,
-        likes: 2.8
-      }
-    },
-    {
-      id: 2,
-      user: {
-        name: "BAZNAS",
-        username: "@baznasIndonesia",
-        verified: true,
-        profile: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=48&width=48"
-      },
-      date: "2h",
-      content: "Mari tunaikan kewajiban zakat untuk membantu masyarakat Indonesia",
-      images: [],
-      stats: {
-        replies: 5,
-        reposts: 12,
-        likes: 45
-      }
-    }
-  ];
-
-  let currentUser: User;
+  export let user: User | null;
   let newPostText = "";
   let uploadedImages: string[] = [];
   let imageFiles: File[] = [];
   let supabaseURLS: string[] = [];
   let currentImageIndex = 0;
 
-  type ReplySettingType = "everyone" | "following" | "mentioned";
+  type ReplySettingType = "everyone" | "following" | "verified";
   let replySettings: ReplySettingType = "everyone";
   let showReplyOptions = false;
 
   onMount(async() => {
-    const user = await getAuthUser();
-    if(user) {
-      currentUser = user;
-    }
+    // const user = await getAuthUser();
+    // if(user) {
+    //   currentUser = user;
+    // }
+
+    threads = await fetchThreadWithUser();
+    // users = await fetchUser();
+    threadCategories = await fetchThreadCategory();
+    communities = await fetchCommunity();
+    // threadFiles = await fetchFiles();
+
+    console.log(threads);
+    // console.log(users);
+    console.log(threadCategories);
+    console.log(communities);
+    // console.log(threadFiles);
   });
 
   async function handlePost(): Promise<void> {
@@ -100,11 +53,11 @@
 
       // call api to create thread
       let isAdvertisement;
-      if(currentUser.role == "user") isAdvertisement = false;
+      if(user?.role == "user") isAdvertisement = false;
       else isAdvertisement = true;
       // console.log(currentUser.id);
       await axios.post("http://localhost:8080/api/threads/post", {
-        userId: currentUser.id,
+        userId: user?.id,
         categoryId: "123e4567-e89b-12d3-a456-426614174001",
         communityId: "123e4567-e89b-12d3-a456-426614174002",
         content: newPostText,
@@ -176,7 +129,8 @@
   }
 </script>
 
-<main class="content-area">
+{#if user}
+  <main class="content-area">
   <div class="header">
     <div class="tabs">
       <button type="button" class="tab active">For you</button>
@@ -186,7 +140,7 @@
 
   <div class="compose-post">
     <div class="compose-avatar">
-      <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=48&width=48" alt="Your avatar" />
+      <img src={user.profile_picture} alt="Your avatar" />
     </div>
     <div class="compose-input">
       <textarea
@@ -281,15 +235,15 @@
               </div>
             </button>
 
-            <button type="button" class="reply-option" on:click={() => setReplyOption("mentioned")}>
-              <div class="option-icon mentioned" class:selected={replySettings === "mentioned"}>
+            <button type="button" class="reply-option" on:click={() => setReplyOption("verified")}>
+              <div class="option-icon mentioned" class:selected={replySettings === "verified"}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
                 </svg>
               </div>
               <div class="option-text">
-                <h4>Only people you mention</h4>
-                <p>Only people you mention in the post can reply</p>
+                <h4>Verified only</h4>
+                <p>Only verified accounts can reply</p>
               </div>
             </button>
           </div>
@@ -347,24 +301,24 @@
   </div>
 
   <div class="posts">
-    {#each posts as post (post.id)}
+    {#each threads as thread (thread.id)}
       <div class="post">
         <div class="post-avatar">
-          <img src={post.user.profile || "/placeholder.svg"} alt={post.user.name} />
+          <img src={thread.userData.profile || "/placeholder.svg"} alt={thread.userData.name} />
         </div>
         <div class="post-content">
           <div class="post-header">
             <div class="post-user-info">
-              <span class="post-user-name">{post.user.name}</span>
-              {#if post.user.verified}
+              <span class="post-user-name">{thread.userData.name}</span>
+              {#if thread.userData.isPremium}
                 <span class="verified-badge">
                   <svg viewBox="0 0 24 24" width="16" height="16" fill="rgb(29, 155, 240)">
                     <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"></path>
                   </svg>
                 </span>
               {/if}
-              <span class="post-username">{post.user.username}</span>
-              <span class="post-date">· {post.date}</span>
+              <span class="post-username">{thread.userData.username}</span>
+              <span class="post-date">· {thread.created_at}</span>
             </div>
             <button type="button" class="post-more" aria-label="Post More">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -375,18 +329,18 @@
             </button>
           </div>
 
-          <div class="post-text">{post.content}</div>
+          <div class="post-text">{thread.content}</div>
 
-          {#if post.images && post.images.length > 0}
-            <div class="post-images" class:grid-2={post.images.length === 2} class:grid-3={post.images.length === 3} class:grid-4={post.images.length === 4}>
-              {#each post.images as image, i (i)}
+          {#if thread.images && thread.images.length > 0}
+            <div class="post-images" class:grid-2={thread.images.length === 2} class:grid-3={thread.images.length === 3} class:grid-4={thread.images.length === 4}>
+              {#each thread.images as image, i (i)}
                 <div class="image-container">
                   <img src={image || "/placeholder.svg"} alt="Post image {i+1}" />
                 </div>
               {/each}
             </div>
-            {#if post.caption}
-              <div class="post-caption">{post.caption}</div>
+            {#if thread.content}
+              <div class="post-caption">{thread.content}</div>
             {/if}
           {/if}
 
@@ -395,7 +349,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
               </svg>
-              <span>{post.stats.replies}</span>
+              <span>{thread.insights.replies}</span>
             </button>
             <button type="button" class="post-action">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -404,13 +358,13 @@
                 <path d="m7 22-4-4 4-4"></path>
                 <path d="M21 13v1a4 4 0 0 1-4 4H3"></path>
               </svg>
-              <span>{post.stats.reposts}</span>
+              <span>{thread.insights.reposts}</span>
             </button>
             <button type="button" class="post-action">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
               </svg>
-              <span>{post.stats.likes}K</span>
+              <span>{thread.insights.likes}K</span>
             </button>
             <button type="button" class="post-action" aria-label="Post Action">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -425,6 +379,7 @@
     {/each}
   </div>
 </main>
+{/if}
 
 <style>
   .content-area {

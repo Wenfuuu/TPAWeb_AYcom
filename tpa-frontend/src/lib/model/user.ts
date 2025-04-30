@@ -1,3 +1,5 @@
+import axios from "axios";
+
 export type User = {
     id: string
     name: string
@@ -5,14 +7,14 @@ export type User = {
     email: string
     password: string
     gender: string
-    profilePicture: string
+    profile_picture: string
     banner: string
-    dateOfBirth: string
-    isActive: boolean
-    isBanned: boolean
+    date_of_birth: string
+    is_active: boolean
+    is_banned: boolean
     role: string
-    isSubscribed: boolean
-    isPremium: boolean
+    is_subscribed: boolean
+    is_premium: boolean
     bio: string
     createdAt: string
 }
@@ -20,6 +22,13 @@ export type User = {
 export type UserThread = {
     name: string;
     username: string;
-    verified: boolean;
+    isPremium: boolean;
     profile: string;
 };
+
+const BASE_API_URL = "http://localhost:8080/api/users";
+export async function fetchUser() {
+    const response = await axios.get<User[]>(BASE_API_URL + "/user");
+    const users = response.data;
+    return users;
+}

@@ -1,13 +1,9 @@
 <script lang="ts">
+  import { type User } from "../model/user";
+
   export let toggleTheme: () => void;
   export let isDarkMode: boolean;
-
-  // Sample user data
-  const user = {
-    name: "Adrian Yu",
-    username: "@adrianyu",
-    avatar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=40&width=40"
-  };
+  export let user: User | null;
 
   const navItems = [
     { name: "Home", icon: "home" },
@@ -61,47 +57,47 @@
 
     <button type="button" class="post-button">Post</button>
 
+    {#if user}
+      <div class="user-profile">
+        <img src={user.profile_picture || "/placeholder.svg"} alt={user.name || "User"} class="avatar" />
+        <div class="user-info">
+          <div class="user-name">{user.name || "User"}</div>
+          <div class="user-username">{user.username || "@user"}</div>
+        </div>
 
+        <div class="theme-toggle">
+          <button type="button" on:click={toggleTheme} aria-label="Toggle theme">
+            {#if isDarkMode}
+              <!-- Sun icon for light mode -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            {:else}
+              <!-- Moon icon for dark mode -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            {/if}
+          </button>
+        </div>
 
-    <div class="user-profile">
-      <img src={user.avatar || "/placeholder.svg"} alt={user.name} class="avatar" />
-      <div class="user-info">
-        <div class="user-name">{user.name}</div>
-        <div class="user-username">{user.username}</div>
+        <button type="button" class="more-options" aria-label="More options">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="1"></circle>
+            <circle cx="19" cy="12" r="1"></circle>
+            <circle cx="5" cy="12" r="1"></circle>
+          </svg>
+        </button>
       </div>
-
-      <div class="theme-toggle">
-      <button type="button" on:click={toggleTheme} aria-label="Toggle theme">
-        {#if isDarkMode}
-          <!-- Sun icon for light mode -->
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="5"></circle>
-            <line x1="12" y1="1" x2="12" y2="3"></line>
-            <line x1="12" y1="21" x2="12" y2="23"></line>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-            <line x1="1" y1="12" x2="3" y2="12"></line>
-            <line x1="21" y1="12" x2="23" y2="12"></line>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-          </svg>
-        {:else}
-          <!-- Moon icon for dark mode -->
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
-        {/if}
-      </button>
-    </div>
-
-      <button type="button" class="more-options" aria-label="More options">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="1"></circle>
-          <circle cx="19" cy="12" r="1"></circle>
-          <circle cx="5" cy="12" r="1"></circle>
-        </svg>
-      </button>
-    </div>
+    {/if}
   </div>
 </div>
 

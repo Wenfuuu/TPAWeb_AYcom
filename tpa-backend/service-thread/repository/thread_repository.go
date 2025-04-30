@@ -34,6 +34,12 @@ func (r *ThreadRepository) GetAllCommunity() ([]model.Community, error) {
 	return communities, result.Error
 }
 
+func (r *ThreadRepository) GetAllThreadFile() ([]model.ThreadFiles, error) {
+	var files []model.ThreadFiles
+	result := r.DB.Find(&files)
+	return files, result.Error
+}
+
 func (r *ThreadRepository) Create(thread *model.Thread) error {
 	return r.DB.Create(thread).Error
 }

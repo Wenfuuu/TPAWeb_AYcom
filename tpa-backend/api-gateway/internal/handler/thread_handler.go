@@ -89,3 +89,14 @@ func (h *ThreadHandler) GetAllCommunity(c *gin.Context) {
 	
 	c.JSON(http.StatusOK, resp.Communities)
 }
+
+func (h *ThreadHandler) GetAllThreadFile(c *gin.Context) {
+	resp, err := h.Client.GetAllThreadFile(context.Background(), &threadpb.GetAllThreadFileRequest{})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	
+	c.JSON(http.StatusOK, resp.ThreadFiles)
+}
