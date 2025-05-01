@@ -1,44 +1,21 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { type User, type UserThread } from "../model/user";
-  import { fetchCommunity, fetchThreadCategory, fetchThreadWithUser, type Community, type Thread, type ThreadCategory } from "../model/thread";
+  import { fetchCommunity, type Community, type Thread } from "../model/thread";
 
-  // Import the dedicated ComposePost component
-  import ComposePost from "./ComposePost.svelte"; // Adjust path if necessary
+  import ComposePost from "./ComposePost.svelte";
 
-  // --- State for the Feed ---
-  let threads: (Thread & { userData: UserThread })[] = [];
-  let threadCategories: ThreadCategory[] = [];
+  export let threads: (Thread & { userData: UserThread })[] = [];
   let communities: Community[] = [];
 
-  // --- Props ---
-  export let user: User | null; // User data passed from parent
+  export let refreshData: () => Promise<void>;
 
-  // --- Lifecycle ---
+  export let user: User | null;
+
   onMount(async () => {
-    // Fetch initial data for the feed and for the ComposePost component
-    await refreshFeedData();
-    threadCategories = await fetchThreadCategory();
+    await refreshData();
     communities = await fetchCommunity();
-
-    // console.log("Initial threads:", threads);
-    // console.log("Initial categories:", threadCategories);
-    // console.log("Initial communities:", communities);
   });
-
-  // --- Functions ---
-
-  // Function to refresh the main thread feed
-  async function refreshFeedData(): Promise<void> {
-    threads = await fetchThreadWithUser();
-    console.log(threads);
-  }
-
-  // Handler for when the ComposePost component signals a new post was created
-  async function handlePostCreated(): Promise<void> {
-    console.log("Post created event received in HomeContent. Refreshing feed...");
-    await refreshFeedData(); // Re-fetch the threads to include the new one
-  }
 
 </script>
 
@@ -51,12 +28,9 @@
       </div>
     </div>
 
-    <!-- Use the ComposePost component -->
     <ComposePost
       {user}
-      {threadCategories}
-      {communities}
-      onPostCreated={handlePostCreated}
+      {refreshData}
     />
 
     <!-- Feed Display Section -->
@@ -94,7 +68,7 @@
 
             {#if thread.community_id != "00000000-0000-0000-0000-000000000000"}
               <div class="post-community">
-                Posted in {communities.find(c => c.id === thread.community_id)?.name || "Community"}
+                Community: {communities.find(c => c.id === thread.community_id)?.name || "Community"}
               </div>
             {/if}
 
@@ -407,8 +381,7 @@
           font-size: 14px;
       }
       .post-action span {
-          /* Optionally hide text labels on very small screens */
-          /* display: none; */
+          display: none;
       }
       .post-action {
           gap: 4px;

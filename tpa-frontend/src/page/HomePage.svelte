@@ -5,10 +5,17 @@
   import LeftSidebar from "../lib/components/LeftSidebar.svelte";
   import RightSidebar from "../lib/components/RightSidebar.svelte";
   import HomeContent from "../lib/components/HomeContent.svelte";
-  import type { User } from "../lib/model/user";
+  import type { User, UserThread } from "../lib/model/user";
+  import { fetchThreadWithUser, type Thread } from "../lib/model/thread";
 
   let isDarkMode = true; // Default to dark mode
   let user: User | null = null;
+  let threads: (Thread & { userData: UserThread })[] = [];
+
+  async function refreshData(): Promise<void> {
+    threads = await fetchThreadWithUser();
+    console.log(threads);
+  }
 
   // Initialize theme from localStorage on component mount
   onMount(async() => {
@@ -27,6 +34,8 @@
       isDarkMode = prefersDark;
       document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
     }
+
+    await refreshData();
   });
 
   function toggleTheme() {
@@ -38,8 +47,8 @@
 </script>
 
 <div class="home-container">
-  <LeftSidebar {toggleTheme} {isDarkMode} {user} />
-  <HomeContent {user} />
+  <LeftSidebar {toggleTheme} {isDarkMode} {user} {refreshData} />
+  <HomeContent {threads} {user} {refreshData} />
   <RightSidebar />
 </div>
 

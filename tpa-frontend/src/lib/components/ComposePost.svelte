@@ -2,12 +2,13 @@
   import { type User } from "../model/user";
   import { uploadImage } from "../utils/supabaseStorage";
   import axios from "axios";
-  import { type Community, type ThreadCategory } from "../model/thread";
+  import { fetchCommunity, fetchThreadCategory, type Community, type ThreadCategory } from "../model/thread";
+  import { onMount } from "svelte";
 
   export let user: User | null;
-  export let threadCategories: ThreadCategory[] = [];
-  export let communities: Community[] = [];
-  export let onPostCreated: () => void = () => {}; // Optional callback for when post is created
+  let threadCategories: ThreadCategory[] = [];
+  let communities: Community[] = [];
+  export let refreshData: () => void = () => {};
 
   let newPostText = "";
   let uploadedImages: string[] = [];
@@ -25,6 +26,11 @@
   type ReplySettingType = "everyone" | "following" | "verified";
   let replySettings: ReplySettingType = "everyone";
   let showReplyOptions = false;
+
+  onMount(async() => {
+    threadCategories = await fetchThreadCategory();
+    communities = await fetchCommunity();
+  });
 
   async function handlePost(): Promise<void> {
     if (newPostText.trim()) {
@@ -71,7 +77,7 @@
       isPostingToCommunity = false;
 
       // Call the callback to notify parent component
-      onPostCreated();
+      refreshData();
     }
   }
 

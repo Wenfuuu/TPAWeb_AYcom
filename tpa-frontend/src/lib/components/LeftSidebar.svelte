@@ -3,10 +3,16 @@
   import { type User } from "../model/user";
   import { logout } from "../utils/auth";
   import { navigate } from "svelte-routing";
+  import ComposePost from "./ComposePost.svelte";
+  import Modal from "./Modal.svelte";
 
   export let toggleTheme: () => void;
   export let isDarkMode: boolean;
   export let user: User | null;
+
+  export let refreshData: () => Promise<void>;
+
+  let showComposeModal = false;
 
   let showProfileDropdown = false;
   let dropdownRef: HTMLDivElement;
@@ -49,6 +55,21 @@
     }
   }
 
+  function openComposeModal() {
+    showComposeModal = true;
+  }
+
+  function closeComposeModal() {
+    showComposeModal = false;
+  }
+
+  // Function called when ComposePost inside the modal finishes posting
+  async function handleModalPostCreated() {
+    console.log("Post created via modal. Closing modal.");
+    await refreshData();
+    closeComposeModal();
+  }
+
   onMount(() => {
     document.addEventListener("click", handleClickOutside);
     return () => {
@@ -58,6 +79,7 @@
 </script>
 
 <div class="sidebar left-sidebar">
+
   <div class="sidebar-content">
     <button type="button" class="logo" on:click={navigateHome}>
       {#if isDarkMode}
@@ -96,7 +118,7 @@
       {/each}
     </nav>
 
-    <button type="button" class="post-button">Post</button>
+    <button type="button" class="post-button" on:click={openComposeModal}>Post</button>
 
     {#if user}
       <div class="user-profile-container" bind:this={dropdownRef}>
@@ -161,6 +183,14 @@
     {/if}
   </div>
 </div>
+
+<Modal show={showComposeModal} on:close={closeComposeModal}>
+  {#if user} <!-- Only render ComposePost if user is available -->
+    <ComposePost
+      {user}
+      refreshData={handleModalPostCreated} />
+  {/if}
+</Modal>
 
 <style>
   .left-sidebar {
