@@ -58,10 +58,12 @@ function formatTweetDate(date: Date): string {
   }
 }
 
-export async function fetchThreadWithUser(page: number): Promise<(Thread & { userData: UserThread })[]> {
+export async function fetchThreadWithUser(page: number): Promise<(Thread & { userData: UserThread })[] | null> {
     const allThreads = await fetchThread(page);
     const allUsers = await fetchUser();
     const fileURLS = await fetchFiles();
+
+    if(!allThreads) return null;
 
     threads = allThreads.map(thread => {
         const user = allUsers.find(u => u.id === thread.user_id);

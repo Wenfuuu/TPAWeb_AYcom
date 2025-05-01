@@ -39,32 +39,27 @@
 
     observer = new IntersectionObserver(
       async (entries) => {
+        console.log(hasMore);
         if (entries[0].isIntersecting && !isLoading && hasMore) {
-          try {
-            isLoading = true;
-            console.log("Loading more content, page:", page + 1);
+          isLoading = true;
+          console.log("Loading more content, page:", page + 1);
 
-            const newThreads = await fetchThreadWithUser(page + 1);
-            console.log("Fetched new threads:", newThreads.length);
-
-            if (newThreads.length === 0) {
-              console.log("No more threads to load");
-              hasMore = false;
-            } else {
-              threads = [...threads, ...newThreads];
-              page += 1;
-            }
-          } catch (error) {
-            console.error("Error loading more threads:", error);
-            // You might want to add a retry mechanism here
-          } finally {
+          const newThreads = await fetchThreadWithUser(page + 1);
+          if(!newThreads){
+            hasMore = false;
             isLoading = false;
+            return;
           }
+          console.log("Fetched new threads:", newThreads.length);
+          threads = [...threads, ...newThreads];
+          page += 1;
+
+          isLoading = false;
         }
       },
       {
         root: contentAreaElement,
-        rootMargin: "200px",
+        rootMargin: "1px",
         threshold: 1,
       }
     );
@@ -184,7 +179,6 @@
                   </div>
                 {/each}
               </div>
-              <!-- Removed redundant post-caption as post-text handles it -->
             {/if}
 
             <div class="post-actions">
@@ -269,15 +263,38 @@
 
     <div bind:this={sentinel} class="loading-sentinel">
       {#if isLoading}
-        <p>Loading more threads...</p>
+        <!-- Skeleton Loading UI -->
+        <div class="skeleton-loading">
+          <!-- Repeat skeleton post structure multiple times for better UX -->
+          {#each Array(3) as _, i (i)}
+            <div class="skeleton-post">
+              <div class="skeleton-avatar pulse"></div>
+              <div class="skeleton-content">
+                <div class="skeleton-header">
+                  <div class="skeleton-name pulse"></div>
+                  <div class="skeleton-username pulse"></div>
+                </div>
+                <div class="skeleton-text pulse"></div>
+                <div class="skeleton-text-short pulse"></div>
+                <!-- Random image placeholder in some posts -->
+                {#if i % 2 === 0}
+                  <div class="skeleton-image pulse"></div>
+                {/if}
+                <div class="skeleton-actions">
+                  <div class="skeleton-action pulse"></div>
+                  <div class="skeleton-action pulse"></div>
+                  <div class="skeleton-action pulse"></div>
+                  <div class="skeleton-action pulse"></div>
+                </div>
+              </div>
+            </div>
+          {/each}
+        </div>
       {:else if !hasMore && threads.length > 0}
-        <p>You've reached the end of your feed!</p>
+        <p>No more thread available!</p>
       {/if}
     </div>
   </main>
-{:else}
-  <!-- Optional: Show a loading state or login prompt if user is null -->
-  <p>Loading user data or please log in...</p>
 {/if}
 
 <style>
@@ -542,10 +559,94 @@
   }
 
   .loading-sentinel {
-    min-height: 10px; /* Ensure it can be intersected even if empty */
-    padding: 20px; /* Add some space for visibility */
+    min-height: 100px;
+    padding: 20px;
     text-align: center;
     color: var(--text-secondary);
+  }
+
+  /* Skeleton loading styles */
+  .skeleton-loading {
+    width: 100%;
+    padding: 0 16px;
+  }
+
+  .skeleton-post {
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .skeleton-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--hover-background);
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+
+  .skeleton-content {
+    flex: 1;
+  }
+
+  .skeleton-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 8px;
+  }
+
+  .skeleton-name {
+    height: 16px;
+    width: 120px;
+    background-color: var(--hover-background);
+    border-radius: 4px;
+  }
+
+  .skeleton-username {
+    height: 14px;
+    width: 80px;
+    background-color: var(--hover-background);
+    border-radius: 4px;
+  }
+
+  .skeleton-text {
+    height: 14px;
+    width: 100%;
+    background-color: var(--hover-background);
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  .skeleton-text-short {
+    height: 14px;
+    width: 70%;
+    background-color: var(--hover-background);
+    border-radius: 4px;
+    margin-bottom: 16px;
+  }
+
+  .skeleton-image {
+    height: 180px;
+    width: 100%;
+    background-color: var(--hover-background);
+    border-radius: 16px;
+    margin-bottom: 16px;
+  }
+
+  .skeleton-actions {
+    display: flex;
+    justify-content: space-between;
+    max-width: 425px;
+  }
+
+  .skeleton-action {
+    height: 18px;
+    width: 36px;
+    background-color: var(--hover-background);
+    border-radius: 4px;
   }
 
   @media (max-width: 768px) {

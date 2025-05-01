@@ -81,6 +81,12 @@ services:
       - redis
       - db-user
 
+  # Notification Service
+
+  # Follow Service
+
+  # Chat Service
+
   # User Database
   db-user:
     image: postgres:latest

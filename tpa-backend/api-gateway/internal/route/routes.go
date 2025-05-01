@@ -79,8 +79,8 @@ func InitRoutes(
 			// users.GET("/me", authMiddleware(), getProfile)
 			// users.PUT("/:id", authMiddleware(), updateUser)
 			// users.DELETE("/:id", authMiddleware(), deleteUser)
-			users.GET("/user", userHandler.GetAllUsers)
-			users.POST("/upload/:type", userHandler.UploadImage)
+			users.GET("/user", userHandler.GetAllUsers) // NEED GUARD
+			users.POST("/upload/:type", userHandler.UploadImage) // NEED GUARD
 		}
 		auth := api.Group("/auth")
 		{
@@ -96,10 +96,10 @@ func InitRoutes(
 		}
 		thread := api.Group("/threads")
 		{
-			thread.GET("/thread", threadHandler.GetAllThreads)
-			thread.GET("/thread-category", threadHandler.GetAllThreadCategories)
-			thread.GET("/community", threadHandler.GetAllCommunity)
-			thread.GET("/thread-file", threadHandler.GetAllThreadFile)
+			thread.GET("/thread", threadHandler.GetAllThreads) // NEED GUARD
+			thread.GET("/thread-category", threadHandler.GetAllThreadCategories) // NEED GUARD
+			thread.GET("/community", threadHandler.GetAllCommunity) // NEED GUARD
+			thread.GET("/thread-file", threadHandler.GetAllThreadFile) // NEED GUARD
 			thread.POST("/post", threadHandler.PostThread)
 		}
 	}
