@@ -47,7 +47,7 @@
   --shadow-color: rgba(0, 0, 0, 0.65);
   --spinner-border: rgba(29, 155, 240, 0.2);
   --spinner-border-top: #1d9bf0;
-  --hover-background: rgba(255, 255, 255, 0.03);
+  --hover-background: rgba(255, 255, 255, 0.1);
   --search-background: #253341;
 }
 

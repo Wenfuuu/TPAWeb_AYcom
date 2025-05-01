@@ -9,18 +9,16 @@ type LoginResponse = {
     user: User
 }
 
-// Store user info in localStorage
 export function storeUserInfo(user: User): void {
     localStorage.setItem("user-info", JSON.stringify(user));
 }
 
-// Get user info from localStorage
 export function getUserInfo(): User | null {
     const userInfo = localStorage.getItem("user-info");
     return userInfo ? JSON.parse(userInfo) : null;
 }
 
-// Get current user from API
+// get current user from API
 export async function getAuthUser(): Promise<User | null> {
     const accessToken = localStorage.getItem("access-token");
     if (!accessToken) return null;
@@ -66,7 +64,7 @@ export async function checkGuest(navigate: (path: string) => void) {
         });
 
         if(response.ok){
-            // meant user are logged in or authenticated, so redirect to home page
+            // means user are logged in or authenticated, so redirect to home page
             navigate("/home");
         }
     }else{
@@ -135,4 +133,11 @@ export async function login(email: string, password: string, navigate: (path: st
     } else {
         // toast
     }
+}
+
+export function logout(navigate: (path: string) => void) {
+    localStorage.removeItem("access-token");
+    localStorage.removeItem("refresh-token");
+    localStorage.removeItem("user-info");
+    navigate("/login");
 }

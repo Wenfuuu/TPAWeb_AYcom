@@ -651,7 +651,7 @@
 
   .dropdown-item {
     width: 100%;
-    background-color: var(--background);
+    background-color: var(--card-background);
     border: none;
     display: flex;
     align-items: center;

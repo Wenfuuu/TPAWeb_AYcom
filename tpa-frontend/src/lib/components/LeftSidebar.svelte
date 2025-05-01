@@ -1,9 +1,15 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { type User } from "../model/user";
+  import { logout } from "../utils/auth";
+  import { navigate } from "svelte-routing";
 
   export let toggleTheme: () => void;
   export let isDarkMode: boolean;
   export let user: User | null;
+
+  let showProfileDropdown = false;
+  let dropdownRef: HTMLDivElement;
 
   const navItems = [
     { name: "Home", icon: "home" },
@@ -16,15 +22,50 @@
     { name: "Profile", icon: "user" },
     { name: "More", icon: "more-horizontal" }
   ];
+
+  // Close dropdown when clicking outside
+  function handleClickOutside(event: MouseEvent) {
+    if (dropdownRef && !dropdownRef.contains(event.target as Node)) {
+      showProfileDropdown = false;
+    }
+  }
+
+  function toggleProfileDropdown() {
+    showProfileDropdown = !showProfileDropdown;
+  }
+
+  function handleLogout() {
+    logout(navigate);
+  }
+
+  function navigateHome() {
+    navigate("/home");
+  }
+
+  function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === "Enter" || event.key === " ") {
+      toggleProfileDropdown();
+      event.preventDefault();
+    }
+  }
+
+  onMount(() => {
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  });
 </script>
 
 <div class="sidebar left-sidebar">
   <div class="sidebar-content">
-    <div class="logo">
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
-      </svg>
-    </div>
+    <button type="button" class="logo" on:click={navigateHome}>
+      {#if isDarkMode}
+        <img src="/src/assets/AY-dark.jpg" alt="Logo" class="logo-img">
+      {:else}
+        <img src="/src/assets/AY-light.jpg" alt="Logo" class="logo-img">
+      {/if}
+    </button>
 
     <nav class="navigation">
       {#each navItems as item (item.name)}
@@ -58,44 +99,64 @@
     <button type="button" class="post-button">Post</button>
 
     {#if user}
-      <div class="user-profile">
-        <img src={user.profile_picture || "/placeholder.svg"} alt={user.name || "User"} class="avatar" />
-        <div class="user-info">
-          <div class="user-name">{user.name || "User"}</div>
-          <div class="user-username">{user.username || "@user"}</div>
-        </div>
+      <div class="user-profile-container" bind:this={dropdownRef}>
+        <div
+          class="user-profile"
+          role="button"
+          tabindex="0"
+          on:click={toggleProfileDropdown}
+          on:keydown={handleKeyDown}
+          aria-expanded={showProfileDropdown}
+          aria-haspopup="true"
+        >
+          <img src={user.profile_picture || "/placeholder.svg"} alt={user.name || "User"} class="avatar" />
+          <div class="user-info">
+            <div class="user-name">{user.name || "User"}</div>
+            <div class="user-username">{user.username || "@user"}</div>
+          </div>
 
-        <div class="theme-toggle">
-          <button type="button" on:click={toggleTheme} aria-label="Toggle theme">
-            {#if isDarkMode}
-              <!-- Sun icon for light mode -->
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="5"></circle>
-                <line x1="12" y1="1" x2="12" y2="3"></line>
-                <line x1="12" y1="21" x2="12" y2="23"></line>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                <line x1="1" y1="12" x2="3" y2="12"></line>
-                <line x1="21" y1="12" x2="23" y2="12"></line>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-              </svg>
-            {:else}
-              <!-- Moon icon for dark mode -->
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-              </svg>
-            {/if}
+          <div class="theme-toggle">
+            <button type="button" on:click|stopPropagation={toggleTheme} aria-label="Toggle theme">
+              {#if isDarkMode}
+                <!-- Sun icon for light mode -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                  <line x1="1" y1="12" x2="3" y2="12"></line>
+                  <line x1="21" y1="12" x2="23" y2="12"></line>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+              {:else}
+                <!-- Moon icon for dark mode -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+              {/if}
+            </button>
+          </div>
+
+          <button type="button" class="more-options" aria-label="More options" on:click|stopPropagation={toggleProfileDropdown}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="1"></circle>
+              <circle cx="19" cy="12" r="1"></circle>
+              <circle cx="5" cy="12" r="1"></circle>
+            </svg>
           </button>
         </div>
 
-        <button type="button" class="more-options" aria-label="More options">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="1"></circle>
-            <circle cx="19" cy="12" r="1"></circle>
-            <circle cx="5" cy="12" r="1"></circle>
-          </svg>
-        </button>
+        {#if showProfileDropdown}
+          <div class="profile-dropdown">
+            <div class="dropdown-options">
+              <button type="button" class="dropdown-option" on:click={handleLogout}>
+                Log out {user.username || "@user"}
+              </button>
+            </div>
+          </div>
+        {/if}
       </div>
     {/if}
   </div>
@@ -120,7 +181,8 @@
   }
 
   .logo {
-    color: var(--text-primary);
+    background-color: var(--background);
+    border: none;
     padding: 12px;
     margin-top: 4px;
     margin-bottom: 8px;
@@ -132,6 +194,10 @@
 
   .logo:hover {
     background-color: var(--hover-background);
+  }
+
+  .logo-img {
+    max-width: 50px;
   }
 
   .navigation {
@@ -173,7 +239,7 @@
     font-weight: 700;
     cursor: pointer;
     margin-top: 16px;
-    margin-bottom: auto;
+    margin-bottom: 24px;
     transition: background-color 0.2s;
   }
 
@@ -204,14 +270,25 @@
     background-color: var(--hover-background);
   }
 
+  .user-profile-container {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  /* Updated styles for user-profile as a button */
   .user-profile {
+    position: relative;
     display: flex;
     align-items: center;
-    padding: 12px;
+    padding: 12px 0;
     border-radius: 9999px;
-    margin-bottom: 16px;
     cursor: pointer;
     transition: background-color 0.2s;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    color: var(--text-primary);
   }
 
   .user-profile:hover {
@@ -256,6 +333,40 @@
     justify-content: center;
   }
 
+  .profile-dropdown {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 0;
+    width: 80%;
+    background-color: var(--card-background);
+    border-radius: 16px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+  }
+
+  .dropdown-options {
+    padding: 12px 0;
+  }
+
+  .dropdown-option {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 500;
+    padding: 12px 16px;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+  }
+
+  .dropdown-option:hover {
+    background-color: var(--hover-background);
+  }
+
   @media (max-width: 768px) {
     .left-sidebar {
       width: 100%;
@@ -288,6 +399,13 @@
 
     .nav-item {
       padding: 8px;
+    }
+
+    .profile-dropdown {
+      bottom: auto;
+      top: 100%;
+      right: 0;
+      left: auto;
     }
   }
 </style>

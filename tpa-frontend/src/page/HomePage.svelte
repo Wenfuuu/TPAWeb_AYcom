@@ -29,7 +29,6 @@
     }
   });
 
-  // Toggle theme function
   function toggleTheme() {
     isDarkMode = !isDarkMode;
     const newTheme = isDarkMode ? "dark" : "light";

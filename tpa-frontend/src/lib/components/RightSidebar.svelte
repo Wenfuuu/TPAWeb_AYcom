@@ -140,6 +140,8 @@
     padding: 12px 16px;
     margin: 6px 0;
     transition: background-color 0.2s;
+    border-color: var(--divider-color);
+    border: solid 1px;
   }
 
   .search-box:focus-within {
@@ -166,10 +168,12 @@
   }
 
   .sidebar-section {
-    background-color: var(--search-background, var(--hover-background));
+    background-color: var(--card-background, var(--hover-background));
     border-radius: 16px;
     margin: 16px 0;
     padding: 16px;
+    border-color: var(--divider-color);
+    border: solid 1px;
   }
 
   .sidebar-section h2 {
