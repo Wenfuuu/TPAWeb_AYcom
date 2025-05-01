@@ -9,8 +9,10 @@
   export let toggleTheme: () => void;
   export let isDarkMode: boolean;
   export let user: User | null;
+  export let currentActiveTab: "for-you" | "following";
 
   export let refreshData: (page: number) => Promise<void>;
+  export let refreshFollowingData: (page: number) => Promise<void>;
 
   let showComposeModal = false;
 
@@ -66,7 +68,9 @@
   // Function called when ComposePost inside the modal finishes posting
   async function handleModalPostCreated() {
     console.log("Post created via modal. Closing modal.");
-    await refreshData(1);
+    if(currentActiveTab === "for-you") await refreshData(1);
+    else refreshFollowingData(1);
+
     closeComposeModal();
   }
 

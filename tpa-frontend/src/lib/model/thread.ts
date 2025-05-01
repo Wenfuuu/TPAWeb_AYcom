@@ -105,9 +105,64 @@ export async function fetchThreadWithUser(page: number): Promise<(Thread & { use
     return threads;
 }
 
-// export async function fetchFollowingThread(page: number) {
-    
-// }
+export async function fetchFollowingThread(page: number, user_id: string): Promise<(Thread & { userData: UserThread })[] | null> {
+    const allThreads = await fetchFollowThread(page, user_id);
+    const allUsers = await fetchUser();
+    const fileURLS = await fetchFiles();
+
+    if(!allThreads) return null;
+
+    threads = allThreads.map(thread => {
+        const user = allUsers.find(u => u.id === thread.user_id);
+        const userData: UserThread = user
+        ? {
+            name: user.name,
+            username: user.username,
+            isPremium: user.is_premium ? true : false,
+            profile: user.profile_picture,
+          }
+        : {
+            name: "Unknown",
+            username: "unknown",
+            isPremium: true,
+            profile: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//kagari.jpg"
+        };
+
+        let images: string[] = [];
+        if(fileURLS) {
+            images = fileURLS
+            .filter(file => file.thread_id === thread.id)
+            .map(file => file.file);
+        }
+
+        const insights: ThreadInsights = {
+            replies: 0,
+            reposts: 0,
+            likes: 0,
+        };
+        return {
+            ...thread,
+            created_at: formatTweetDate(new Date(thread.created_at)),
+            images,
+            insights,
+            userData,
+        };
+    });
+
+    return threads;
+}
+
+export async function fetchFollowThread(page: number, user_id: string) {
+    console.log(user_id);
+    const response = await axios.get<Thread[]>(BASE_API_URL + "/thread-following", {
+        params: {
+            page,
+            user_id
+        }
+    });
+    const threads = response.data;
+    return threads;
+}
 
 export async function fetchThread(page: number) {
     const response = await axios.get<Thread[]>(BASE_API_URL + "/thread", {

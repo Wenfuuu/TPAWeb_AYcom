@@ -6,11 +6,12 @@
   import RightSidebar from "../lib/components/RightSidebar.svelte";
   import HomeContent from "../lib/components/HomeContent.svelte";
   import type { User, UserThread } from "../lib/model/user";
-  import { fetchThreadWithUser, type Thread } from "../lib/model/thread";
+  import { fetchFollowingThread, fetchThreadWithUser, type Thread } from "../lib/model/thread";
 
   let isDarkMode = true; // Default to dark mode
   let user: User | null = null;
   let threads: (Thread & { userData: UserThread })[] = [];
+  const currentActiveTab: "for-you" | "following" = "for-you";
 
   async function refreshData(page: number): Promise<void> {
     const data = await fetchThreadWithUser(page);
@@ -18,9 +19,12 @@
     console.log(threads);
   }
 
-  // async function refreshFollowingThread(page: number): Promise<void> {
-
-  // }
+  async function refreshFollowingData(page: number): Promise<void> {
+    if(user){
+      const data = await fetchFollowingThread(page, user.id);
+      if(data) threads = data;
+    }
+  }
 
   // Initialize theme from localStorage on component mount
   onMount(async() => {
@@ -52,8 +56,9 @@
 </script>
 
 <div class="home-container">
-  <LeftSidebar {toggleTheme} {isDarkMode} {user} {refreshData} />
-  <HomeContent {threads} {user} {refreshData} />
+  <LeftSidebar {toggleTheme} {isDarkMode} {user} {refreshData} {refreshFollowingData}
+  {currentActiveTab} />
+  <HomeContent {threads} {user} {refreshData} {refreshFollowingData} {currentActiveTab} />
   <RightSidebar />
 </div>
 

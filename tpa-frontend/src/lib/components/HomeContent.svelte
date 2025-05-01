@@ -3,6 +3,7 @@
   import { type User, type UserThread } from "../model/user";
   import {
     fetchCommunity,
+    fetchFollowingThread,
     fetchThreadWithUser,
     type Community,
     type Thread,
@@ -14,6 +15,7 @@
   let communities: Community[] = [];
 
   export let refreshData: (page: number) => Promise<void>;
+  export let refreshFollowingData: (page: number) => Promise<void>;
 
   export let user: User | null;
 
@@ -26,7 +28,7 @@
   let sentinel: HTMLDivElement | null = null;
   let observer: IntersectionObserver | null = null;
 
-  let currentActiveTab: "for-you" | "following" = "for-you";
+  export let currentActiveTab: "for-you" | "following";
 
   function switchTab(tab: "for-you" | "following") {
     if (currentActiveTab !== tab) {
@@ -35,7 +37,9 @@
       threads = [];
       hasMore = true;
 
-      refreshData(page);
+      console.log(currentActiveTab);
+      if(currentActiveTab === "for-you") refreshData(page);
+      else refreshFollowingData(page);
     }
   }
 
@@ -57,7 +61,12 @@
           isLoading = true;
           console.log("Loading more content, page:", page + 1);
 
-          const newThreads = await fetchThreadWithUser(page + 1);
+          let newThreads;
+          if(currentActiveTab === "for-you") {
+            newThreads = await fetchThreadWithUser(page+1);
+          }else{
+            if(user) newThreads = await fetchFollowingThread(page+1, user.id);
+          }
           if(!newThreads){
             hasMore = false;
             isLoading = false;
