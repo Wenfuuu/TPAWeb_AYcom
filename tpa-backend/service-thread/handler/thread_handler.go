@@ -48,7 +48,7 @@ func (h *ThreadHandler) GetFollowingThreads(ctx context.Context, req *threadpb.G
 	page := int(req.Page)
 	userId := req.UserId // the current account id
 
-	// call follow service to get followings
+	// call follow service to get following ids
 	followResp, err := h.followClient.GetFollowing(ctx, &followpb.GetFollowingRequest{
 		UserId: userId,
 	})
@@ -63,6 +63,7 @@ func (h *ThreadHandler) GetFollowingThreads(ctx context.Context, req *threadpb.G
 		}
 	}
 
+	followingIds = append(followingIds, userId)
 	modelThreads, err := h.threadRepo.GetFollowingThreads(page, followingIds)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Database error")

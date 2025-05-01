@@ -192,7 +192,8 @@
   {#if user} <!-- Only render ComposePost if user is available -->
     <ComposePost
       {user}
-      refreshData={handleModalPostCreated} />
+      refreshData={handleModalPostCreated}
+      {currentActiveTab} />
   {/if}
 </Modal>
 

@@ -105,12 +105,6 @@
       color: var(--text-primary);
   }
 
-  /* Ensure slot content respects padding if ComposePost didn't have it */
-  .modal-content > :global(*) { /* Target slotted content */
-      /* Example: Add padding if ComposePost didn't have it */
-      /* padding: 20px; */
-  }
-
    @media (max-width: 768px) {
      .modal-content {
          width: 95%;

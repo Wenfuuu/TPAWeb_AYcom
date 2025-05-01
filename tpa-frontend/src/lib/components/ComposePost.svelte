@@ -8,7 +8,8 @@
   export let user: User | null;
   let threadCategories: ThreadCategory[] = [];
   let communities: Community[] = [];
-  export let refreshData: (page: number) => void = () => {};
+  export let currentActiveTab: "for-you" | "following";
+  export let refreshData: () => void = () => {};
 
   let newPostText = "";
   let uploadedImages: string[] = [];
@@ -76,7 +77,6 @@
       selectedCommunityId = "";
       isPostingToCommunity = false;
 
-      // Call the callback to notify parent component
       refreshData();
     }
   }

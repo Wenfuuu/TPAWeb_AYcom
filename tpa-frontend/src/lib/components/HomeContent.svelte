@@ -98,6 +98,12 @@
     }
   }
 
+  async function handlePostCreated() {
+    hasMore = true;
+    if(currentActiveTab === "for-you") await refreshData(1);
+    else refreshFollowingData(1);
+  }
+
   onMount(async () => {
     observeScroll();
     await refreshData(page);
@@ -128,7 +134,7 @@
       </div>
     </div>
 
-    <ComposePost {user} {refreshData} />
+    <ComposePost {user} refreshData={handlePostCreated} {currentActiveTab} />
 
     <!-- Feed Display Section -->
     <div class="posts">
