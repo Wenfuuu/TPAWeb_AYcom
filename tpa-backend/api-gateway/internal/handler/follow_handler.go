@@ -34,10 +34,10 @@ func (h *FollowHandler) GetFollower(c *gin.Context) {
 }
 
 func (h *FollowHandler) GetFollowing(c *gin.Context) {
-	user_id := c.Query("user_id")
+	userId := c.Query("user_id")
 
 	resp, err := h.Client.GetFollowing(context.Background(), &followpb.GetFollowingRequest{
-		UserId: user_id,
+		UserId: userId,
 	})
 
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	threadpb "github.com/Wenfuuu/tpa-web/pkg/proto/thread"
+	followpb "github.com/Wenfuuu/tpa-web/pkg/proto/follow"
 	"github.com/Wenfuuu/tpa-web/service-thread/model"
 	"github.com/Wenfuuu/tpa-web/service-thread/repository"
 	"github.com/google/uuid"
@@ -16,17 +17,53 @@ import (
 
 type ThreadHandler struct {
 	threadRepo *repository.ThreadRepository
+	followClient followpb.FollowServiceClient
 }
 
-func NewThreadHandler() *ThreadHandler {
+func NewThreadHandler(followClient followpb.FollowServiceClient) *ThreadHandler {
 	return &ThreadHandler{
 		threadRepo: repository.NewThreadRepository(),
+		followClient: followClient,
 	}
 }
 
 func (h *ThreadHandler) GetAllThreads(ctx context.Context, req *threadpb.GetAllThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
 	page := int(req.Page)
 	modelThreads, err := h.threadRepo.GetAllThreads(page)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbThreads []*threadpb.Thread
+	for _, t := range modelThreads {
+		pbThreads = append(pbThreads, h.threadToProto(&t))
+	}
+
+	return &threadpb.GetAllThreadsResponse{
+		Threads: pbThreads,
+	}, nil
+}
+
+func (h *ThreadHandler) GetFollowingThreads(ctx context.Context, req *threadpb.GetFollowingThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
+	page := int(req.Page)
+	userId := req.UserId // the current account id
+
+	// call follow service to get followings
+	followResp, err := h.followClient.GetFollowing(ctx, &followpb.GetFollowingRequest{
+		UserId: userId,
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to get followings")
+	}
+
+	var followingIds []string
+	for _, element := range followResp.Follows {
+		if element != nil {
+			followingIds = append(followingIds, element.FollowingId)
+		}
+	}
+
+	modelThreads, err := h.threadRepo.GetFollowingThreads(page, followingIds)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Database error")
 	}

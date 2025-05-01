@@ -105,6 +105,10 @@ export async function fetchThreadWithUser(page: number): Promise<(Thread & { use
     return threads;
 }
 
+// export async function fetchFollowingThread(page: number) {
+    
+// }
+
 export async function fetchThread(page: number) {
     const response = await axios.get<Thread[]>(BASE_API_URL + "/thread", {
         params: {

@@ -1,15 +1,18 @@
 package main
 
 import (
+	"github.com/Wenfuuu/tpa-web/service-thread/client"
 	"github.com/Wenfuuu/tpa-web/service-thread/database"
-	"github.com/Wenfuuu/tpa-web/service-thread/utils"
 	"github.com/Wenfuuu/tpa-web/service-thread/server"
+	"github.com/Wenfuuu/tpa-web/service-thread/utils"
+
 	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
-	threadpb "github.com/Wenfuuu/tpa-web/pkg/proto/thread"
-	"google.golang.org/grpc"
 	"fmt"
 	"log"
 	"net"
+
+	threadpb "github.com/Wenfuuu/tpa-web/pkg/proto/thread"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -17,6 +20,11 @@ func main() {
 	db := database.InitDB()
 	database.Migrate(db)
 	// database.Seed(db)
+
+	// follow service
+	followServiceAddr := utils.GetDotEnv("FOLLOW_SERVICE_ADDR")
+	followClient, followConn := client.NewFollowClient(followServiceAddr)
+	defer followConn.Close()
 
 	port := utils.GetDotEnv("GRPC_PORT")
 	if port == "" {
@@ -29,7 +37,7 @@ func main() {
 	}
 	
 	grpcServer := grpc.NewServer()
-	threadServer := server.NewThreadServer()
+	threadServer := server.NewThreadServer(followClient)
 	threadpb.RegisterThreadServiceServer(grpcServer, threadServer)
 
 	log.Printf("Thread service listening on port %s", port)

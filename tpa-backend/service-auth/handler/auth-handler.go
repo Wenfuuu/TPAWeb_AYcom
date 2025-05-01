@@ -143,7 +143,7 @@ func (h *AuthHandler) Register(ctx context.Context, req *authpb.AuthRegisterRequ
 		Bio: 				req.Bio,
 	})
 	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, "Failed to create user")
+		return nil, status.Error(codes.Internal, "Failed to create user")
 	}
 
 	return &authpb.AuthRegisterResponse{

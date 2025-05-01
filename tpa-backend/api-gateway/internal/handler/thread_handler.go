@@ -39,6 +39,28 @@ func (h *ThreadHandler) GetAllThreads(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Threads)
 }
 
+func (h *ThreadHandler) GetFollowingThreads(c *gin.Context) {
+	pageStr := c.Query("page")
+	userId := c.Query("user_id")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	resp, err := h.Client.GetFollowingThreads(context.Background(), &threadpb.GetFollowingThreadsRequest{
+		Page: int32(page),
+		UserId: userId,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.Threads)
+}
+
 func (h *ThreadHandler) PostThread(c *gin.Context) {
 	var requestBody struct {
 		UserID          string   `json:"userId" binding:"required"`       // UUID format

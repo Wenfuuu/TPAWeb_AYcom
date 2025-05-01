@@ -27,6 +27,17 @@ func (r *ThreadRepository) GetAllThreads(page int) ([]model.Thread, error) {
 	return threads, result.Error
 }
 
+func (r *ThreadRepository) GetFollowingThreads(page int, userIds []string) ([]model.Thread, error) {
+	var threads []model.Thread
+
+	// add offset here
+	limit := 5
+	offset := (page - 1) * limit
+
+	result := r.DB.Where("user_id IN ?", userIds).Order("created_at DESC").Limit(limit).Offset(offset).Find(&threads)
+	return threads, result.Error
+}
+
 func (r *ThreadRepository) GetAllThreadCategories() ([]model.ThreadCategory, error) {
 	var categories []model.ThreadCategory
 	result := r.DB.Find(&categories)

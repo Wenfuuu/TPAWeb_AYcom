@@ -18,7 +18,7 @@
     console.log(threads);
   }
 
-  // async function refreshFollowingDate(page: number): Promise<void> {
+  // async function refreshFollowingThread(page: number): Promise<void> {
 
   // }
 
