@@ -26,6 +26,19 @@
   let sentinel: HTMLDivElement | null = null;
   let observer: IntersectionObserver | null = null;
 
+  let currentActiveTab: "for-you" | "following" = "for-you";
+
+  function switchTab(tab: "for-you" | "following") {
+    if (currentActiveTab !== tab) {
+      currentActiveTab = tab;
+      page = 1;
+      threads = [];
+      hasMore = true;
+
+      refreshData(page);
+    }
+  }
+
   function observeScroll() {
     if (observer) {
       observer.disconnect();
@@ -87,8 +100,22 @@
   <main class="content-area" bind:this={contentAreaElement}>
     <div class="header">
       <div class="tabs">
-        <button type="button" class="tab active">For you</button>
-        <button type="button" class="tab">Following</button>
+        <button
+          type="button"
+          class="tab"
+          class:active={currentActiveTab === "for-you"}
+          on:click={() => switchTab("for-you")}
+        >
+          For you
+        </button>
+        <button
+          type="button"
+          class="tab"
+          class:active={currentActiveTab === "following"}
+          on:click={() => switchTab("following")}
+        >
+          Following
+        </button>
       </div>
     </div>
 

@@ -81,11 +81,24 @@ services:
       - redis
       - db-user
 
+  # Follow Service
+  service-follow:
+    build:
+      context: ./tpa-backend/
+      dockerfile: service-follow/Dockerfile
+    volumes:
+      - ./tpa-backend/service-follow:/app
+    ports:
+      - "50055:50055"
+    depends_on:
+      - rabbitmq
+      - db-user
+
   # Notification Service
 
-  # Follow Service
-
   # Chat Service
+
+  # Community Service ??
 
   # User Database
   db-user:

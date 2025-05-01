@@ -13,9 +13,14 @@
   let threads: (Thread & { userData: UserThread })[] = [];
 
   async function refreshData(page: number): Promise<void> {
-    threads = await fetchThreadWithUser(page);
+    const data = await fetchThreadWithUser(page);
+    if(data) threads = data;
     console.log(threads);
   }
+
+  // async function refreshFollowingDate(page: number): Promise<void> {
+
+  // }
 
   // Initialize theme from localStorage on component mount
   onMount(async() => {

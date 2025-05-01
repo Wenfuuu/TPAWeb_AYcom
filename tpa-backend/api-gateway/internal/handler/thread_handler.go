@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
 	threadpb "github.com/Wenfuuu/tpa-web/pkg/proto/thread"
 	"github.com/gin-gonic/gin"
 )

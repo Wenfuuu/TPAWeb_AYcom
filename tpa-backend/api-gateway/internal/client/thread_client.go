@@ -11,7 +11,7 @@ import (
 func NewThreadClient(threadServiceAddr string) (threadpb.ThreadServiceClient, *grpc.ClientConn) {
 	threadConn, err := grpc.NewClient(threadServiceAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatalf("Failed to connect to auth service: %v", err)
+		log.Fatalf("Failed to connect to thread service: %v", err)
 	}
 	
 	return threadpb.NewThreadServiceClient(threadConn), threadConn

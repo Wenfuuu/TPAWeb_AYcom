@@ -6,6 +6,7 @@ option go_package = "github.com/Wenfuuu/tpa-web/pkg/proto/thread";
 
 service ThreadService {
     rpc GetAllThreads(GetAllThreadsRequest) returns (GetAllThreadsResponse);
+    rpc GetFollowingThreads(GetFollowingThreadsRequest) returns (GetAllThreadsResponse);
     rpc PostThread(PostThreadRequest) returns (ThreadResponse);
     rpc GetAllThreadCategories(GetAllThreadCategoriesRequest) returns (GetAllThreadCategoriesResponse);
     rpc GetAllCommunity(GetAllCommunitiesRequest) returns (GetAllCommunitiesResponse);
@@ -18,6 +19,11 @@ message GetAllThreadsRequest {
 
 message GetAllThreadsResponse {
     repeated Thread threads = 1;
+}
+
+message GetFollowingThreadsRequest {
+    int32 page = 1;
+    string user_id = 2;
 }
 
 message GetAllThreadCategoriesRequest {}

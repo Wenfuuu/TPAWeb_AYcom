@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package follow;
+
+option go_package = "github.com/Wenfuuu/tpa-web/pkg/proto/follow";
+
+service FollowService {
+    rpc GetFollower(GetFollowerRequest) returns (FollowResponse);
+    rpc GetFollowing(GetFollowingRequest) returns (FollowResponse);
+}
+
+message GetFollowerRequest {
+    string user_id = 1;
+}
+
+message GetFollowingRequest {
+    string user_id = 1;
+}
+
+message FollowResponse {
+    repeated Follow follows = 1;
+}
+
+message Follow {
+    string follower_id = 1;
+    string following_id = 2;
+}

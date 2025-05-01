@@ -12,6 +12,7 @@ import (
 	authpb "github.com/Wenfuuu/tpa-web/pkg/proto/auth"
 	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 	threadpb "github.com/Wenfuuu/tpa-web/pkg/proto/thread"
+	followpb "github.com/Wenfuuu/tpa-web/pkg/proto/follow"
 	"github.com/gin-gonic/gin"
 	// "github.com/mojocn/base64Captcha"
 )
@@ -63,12 +64,14 @@ func InitRoutes(
 	userClient userpb.UserServiceClient,
 	authClient authpb.AuthServiceClient,
 	threadClient threadpb.ThreadServiceClient,
+	followClient followpb.FollowServiceClient,
 ) {
 
 	userHandler := handler.NewUserHandler(userClient)
 	authHandler := handler.NewAuthHandler(authClient)
 	authMiddleware := middleware.NewAuthMiddleware(authClient)
 	threadHandler := handler.NewThreadHandler(threadClient)
+	followHandler := handler.NewFollowHandler(followClient)
 
 	r.POST("/verify-recaptcha", verifyRecaptcha)
 
@@ -101,6 +104,11 @@ func InitRoutes(
 			thread.GET("/community", threadHandler.GetAllCommunity) // NEED GUARD
 			thread.GET("/thread-file", threadHandler.GetAllThreadFile) // NEED GUARD
 			thread.POST("/post", threadHandler.PostThread)
+		}
+		follow := api.Group("/follows")
+		{
+			follow.GET("/follower", followHandler.GetFollower)
+			follow.GET("/following", followHandler.GetFollowing)
 		}
 	}
 
