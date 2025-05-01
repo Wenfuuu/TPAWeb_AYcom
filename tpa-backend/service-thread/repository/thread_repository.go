@@ -18,7 +18,7 @@ func NewThreadRepository() *ThreadRepository {
 
 func (r *ThreadRepository) GetAllThreads() ([]model.Thread, error) {
 	var threads []model.Thread
-	result := r.DB.Find(&threads)
+	result := r.DB.Order("created_at DESC").Find(&threads)
 	return threads, result.Error
 }
 

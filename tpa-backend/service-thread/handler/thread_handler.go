@@ -55,10 +55,13 @@ func (h *ThreadHandler) PostThread(ctx context.Context, req *threadpb.PostThread
         return nil, fmt.Errorf("invalid category ID: %v", err)
     }
 
-	communityID, err := uuid.Parse(req.CommunityId)
-    if err != nil {
-        return nil, fmt.Errorf("invalid community ID: %v", err)
-    }
+	var communityID uuid.UUID
+	if(req.CommunityId != ""){
+		communityID, err = uuid.Parse(req.CommunityId)
+		if err != nil {
+			return nil, fmt.Errorf("invalid community ID: %v", err)
+		}
+	}
 
 	var scheduledAt *time.Time
 	if req.ScheduledAt != "" {

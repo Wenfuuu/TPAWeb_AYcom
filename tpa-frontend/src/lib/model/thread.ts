@@ -76,7 +76,7 @@ export async function fetchThreadWithUser() {
             name: "Unknown",
             username: "unknown",
             isPremium: false,
-            profile: ""
+            profile: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//kagari.jpg"
         };
 
         let images: string[] = [];

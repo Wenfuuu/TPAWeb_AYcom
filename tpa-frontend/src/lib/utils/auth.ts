@@ -27,7 +27,7 @@ export async function getAuthUser(): Promise<User | null> {
         const res = await axios.get(`${BASE_API_URL}/get-auth-user`, {
             headers: {
                 "Authorization": `Bearer ${accessToken}`
-            }
+            },
         });
 
         if (res.status === 200) {

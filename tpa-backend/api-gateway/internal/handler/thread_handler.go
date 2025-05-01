@@ -34,7 +34,7 @@ func (h *ThreadHandler) PostThread(c *gin.Context) {
 	var requestBody struct {
 		UserID          string   `json:"userId" binding:"required"`       // UUID format
 		CategoryID      string   `json:"categoryId" binding:"required"`   // UUID format
-		CommunityID     string   `json:"communityId" binding:"required"`  // UUID format
+		CommunityID     string   `json:"communityId"`  // UUID format
 		Content         string   `json:"content" binding:"required"`
 		ReplyPermission string   `json:"replyPermission" binding:"required"`   // e.g. "everyone"
 		IsAdvertisement bool     `json:"isAdvertisement"`
