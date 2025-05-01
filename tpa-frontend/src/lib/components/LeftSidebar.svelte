@@ -10,7 +10,7 @@
   export let isDarkMode: boolean;
   export let user: User | null;
 
-  export let refreshData: () => Promise<void>;
+  export let refreshData: (page: number) => Promise<void>;
 
   let showComposeModal = false;
 
@@ -66,7 +66,7 @@
   // Function called when ComposePost inside the modal finishes posting
   async function handleModalPostCreated() {
     console.log("Post created via modal. Closing modal.");
-    await refreshData();
+    await refreshData(1);
     closeComposeModal();
   }
 

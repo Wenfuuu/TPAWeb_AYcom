@@ -12,8 +12,8 @@
   let user: User | null = null;
   let threads: (Thread & { userData: UserThread })[] = [];
 
-  async function refreshData(): Promise<void> {
-    threads = await fetchThreadWithUser();
+  async function refreshData(page: number): Promise<void> {
+    threads = await fetchThreadWithUser(page);
     console.log(threads);
   }
 
@@ -35,7 +35,7 @@
       document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
     }
 
-    await refreshData();
+    await refreshData(1);
   });
 
   function toggleTheme() {

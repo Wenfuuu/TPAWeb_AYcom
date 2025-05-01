@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
 	threadpb "github.com/Wenfuuu/tpa-web/pkg/proto/thread"
@@ -20,7 +21,16 @@ func NewThreadHandler(threadClient threadpb.ThreadServiceClient) *ThreadHandler 
 }
 
 func (h *ThreadHandler) GetAllThreads(c *gin.Context) {
-	resp, err := h.Client.GetAllThreads(context.Background(), &threadpb.GetAllThreadsRequest{})
+	pageStr := c.Query("page")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	resp, err := h.Client.GetAllThreads(context.Background(), &threadpb.GetAllThreadsRequest{
+		Page: int32(page),
+	})
 		
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

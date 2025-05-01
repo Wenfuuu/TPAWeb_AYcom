@@ -23,6 +23,7 @@ const (
 
 type GetAllThreadsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Page          int32                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -55,6 +56,13 @@ func (x *GetAllThreadsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetAllThreadsRequest.ProtoReflect.Descriptor instead.
 func (*GetAllThreadsRequest) Descriptor() ([]byte, []int) {
 	return file_thread_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *GetAllThreadsRequest) GetPage() int32 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
 }
 
 type GetAllThreadsResponse struct {
@@ -777,8 +785,9 @@ var File_thread_proto protoreflect.FileDescriptor
 
 const file_thread_proto_rawDesc = "" +
 	"\n" +
-	"\fthread.proto\x12\x06thread\"\x16\n" +
-	"\x14GetAllThreadsRequest\"A\n" +
+	"\fthread.proto\x12\x06thread\"*\n" +
+	"\x14GetAllThreadsRequest\x12\x12\n" +
+	"\x04page\x18\x01 \x01(\x05R\x04page\"A\n" +
 	"\x15GetAllThreadsResponse\x12(\n" +
 	"\athreads\x18\x01 \x03(\v2\x0e.thread.ThreadR\athreads\"\x1f\n" +
 	"\x1dGetAllThreadCategoriesRequest\"e\n" +

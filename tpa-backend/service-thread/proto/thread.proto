@@ -12,7 +12,9 @@ service ThreadService {
     rpc GetAllThreadFile(GetAllThreadFileRequest) returns (GetAllThreadFileResponse);
 }
 
-message GetAllThreadsRequest {}
+message GetAllThreadsRequest {
+    int32 page = 1;
+}
 
 message GetAllThreadsResponse {
     repeated Thread threads = 1;

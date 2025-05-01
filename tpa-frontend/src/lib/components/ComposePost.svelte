@@ -8,7 +8,7 @@
   export let user: User | null;
   let threadCategories: ThreadCategory[] = [];
   let communities: Community[] = [];
-  export let refreshData: () => void = () => {};
+  export let refreshData: (page: number) => void = () => {};
 
   let newPostText = "";
   let uploadedImages: string[] = [];

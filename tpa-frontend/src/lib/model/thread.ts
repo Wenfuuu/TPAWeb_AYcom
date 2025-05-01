@@ -58,8 +58,8 @@ function formatTweetDate(date: Date): string {
   }
 }
 
-export async function fetchThreadWithUser() {
-    const allThreads = await fetchThread();
+export async function fetchThreadWithUser(page: number): Promise<(Thread & { userData: UserThread })[]> {
+    const allThreads = await fetchThread(page);
     const allUsers = await fetchUser();
     const fileURLS = await fetchFiles();
 
@@ -89,7 +89,7 @@ export async function fetchThreadWithUser() {
         const insights: ThreadInsights = {
             replies: 0,
             reposts: 0,
-            likes: 0.
+            likes: 0,
         };
         return {
             ...thread,
@@ -103,8 +103,12 @@ export async function fetchThreadWithUser() {
     return threads;
 }
 
-export async function fetchThread() {
-    const response = await axios.get<Thread[]>(BASE_API_URL + "/thread");
+export async function fetchThread(page: number) {
+    const response = await axios.get<Thread[]>(BASE_API_URL + "/thread", {
+        params: {
+            page
+        }
+    });
     const threads = response.data;
     return threads;
 }

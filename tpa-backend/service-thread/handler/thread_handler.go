@@ -25,7 +25,8 @@ func NewThreadHandler() *ThreadHandler {
 }
 
 func (h *ThreadHandler) GetAllThreads(ctx context.Context, req *threadpb.GetAllThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
-	modelThreads, err := h.threadRepo.GetAllThreads()
+	page := int(req.Page)
+	modelThreads, err := h.threadRepo.GetAllThreads(page)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Database error")
 	}
