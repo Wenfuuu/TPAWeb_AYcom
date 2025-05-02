@@ -39,6 +39,14 @@ func (s *ThreadServer) UnlikeThread(ctx context.Context, req *threadpb.UnlikeThr
 	return s.threadHandler.UnlikeThread(ctx, req)
 }
 
+func (s *ThreadServer) BookmarkThread(ctx context.Context, req *threadpb.BookmarkThreadRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.BookmarkThread(ctx, req)
+}
+
+func (s *ThreadServer) UnbookmarkThread(ctx context.Context, req *threadpb.UnbookmarkThreadRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.UnbookmarkThread(ctx, req)
+}
+
 func (s *ThreadServer) GetAllThreadCategories(ctx context.Context, req *threadpb.GetAllThreadCategoriesRequest) (*threadpb.GetAllThreadCategoriesResponse, error) {
 	return s.threadHandler.GetAllThreadCategories(ctx, req)
 }

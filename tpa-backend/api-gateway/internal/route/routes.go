@@ -107,6 +107,8 @@ func InitRoutes(
 			thread.POST("/post", threadHandler.PostThread)
 			thread.POST("/like", threadHandler.LikeThread)
 			thread.POST("/unlike", threadHandler.UnlikeThread)
+			thread.POST("/bookmark", threadHandler.BookmarkThread)
+			thread.POST("/unbookmark", threadHandler.UnbookmarkThread)
 		}
 		follow := api.Group("/follows")
 		{

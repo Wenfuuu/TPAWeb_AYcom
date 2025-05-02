@@ -151,6 +151,58 @@ func (h *ThreadHandler) UnlikeThread(c *gin.Context) {
 	})
 }
 
+func (h *ThreadHandler) BookmarkThread(c *gin.Context) {
+	var requestBody struct {
+		UserID          string   `json:"userId" binding:"required"`
+		ThreadID      	string   `json:"threadId" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := h.Client.BookmarkThread(context.Background(), &threadpb.BookmarkThreadRequest{
+		UserId: requestBody.UserID,
+		ThreadId: requestBody.ThreadID,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": resp.Message,
+	})
+}
+
+func (h *ThreadHandler) UnbookmarkThread(c *gin.Context) {
+	var requestBody struct {
+		UserID          string   `json:"userId" binding:"required"`
+		ThreadID      	string   `json:"threadId" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := h.Client.UnbookmarkThread(context.Background(), &threadpb.UnbookmarkThreadRequest{
+		UserId: requestBody.UserID,
+		ThreadId: requestBody.ThreadID,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": resp.Message,
+	})
+}
+
 func (h *ThreadHandler) GetAllThreadCategories(c *gin.Context) {
 	resp, err := h.Client.GetAllThreadCategories(context.Background(), &threadpb.GetAllThreadCategoriesRequest{})
 		

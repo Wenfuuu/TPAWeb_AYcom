@@ -192,6 +192,56 @@ func (h *ThreadHandler) UnlikeThread(ctx context.Context, req *threadpb.UnlikeTh
 	}, nil
 }
 
+func (h *ThreadHandler) BookmarkThread(ctx context.Context, req *threadpb.BookmarkThreadRequest) (*threadpb.ActionResponse, error) {
+	userID, err := uuid.Parse(req.UserId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid user ID: %v", err)
+    }
+
+    threadID, err := uuid.Parse(req.ThreadId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid category ID: %v", err)
+    }
+
+	bookmark := model.Bookmark{
+		UserID: userID,
+		ThreadID: threadID,
+	}
+
+	if err := h.threadRepo.BookmarkThread(&bookmark); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to bookmark thread")
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Success bookmark a thread!",
+	}, nil
+}
+
+func (h *ThreadHandler) UnbookmarkThread(ctx context.Context, req *threadpb.UnbookmarkThreadRequest) (*threadpb.ActionResponse, error) {
+	userID, err := uuid.Parse(req.UserId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid user ID: %v", err)
+    }
+
+    threadID, err := uuid.Parse(req.ThreadId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid category ID: %v", err)
+    }
+
+	unboookmark := model.Bookmark{
+		UserID: userID,
+		ThreadID: threadID,
+	}
+
+	if err := h.threadRepo.UnbookmarkThread(&unboookmark); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to unbookmark thread")
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Success unbookmark a thread!",
+	}, nil
+}
+
 func (h *ThreadHandler) GetAllThreadCategories(ctx context.Context, req *threadpb.GetAllThreadCategoriesRequest) (*threadpb.GetAllThreadCategoriesResponse, error) {
 	modelCategories, err := h.threadRepo.GetAllThreadCategories()
 	if err != nil {

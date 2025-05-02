@@ -51,6 +51,19 @@ func (r *ThreadRepository) UnlikeThread(unlike *model.Like) error {
 	return r.DB.Delete(&existingLike).Error
 }
 
+func (r *ThreadRepository) BookmarkThread(bookmark *model.Bookmark) error {
+	return r.DB.Create(bookmark).Error
+}
+
+func (r *ThreadRepository) UnbookmarkThread(unbookmark *model.Bookmark) error {
+	var existingBookmark model.Bookmark
+	if err := r.DB.Where("user_id = ? AND thread_id = ?", unbookmark.UserID, unbookmark.ThreadID).First(&existingBookmark).Error; err != nil {
+		return err
+	}
+
+	return r.DB.Delete(&existingBookmark).Error
+}
+
 func (r *ThreadRepository) GetAllThreadCategories() ([]model.ThreadCategory, error) {
 	var categories []model.ThreadCategory
 	result := r.DB.Find(&categories)
