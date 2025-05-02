@@ -110,8 +110,8 @@
 
   async function handlePostCreated() {
     hasMore = true;
-    if(currentActiveTab === "for-you") await refreshData(1);
-    else refreshFollowingData(1);
+    if(currentActiveTab === "for-you") await refreshData(page);
+    else refreshFollowingData(page);
   }
 
   function toggleLike(thread: Thread) {
@@ -159,10 +159,6 @@
   }
 
   onMount(async () => {
-    // const currentUrl = window.location.href;
-    // const urlParts = currentUrl.split("/");
-    // console.log(urlParts);
-
     observeScroll();
     await refreshData(page);
     communities = await fetchCommunity();

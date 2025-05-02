@@ -171,9 +171,8 @@ export async function fetchFollowingThread(page: number, userid: string): Promis
     return threads;
 }
 
-export async function fetchThreadDetailWithUser(page: number, threadid: string, userid: string): Promise<(Thread & { userData: UserThread })[] | null> {
+export async function fetchThreadDetailWithUser(threadid: string, userid: string): Promise<(Thread & { userData: UserThread }) | null> {
     const allThread = await fetchThreadDetail(threadid);
-    // const allReplies = await fetchThreadReplies(page, threadid);
     const allUsers = await fetchUser();
     const fileURLS = await fetchFiles();
     const likedThreads = (await fetchLikedThread(userid)) || [];
@@ -227,7 +226,62 @@ export async function fetchThreadDetailWithUser(page: number, threadid: string, 
         };
     });
 
-    return result;
+    return result[0];
+}
+
+export async function fetchThreadRepliesWithUser(page: number, threadid: string, userid: string): Promise<(Thread & { userData: UserThread })[] | null> {
+    const allThreads = await fetchThreadReplies(page, threadid);
+    const allUsers = await fetchUser();
+    const fileURLS = await fetchFiles();
+    const likedThreads = (await fetchLikedThread(userid)) || [];
+    const bookmarkThreads = (await fetchBookmarkThread(userid)) || [];
+
+    if(!allThreads) return null;
+
+    const likedThreadIds = new Set(likedThreads?.map(t => t.id));
+    const bookmarkThreadIds = new Set(bookmarkThreads.map(t => t.id));
+
+    threads = allThreads.map(thread => {
+        const user = allUsers.find(u => u.id === thread.user_id);
+        const userData: UserThread = user
+        ? {
+            name: user.name,
+            username: user.username,
+            isPremium: user.is_premium ? true : false,
+            profile: user.profile_picture,
+          }
+        : {
+            name: "Unknown",
+            username: "unknown",
+            isPremium: true,
+            profile: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//kagari.jpg"
+        };
+
+        let images: string[] = [];
+        if(fileURLS) {
+            images = fileURLS
+            .filter(file => file.thread_id === thread.id)
+            .map(file => file.file);
+        }
+
+        const insights: ThreadInsights = {
+            replies: 0,
+            reposts: 0,
+            likes: 0,
+        };
+        return {
+            ...thread,
+            created_at: formatTweetDate(new Date(thread.created_at)),
+            images,
+            insights,
+            userData,
+            isLiked: likedThreadIds.has(thread.id),
+            isReposted: false,
+            isBookmarked: bookmarkThreadIds.has(thread.id)
+        };
+    });
+
+    return threads;
 }
 
 export async function fetchLikedThread(user_id: string) {
