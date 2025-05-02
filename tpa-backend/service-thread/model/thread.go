@@ -24,6 +24,20 @@ type Community struct {
 	Description    	string    	`gorm:"type:text;not null" json:"description"`
 }
 
+type Like struct {
+	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	UserID    uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_user_thread" json:"userId"`
+	ThreadID  uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_user_thread" json:"threadId"`
+	CreatedAt time.Time `gorm:"autoCreateTime" json:"createdAt"`
+}
+
+type Bookmark struct {
+	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	UserID    uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_user_thread" json:"userId"`
+	ThreadID  uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_user_thread" json:"threadId"`
+	CreatedAt time.Time `gorm:"autoCreateTime" json:"createdAt"`
+}
+
 type Thread struct {
 	ID             uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	UserID         uuid.UUID 	`gorm:"type:uuid;not null" json:"userId"`

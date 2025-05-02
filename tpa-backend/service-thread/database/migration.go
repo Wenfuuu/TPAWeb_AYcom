@@ -15,4 +15,6 @@ func Migrate(db *gorm.DB) {
 	db.AutoMigrate(&model.ThreadFiles{})
 	db.AutoMigrate(&model.ThreadCategory{})
 	db.AutoMigrate(&model.Community{})
+	db.AutoMigrate(&model.Like{})
+	db.AutoMigrate(&model.Bookmark{})
 }

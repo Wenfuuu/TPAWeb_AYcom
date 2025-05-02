@@ -11,6 +11,34 @@ service ThreadService {
     rpc GetAllThreadCategories(GetAllThreadCategoriesRequest) returns (GetAllThreadCategoriesResponse);
     rpc GetAllCommunity(GetAllCommunitiesRequest) returns (GetAllCommunitiesResponse);
     rpc GetAllThreadFile(GetAllThreadFileRequest) returns (GetAllThreadFileResponse);
+    rpc LikeThread(LikeThreadRequest) returns (ActionResponse);
+    rpc UnlikeThread(UnlikeThreadRequest) returns (ActionResponse);
+    rpc BookmarkThread(BookmarkThreadRequest) returns (ActionResponse);
+    rpc UnbookmarkThread(UnbookmarkThreadRequest) returns (ActionResponse);
+}
+
+message LikeThreadRequest {
+    string user_id = 1;
+    string thread_id = 2;
+}
+
+message UnlikeThreadRequest {
+    string user_id = 1;
+    string thread_id = 2;
+}
+
+message BookmarkThreadRequest {
+    string user_id = 1;
+    string thread_id = 2;
+}
+
+message UnbookmarkThreadRequest {
+    string user_id = 1;
+    string thread_id = 2;
+}
+
+message ActionResponse {
+    string message = 1;
 }
 
 message GetAllThreadsRequest {

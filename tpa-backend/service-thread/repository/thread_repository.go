@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/Wenfuuu/tpa-web/service-thread/database"
 	"github.com/Wenfuuu/tpa-web/service-thread/model"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -36,6 +37,16 @@ func (r *ThreadRepository) GetFollowingThreads(page int, userIds []string) ([]mo
 
 	result := r.DB.Where("user_id IN ?", userIds).Order("created_at DESC").Limit(limit).Offset(offset).Find(&threads)
 	return threads, result.Error
+}
+
+func (r *ThreadRepository) LikeThread(userId string, threadId string) error {
+	like := model.Like{
+		UserID:   uuid.MustParse(userId),
+		ThreadID: uuid.MustParse(threadId),
+	}
+
+	// check if already liked
+	return r.DB.Create(&like).Error
 }
 
 func (r *ThreadRepository) GetAllThreadCategories() ([]model.ThreadCategory, error) {
