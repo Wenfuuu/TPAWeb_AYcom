@@ -333,7 +333,7 @@
               </button>
               <button type="button" class="post-action like"
               class:active={thread.isLiked}
-              on:click={() => handleLike(thread)}>
+              on:click|stopPropagation={() => handleLike(thread)}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
@@ -354,7 +354,7 @@
               </button>
               <button type="button" class="post-action bookmark"
               class:active={thread.isBookmarked}
-              on:click={() => handleBookmark(thread)}
+              on:click|stopPropagation={() => handleBookmark(thread)}
               aria-label="Bookmark Post">
                 <svg
                 xmlns="http://www.w3.org/2000/svg"

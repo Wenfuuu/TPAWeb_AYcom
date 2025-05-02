@@ -19,6 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	ThreadService_GetReplies_FullMethodName             = "/thread.ThreadService/GetReplies"
 	ThreadService_GetThreadById_FullMethodName          = "/thread.ThreadService/GetThreadById"
 	ThreadService_GetAllThreads_FullMethodName          = "/thread.ThreadService/GetAllThreads"
 	ThreadService_GetFollowingThreads_FullMethodName    = "/thread.ThreadService/GetFollowingThreads"
@@ -38,6 +39,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ThreadServiceClient interface {
+	GetReplies(ctx context.Context, in *GetRepliesRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetThreadById(ctx context.Context, in *GetThreadByIdRequest, opts ...grpc.CallOption) (*GetThreadResponse, error)
 	GetAllThreads(ctx context.Context, in *GetAllThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetFollowingThreads(ctx context.Context, in *GetFollowingThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
@@ -59,6 +61,16 @@ type threadServiceClient struct {
 
 func NewThreadServiceClient(cc grpc.ClientConnInterface) ThreadServiceClient {
 	return &threadServiceClient{cc}
+}
+
+func (c *threadServiceClient) GetReplies(ctx context.Context, in *GetRepliesRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllThreadsResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetReplies_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *threadServiceClient) GetThreadById(ctx context.Context, in *GetThreadByIdRequest, opts ...grpc.CallOption) (*GetThreadResponse, error) {
@@ -195,6 +207,7 @@ func (c *threadServiceClient) UnbookmarkThread(ctx context.Context, in *Unbookma
 // All implementations must embed UnimplementedThreadServiceServer
 // for forward compatibility.
 type ThreadServiceServer interface {
+	GetReplies(context.Context, *GetRepliesRequest) (*GetAllThreadsResponse, error)
 	GetThreadById(context.Context, *GetThreadByIdRequest) (*GetThreadResponse, error)
 	GetAllThreads(context.Context, *GetAllThreadsRequest) (*GetAllThreadsResponse, error)
 	GetFollowingThreads(context.Context, *GetFollowingThreadsRequest) (*GetAllThreadsResponse, error)
@@ -218,6 +231,9 @@ type ThreadServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedThreadServiceServer struct{}
 
+func (UnimplementedThreadServiceServer) GetReplies(context.Context, *GetRepliesRequest) (*GetAllThreadsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetReplies not implemented")
+}
 func (UnimplementedThreadServiceServer) GetThreadById(context.Context, *GetThreadByIdRequest) (*GetThreadResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetThreadById not implemented")
 }
@@ -276,6 +292,24 @@ func RegisterThreadServiceServer(s grpc.ServiceRegistrar, srv ThreadServiceServe
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ThreadService_ServiceDesc, srv)
+}
+
+func _ThreadService_GetReplies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRepliesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetReplies(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetReplies_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetReplies(ctx, req.(*GetRepliesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _ThreadService_GetThreadById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -519,6 +553,10 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "thread.ThreadService",
 	HandlerType: (*ThreadServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetReplies",
+			Handler:    _ThreadService_GetReplies_Handler,
+		},
 		{
 			MethodName: "GetThreadById",
 			Handler:    _ThreadService_GetThreadById_Handler,

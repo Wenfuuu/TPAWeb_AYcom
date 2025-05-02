@@ -19,6 +19,10 @@ func NewThreadServer(followClient followpb.FollowServiceClient) *ThreadServer {
 	}
 }
 
+func (s *ThreadServer) GetReplies(ctx context.Context, req *threadpb.GetRepliesRequest) (*threadpb.GetAllThreadsResponse, error) {
+	return s.threadHandler.GetReplies(ctx, req)
+}
+
 func (s *ThreadServer) GetThreadById(ctx context.Context, req *threadpb.GetThreadByIdRequest) (*threadpb.GetThreadResponse, error) {
 	return s.threadHandler.GetThreadById(ctx, req)
 }

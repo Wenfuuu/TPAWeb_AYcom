@@ -19,6 +19,28 @@ func NewThreadHandler(threadClient threadpb.ThreadServiceClient) *ThreadHandler 
 	}
 }
 
+func (h *ThreadHandler) GetReplies(c *gin.Context) {
+	pageStr := c.Query("page")
+	threadId := c.Query("thread_id")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	resp, err := h.Client.GetReplies(context.Background(), &threadpb.GetRepliesRequest{
+		Page: int32(page),
+		ThreadId: threadId,
+	})
+		
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	
+	c.JSON(http.StatusOK, resp.Threads)
+}
+
 func (h *ThreadHandler) GetThreadById(c *gin.Context) {
 	threadId := c.Query("thread_id")
 

@@ -27,6 +27,23 @@ func NewThreadHandler(followClient followpb.FollowServiceClient) *ThreadHandler 
 	}
 }
 
+func (h *ThreadHandler) GetReplies(ctx context.Context, req *threadpb.GetRepliesRequest) (*threadpb.GetAllThreadsResponse, error) {
+	page := int(req.Page)
+	modelThreads, err := h.threadRepo.GetReplies(page, req.ThreadId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbThreads []*threadpb.Thread
+	for _, t := range modelThreads {
+		pbThreads = append(pbThreads, h.threadToProto(&t))
+	}
+
+	return &threadpb.GetAllThreadsResponse{
+		Threads: pbThreads,
+	}, nil
+}
+
 func (h *ThreadHandler) GetThreadById(ctx context.Context, req *threadpb.GetThreadByIdRequest) (*threadpb.GetThreadResponse, error) {
 	modelThread, err := h.threadRepo.GetThreadById(req.ThreadId)
 	if err != nil {

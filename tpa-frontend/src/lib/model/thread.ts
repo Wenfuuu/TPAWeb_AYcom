@@ -171,6 +171,65 @@ export async function fetchFollowingThread(page: number, userid: string): Promis
     return threads;
 }
 
+export async function fetchThreadDetailWithUser(page: number, threadid: string, userid: string): Promise<(Thread & { userData: UserThread })[] | null> {
+    const allThread = await fetchThreadDetail(threadid);
+    // const allReplies = await fetchThreadReplies(page, threadid);
+    const allUsers = await fetchUser();
+    const fileURLS = await fetchFiles();
+    const likedThreads = (await fetchLikedThread(userid)) || [];
+    const bookmarkThreads = (await fetchBookmarkThread(userid)) || [];
+
+    if (!allThread) return null;
+
+    const threadsArray = Array.isArray(allThread) ? allThread : [allThread];
+
+    const likedThreadIds = new Set(likedThreads.map(t => t.id));
+    const bookmarkThreadIds = new Set(bookmarkThreads.map(t => t.id));
+
+    const result = threadsArray.map(thread => {
+        const user = allUsers.find(u => u.id === thread.user_id);
+        const userData: UserThread = user
+            ? {
+                  name: user.name,
+                  username: user.username,
+                  isPremium: user.is_premium ? true : false,
+                  profile: user.profile_picture,
+              }
+            : {
+                  name: "Unknown",
+                  username: "unknown",
+                  isPremium: true,
+                  profile: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//kagari.jpg",
+              };
+
+        let images: string[] = [];
+        if (fileURLS) {
+            images = fileURLS
+                .filter(file => file.thread_id === thread.id)
+                .map(file => file.file);
+        }
+
+        const insights = {
+            replies: 0,
+            reposts: 0,
+            likes: 0,
+        };
+
+        return {
+            ...thread,
+            created_at: formatTweetDate(new Date(thread.created_at)),
+            images,
+            insights,
+            userData,
+            isLiked: likedThreadIds.has(thread.id),
+            isReposted: false,
+            isBookmarked: bookmarkThreadIds.has(thread.id)
+        };
+    });
+
+    return result;
+}
+
 export async function fetchLikedThread(user_id: string) {
     const response = await axios.get<Thread[]>(BASE_API_URL + "/like", {
         params: {
@@ -196,6 +255,27 @@ export async function fetchFollowThread(page: number, user_id: string) {
         params: {
             page,
             user_id
+        }
+    });
+    const threads = response.data;
+    return threads;
+}
+
+export async function fetchThreadReplies(page: number, thread_id: string) {
+    const response = await axios.get<Thread[]>(BASE_API_URL + "/thread-reply", {
+        params: {
+            page,
+            thread_id
+        }
+    });
+    const threads = response.data;
+    return threads;
+}
+
+export async function fetchThreadDetail(thread_id: string) {
+    const response = await axios.get<Thread>(BASE_API_URL + "/thread-detail", {
+        params: {
+            thread_id
         }
     });
     const threads = response.data;

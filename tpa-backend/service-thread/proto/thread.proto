@@ -5,6 +5,7 @@ package thread;
 option go_package = "github.com/Wenfuuu/tpa-web/pkg/proto/thread";
 
 service ThreadService {
+    rpc GetReplies(GetRepliesRequest) returns (GetAllThreadsResponse);
     rpc GetThreadById(GetThreadByIdRequest) returns (GetThreadResponse);
     rpc GetAllThreads(GetAllThreadsRequest) returns (GetAllThreadsResponse);
     rpc GetFollowingThreads(GetFollowingThreadsRequest) returns (GetAllThreadsResponse);
@@ -42,6 +43,11 @@ message UnbookmarkThreadRequest {
 
 message ActionResponse {
     string message = 1;
+}
+
+message GetRepliesRequest {
+    int32 page = 1;
+    string thread_id = 2;
 }
 
 message GetThreadByIdRequest {

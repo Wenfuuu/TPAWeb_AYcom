@@ -16,6 +16,16 @@ func NewThreadRepository() *ThreadRepository {
 	}
 }
 
+func (r *ThreadRepository) GetReplies(page int, id string) ([]model.Thread, error) {
+	var threads []model.Thread
+
+	limit := 5
+	offset := (page - 1) * limit
+
+	result := r.DB.Where("reply_to_id = ?", id).Order("created_at DESC").Limit(limit).Offset(offset).Find(&threads)
+	return threads, result.Error
+}
+
 func (r *ThreadRepository) GetThreadById(id string) (*model.Thread, error) {
 	var thread model.Thread
 	result := r.DB.First(&thread, "id = ?", id)
