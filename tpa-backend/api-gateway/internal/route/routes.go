@@ -111,6 +111,7 @@ func InitRoutes(
 			thread.GET("/bookmark", threadHandler.GetBookmarkThreads)
 			thread.POST("/bookmark", threadHandler.BookmarkThread)
 			thread.POST("/unbookmark", threadHandler.UnbookmarkThread)
+			thread.GET("/thread-detail", threadHandler.GetThreadById)
 		}
 		follow := api.Group("/follows")
 		{

@@ -5,6 +5,7 @@ package thread;
 option go_package = "github.com/Wenfuuu/tpa-web/pkg/proto/thread";
 
 service ThreadService {
+    rpc GetThreadById(GetThreadByIdRequest) returns (GetThreadResponse);
     rpc GetAllThreads(GetAllThreadsRequest) returns (GetAllThreadsResponse);
     rpc GetFollowingThreads(GetFollowingThreadsRequest) returns (GetAllThreadsResponse);
     rpc GetLikedThreads(GetLikedThreadsRequest) returns (GetAllThreadsResponse);
@@ -41,6 +42,14 @@ message UnbookmarkThreadRequest {
 
 message ActionResponse {
     string message = 1;
+}
+
+message GetThreadByIdRequest {
+    string thread_id = 1;
+}
+
+message GetThreadResponse {
+    Thread thread = 1;
 }
 
 message GetAllThreadsRequest {
@@ -98,12 +107,14 @@ message Thread {
     string user_id = 2;
     string category_id = 3;
     string community_id = 4;
-    string content = 5;
-    string reply_permission = 6;
-    bool is_advertisement = 7;
-    string status = 8;
-    string scheduled_at = 9;
-    string created_at = 10;
+    string reply_to_id = 5;
+    string repost_of_id = 6;
+    string content = 7;
+    string reply_permission = 8;
+    bool is_advertisement = 9;
+    string status = 10;
+    string scheduled_at = 11;
+    string created_at = 12;
 }
 
 message ThreadCategory {

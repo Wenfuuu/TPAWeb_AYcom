@@ -14,6 +14,7 @@
   } from "../model/thread";
 
   import ComposePost from "./ComposePost.svelte";
+  import { navigate } from "svelte-routing";
 
   export let threads: (Thread & { userData: UserThread })[] = [];
   let communities: Community[] = [];
@@ -64,6 +65,8 @@
         if (entries[0].isIntersecting && !isLoading && hasMore) {
           isLoading = true;
           console.log("Loading more content, page:", page + 1);
+
+          await new Promise(resolve => setTimeout(resolve, 500));
 
           let newThreads;
           if(user){
@@ -156,6 +159,10 @@
   }
 
   onMount(async () => {
+    // const currentUrl = window.location.href;
+    // const urlParts = currentUrl.split("/");
+    // console.log(urlParts);
+
     observeScroll();
     await refreshData(page);
     communities = await fetchCommunity();
@@ -190,7 +197,16 @@
     <!-- Feed Display Section -->
     <div class="posts">
       {#each threads as thread (thread.id)}
-        <div class="post">
+        <div class="post"
+          role="button"
+          tabindex="0"
+          on:click={() => navigate(`/thread-detail/${thread.id}`)}
+          on:keydown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              navigate(`/thread-detail/${thread.id}`);
+            }
+          }}
+        >
           <div class="post-avatar">
             <!-- Use optional chaining and provide a fallback -->
             <img
@@ -664,7 +680,7 @@
 
   .post-action.like.active {
     color: red;
-    background-color: rgba(var(--button-primary-rgb, 200, 15, 24), 0.5);
+    background-color: rgba(var(--button-primary-rgb, 200, 15, 24), 0.7);
   }
 
   .post-action.bookmark:hover {
@@ -674,7 +690,7 @@
 
   .post-action.bookmark.active {
     color: var(--button-primary);
-    background-color: rgba(var(--button-primary-rgb, 29, 155, 240), 0.5);
+    background-color: rgba(var(--button-primary-rgb, 29, 155, 240), 0.7);
   }
 
   .post-action svg {
@@ -691,7 +707,7 @@
 
   /* Skeleton loading styles */
   .skeleton-loading {
-    width: 100%;
+    width: 90%;
     padding: 0 16px;
   }
 

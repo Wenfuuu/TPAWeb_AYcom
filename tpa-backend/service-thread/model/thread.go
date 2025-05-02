@@ -43,6 +43,8 @@ type Thread struct {
 	UserID         uuid.UUID 	`gorm:"type:uuid;not null" json:"userId"`
 	CategoryID     uuid.UUID 	`gorm:"type:uuid;not null" json:"categoryId"`
 	CommunityID    uuid.UUID 	`gorm:"type:uuid;" json:"communityId"`
+	ReplyToID      *uuid.UUID 	`gorm:"type:uuid" json:"replyToId"`
+	RepostOfID     *uuid.UUID 	`gorm:"type:uuid" json:"repostOfId"`
 	Content        string    	`gorm:"type:text;not null" json:"content"`
 	ReplyPermission string   	`gorm:"type:varchar(50);not null" json:"replyPermission"`
 	IsAdvertisement bool     	`gorm:"default:false" json:"isAdvertisement"`

@@ -19,6 +19,21 @@ func NewThreadHandler(threadClient threadpb.ThreadServiceClient) *ThreadHandler 
 	}
 }
 
+func (h *ThreadHandler) GetThreadById(c *gin.Context) {
+	threadId := c.Query("thread_id")
+
+	resp, err := h.Client.GetThreadById(context.Background(), &threadpb.GetThreadByIdRequest{
+		ThreadId: threadId,
+	})
+		
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	
+	c.JSON(http.StatusOK, resp.Thread)
+}
+
 func (h *ThreadHandler) GetAllThreads(c *gin.Context) {
 	pageStr := c.Query("page")
 

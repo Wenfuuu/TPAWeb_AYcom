@@ -27,6 +27,17 @@ func NewThreadHandler(followClient followpb.FollowServiceClient) *ThreadHandler 
 	}
 }
 
+func (h *ThreadHandler) GetThreadById(ctx context.Context, req *threadpb.GetThreadByIdRequest) (*threadpb.GetThreadResponse, error) {
+	modelThread, err := h.threadRepo.GetThreadById(req.ThreadId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	return &threadpb.GetThreadResponse{
+		Thread: h.threadToProto(modelThread),
+	}, nil
+}
+
 func (h *ThreadHandler) GetAllThreads(ctx context.Context, req *threadpb.GetAllThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
 	page := int(req.Page)
 	modelThreads, err := h.threadRepo.GetAllThreads(page)
@@ -351,12 +362,23 @@ func (h *ThreadHandler) threadToProto(thread *model.Thread) *threadpb.Thread {
 		scheduledAt = thread.ScheduledAt.Format(time.RFC3339)
 	}
 
+	var replyToId string
+	if thread.ReplyToID != nil {
+		replyToId = thread.ReplyToID.String()
+	}
+
+	var repostOfId string
+	if thread.RepostOfID != nil {
+		repostOfId = thread.RepostOfID.String()
+	}
 
 	return &threadpb.Thread{
 		Id:        		thread.ID.String(),
 		UserId: 		thread.UserID.String(),
 		CategoryId: 	thread.CategoryID.String(),
 		CommunityId: 	thread.CommunityID.String(),
+		ReplyToId: 		replyToId,
+		RepostOfId: 	repostOfId,
 		Content: 		thread.Content,
 		ReplyPermission:thread.ReplyPermission,
 		IsAdvertisement:thread.IsAdvertisement,

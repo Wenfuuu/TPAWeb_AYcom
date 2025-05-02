@@ -9,8 +9,8 @@ import (
 
 type Follow struct {
 	ID 			uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
-	FollowerID	uuid.UUID `gorm:"type:uuid;not null" json:"follower_id"`
-	FollowingID	uuid.UUID `gorm:"type:uuid;not null" json:"following_id"`
+	FollowerID	uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_follow" json:"follower_id"`
+	FollowingID	uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_follow" json:"following_id"`
 	CreatedAt	time.Time `json:"createdAt" gorm:"autoCreateTime"`
 }
 

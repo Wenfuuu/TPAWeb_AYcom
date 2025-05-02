@@ -19,6 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	ThreadService_GetThreadById_FullMethodName          = "/thread.ThreadService/GetThreadById"
 	ThreadService_GetAllThreads_FullMethodName          = "/thread.ThreadService/GetAllThreads"
 	ThreadService_GetFollowingThreads_FullMethodName    = "/thread.ThreadService/GetFollowingThreads"
 	ThreadService_GetLikedThreads_FullMethodName        = "/thread.ThreadService/GetLikedThreads"
@@ -37,6 +38,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ThreadServiceClient interface {
+	GetThreadById(ctx context.Context, in *GetThreadByIdRequest, opts ...grpc.CallOption) (*GetThreadResponse, error)
 	GetAllThreads(ctx context.Context, in *GetAllThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetFollowingThreads(ctx context.Context, in *GetFollowingThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetLikedThreads(ctx context.Context, in *GetLikedThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
@@ -57,6 +59,16 @@ type threadServiceClient struct {
 
 func NewThreadServiceClient(cc grpc.ClientConnInterface) ThreadServiceClient {
 	return &threadServiceClient{cc}
+}
+
+func (c *threadServiceClient) GetThreadById(ctx context.Context, in *GetThreadByIdRequest, opts ...grpc.CallOption) (*GetThreadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetThreadResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetThreadById_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *threadServiceClient) GetAllThreads(ctx context.Context, in *GetAllThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error) {
@@ -183,6 +195,7 @@ func (c *threadServiceClient) UnbookmarkThread(ctx context.Context, in *Unbookma
 // All implementations must embed UnimplementedThreadServiceServer
 // for forward compatibility.
 type ThreadServiceServer interface {
+	GetThreadById(context.Context, *GetThreadByIdRequest) (*GetThreadResponse, error)
 	GetAllThreads(context.Context, *GetAllThreadsRequest) (*GetAllThreadsResponse, error)
 	GetFollowingThreads(context.Context, *GetFollowingThreadsRequest) (*GetAllThreadsResponse, error)
 	GetLikedThreads(context.Context, *GetLikedThreadsRequest) (*GetAllThreadsResponse, error)
@@ -205,6 +218,9 @@ type ThreadServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedThreadServiceServer struct{}
 
+func (UnimplementedThreadServiceServer) GetThreadById(context.Context, *GetThreadByIdRequest) (*GetThreadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetThreadById not implemented")
+}
 func (UnimplementedThreadServiceServer) GetAllThreads(context.Context, *GetAllThreadsRequest) (*GetAllThreadsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllThreads not implemented")
 }
@@ -260,6 +276,24 @@ func RegisterThreadServiceServer(s grpc.ServiceRegistrar, srv ThreadServiceServe
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ThreadService_ServiceDesc, srv)
+}
+
+func _ThreadService_GetThreadById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetThreadByIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetThreadById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetThreadById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetThreadById(ctx, req.(*GetThreadByIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _ThreadService_GetAllThreads_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -485,6 +519,10 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "thread.ThreadService",
 	HandlerType: (*ThreadServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetThreadById",
+			Handler:    _ThreadService_GetThreadById_Handler,
+		},
 		{
 			MethodName: "GetAllThreads",
 			Handler:    _ThreadService_GetAllThreads_Handler,

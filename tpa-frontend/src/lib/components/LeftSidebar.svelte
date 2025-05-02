@@ -193,7 +193,7 @@
     <ComposePost
       {user}
       refreshData={handleModalPostCreated}
-      {currentActiveTab} />
+    />
   {/if}
 </Modal>
 

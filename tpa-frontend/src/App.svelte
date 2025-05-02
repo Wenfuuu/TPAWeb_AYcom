@@ -4,6 +4,7 @@
   import RegisterPage from "./page/RegisterPage.svelte";
   import HomePage from "./page/HomePage.svelte";
   import LoginPage from "./page/LoginPage.svelte";
+  import ThreadDetailPage from "./page/ThreadDetailPage.svelte";
 
   // You need to export the URL prop to make router work
   export let url = "";
@@ -24,6 +25,10 @@
 
   <Route path="/login">
     <LoginPage />
+  </Route>
+
+  <Route path="/thread-detail/:id">
+    <ThreadDetailPage />
   </Route>
 
 </Router>
