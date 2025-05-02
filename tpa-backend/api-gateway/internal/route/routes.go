@@ -108,6 +108,7 @@ func InitRoutes(
 			thread.GET("/like", threadHandler.GetLikedThreads)
 			thread.POST("/like", threadHandler.LikeThread)
 			thread.POST("/unlike", threadHandler.UnlikeThread)
+			thread.GET("/bookmark", threadHandler.GetBookmarkThreads)
 			thread.POST("/bookmark", threadHandler.BookmarkThread)
 			thread.POST("/unbookmark", threadHandler.UnbookmarkThread)
 		}

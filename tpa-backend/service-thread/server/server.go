@@ -31,6 +31,10 @@ func (s *ThreadServer) GetLikedThreads(ctx context.Context, req *threadpb.GetLik
 	return s.threadHandler.GetLikedThreads(ctx, req)
 }
 
+func (s *ThreadServer) GetBookmarkThreads(ctx context.Context, req *threadpb.GetBookmarkThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
+	return s.threadHandler.GetBookmarkThreads(ctx, req)
+}
+
 func (s *ThreadServer) PostThread(ctx context.Context, req *threadpb.PostThreadRequest) (*threadpb.ThreadResponse, error) {
 	return s.threadHandler.PostThread(ctx, req)
 }

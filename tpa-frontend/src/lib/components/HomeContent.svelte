@@ -2,10 +2,12 @@
   import { onMount } from "svelte";
   import { type User, type UserThread } from "../model/user";
   import {
+  bookmarkThread,
     fetchCommunity,
     fetchFollowingThread,
     fetchThreadWithUser,
     likeThread,
+    unbookmarkThread,
     unlikeThread,
     type Community,
     type Thread,
@@ -125,6 +127,28 @@
       if(user){
         await unlikeThread(user.id, thread.id);
         toggleLike(thread);
+      }
+    }
+
+    threads = [...threads];
+  }
+
+  function toggleBookmark(thread: Thread) {
+    thread.isBookmarked = !thread.isBookmarked;
+  }
+
+  async function handleBookmark(thread: Thread): Promise<void> {
+    if(!thread.isBookmarked){
+      //bookmark thread
+      if(user){
+        await bookmarkThread(user.id, thread.id);
+        toggleBookmark(thread);
+      }
+    }else{
+      //unbookmark thread
+      if(user){
+        await unbookmarkThread(user.id, thread.id);
+        toggleBookmark(thread);
       }
     }
 
@@ -293,10 +317,7 @@
               </button>
               <button type="button" class="post-action like"
               class:active={thread.isLiked}
-              on:click={() => {
-                console.log(thread.isLiked);
-                handleLike(thread);
-              }}>
+              on:click={() => handleLike(thread)}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
@@ -316,22 +337,22 @@
                 <span>{thread.insights?.likes || 0}</span>
               </button>
               <button type="button" class="post-action bookmark"
+              class:active={thread.isBookmarked}
+              on:click={() => handleBookmark(thread)}
               aria-label="Bookmark Post">
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="17 8 12 3 7 8"></polyline>
-                  <line x1="12" x2="12" y1="3" y2="15"></line>
-                </svg>
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
+              </svg>
               </button>
             </div>
           </div>
@@ -644,6 +665,16 @@
   .post-action.like.active {
     color: red;
     background-color: rgba(var(--button-primary-rgb, 200, 15, 24), 0.5);
+  }
+
+  .post-action.bookmark:hover {
+    color: var(--button-primary);
+    background-color: rgba(var(--button-primary-rgb, 29, 155, 240), 0.1);
+  }
+
+  .post-action.bookmark.active {
+    color: var(--button-primary);
+    background-color: rgba(var(--button-primary-rgb, 29, 155, 240), 0.5);
   }
 
   .post-action svg {

@@ -49,6 +49,17 @@ func (r *ThreadRepository) GetLikedThreads(userId string) ([]model.Thread, error
 	return threads, result.Error
 }
 
+func (r *ThreadRepository) GetBookmarkThreads(userId string) ([]model.Thread, error) {
+	var threads []model.Thread
+
+	result := r.DB.
+		Joins("JOIN bookmarks ON bookmarks.thread_id = threads.id").
+		Where("bookmarks.user_id = ?", userId).
+		Find(&threads)
+	
+	return threads, result.Error
+}
+
 func (r *ThreadRepository) LikeThread(like *model.Like) error {
 	return r.DB.Create(like).Error
 }

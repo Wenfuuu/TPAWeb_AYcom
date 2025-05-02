@@ -65,11 +65,13 @@ export async function fetchThreadWithUser(page: number, userid: string): Promise
     const allThreads = await fetchThread(page);
     const allUsers = await fetchUser();
     const fileURLS = await fetchFiles();
-    const likedThreads = await fetchLikedThread(userid);
+    const likedThreads = (await fetchLikedThread(userid)) || [];
+    const bookmarkThreads = (await fetchBookmarkThread(userid)) || [];
 
     if(!allThreads) return null;
 
-    const likedThreadIds = new Set(likedThreads?.map(t => t.id));
+    const likedThreadIds = new Set(likedThreads.map(t => t.id));
+    const bookmarkThreadIds = new Set(bookmarkThreads.map(t => t.id));
 
     threads = allThreads.map(thread => {
         const user = allUsers.find(u => u.id === thread.user_id);
@@ -107,22 +109,24 @@ export async function fetchThreadWithUser(page: number, userid: string): Promise
             userData,
             isLiked: likedThreadIds.has(thread.id),
             isReposted: false,
-            isBookmarked: false
+            isBookmarked: bookmarkThreadIds.has(thread.id)
         };
     });
 
     return threads;
 }
 
-export async function fetchFollowingThread(page: number, user_id: string): Promise<(Thread & { userData: UserThread })[] | null> {
-    const allThreads = await fetchFollowThread(page, user_id);
+export async function fetchFollowingThread(page: number, userid: string): Promise<(Thread & { userData: UserThread })[] | null> {
+    const allThreads = await fetchFollowThread(page, userid);
     const allUsers = await fetchUser();
     const fileURLS = await fetchFiles();
-    const likedThreads = await fetchLikedThread(user_id);
+    const likedThreads = (await fetchLikedThread(userid)) || [];
+    const bookmarkThreads = (await fetchBookmarkThread(userid)) || [];
 
     if(!allThreads) return null;
 
     const likedThreadIds = new Set(likedThreads?.map(t => t.id));
+    const bookmarkThreadIds = new Set(bookmarkThreads.map(t => t.id));
 
     threads = allThreads.map(thread => {
         const user = allUsers.find(u => u.id === thread.user_id);
@@ -160,7 +164,7 @@ export async function fetchFollowingThread(page: number, user_id: string): Promi
             userData,
             isLiked: likedThreadIds.has(thread.id),
             isReposted: false,
-            isBookmarked: false
+            isBookmarked: bookmarkThreadIds.has(thread.id)
         };
     });
 
@@ -169,6 +173,16 @@ export async function fetchFollowingThread(page: number, user_id: string): Promi
 
 export async function fetchLikedThread(user_id: string) {
     const response = await axios.get<Thread[]>(BASE_API_URL + "/like", {
+        params: {
+            user_id
+        }
+    });
+    const threads = response.data;
+    return threads;
+}
+
+export async function fetchBookmarkThread(user_id: string) {
+    const response = await axios.get<Thread[]>(BASE_API_URL + "/bookmark", {
         params: {
             user_id
         }
@@ -217,17 +231,28 @@ export async function fetchFiles() {
 }
 
 export async function likeThread(userId: string, threadId: string) {
-    console.log("liking thread");
-    console.log(userId);
-    console.log(threadId);
-    await axios.post("http://localhost:8080/api/threads/like", {
+    await axios.post(BASE_API_URL + "/like", {
         userId,
         threadId
     });
 }
 
 export async function unlikeThread(userId: string, threadId: string) {
-    await axios.post("http://localhost:8080/api/threads/unlike", {
+    await axios.post(BASE_API_URL + "/unlike", {
+        userId,
+        threadId
+    });
+}
+
+export async function bookmarkThread(userId: string, threadId: string) {
+    await axios.post(BASE_API_URL + "/bookmark", {
+        userId,
+        threadId
+    });
+}
+
+export async function unbookmarkThread(userId: string, threadId: string) {
+    await axios.post(BASE_API_URL + "/unbookmark", {
         userId,
         threadId
     });

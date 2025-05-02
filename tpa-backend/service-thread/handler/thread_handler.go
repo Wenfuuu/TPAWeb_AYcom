@@ -95,6 +95,22 @@ func (h *ThreadHandler) GetLikedThreads(ctx context.Context, req *threadpb.GetLi
 	}, nil
 }
 
+func (h *ThreadHandler) GetBookmarkThreads(ctx context.Context, req *threadpb.GetBookmarkThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
+	modelThreads, err := h.threadRepo.GetBookmarkThreads(req.UserId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbThreads []*threadpb.Thread
+	for _, t := range modelThreads {
+		pbThreads = append(pbThreads, h.threadToProto(&t))
+	}
+
+	return &threadpb.GetAllThreadsResponse{
+		Threads: pbThreads,
+	}, nil
+}
+
 func (h *ThreadHandler) PostThread(ctx context.Context, req *threadpb.PostThreadRequest) (*threadpb.ThreadResponse, error) {
 	log.Println(req.UserId)
 	log.Println(req.CategoryId)
