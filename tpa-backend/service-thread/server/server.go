@@ -31,6 +31,14 @@ func (s *ThreadServer) PostThread(ctx context.Context, req *threadpb.PostThreadR
 	return s.threadHandler.PostThread(ctx, req)
 }
 
+func (s *ThreadServer) LikeThread(ctx context.Context, req *threadpb.LikeThreadRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.LikeThread(ctx, req)
+}
+
+func (s *ThreadServer) UnlikeThread(ctx context.Context, req *threadpb.UnlikeThreadRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.UnlikeThread(ctx, req)
+}
+
 func (s *ThreadServer) GetAllThreadCategories(ctx context.Context, req *threadpb.GetAllThreadCategoriesRequest) (*threadpb.GetAllThreadCategoriesResponse, error) {
 	return s.threadHandler.GetAllThreadCategories(ctx, req)
 }

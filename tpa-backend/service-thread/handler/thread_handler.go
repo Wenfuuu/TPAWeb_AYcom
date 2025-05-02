@@ -142,6 +142,56 @@ func (h *ThreadHandler) PostThread(ctx context.Context, req *threadpb.PostThread
 	return h.threadToResponse(&thread), nil
 }
 
+func (h *ThreadHandler) LikeThread(ctx context.Context, req *threadpb.LikeThreadRequest) (*threadpb.ActionResponse, error) {
+	userID, err := uuid.Parse(req.UserId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid user ID: %v", err)
+    }
+
+    threadID, err := uuid.Parse(req.ThreadId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid category ID: %v", err)
+    }
+
+	like := model.Like{
+		UserID: userID,
+		ThreadID: threadID,
+	}
+
+	if err := h.threadRepo.LikeThread(&like); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to like thread")
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Success like a thread!",
+	}, nil
+}
+
+func (h *ThreadHandler) UnlikeThread(ctx context.Context, req *threadpb.UnlikeThreadRequest) (*threadpb.ActionResponse, error) {
+	userID, err := uuid.Parse(req.UserId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid user ID: %v", err)
+    }
+
+    threadID, err := uuid.Parse(req.ThreadId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid category ID: %v", err)
+    }
+
+	unlike := model.Like{
+		UserID: userID,
+		ThreadID: threadID,
+	}
+
+	if err := h.threadRepo.UnlikeThread(&unlike); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to unlike thread")
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Success unlike a thread!",
+	}, nil
+}
+
 func (h *ThreadHandler) GetAllThreadCategories(ctx context.Context, req *threadpb.GetAllThreadCategoriesRequest) (*threadpb.GetAllThreadCategoriesResponse, error) {
 	modelCategories, err := h.threadRepo.GetAllThreadCategories()
 	if err != nil {
