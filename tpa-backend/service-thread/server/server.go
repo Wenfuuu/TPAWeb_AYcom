@@ -27,6 +27,10 @@ func (s *ThreadServer) GetFollowingThreads(ctx context.Context, req *threadpb.Ge
 	return s.threadHandler.GetFollowingThreads(ctx, req)
 }
 
+func (s *ThreadServer) GetLikedThreads(ctx context.Context, req *threadpb.GetLikedThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
+	return s.threadHandler.GetLikedThreads(ctx, req)
+}
+
 func (s *ThreadServer) PostThread(ctx context.Context, req *threadpb.PostThreadRequest) (*threadpb.ThreadResponse, error) {
 	return s.threadHandler.PostThread(ctx, req)
 }

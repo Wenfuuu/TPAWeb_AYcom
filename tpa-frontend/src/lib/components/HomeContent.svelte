@@ -5,6 +5,8 @@
     fetchCommunity,
     fetchFollowingThread,
     fetchThreadWithUser,
+    likeThread,
+    unlikeThread,
     type Community,
     type Thread,
   } from "../model/thread";
@@ -62,11 +64,14 @@
           console.log("Loading more content, page:", page + 1);
 
           let newThreads;
-          if(currentActiveTab === "for-you") {
-            newThreads = await fetchThreadWithUser(page+1);
-          }else{
-            if(user) newThreads = await fetchFollowingThread(page+1, user.id);
+          if(user){
+            if(currentActiveTab === "for-you") {
+              newThreads = await fetchThreadWithUser(page+1, user.id);
+            }else{
+              newThreads = await fetchFollowingThread(page+1, user.id);
+            }
           }
+
           if(!newThreads){
             hasMore = false;
             isLoading = false;
@@ -104,6 +109,28 @@
     else refreshFollowingData(1);
   }
 
+  function toggleLike(thread: Thread) {
+    thread.isLiked = !thread.isLiked;
+  }
+
+  async function handleLike(thread: Thread): Promise<void> {
+    if(!thread.isLiked){
+      //like thread
+      if(user){
+        await likeThread(user.id, thread.id);
+        toggleLike(thread);
+      }
+    }else{
+      //unlike thread
+      if(user){
+        await unlikeThread(user.id, thread.id);
+        toggleLike(thread);
+      }
+    }
+
+    threads = [...threads];
+  }
+
   onMount(async () => {
     observeScroll();
     await refreshData(page);
@@ -134,7 +161,7 @@
       </div>
     </div>
 
-    <ComposePost {user} refreshData={handlePostCreated} {currentActiveTab} />
+    <ComposePost {user} refreshData={handlePostCreated} />
 
     <!-- Feed Display Section -->
     <div class="posts">
@@ -224,7 +251,9 @@
             {/if}
 
             <div class="post-actions">
-              <button type="button" class="post-action">
+              <button type="button" class="post-action reply"
+              class:active={false}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
@@ -242,7 +271,8 @@
                 </svg>
                 <span>{thread.insights?.replies || 0}</span>
               </button>
-              <button type="button" class="post-action">
+              <button type="button" class="post-action repost"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
@@ -261,7 +291,12 @@
                 </svg>
                 <span>{thread.insights?.reposts || 0}</span>
               </button>
-              <button type="button" class="post-action">
+              <button type="button" class="post-action like"
+              class:active={thread.isLiked}
+              on:click={() => {
+                console.log(thread.isLiked);
+                handleLike(thread);
+              }}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
@@ -280,7 +315,8 @@
                 <!-- Display likes directly, handle large numbers formatting separately if needed -->
                 <span>{thread.insights?.likes || 0}</span>
               </button>
-              <button type="button" class="post-action" aria-label="Share Post">
+              <button type="button" class="post-action bookmark"
+              aria-label="Bookmark Post">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
@@ -590,9 +626,24 @@
     border-radius: 4px; /* Slight rounding on hover */
   }
 
-  .post-action:hover {
+  .post-action.reply:hover {
     color: var(--button-primary);
     background-color: rgba(var(--button-primary-rgb, 29, 155, 240), 0.1);
+  }
+
+  .post-action.reply.active {
+    color: var(--button-primary);
+    background-color: rgba(var(--button-primary-rgb, 29, 155, 240), 0.5);
+  }
+
+  .post-action.like:hover {
+    color: red;
+    background-color: rgba(var(--button-primary-rgb, 200, 15, 24), 0.1);
+  }
+
+  .post-action.like.active {
+    color: red;
+    background-color: rgba(var(--button-primary-rgb, 200, 15, 24), 0.5);
   }
 
   .post-action svg {

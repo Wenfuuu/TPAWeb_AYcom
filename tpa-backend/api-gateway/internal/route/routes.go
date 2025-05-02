@@ -105,6 +105,7 @@ func InitRoutes(
 			thread.GET("/community", threadHandler.GetAllCommunity) // NEED GUARD
 			thread.GET("/thread-file", threadHandler.GetAllThreadFile) // NEED GUARD
 			thread.POST("/post", threadHandler.PostThread)
+			thread.GET("/like", threadHandler.GetLikedThreads)
 			thread.POST("/like", threadHandler.LikeThread)
 			thread.POST("/unlike", threadHandler.UnlikeThread)
 			thread.POST("/bookmark", threadHandler.BookmarkThread)

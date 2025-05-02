@@ -38,6 +38,17 @@ func (r *ThreadRepository) GetFollowingThreads(page int, userIds []string) ([]mo
 	return threads, result.Error
 }
 
+func (r *ThreadRepository) GetLikedThreads(userId string) ([]model.Thread, error) {
+	var threads []model.Thread
+
+	result := r.DB.
+		Joins("JOIN likes ON likes.thread_id = threads.id").
+		Where("likes.user_id = ?", userId).
+		Find(&threads)
+	
+	return threads, result.Error
+}
+
 func (r *ThreadRepository) LikeThread(like *model.Like) error {
 	return r.DB.Create(like).Error
 }

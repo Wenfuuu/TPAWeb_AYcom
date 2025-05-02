@@ -36,6 +36,9 @@ export type Thread = {
   images: string[];
   insights: ThreadInsights;
   created_at: string;
+  isLiked: boolean;
+  isReposted: boolean;
+  isBookmarked: boolean;
 };
 
 const BASE_API_URL = "http://localhost:8080/api/threads";
@@ -58,12 +61,15 @@ function formatTweetDate(date: Date): string {
   }
 }
 
-export async function fetchThreadWithUser(page: number): Promise<(Thread & { userData: UserThread })[] | null> {
+export async function fetchThreadWithUser(page: number, userid: string): Promise<(Thread & { userData: UserThread })[] | null> {
     const allThreads = await fetchThread(page);
     const allUsers = await fetchUser();
     const fileURLS = await fetchFiles();
+    const likedThreads = await fetchLikedThread(userid);
 
     if(!allThreads) return null;
+
+    const likedThreadIds = new Set(likedThreads?.map(t => t.id));
 
     threads = allThreads.map(thread => {
         const user = allUsers.find(u => u.id === thread.user_id);
@@ -99,6 +105,9 @@ export async function fetchThreadWithUser(page: number): Promise<(Thread & { use
             images,
             insights,
             userData,
+            isLiked: likedThreadIds.has(thread.id),
+            isReposted: false,
+            isBookmarked: false
         };
     });
 
@@ -109,8 +118,11 @@ export async function fetchFollowingThread(page: number, user_id: string): Promi
     const allThreads = await fetchFollowThread(page, user_id);
     const allUsers = await fetchUser();
     const fileURLS = await fetchFiles();
+    const likedThreads = await fetchLikedThread(user_id);
 
     if(!allThreads) return null;
+
+    const likedThreadIds = new Set(likedThreads?.map(t => t.id));
 
     threads = allThreads.map(thread => {
         const user = allUsers.find(u => u.id === thread.user_id);
@@ -146,14 +158,26 @@ export async function fetchFollowingThread(page: number, user_id: string): Promi
             images,
             insights,
             userData,
+            isLiked: likedThreadIds.has(thread.id),
+            isReposted: false,
+            isBookmarked: false
         };
     });
 
     return threads;
 }
 
+export async function fetchLikedThread(user_id: string) {
+    const response = await axios.get<Thread[]>(BASE_API_URL + "/like", {
+        params: {
+            user_id
+        }
+    });
+    const threads = response.data;
+    return threads;
+}
+
 export async function fetchFollowThread(page: number, user_id: string) {
-    console.log(user_id);
     const response = await axios.get<Thread[]>(BASE_API_URL + "/thread-following", {
         params: {
             page,
@@ -190,4 +214,21 @@ export async function fetchFiles() {
     const response = await axios.get<ThreadFile[]>(BASE_API_URL + "/thread-file");
     const files = response.data;
     return files;
+}
+
+export async function likeThread(userId: string, threadId: string) {
+    console.log("liking thread");
+    console.log(userId);
+    console.log(threadId);
+    await axios.post("http://localhost:8080/api/threads/like", {
+        userId,
+        threadId
+    });
+}
+
+export async function unlikeThread(userId: string, threadId: string) {
+    await axios.post("http://localhost:8080/api/threads/unlike", {
+        userId,
+        threadId
+    });
 }

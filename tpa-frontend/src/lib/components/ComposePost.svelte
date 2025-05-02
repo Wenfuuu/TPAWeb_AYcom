@@ -8,7 +8,6 @@
   export let user: User | null;
   let threadCategories: ThreadCategory[] = [];
   let communities: Community[] = [];
-  export let currentActiveTab: "for-you" | "following";
   export let refreshData: () => void = () => {};
 
   let newPostText = "";

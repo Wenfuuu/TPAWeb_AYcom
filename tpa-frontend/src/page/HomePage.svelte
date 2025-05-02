@@ -14,7 +14,8 @@
   const currentActiveTab: "for-you" | "following" = "for-you";
 
   async function refreshData(page: number): Promise<void> {
-    const data = await fetchThreadWithUser(page);
+    let data;
+    if(user) data = await fetchThreadWithUser(page, user.id);
     if(data) threads = data;
     console.log(threads);
   }
