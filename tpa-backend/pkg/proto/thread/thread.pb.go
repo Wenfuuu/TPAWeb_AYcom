@@ -21,966 +21,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type LikeThreadRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ThreadId      string                 `protobuf:"bytes,2,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *LikeThreadRequest) Reset() {
-	*x = LikeThreadRequest{}
-	mi := &file_thread_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *LikeThreadRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*LikeThreadRequest) ProtoMessage() {}
-
-func (x *LikeThreadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use LikeThreadRequest.ProtoReflect.Descriptor instead.
-func (*LikeThreadRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *LikeThreadRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *LikeThreadRequest) GetThreadId() string {
-	if x != nil {
-		return x.ThreadId
-	}
-	return ""
-}
-
-type UnlikeThreadRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ThreadId      string                 `protobuf:"bytes,2,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UnlikeThreadRequest) Reset() {
-	*x = UnlikeThreadRequest{}
-	mi := &file_thread_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UnlikeThreadRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UnlikeThreadRequest) ProtoMessage() {}
-
-func (x *UnlikeThreadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UnlikeThreadRequest.ProtoReflect.Descriptor instead.
-func (*UnlikeThreadRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *UnlikeThreadRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *UnlikeThreadRequest) GetThreadId() string {
-	if x != nil {
-		return x.ThreadId
-	}
-	return ""
-}
-
-type BookmarkThreadRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ThreadId      string                 `protobuf:"bytes,2,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *BookmarkThreadRequest) Reset() {
-	*x = BookmarkThreadRequest{}
-	mi := &file_thread_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BookmarkThreadRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BookmarkThreadRequest) ProtoMessage() {}
-
-func (x *BookmarkThreadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BookmarkThreadRequest.ProtoReflect.Descriptor instead.
-func (*BookmarkThreadRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *BookmarkThreadRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *BookmarkThreadRequest) GetThreadId() string {
-	if x != nil {
-		return x.ThreadId
-	}
-	return ""
-}
-
-type UnbookmarkThreadRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ThreadId      string                 `protobuf:"bytes,2,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UnbookmarkThreadRequest) Reset() {
-	*x = UnbookmarkThreadRequest{}
-	mi := &file_thread_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UnbookmarkThreadRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UnbookmarkThreadRequest) ProtoMessage() {}
-
-func (x *UnbookmarkThreadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UnbookmarkThreadRequest.ProtoReflect.Descriptor instead.
-func (*UnbookmarkThreadRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *UnbookmarkThreadRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *UnbookmarkThreadRequest) GetThreadId() string {
-	if x != nil {
-		return x.ThreadId
-	}
-	return ""
-}
-
-type ActionResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ActionResponse) Reset() {
-	*x = ActionResponse{}
-	mi := &file_thread_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ActionResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ActionResponse) ProtoMessage() {}
-
-func (x *ActionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ActionResponse.ProtoReflect.Descriptor instead.
-func (*ActionResponse) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *ActionResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
-type GetRepliesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Page          int32                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
-	ThreadId      string                 `protobuf:"bytes,2,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetRepliesRequest) Reset() {
-	*x = GetRepliesRequest{}
-	mi := &file_thread_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetRepliesRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetRepliesRequest) ProtoMessage() {}
-
-func (x *GetRepliesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetRepliesRequest.ProtoReflect.Descriptor instead.
-func (*GetRepliesRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *GetRepliesRequest) GetPage() int32 {
-	if x != nil {
-		return x.Page
-	}
-	return 0
-}
-
-func (x *GetRepliesRequest) GetThreadId() string {
-	if x != nil {
-		return x.ThreadId
-	}
-	return ""
-}
-
-type GetThreadByIdRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ThreadId      string                 `protobuf:"bytes,1,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetThreadByIdRequest) Reset() {
-	*x = GetThreadByIdRequest{}
-	mi := &file_thread_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetThreadByIdRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetThreadByIdRequest) ProtoMessage() {}
-
-func (x *GetThreadByIdRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetThreadByIdRequest.ProtoReflect.Descriptor instead.
-func (*GetThreadByIdRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *GetThreadByIdRequest) GetThreadId() string {
-	if x != nil {
-		return x.ThreadId
-	}
-	return ""
-}
-
-type GetThreadResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Thread        *Thread                `protobuf:"bytes,1,opt,name=thread,proto3" json:"thread,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetThreadResponse) Reset() {
-	*x = GetThreadResponse{}
-	mi := &file_thread_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetThreadResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetThreadResponse) ProtoMessage() {}
-
-func (x *GetThreadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetThreadResponse.ProtoReflect.Descriptor instead.
-func (*GetThreadResponse) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *GetThreadResponse) GetThread() *Thread {
-	if x != nil {
-		return x.Thread
-	}
-	return nil
-}
-
-type GetAllThreadsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Page          int32                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetAllThreadsRequest) Reset() {
-	*x = GetAllThreadsRequest{}
-	mi := &file_thread_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetAllThreadsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetAllThreadsRequest) ProtoMessage() {}
-
-func (x *GetAllThreadsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetAllThreadsRequest.ProtoReflect.Descriptor instead.
-func (*GetAllThreadsRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *GetAllThreadsRequest) GetPage() int32 {
-	if x != nil {
-		return x.Page
-	}
-	return 0
-}
-
-type GetAllThreadsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Threads       []*Thread              `protobuf:"bytes,1,rep,name=threads,proto3" json:"threads,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetAllThreadsResponse) Reset() {
-	*x = GetAllThreadsResponse{}
-	mi := &file_thread_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetAllThreadsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetAllThreadsResponse) ProtoMessage() {}
-
-func (x *GetAllThreadsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetAllThreadsResponse.ProtoReflect.Descriptor instead.
-func (*GetAllThreadsResponse) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *GetAllThreadsResponse) GetThreads() []*Thread {
-	if x != nil {
-		return x.Threads
-	}
-	return nil
-}
-
-type GetFollowingThreadsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Page          int32                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetFollowingThreadsRequest) Reset() {
-	*x = GetFollowingThreadsRequest{}
-	mi := &file_thread_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetFollowingThreadsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetFollowingThreadsRequest) ProtoMessage() {}
-
-func (x *GetFollowingThreadsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetFollowingThreadsRequest.ProtoReflect.Descriptor instead.
-func (*GetFollowingThreadsRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *GetFollowingThreadsRequest) GetPage() int32 {
-	if x != nil {
-		return x.Page
-	}
-	return 0
-}
-
-func (x *GetFollowingThreadsRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-type GetLikedThreadsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetLikedThreadsRequest) Reset() {
-	*x = GetLikedThreadsRequest{}
-	mi := &file_thread_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetLikedThreadsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetLikedThreadsRequest) ProtoMessage() {}
-
-func (x *GetLikedThreadsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetLikedThreadsRequest.ProtoReflect.Descriptor instead.
-func (*GetLikedThreadsRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *GetLikedThreadsRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-type GetBookmarkThreadsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetBookmarkThreadsRequest) Reset() {
-	*x = GetBookmarkThreadsRequest{}
-	mi := &file_thread_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetBookmarkThreadsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetBookmarkThreadsRequest) ProtoMessage() {}
-
-func (x *GetBookmarkThreadsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetBookmarkThreadsRequest.ProtoReflect.Descriptor instead.
-func (*GetBookmarkThreadsRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *GetBookmarkThreadsRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-type GetAllThreadCategoriesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetAllThreadCategoriesRequest) Reset() {
-	*x = GetAllThreadCategoriesRequest{}
-	mi := &file_thread_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetAllThreadCategoriesRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetAllThreadCategoriesRequest) ProtoMessage() {}
-
-func (x *GetAllThreadCategoriesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetAllThreadCategoriesRequest.ProtoReflect.Descriptor instead.
-func (*GetAllThreadCategoriesRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{13}
-}
-
-type GetAllThreadCategoriesResponse struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	ThreadCategories []*ThreadCategory      `protobuf:"bytes,1,rep,name=thread_categories,json=threadCategories,proto3" json:"thread_categories,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *GetAllThreadCategoriesResponse) Reset() {
-	*x = GetAllThreadCategoriesResponse{}
-	mi := &file_thread_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetAllThreadCategoriesResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetAllThreadCategoriesResponse) ProtoMessage() {}
-
-func (x *GetAllThreadCategoriesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetAllThreadCategoriesResponse.ProtoReflect.Descriptor instead.
-func (*GetAllThreadCategoriesResponse) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *GetAllThreadCategoriesResponse) GetThreadCategories() []*ThreadCategory {
-	if x != nil {
-		return x.ThreadCategories
-	}
-	return nil
-}
-
-type GetAllCommunitiesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetAllCommunitiesRequest) Reset() {
-	*x = GetAllCommunitiesRequest{}
-	mi := &file_thread_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetAllCommunitiesRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetAllCommunitiesRequest) ProtoMessage() {}
-
-func (x *GetAllCommunitiesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetAllCommunitiesRequest.ProtoReflect.Descriptor instead.
-func (*GetAllCommunitiesRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{15}
-}
-
-type GetAllCommunitiesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Communities   []*Community           `protobuf:"bytes,1,rep,name=communities,proto3" json:"communities,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetAllCommunitiesResponse) Reset() {
-	*x = GetAllCommunitiesResponse{}
-	mi := &file_thread_proto_msgTypes[16]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetAllCommunitiesResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetAllCommunitiesResponse) ProtoMessage() {}
-
-func (x *GetAllCommunitiesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[16]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetAllCommunitiesResponse.ProtoReflect.Descriptor instead.
-func (*GetAllCommunitiesResponse) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *GetAllCommunitiesResponse) GetCommunities() []*Community {
-	if x != nil {
-		return x.Communities
-	}
-	return nil
-}
-
-type GetAllThreadFileRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetAllThreadFileRequest) Reset() {
-	*x = GetAllThreadFileRequest{}
-	mi := &file_thread_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetAllThreadFileRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetAllThreadFileRequest) ProtoMessage() {}
-
-func (x *GetAllThreadFileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetAllThreadFileRequest.ProtoReflect.Descriptor instead.
-func (*GetAllThreadFileRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{17}
-}
-
-type GetAllThreadFileResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ThreadFiles   []*ThreadFile          `protobuf:"bytes,1,rep,name=thread_files,json=threadFiles,proto3" json:"thread_files,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetAllThreadFileResponse) Reset() {
-	*x = GetAllThreadFileResponse{}
-	mi := &file_thread_proto_msgTypes[18]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetAllThreadFileResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetAllThreadFileResponse) ProtoMessage() {}
-
-func (x *GetAllThreadFileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[18]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetAllThreadFileResponse.ProtoReflect.Descriptor instead.
-func (*GetAllThreadFileResponse) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{18}
-}
-
-func (x *GetAllThreadFileResponse) GetThreadFiles() []*ThreadFile {
-	if x != nil {
-		return x.ThreadFiles
-	}
-	return nil
-}
-
-type PostThreadRequest struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	UserId          string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	CategoryId      string                 `protobuf:"bytes,2,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
-	CommunityId     string                 `protobuf:"bytes,3,opt,name=community_id,json=communityId,proto3" json:"community_id,omitempty"`
-	Content         string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`
-	ReplyPermission string                 `protobuf:"bytes,5,opt,name=reply_permission,json=replyPermission,proto3" json:"reply_permission,omitempty"`
-	IsAdvertisement bool                   `protobuf:"varint,6,opt,name=is_advertisement,json=isAdvertisement,proto3" json:"is_advertisement,omitempty"`
-	ScheduledAt     string                 `protobuf:"bytes,7,opt,name=scheduled_at,json=scheduledAt,proto3" json:"scheduled_at,omitempty"`
-	ImageUrls       []string               `protobuf:"bytes,8,rep,name=image_urls,json=imageUrls,proto3" json:"image_urls,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *PostThreadRequest) Reset() {
-	*x = PostThreadRequest{}
-	mi := &file_thread_proto_msgTypes[19]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PostThreadRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PostThreadRequest) ProtoMessage() {}
-
-func (x *PostThreadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[19]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PostThreadRequest.ProtoReflect.Descriptor instead.
-func (*PostThreadRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{19}
-}
-
-func (x *PostThreadRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *PostThreadRequest) GetCategoryId() string {
-	if x != nil {
-		return x.CategoryId
-	}
-	return ""
-}
-
-func (x *PostThreadRequest) GetCommunityId() string {
-	if x != nil {
-		return x.CommunityId
-	}
-	return ""
-}
-
-func (x *PostThreadRequest) GetContent() string {
-	if x != nil {
-		return x.Content
-	}
-	return ""
-}
-
-func (x *PostThreadRequest) GetReplyPermission() string {
-	if x != nil {
-		return x.ReplyPermission
-	}
-	return ""
-}
-
-func (x *PostThreadRequest) GetIsAdvertisement() bool {
-	if x != nil {
-		return x.IsAdvertisement
-	}
-	return false
-}
-
-func (x *PostThreadRequest) GetScheduledAt() string {
-	if x != nil {
-		return x.ScheduledAt
-	}
-	return ""
-}
-
-func (x *PostThreadRequest) GetImageUrls() []string {
-	if x != nil {
-		return x.ImageUrls
-	}
-	return nil
-}
-
 type ReplyThreadRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	UserId          string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -996,7 +36,7 @@ type ReplyThreadRequest struct {
 
 func (x *ReplyThreadRequest) Reset() {
 	*x = ReplyThreadRequest{}
-	mi := &file_thread_proto_msgTypes[20]
+	mi := &file_thread_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1008,7 +48,7 @@ func (x *ReplyThreadRequest) String() string {
 func (*ReplyThreadRequest) ProtoMessage() {}
 
 func (x *ReplyThreadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[20]
+	mi := &file_thread_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1021,7 +61,7 @@ func (x *ReplyThreadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplyThreadRequest.ProtoReflect.Descriptor instead.
 func (*ReplyThreadRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{20}
+	return file_thread_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *ReplyThreadRequest) GetUserId() string {
@@ -1083,7 +123,7 @@ type RepostThreadRequest struct {
 
 func (x *RepostThreadRequest) Reset() {
 	*x = RepostThreadRequest{}
-	mi := &file_thread_proto_msgTypes[21]
+	mi := &file_thread_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1095,7 +135,7 @@ func (x *RepostThreadRequest) String() string {
 func (*RepostThreadRequest) ProtoMessage() {}
 
 func (x *RepostThreadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[21]
+	mi := &file_thread_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1108,7 +148,7 @@ func (x *RepostThreadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RepostThreadRequest.ProtoReflect.Descriptor instead.
 func (*RepostThreadRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{21}
+	return file_thread_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *RepostThreadRequest) GetUserId() string {
@@ -1123,6 +163,1018 @@ func (x *RepostThreadRequest) GetThreadId() string {
 		return x.ThreadId
 	}
 	return ""
+}
+
+type UnrepostThreadRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ThreadId      string                 `protobuf:"bytes,2,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnrepostThreadRequest) Reset() {
+	*x = UnrepostThreadRequest{}
+	mi := &file_thread_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnrepostThreadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnrepostThreadRequest) ProtoMessage() {}
+
+func (x *UnrepostThreadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnrepostThreadRequest.ProtoReflect.Descriptor instead.
+func (*UnrepostThreadRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *UnrepostThreadRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UnrepostThreadRequest) GetThreadId() string {
+	if x != nil {
+		return x.ThreadId
+	}
+	return ""
+}
+
+type LikeThreadRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ThreadId      string                 `protobuf:"bytes,2,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LikeThreadRequest) Reset() {
+	*x = LikeThreadRequest{}
+	mi := &file_thread_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LikeThreadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LikeThreadRequest) ProtoMessage() {}
+
+func (x *LikeThreadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LikeThreadRequest.ProtoReflect.Descriptor instead.
+func (*LikeThreadRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *LikeThreadRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *LikeThreadRequest) GetThreadId() string {
+	if x != nil {
+		return x.ThreadId
+	}
+	return ""
+}
+
+type UnlikeThreadRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ThreadId      string                 `protobuf:"bytes,2,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnlikeThreadRequest) Reset() {
+	*x = UnlikeThreadRequest{}
+	mi := &file_thread_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnlikeThreadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnlikeThreadRequest) ProtoMessage() {}
+
+func (x *UnlikeThreadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnlikeThreadRequest.ProtoReflect.Descriptor instead.
+func (*UnlikeThreadRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *UnlikeThreadRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UnlikeThreadRequest) GetThreadId() string {
+	if x != nil {
+		return x.ThreadId
+	}
+	return ""
+}
+
+type BookmarkThreadRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ThreadId      string                 `protobuf:"bytes,2,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BookmarkThreadRequest) Reset() {
+	*x = BookmarkThreadRequest{}
+	mi := &file_thread_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BookmarkThreadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BookmarkThreadRequest) ProtoMessage() {}
+
+func (x *BookmarkThreadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BookmarkThreadRequest.ProtoReflect.Descriptor instead.
+func (*BookmarkThreadRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *BookmarkThreadRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *BookmarkThreadRequest) GetThreadId() string {
+	if x != nil {
+		return x.ThreadId
+	}
+	return ""
+}
+
+type UnbookmarkThreadRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ThreadId      string                 `protobuf:"bytes,2,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnbookmarkThreadRequest) Reset() {
+	*x = UnbookmarkThreadRequest{}
+	mi := &file_thread_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnbookmarkThreadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnbookmarkThreadRequest) ProtoMessage() {}
+
+func (x *UnbookmarkThreadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnbookmarkThreadRequest.ProtoReflect.Descriptor instead.
+func (*UnbookmarkThreadRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UnbookmarkThreadRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UnbookmarkThreadRequest) GetThreadId() string {
+	if x != nil {
+		return x.ThreadId
+	}
+	return ""
+}
+
+type ActionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ActionResponse) Reset() {
+	*x = ActionResponse{}
+	mi := &file_thread_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ActionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ActionResponse) ProtoMessage() {}
+
+func (x *ActionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ActionResponse.ProtoReflect.Descriptor instead.
+func (*ActionResponse) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ActionResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type GetRepliesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Page          int32                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
+	ThreadId      string                 `protobuf:"bytes,2,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetRepliesRequest) Reset() {
+	*x = GetRepliesRequest{}
+	mi := &file_thread_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetRepliesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetRepliesRequest) ProtoMessage() {}
+
+func (x *GetRepliesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetRepliesRequest.ProtoReflect.Descriptor instead.
+func (*GetRepliesRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetRepliesRequest) GetPage() int32 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *GetRepliesRequest) GetThreadId() string {
+	if x != nil {
+		return x.ThreadId
+	}
+	return ""
+}
+
+type GetThreadByIdRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ThreadId      string                 `protobuf:"bytes,1,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetThreadByIdRequest) Reset() {
+	*x = GetThreadByIdRequest{}
+	mi := &file_thread_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetThreadByIdRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetThreadByIdRequest) ProtoMessage() {}
+
+func (x *GetThreadByIdRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetThreadByIdRequest.ProtoReflect.Descriptor instead.
+func (*GetThreadByIdRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetThreadByIdRequest) GetThreadId() string {
+	if x != nil {
+		return x.ThreadId
+	}
+	return ""
+}
+
+type GetThreadResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Thread        *Thread                `protobuf:"bytes,1,opt,name=thread,proto3" json:"thread,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetThreadResponse) Reset() {
+	*x = GetThreadResponse{}
+	mi := &file_thread_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetThreadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetThreadResponse) ProtoMessage() {}
+
+func (x *GetThreadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetThreadResponse.ProtoReflect.Descriptor instead.
+func (*GetThreadResponse) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GetThreadResponse) GetThread() *Thread {
+	if x != nil {
+		return x.Thread
+	}
+	return nil
+}
+
+type GetAllThreadsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Page          int32                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAllThreadsRequest) Reset() {
+	*x = GetAllThreadsRequest{}
+	mi := &file_thread_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAllThreadsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllThreadsRequest) ProtoMessage() {}
+
+func (x *GetAllThreadsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllThreadsRequest.ProtoReflect.Descriptor instead.
+func (*GetAllThreadsRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetAllThreadsRequest) GetPage() int32 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+type GetAllThreadsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Threads       []*Thread              `protobuf:"bytes,1,rep,name=threads,proto3" json:"threads,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAllThreadsResponse) Reset() {
+	*x = GetAllThreadsResponse{}
+	mi := &file_thread_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAllThreadsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllThreadsResponse) ProtoMessage() {}
+
+func (x *GetAllThreadsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllThreadsResponse.ProtoReflect.Descriptor instead.
+func (*GetAllThreadsResponse) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetAllThreadsResponse) GetThreads() []*Thread {
+	if x != nil {
+		return x.Threads
+	}
+	return nil
+}
+
+type GetFollowingThreadsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Page          int32                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetFollowingThreadsRequest) Reset() {
+	*x = GetFollowingThreadsRequest{}
+	mi := &file_thread_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFollowingThreadsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFollowingThreadsRequest) ProtoMessage() {}
+
+func (x *GetFollowingThreadsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFollowingThreadsRequest.ProtoReflect.Descriptor instead.
+func (*GetFollowingThreadsRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *GetFollowingThreadsRequest) GetPage() int32 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *GetFollowingThreadsRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type GetLikedThreadsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetLikedThreadsRequest) Reset() {
+	*x = GetLikedThreadsRequest{}
+	mi := &file_thread_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetLikedThreadsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetLikedThreadsRequest) ProtoMessage() {}
+
+func (x *GetLikedThreadsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetLikedThreadsRequest.ProtoReflect.Descriptor instead.
+func (*GetLikedThreadsRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetLikedThreadsRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type GetBookmarkThreadsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBookmarkThreadsRequest) Reset() {
+	*x = GetBookmarkThreadsRequest{}
+	mi := &file_thread_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBookmarkThreadsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBookmarkThreadsRequest) ProtoMessage() {}
+
+func (x *GetBookmarkThreadsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBookmarkThreadsRequest.ProtoReflect.Descriptor instead.
+func (*GetBookmarkThreadsRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GetBookmarkThreadsRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type GetAllThreadCategoriesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAllThreadCategoriesRequest) Reset() {
+	*x = GetAllThreadCategoriesRequest{}
+	mi := &file_thread_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAllThreadCategoriesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllThreadCategoriesRequest) ProtoMessage() {}
+
+func (x *GetAllThreadCategoriesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllThreadCategoriesRequest.ProtoReflect.Descriptor instead.
+func (*GetAllThreadCategoriesRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{16}
+}
+
+type GetAllThreadCategoriesResponse struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ThreadCategories []*ThreadCategory      `protobuf:"bytes,1,rep,name=thread_categories,json=threadCategories,proto3" json:"thread_categories,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *GetAllThreadCategoriesResponse) Reset() {
+	*x = GetAllThreadCategoriesResponse{}
+	mi := &file_thread_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAllThreadCategoriesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllThreadCategoriesResponse) ProtoMessage() {}
+
+func (x *GetAllThreadCategoriesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllThreadCategoriesResponse.ProtoReflect.Descriptor instead.
+func (*GetAllThreadCategoriesResponse) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *GetAllThreadCategoriesResponse) GetThreadCategories() []*ThreadCategory {
+	if x != nil {
+		return x.ThreadCategories
+	}
+	return nil
+}
+
+type GetAllCommunitiesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAllCommunitiesRequest) Reset() {
+	*x = GetAllCommunitiesRequest{}
+	mi := &file_thread_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAllCommunitiesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllCommunitiesRequest) ProtoMessage() {}
+
+func (x *GetAllCommunitiesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllCommunitiesRequest.ProtoReflect.Descriptor instead.
+func (*GetAllCommunitiesRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{18}
+}
+
+type GetAllCommunitiesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Communities   []*Community           `protobuf:"bytes,1,rep,name=communities,proto3" json:"communities,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAllCommunitiesResponse) Reset() {
+	*x = GetAllCommunitiesResponse{}
+	mi := &file_thread_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAllCommunitiesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllCommunitiesResponse) ProtoMessage() {}
+
+func (x *GetAllCommunitiesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllCommunitiesResponse.ProtoReflect.Descriptor instead.
+func (*GetAllCommunitiesResponse) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *GetAllCommunitiesResponse) GetCommunities() []*Community {
+	if x != nil {
+		return x.Communities
+	}
+	return nil
+}
+
+type GetAllThreadFileRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAllThreadFileRequest) Reset() {
+	*x = GetAllThreadFileRequest{}
+	mi := &file_thread_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAllThreadFileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllThreadFileRequest) ProtoMessage() {}
+
+func (x *GetAllThreadFileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllThreadFileRequest.ProtoReflect.Descriptor instead.
+func (*GetAllThreadFileRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{20}
+}
+
+type GetAllThreadFileResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ThreadFiles   []*ThreadFile          `protobuf:"bytes,1,rep,name=thread_files,json=threadFiles,proto3" json:"thread_files,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAllThreadFileResponse) Reset() {
+	*x = GetAllThreadFileResponse{}
+	mi := &file_thread_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAllThreadFileResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllThreadFileResponse) ProtoMessage() {}
+
+func (x *GetAllThreadFileResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllThreadFileResponse.ProtoReflect.Descriptor instead.
+func (*GetAllThreadFileResponse) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *GetAllThreadFileResponse) GetThreadFiles() []*ThreadFile {
+	if x != nil {
+		return x.ThreadFiles
+	}
+	return nil
+}
+
+type PostThreadRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	UserId          string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	CategoryId      string                 `protobuf:"bytes,2,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	CommunityId     string                 `protobuf:"bytes,3,opt,name=community_id,json=communityId,proto3" json:"community_id,omitempty"`
+	Content         string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`
+	ReplyPermission string                 `protobuf:"bytes,5,opt,name=reply_permission,json=replyPermission,proto3" json:"reply_permission,omitempty"`
+	IsAdvertisement bool                   `protobuf:"varint,6,opt,name=is_advertisement,json=isAdvertisement,proto3" json:"is_advertisement,omitempty"`
+	ScheduledAt     string                 `protobuf:"bytes,7,opt,name=scheduled_at,json=scheduledAt,proto3" json:"scheduled_at,omitempty"`
+	ImageUrls       []string               `protobuf:"bytes,8,rep,name=image_urls,json=imageUrls,proto3" json:"image_urls,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *PostThreadRequest) Reset() {
+	*x = PostThreadRequest{}
+	mi := &file_thread_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PostThreadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PostThreadRequest) ProtoMessage() {}
+
+func (x *PostThreadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PostThreadRequest.ProtoReflect.Descriptor instead.
+func (*PostThreadRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *PostThreadRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *PostThreadRequest) GetCategoryId() string {
+	if x != nil {
+		return x.CategoryId
+	}
+	return ""
+}
+
+func (x *PostThreadRequest) GetCommunityId() string {
+	if x != nil {
+		return x.CommunityId
+	}
+	return ""
+}
+
+func (x *PostThreadRequest) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+func (x *PostThreadRequest) GetReplyPermission() string {
+	if x != nil {
+		return x.ReplyPermission
+	}
+	return ""
+}
+
+func (x *PostThreadRequest) GetIsAdvertisement() bool {
+	if x != nil {
+		return x.IsAdvertisement
+	}
+	return false
+}
+
+func (x *PostThreadRequest) GetScheduledAt() string {
+	if x != nil {
+		return x.ScheduledAt
+	}
+	return ""
+}
+
+func (x *PostThreadRequest) GetImageUrls() []string {
+	if x != nil {
+		return x.ImageUrls
+	}
+	return nil
 }
 
 type Thread struct {
@@ -1145,7 +1197,7 @@ type Thread struct {
 
 func (x *Thread) Reset() {
 	*x = Thread{}
-	mi := &file_thread_proto_msgTypes[22]
+	mi := &file_thread_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1157,7 +1209,7 @@ func (x *Thread) String() string {
 func (*Thread) ProtoMessage() {}
 
 func (x *Thread) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[22]
+	mi := &file_thread_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1170,7 +1222,7 @@ func (x *Thread) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Thread.ProtoReflect.Descriptor instead.
 func (*Thread) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{22}
+	return file_thread_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *Thread) GetId() string {
@@ -1267,7 +1319,7 @@ type ThreadCategory struct {
 
 func (x *ThreadCategory) Reset() {
 	*x = ThreadCategory{}
-	mi := &file_thread_proto_msgTypes[23]
+	mi := &file_thread_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1279,7 +1331,7 @@ func (x *ThreadCategory) String() string {
 func (*ThreadCategory) ProtoMessage() {}
 
 func (x *ThreadCategory) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[23]
+	mi := &file_thread_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1292,7 +1344,7 @@ func (x *ThreadCategory) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ThreadCategory.ProtoReflect.Descriptor instead.
 func (*ThreadCategory) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{23}
+	return file_thread_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ThreadCategory) GetId() string {
@@ -1320,7 +1372,7 @@ type Community struct {
 
 func (x *Community) Reset() {
 	*x = Community{}
-	mi := &file_thread_proto_msgTypes[24]
+	mi := &file_thread_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1332,7 +1384,7 @@ func (x *Community) String() string {
 func (*Community) ProtoMessage() {}
 
 func (x *Community) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[24]
+	mi := &file_thread_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1345,7 +1397,7 @@ func (x *Community) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Community.ProtoReflect.Descriptor instead.
 func (*Community) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{24}
+	return file_thread_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *Community) GetId() string {
@@ -1380,7 +1432,7 @@ type ThreadFile struct {
 
 func (x *ThreadFile) Reset() {
 	*x = ThreadFile{}
-	mi := &file_thread_proto_msgTypes[25]
+	mi := &file_thread_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1392,7 +1444,7 @@ func (x *ThreadFile) String() string {
 func (*ThreadFile) ProtoMessage() {}
 
 func (x *ThreadFile) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[25]
+	mi := &file_thread_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1405,7 +1457,7 @@ func (x *ThreadFile) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ThreadFile.ProtoReflect.Descriptor instead.
 func (*ThreadFile) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{25}
+	return file_thread_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ThreadFile) GetId() string {
@@ -1438,7 +1490,7 @@ type ThreadResponse struct {
 
 func (x *ThreadResponse) Reset() {
 	*x = ThreadResponse{}
-	mi := &file_thread_proto_msgTypes[26]
+	mi := &file_thread_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1450,7 +1502,7 @@ func (x *ThreadResponse) String() string {
 func (*ThreadResponse) ProtoMessage() {}
 
 func (x *ThreadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[26]
+	mi := &file_thread_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1463,7 +1515,7 @@ func (x *ThreadResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ThreadResponse.ProtoReflect.Descriptor instead.
 func (*ThreadResponse) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{26}
+	return file_thread_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ThreadResponse) GetThread() *Thread {
@@ -1477,7 +1529,22 @@ var File_thread_proto protoreflect.FileDescriptor
 
 const file_thread_proto_rawDesc = "" +
 	"\n" +
-	"\fthread.proto\x12\x06thread\"I\n" +
+	"\fthread.proto\x12\x06thread\"\xff\x01\n" +
+	"\x12ReplyThreadRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1e\n" +
+	"\vreply_to_id\x18\x02 \x01(\tR\treplyToId\x12\x18\n" +
+	"\acontent\x18\x03 \x01(\tR\acontent\x12)\n" +
+	"\x10reply_permission\x18\x04 \x01(\tR\x0freplyPermission\x12)\n" +
+	"\x10is_advertisement\x18\x05 \x01(\bR\x0fisAdvertisement\x12!\n" +
+	"\fscheduled_at\x18\x06 \x01(\tR\vscheduledAt\x12\x1d\n" +
+	"\n" +
+	"image_urls\x18\a \x03(\tR\timageUrls\"K\n" +
+	"\x13RepostThreadRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
+	"\tthread_id\x18\x02 \x01(\tR\bthreadId\"M\n" +
+	"\x15UnrepostThreadRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
+	"\tthread_id\x18\x02 \x01(\tR\bthreadId\"I\n" +
 	"\x11LikeThreadRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tthread_id\x18\x02 \x01(\tR\bthreadId\"K\n" +
@@ -1529,19 +1596,7 @@ const file_thread_proto_rawDesc = "" +
 	"\x10is_advertisement\x18\x06 \x01(\bR\x0fisAdvertisement\x12!\n" +
 	"\fscheduled_at\x18\a \x01(\tR\vscheduledAt\x12\x1d\n" +
 	"\n" +
-	"image_urls\x18\b \x03(\tR\timageUrls\"\xff\x01\n" +
-	"\x12ReplyThreadRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1e\n" +
-	"\vreply_to_id\x18\x02 \x01(\tR\treplyToId\x12\x18\n" +
-	"\acontent\x18\x03 \x01(\tR\acontent\x12)\n" +
-	"\x10reply_permission\x18\x04 \x01(\tR\x0freplyPermission\x12)\n" +
-	"\x10is_advertisement\x18\x05 \x01(\bR\x0fisAdvertisement\x12!\n" +
-	"\fscheduled_at\x18\x06 \x01(\tR\vscheduledAt\x12\x1d\n" +
-	"\n" +
-	"image_urls\x18\a \x03(\tR\timageUrls\"K\n" +
-	"\x13RepostThreadRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
-	"\tthread_id\x18\x02 \x01(\tR\bthreadId\"\x81\x03\n" +
+	"image_urls\x18\b \x03(\tR\timageUrls\"\x81\x03\n" +
 	"\x06Thread\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1f\n" +
@@ -1572,7 +1627,8 @@ const file_thread_proto_rawDesc = "" +
 	"\tthread_id\x18\x02 \x01(\tR\bthreadId\x12\x12\n" +
 	"\x04file\x18\x03 \x01(\tR\x04file\"8\n" +
 	"\x0eThreadResponse\x12&\n" +
-	"\x06thread\x18\x01 \x01(\v2\x0e.thread.ThreadR\x06thread2\xf0\t\n" +
+	"\x06thread\x18\x01 \x01(\v2\x0e.thread.ThreadR\x06thread2\xb9\n" +
+	"\n" +
 	"\rThreadService\x12F\n" +
 	"\n" +
 	"GetReplies\x12\x19.thread.GetRepliesRequest\x1a\x1d.thread.GetAllThreadsResponse\x12H\n" +
@@ -1584,7 +1640,8 @@ const file_thread_proto_rawDesc = "" +
 	"\n" +
 	"PostThread\x12\x19.thread.PostThreadRequest\x1a\x16.thread.ThreadResponse\x12A\n" +
 	"\vReplyThread\x12\x1a.thread.ReplyThreadRequest\x1a\x16.thread.ThreadResponse\x12C\n" +
-	"\fRepostThread\x12\x1b.thread.RepostThreadRequest\x1a\x16.thread.ThreadResponse\x12g\n" +
+	"\fRepostThread\x12\x1b.thread.RepostThreadRequest\x1a\x16.thread.ThreadResponse\x12G\n" +
+	"\x0eUnrepostThread\x12\x1d.thread.UnrepostThreadRequest\x1a\x16.thread.ActionResponse\x12g\n" +
 	"\x16GetAllThreadCategories\x12%.thread.GetAllThreadCategoriesRequest\x1a&.thread.GetAllThreadCategoriesResponse\x12V\n" +
 	"\x0fGetAllCommunity\x12 .thread.GetAllCommunitiesRequest\x1a!.thread.GetAllCommunitiesResponse\x12U\n" +
 	"\x10GetAllThreadFile\x12\x1f.thread.GetAllThreadFileRequest\x1a .thread.GetAllThreadFileResponse\x12?\n" +
@@ -1606,77 +1663,80 @@ func file_thread_proto_rawDescGZIP() []byte {
 	return file_thread_proto_rawDescData
 }
 
-var file_thread_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_thread_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_thread_proto_goTypes = []any{
-	(*LikeThreadRequest)(nil),              // 0: thread.LikeThreadRequest
-	(*UnlikeThreadRequest)(nil),            // 1: thread.UnlikeThreadRequest
-	(*BookmarkThreadRequest)(nil),          // 2: thread.BookmarkThreadRequest
-	(*UnbookmarkThreadRequest)(nil),        // 3: thread.UnbookmarkThreadRequest
-	(*ActionResponse)(nil),                 // 4: thread.ActionResponse
-	(*GetRepliesRequest)(nil),              // 5: thread.GetRepliesRequest
-	(*GetThreadByIdRequest)(nil),           // 6: thread.GetThreadByIdRequest
-	(*GetThreadResponse)(nil),              // 7: thread.GetThreadResponse
-	(*GetAllThreadsRequest)(nil),           // 8: thread.GetAllThreadsRequest
-	(*GetAllThreadsResponse)(nil),          // 9: thread.GetAllThreadsResponse
-	(*GetFollowingThreadsRequest)(nil),     // 10: thread.GetFollowingThreadsRequest
-	(*GetLikedThreadsRequest)(nil),         // 11: thread.GetLikedThreadsRequest
-	(*GetBookmarkThreadsRequest)(nil),      // 12: thread.GetBookmarkThreadsRequest
-	(*GetAllThreadCategoriesRequest)(nil),  // 13: thread.GetAllThreadCategoriesRequest
-	(*GetAllThreadCategoriesResponse)(nil), // 14: thread.GetAllThreadCategoriesResponse
-	(*GetAllCommunitiesRequest)(nil),       // 15: thread.GetAllCommunitiesRequest
-	(*GetAllCommunitiesResponse)(nil),      // 16: thread.GetAllCommunitiesResponse
-	(*GetAllThreadFileRequest)(nil),        // 17: thread.GetAllThreadFileRequest
-	(*GetAllThreadFileResponse)(nil),       // 18: thread.GetAllThreadFileResponse
-	(*PostThreadRequest)(nil),              // 19: thread.PostThreadRequest
-	(*ReplyThreadRequest)(nil),             // 20: thread.ReplyThreadRequest
-	(*RepostThreadRequest)(nil),            // 21: thread.RepostThreadRequest
-	(*Thread)(nil),                         // 22: thread.Thread
-	(*ThreadCategory)(nil),                 // 23: thread.ThreadCategory
-	(*Community)(nil),                      // 24: thread.Community
-	(*ThreadFile)(nil),                     // 25: thread.ThreadFile
-	(*ThreadResponse)(nil),                 // 26: thread.ThreadResponse
+	(*ReplyThreadRequest)(nil),             // 0: thread.ReplyThreadRequest
+	(*RepostThreadRequest)(nil),            // 1: thread.RepostThreadRequest
+	(*UnrepostThreadRequest)(nil),          // 2: thread.UnrepostThreadRequest
+	(*LikeThreadRequest)(nil),              // 3: thread.LikeThreadRequest
+	(*UnlikeThreadRequest)(nil),            // 4: thread.UnlikeThreadRequest
+	(*BookmarkThreadRequest)(nil),          // 5: thread.BookmarkThreadRequest
+	(*UnbookmarkThreadRequest)(nil),        // 6: thread.UnbookmarkThreadRequest
+	(*ActionResponse)(nil),                 // 7: thread.ActionResponse
+	(*GetRepliesRequest)(nil),              // 8: thread.GetRepliesRequest
+	(*GetThreadByIdRequest)(nil),           // 9: thread.GetThreadByIdRequest
+	(*GetThreadResponse)(nil),              // 10: thread.GetThreadResponse
+	(*GetAllThreadsRequest)(nil),           // 11: thread.GetAllThreadsRequest
+	(*GetAllThreadsResponse)(nil),          // 12: thread.GetAllThreadsResponse
+	(*GetFollowingThreadsRequest)(nil),     // 13: thread.GetFollowingThreadsRequest
+	(*GetLikedThreadsRequest)(nil),         // 14: thread.GetLikedThreadsRequest
+	(*GetBookmarkThreadsRequest)(nil),      // 15: thread.GetBookmarkThreadsRequest
+	(*GetAllThreadCategoriesRequest)(nil),  // 16: thread.GetAllThreadCategoriesRequest
+	(*GetAllThreadCategoriesResponse)(nil), // 17: thread.GetAllThreadCategoriesResponse
+	(*GetAllCommunitiesRequest)(nil),       // 18: thread.GetAllCommunitiesRequest
+	(*GetAllCommunitiesResponse)(nil),      // 19: thread.GetAllCommunitiesResponse
+	(*GetAllThreadFileRequest)(nil),        // 20: thread.GetAllThreadFileRequest
+	(*GetAllThreadFileResponse)(nil),       // 21: thread.GetAllThreadFileResponse
+	(*PostThreadRequest)(nil),              // 22: thread.PostThreadRequest
+	(*Thread)(nil),                         // 23: thread.Thread
+	(*ThreadCategory)(nil),                 // 24: thread.ThreadCategory
+	(*Community)(nil),                      // 25: thread.Community
+	(*ThreadFile)(nil),                     // 26: thread.ThreadFile
+	(*ThreadResponse)(nil),                 // 27: thread.ThreadResponse
 }
 var file_thread_proto_depIdxs = []int32{
-	22, // 0: thread.GetThreadResponse.thread:type_name -> thread.Thread
-	22, // 1: thread.GetAllThreadsResponse.threads:type_name -> thread.Thread
-	23, // 2: thread.GetAllThreadCategoriesResponse.thread_categories:type_name -> thread.ThreadCategory
-	24, // 3: thread.GetAllCommunitiesResponse.communities:type_name -> thread.Community
-	25, // 4: thread.GetAllThreadFileResponse.thread_files:type_name -> thread.ThreadFile
-	22, // 5: thread.ThreadResponse.thread:type_name -> thread.Thread
-	5,  // 6: thread.ThreadService.GetReplies:input_type -> thread.GetRepliesRequest
-	6,  // 7: thread.ThreadService.GetThreadById:input_type -> thread.GetThreadByIdRequest
-	8,  // 8: thread.ThreadService.GetAllThreads:input_type -> thread.GetAllThreadsRequest
-	10, // 9: thread.ThreadService.GetFollowingThreads:input_type -> thread.GetFollowingThreadsRequest
-	11, // 10: thread.ThreadService.GetLikedThreads:input_type -> thread.GetLikedThreadsRequest
-	12, // 11: thread.ThreadService.GetBookmarkThreads:input_type -> thread.GetBookmarkThreadsRequest
-	19, // 12: thread.ThreadService.PostThread:input_type -> thread.PostThreadRequest
-	20, // 13: thread.ThreadService.ReplyThread:input_type -> thread.ReplyThreadRequest
-	21, // 14: thread.ThreadService.RepostThread:input_type -> thread.RepostThreadRequest
-	13, // 15: thread.ThreadService.GetAllThreadCategories:input_type -> thread.GetAllThreadCategoriesRequest
-	15, // 16: thread.ThreadService.GetAllCommunity:input_type -> thread.GetAllCommunitiesRequest
-	17, // 17: thread.ThreadService.GetAllThreadFile:input_type -> thread.GetAllThreadFileRequest
-	0,  // 18: thread.ThreadService.LikeThread:input_type -> thread.LikeThreadRequest
-	1,  // 19: thread.ThreadService.UnlikeThread:input_type -> thread.UnlikeThreadRequest
-	2,  // 20: thread.ThreadService.BookmarkThread:input_type -> thread.BookmarkThreadRequest
-	3,  // 21: thread.ThreadService.UnbookmarkThread:input_type -> thread.UnbookmarkThreadRequest
-	9,  // 22: thread.ThreadService.GetReplies:output_type -> thread.GetAllThreadsResponse
-	7,  // 23: thread.ThreadService.GetThreadById:output_type -> thread.GetThreadResponse
-	9,  // 24: thread.ThreadService.GetAllThreads:output_type -> thread.GetAllThreadsResponse
-	9,  // 25: thread.ThreadService.GetFollowingThreads:output_type -> thread.GetAllThreadsResponse
-	9,  // 26: thread.ThreadService.GetLikedThreads:output_type -> thread.GetAllThreadsResponse
-	9,  // 27: thread.ThreadService.GetBookmarkThreads:output_type -> thread.GetAllThreadsResponse
-	26, // 28: thread.ThreadService.PostThread:output_type -> thread.ThreadResponse
-	26, // 29: thread.ThreadService.ReplyThread:output_type -> thread.ThreadResponse
-	26, // 30: thread.ThreadService.RepostThread:output_type -> thread.ThreadResponse
-	14, // 31: thread.ThreadService.GetAllThreadCategories:output_type -> thread.GetAllThreadCategoriesResponse
-	16, // 32: thread.ThreadService.GetAllCommunity:output_type -> thread.GetAllCommunitiesResponse
-	18, // 33: thread.ThreadService.GetAllThreadFile:output_type -> thread.GetAllThreadFileResponse
-	4,  // 34: thread.ThreadService.LikeThread:output_type -> thread.ActionResponse
-	4,  // 35: thread.ThreadService.UnlikeThread:output_type -> thread.ActionResponse
-	4,  // 36: thread.ThreadService.BookmarkThread:output_type -> thread.ActionResponse
-	4,  // 37: thread.ThreadService.UnbookmarkThread:output_type -> thread.ActionResponse
-	22, // [22:38] is the sub-list for method output_type
-	6,  // [6:22] is the sub-list for method input_type
+	23, // 0: thread.GetThreadResponse.thread:type_name -> thread.Thread
+	23, // 1: thread.GetAllThreadsResponse.threads:type_name -> thread.Thread
+	24, // 2: thread.GetAllThreadCategoriesResponse.thread_categories:type_name -> thread.ThreadCategory
+	25, // 3: thread.GetAllCommunitiesResponse.communities:type_name -> thread.Community
+	26, // 4: thread.GetAllThreadFileResponse.thread_files:type_name -> thread.ThreadFile
+	23, // 5: thread.ThreadResponse.thread:type_name -> thread.Thread
+	8,  // 6: thread.ThreadService.GetReplies:input_type -> thread.GetRepliesRequest
+	9,  // 7: thread.ThreadService.GetThreadById:input_type -> thread.GetThreadByIdRequest
+	11, // 8: thread.ThreadService.GetAllThreads:input_type -> thread.GetAllThreadsRequest
+	13, // 9: thread.ThreadService.GetFollowingThreads:input_type -> thread.GetFollowingThreadsRequest
+	14, // 10: thread.ThreadService.GetLikedThreads:input_type -> thread.GetLikedThreadsRequest
+	15, // 11: thread.ThreadService.GetBookmarkThreads:input_type -> thread.GetBookmarkThreadsRequest
+	22, // 12: thread.ThreadService.PostThread:input_type -> thread.PostThreadRequest
+	0,  // 13: thread.ThreadService.ReplyThread:input_type -> thread.ReplyThreadRequest
+	1,  // 14: thread.ThreadService.RepostThread:input_type -> thread.RepostThreadRequest
+	2,  // 15: thread.ThreadService.UnrepostThread:input_type -> thread.UnrepostThreadRequest
+	16, // 16: thread.ThreadService.GetAllThreadCategories:input_type -> thread.GetAllThreadCategoriesRequest
+	18, // 17: thread.ThreadService.GetAllCommunity:input_type -> thread.GetAllCommunitiesRequest
+	20, // 18: thread.ThreadService.GetAllThreadFile:input_type -> thread.GetAllThreadFileRequest
+	3,  // 19: thread.ThreadService.LikeThread:input_type -> thread.LikeThreadRequest
+	4,  // 20: thread.ThreadService.UnlikeThread:input_type -> thread.UnlikeThreadRequest
+	5,  // 21: thread.ThreadService.BookmarkThread:input_type -> thread.BookmarkThreadRequest
+	6,  // 22: thread.ThreadService.UnbookmarkThread:input_type -> thread.UnbookmarkThreadRequest
+	12, // 23: thread.ThreadService.GetReplies:output_type -> thread.GetAllThreadsResponse
+	10, // 24: thread.ThreadService.GetThreadById:output_type -> thread.GetThreadResponse
+	12, // 25: thread.ThreadService.GetAllThreads:output_type -> thread.GetAllThreadsResponse
+	12, // 26: thread.ThreadService.GetFollowingThreads:output_type -> thread.GetAllThreadsResponse
+	12, // 27: thread.ThreadService.GetLikedThreads:output_type -> thread.GetAllThreadsResponse
+	12, // 28: thread.ThreadService.GetBookmarkThreads:output_type -> thread.GetAllThreadsResponse
+	27, // 29: thread.ThreadService.PostThread:output_type -> thread.ThreadResponse
+	27, // 30: thread.ThreadService.ReplyThread:output_type -> thread.ThreadResponse
+	27, // 31: thread.ThreadService.RepostThread:output_type -> thread.ThreadResponse
+	7,  // 32: thread.ThreadService.UnrepostThread:output_type -> thread.ActionResponse
+	17, // 33: thread.ThreadService.GetAllThreadCategories:output_type -> thread.GetAllThreadCategoriesResponse
+	19, // 34: thread.ThreadService.GetAllCommunity:output_type -> thread.GetAllCommunitiesResponse
+	21, // 35: thread.ThreadService.GetAllThreadFile:output_type -> thread.GetAllThreadFileResponse
+	7,  // 36: thread.ThreadService.LikeThread:output_type -> thread.ActionResponse
+	7,  // 37: thread.ThreadService.UnlikeThread:output_type -> thread.ActionResponse
+	7,  // 38: thread.ThreadService.BookmarkThread:output_type -> thread.ActionResponse
+	7,  // 39: thread.ThreadService.UnbookmarkThread:output_type -> thread.ActionResponse
+	23, // [23:40] is the sub-list for method output_type
+	6,  // [6:23] is the sub-list for method input_type
 	6,  // [6:6] is the sub-list for extension type_name
 	6,  // [6:6] is the sub-list for extension extendee
 	0,  // [0:6] is the sub-list for field type_name
@@ -1693,7 +1753,7 @@ func file_thread_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_thread_proto_rawDesc), len(file_thread_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   27,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

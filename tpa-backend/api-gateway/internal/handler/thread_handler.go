@@ -128,9 +128,35 @@ func (h *ThreadHandler) GetBookmarkThreads(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Threads)
 }
 
+func (h *ThreadHandler) UnrepostThread(c *gin.Context) {
+	var requestBody struct {
+		UserID          string   `json:"userId" binding:"required"`
+		ThreadID      	string   `json:"threadId" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := h.Client.UnrepostThread(context.Background(), &threadpb.UnrepostThreadRequest{
+		UserId: requestBody.UserID,
+		ThreadId: requestBody.ThreadID,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": resp.Message,
+	})
+}
+
 func (h *ThreadHandler) RepostThread(c *gin.Context) {
 	var requestBody struct {
-		UserID          string   `json:"userId" binding:"required"`       // UUID format
+		UserID          string   `json:"userId" binding:"required"`
 		RepostOfID      string   `json:"repostOfId" binding:"required"`
 	}
 

@@ -79,6 +79,15 @@ func (r *ThreadRepository) GetBookmarkThreads(userId string) ([]model.Thread, er
 	return threads, result.Error
 }
 
+func (r *ThreadRepository) UnrepostThread(thread *model.Thread) error {
+	var existingThread model.Thread
+	if err := r.DB.Where("user_id = ? AND repost_of_id = ?", thread.UserID, thread.RepostOfID).First(&existingThread).Error; err != nil {
+		return err
+	}
+
+	return r.DB.Delete(&existingThread).Error
+}
+
 func (r *ThreadRepository) LikeThread(like *model.Like) error {
 	return r.DB.Create(like).Error
 }

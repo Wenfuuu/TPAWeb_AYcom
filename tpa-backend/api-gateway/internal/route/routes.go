@@ -107,6 +107,7 @@ func InitRoutes(
 			thread.POST("/post", threadHandler.PostThread)
 			thread.POST("/reply", threadHandler.ReplyThread)
 			thread.POST("/repost", threadHandler.RepostThread)
+			thread.POST("/unrepost", threadHandler.UnrepostThread)
 			thread.GET("/like", threadHandler.GetLikedThreads)
 			thread.POST("/like", threadHandler.LikeThread)
 			thread.POST("/unlike", threadHandler.UnlikeThread)

@@ -14,6 +14,7 @@ service ThreadService {
     rpc PostThread(PostThreadRequest) returns (ThreadResponse);
     rpc ReplyThread(ReplyThreadRequest) returns (ThreadResponse);
     rpc RepostThread(RepostThreadRequest) returns (ThreadResponse);
+    rpc UnrepostThread(UnrepostThreadRequest) returns (ActionResponse);
     rpc GetAllThreadCategories(GetAllThreadCategoriesRequest) returns (GetAllThreadCategoriesResponse);
     rpc GetAllCommunity(GetAllCommunitiesRequest) returns (GetAllCommunitiesResponse);
     rpc GetAllThreadFile(GetAllThreadFileRequest) returns (GetAllThreadFileResponse);
@@ -21,6 +22,26 @@ service ThreadService {
     rpc UnlikeThread(UnlikeThreadRequest) returns (ActionResponse);
     rpc BookmarkThread(BookmarkThreadRequest) returns (ActionResponse);
     rpc UnbookmarkThread(UnbookmarkThreadRequest) returns (ActionResponse);
+}
+
+message ReplyThreadRequest {
+    string user_id = 1;
+    string reply_to_id = 2;
+    string content = 3;
+    string reply_permission = 4;
+    bool is_advertisement = 5;
+    string scheduled_at = 6;
+    repeated string image_urls = 7;
+}
+
+message RepostThreadRequest {
+    string user_id = 1;
+    string thread_id = 2;
+}
+
+message UnrepostThreadRequest {
+    string user_id = 1;
+    string thread_id = 2;
 }
 
 message LikeThreadRequest {
@@ -108,21 +129,6 @@ message PostThreadRequest {
     bool is_advertisement = 6;
     string scheduled_at = 7;
     repeated string image_urls = 8;
-}
-
-message ReplyThreadRequest {
-    string user_id = 1;
-    string reply_to_id = 2;
-    string content = 3;
-    string reply_permission = 4;
-    bool is_advertisement = 5;
-    string scheduled_at = 6;
-    repeated string image_urls = 7;
-}
-
-message RepostThreadRequest {
-    string user_id = 1;
-    string thread_id = 2;
 }
 
 message Thread {

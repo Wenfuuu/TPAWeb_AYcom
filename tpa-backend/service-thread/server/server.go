@@ -55,6 +55,10 @@ func (s *ThreadServer) RepostThread(ctx context.Context, req *threadpb.RepostThr
 	return s.threadHandler.RepostThread(ctx, req)
 }
 
+func (s *ThreadServer) UnrepostThread(ctx context.Context, req *threadpb.UnrepostThreadRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.UnrepostThread(ctx, req)
+}
+
 func (s *ThreadServer) LikeThread(ctx context.Context, req *threadpb.LikeThreadRequest) (*threadpb.ActionResponse, error) {
 	return s.threadHandler.LikeThread(ctx, req)
 }

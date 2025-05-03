@@ -139,6 +139,31 @@ func (h *ThreadHandler) GetBookmarkThreads(ctx context.Context, req *threadpb.Ge
 	}, nil
 }
 
+func (h *ThreadHandler) UnrepostThread(ctx context.Context, req *threadpb.UnrepostThreadRequest) (*threadpb.ActionResponse, error) {
+	userID, err := uuid.Parse(req.UserId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid user ID: %v", err)
+    }
+
+    threadID, err := uuid.Parse(req.ThreadId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid category ID: %v", err)
+    }
+
+	repost := &model.Thread{
+		UserID:      userID,
+		RepostOfID:  &threadID,
+	}
+
+	if err := h.threadRepo.UnrepostThread(repost); err != nil {
+		return nil, fmt.Errorf("failed to unrepost thread: %v", err)
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Success unrepost a thread!",
+	}, nil
+}
+
 func (h *ThreadHandler) RepostThread(ctx context.Context, req *threadpb.RepostThreadRequest) (*threadpb.ThreadResponse, error) {
 	userID, err := uuid.Parse(req.UserId)
     if err != nil {

@@ -40,11 +40,11 @@ type Bookmark struct {
 
 type Thread struct {
 	ID             uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
-	UserID         uuid.UUID 	`gorm:"type:uuid;not null" json:"userId"`
+	UserID         uuid.UUID 	`gorm:"type:uuid;not null;uniqueIndex:idx_repost" json:"userId"`
 	CategoryID     uuid.UUID 	`gorm:"type:uuid" json:"categoryId"`
 	CommunityID    uuid.UUID 	`gorm:"type:uuid;" json:"communityId"`
 	ReplyToID      *uuid.UUID 	`gorm:"type:uuid" json:"replyToId"`
-	RepostOfID     *uuid.UUID 	`gorm:"type:uuid" json:"repostOfId"`
+	RepostOfID     *uuid.UUID 	`gorm:"type:uuid;uniqueIndex:idx_repost" json:"repostOfId"`
 	Content        string    	`gorm:"type:text;not null" json:"content"`
 	ReplyPermission string   	`gorm:"type:varchar(50);not null" json:"replyPermission"`
 	IsAdvertisement bool     	`gorm:"default:false" json:"isAdvertisement"`
