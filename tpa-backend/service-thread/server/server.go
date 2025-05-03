@@ -4,7 +4,7 @@ import (
 	"context"
 
 	threadpb "github.com/Wenfuuu/tpa-web/pkg/proto/thread"
-	followpb "github.com/Wenfuuu/tpa-web/pkg/proto/follow"
+	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 	"github.com/Wenfuuu/tpa-web/service-thread/handler"
 )
 
@@ -13,9 +13,9 @@ type ThreadServer struct {
 	threadHandler *handler.ThreadHandler
 }
 
-func NewThreadServer(followClient followpb.FollowServiceClient) *ThreadServer {
+func NewThreadServer(userClient userpb.UserServiceClient) *ThreadServer {
 	return &ThreadServer{
-		threadHandler: handler.NewThreadHandler(followClient),
+		threadHandler: handler.NewThreadHandler(userClient),
 	}
 }
 

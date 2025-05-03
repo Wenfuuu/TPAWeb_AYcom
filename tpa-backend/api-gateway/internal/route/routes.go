@@ -12,7 +12,6 @@ import (
 	authpb "github.com/Wenfuuu/tpa-web/pkg/proto/auth"
 	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 	threadpb "github.com/Wenfuuu/tpa-web/pkg/proto/thread"
-	followpb "github.com/Wenfuuu/tpa-web/pkg/proto/follow"
 	"github.com/gin-gonic/gin"
 	// "github.com/mojocn/base64Captcha"
 )
@@ -64,14 +63,13 @@ func InitRoutes(
 	userClient userpb.UserServiceClient,
 	authClient authpb.AuthServiceClient,
 	threadClient threadpb.ThreadServiceClient,
-	followClient followpb.FollowServiceClient,
 ) {
 
 	userHandler := handler.NewUserHandler(userClient)
 	authHandler := handler.NewAuthHandler(authClient)
 	authMiddleware := middleware.NewAuthMiddleware(authClient)
 	threadHandler := handler.NewThreadHandler(threadClient)
-	followHandler := handler.NewFollowHandler(followClient)
+	// followHandler := handler.NewFollowHandler(followClient)
 
 	r.POST("/verify-recaptcha", verifyRecaptcha)
 
@@ -84,6 +82,8 @@ func InitRoutes(
 			// users.DELETE("/:id", authMiddleware(), deleteUser)
 			users.GET("/user", userHandler.GetAllUsers) // NEED GUARD
 			users.POST("/upload/:type", userHandler.UploadImage) // NEED GUARD
+			users.GET("/follower", userHandler.GetFollower)
+			users.GET("/following", userHandler.GetFollowing)
 		}
 		auth := api.Group("/auth")
 		{
@@ -117,11 +117,11 @@ func InitRoutes(
 			thread.GET("/thread-detail", threadHandler.GetThreadById)
 			thread.GET("/thread-reply", threadHandler.GetReplies)
 		}
-		follow := api.Group("/follows")
-		{
-			follow.GET("/follower", followHandler.GetFollower)
-			follow.GET("/following", followHandler.GetFollowing)
-		}
+		// follow := api.Group("/follows")
+		// {
+		// 	follow.GET("/follower", followHandler.GetFollower)
+		// 	follow.GET("/following", followHandler.GetFollowing)
+		// }
 	}
 
 }

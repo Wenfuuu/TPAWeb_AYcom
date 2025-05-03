@@ -21,6 +21,36 @@ func NewUserHandler(userClient userpb.UserServiceClient) *UserHandler {
 	}
 }
 
+func (h *UserHandler) GetFollower(c *gin.Context) {
+	user_id := c.Query("user_id")
+
+	resp, err := h.Client.GetFollower(context.Background(), &userpb.GetFollowerRequest{
+		UserId: user_id,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.Follows)
+}
+
+func (h *UserHandler) GetFollowing(c *gin.Context) {
+	userId := c.Query("user_id")
+
+	resp, err := h.Client.GetFollowing(context.Background(), &userpb.GetFollowingRequest{
+		UserId: userId,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.Follows)
+}
+
 func(h *UserHandler) GetAllUsers(c *gin.Context) {
 	resp, err := h.Client.GetAllUsers(context.Background(), &userpb.GetAllUsersRequest{})
 		

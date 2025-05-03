@@ -19,6 +19,18 @@ func NewUserRepository() *UserRepository {
 	}
 }
 
+func (r *UserRepository) GetFollower(userid string) ([]model.Follow, error) {
+	var followers []model.Follow
+	result := r.DB.Where("following_id = ?", userid).Find(&followers)
+	return followers, result.Error
+}
+
+func (r *UserRepository) GetFollowing(userid string) ([]model.Follow, error) {
+	var followings []model.Follow
+	result := r.DB.Where("follower_id = ?", userid).Find(&followings)
+	return followings, result.Error
+}
+
 func (r *UserRepository) GetAllUsers() ([]model.User, error) {
 	var users []model.User
 	result := r.DB.Find(&users)

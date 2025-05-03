@@ -34,6 +34,53 @@ func NewUserHandler() *UserHandler {
 	}
 }
 
+func (h *UserHandler) GetFollower(ctx context.Context, req *userpb.GetFollowerRequest) (*userpb.FollowResponse, error) {
+	if req.UserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "User ID is required")
+	}
+
+	modelFollows, err := h.userRepo.GetFollower(req.UserId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbFollows []*userpb.Follow
+	for _, f := range modelFollows {
+		pbFollows = append(pbFollows, h.followToProto(&f))
+	}
+
+	return &userpb.FollowResponse{
+		Follows: pbFollows,
+	}, nil
+}
+
+func (h *UserHandler) GetFollowing(ctx context.Context, req *userpb.GetFollowingRequest) (*userpb.FollowResponse, error) {
+	if req.UserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "User ID is required")
+	}
+
+	modelFollows, err := h.userRepo.GetFollowing(req.UserId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbFollows []*userpb.Follow
+	for _, f := range modelFollows {
+		pbFollows = append(pbFollows, h.followToProto(&f))
+	}
+
+	return &userpb.FollowResponse{
+		Follows: pbFollows,
+	}, nil
+}
+
+func (h *UserHandler) followToProto(follow *model.Follow) *userpb.Follow {
+	return &userpb.Follow{
+		FollowerId: follow.FollowerID.String(),
+		FollowingId: follow.FollowingID.String(),
+	}
+}
+
 func (h *UserHandler) Register(ctx context.Context, req *userpb.RegisterRequest) (*userpb.UserResponse, error) {
 	// Validate input
 	if err := validateRegisterRequest(req); err != nil {

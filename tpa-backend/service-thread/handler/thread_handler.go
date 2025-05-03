@@ -7,7 +7,7 @@ import (
 	"time"
 
 	threadpb "github.com/Wenfuuu/tpa-web/pkg/proto/thread"
-	followpb "github.com/Wenfuuu/tpa-web/pkg/proto/follow"
+	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 	"github.com/Wenfuuu/tpa-web/service-thread/model"
 	"github.com/Wenfuuu/tpa-web/service-thread/repository"
 	"github.com/google/uuid"
@@ -17,13 +17,13 @@ import (
 
 type ThreadHandler struct {
 	threadRepo *repository.ThreadRepository
-	followClient followpb.FollowServiceClient
+	userClient userpb.UserServiceClient
 }
 
-func NewThreadHandler(followClient followpb.FollowServiceClient) *ThreadHandler {
+func NewThreadHandler(userClient userpb.UserServiceClient) *ThreadHandler {
 	return &ThreadHandler{
 		threadRepo: repository.NewThreadRepository(),
-		followClient: followClient,
+		userClient: userClient,
 	}
 }
 
@@ -76,8 +76,8 @@ func (h *ThreadHandler) GetFollowingThreads(ctx context.Context, req *threadpb.G
 	page := int(req.Page)
 	userId := req.UserId // the current account id
 
-	// call follow service to get following ids
-	followResp, err := h.followClient.GetFollowing(ctx, &followpb.GetFollowingRequest{
+	// call user service to get following ids
+	userResp, err := h.userClient.GetFollowing(ctx, &userpb.GetFollowingRequest{
 		UserId: userId,
 	})
 	if err != nil {
@@ -85,7 +85,7 @@ func (h *ThreadHandler) GetFollowingThreads(ctx context.Context, req *threadpb.G
 	}
 
 	var followingIds []string
-	for _, element := range followResp.Follows {
+	for _, element := range userResp.Follows {
 		if element != nil {
 			followingIds = append(followingIds, element.FollowingId)
 		}

@@ -21,10 +21,10 @@ func main() {
 	database.Migrate(db)
 	// database.Seed(db)
 
-	// follow service
-	followServiceAddr := utils.GetDotEnv("FOLLOW_SERVICE_ADDR")
-	followClient, followConn := client.NewFollowClient(followServiceAddr)
-	defer followConn.Close()
+	//user service
+	userServiceAddr := utils.GetDotEnv("USER_SERVICE_ADDR")
+	userClient, userConn := client.NewUserClient(userServiceAddr)
+	defer userConn.Close()
 
 	port := utils.GetDotEnv("GRPC_PORT")
 	if port == "" {
@@ -37,7 +37,7 @@ func main() {
 	}
 	
 	grpcServer := grpc.NewServer()
-	threadServer := server.NewThreadServer(followClient)
+	threadServer := server.NewThreadServer(userClient)
 	threadpb.RegisterThreadServiceServer(grpcServer, threadServer)
 
 	log.Printf("Thread service listening on port %s", port)

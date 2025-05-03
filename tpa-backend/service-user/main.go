@@ -16,7 +16,7 @@ func main() {
 
 	db := database.InitDB()
 	database.Migrate(db)
-	// database.Seed(db)
+	database.Seed(db)
 
 	port := utils.GetDotEnv("GRPC_PORT")
 	if port == "" {
