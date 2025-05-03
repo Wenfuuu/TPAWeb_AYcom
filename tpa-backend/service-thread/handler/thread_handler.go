@@ -139,6 +139,60 @@ func (h *ThreadHandler) GetBookmarkThreads(ctx context.Context, req *threadpb.Ge
 	}, nil
 }
 
+func (h *ThreadHandler) ReplyThread(ctx context.Context, req *threadpb.ReplyThreadRequest) (*threadpb.ThreadResponse, error) {
+	userID, err := uuid.Parse(req.UserId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid user ID: %v", err)
+    }
+
+	var replyToId *uuid.UUID
+	if req.ReplyToId != "" {
+		parsedReply, err := uuid.Parse(req.ReplyToId)
+		if err != nil {
+			return nil, fmt.Errorf("invalid reply id: %v", err)
+		}
+		replyToId = &parsedReply
+	}
+
+	var scheduledAt *time.Time
+	if req.ScheduledAt != "" {
+		parsedTime, err := time.Parse(time.RFC3339, req.ScheduledAt)
+		if err != nil {
+			return nil, fmt.Errorf("invalid scheduled_at: %v", err)
+		}
+		scheduledAt = &parsedTime
+	}
+
+	thread := model.Thread{
+		UserID: userID,
+		ReplyToID: replyToId,
+		Content: req.Content,
+		ReplyPermission: req.ReplyPermission,
+		IsAdvertisement: req.IsAdvertisement,
+		ScheduledAt: scheduledAt,
+	}
+
+	if err := h.threadRepo.Create(&thread); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to create thread")
+	}
+
+	var threadFiles []model.ThreadFiles
+	for _, url := range req.ImageUrls {
+		threadFiles = append(threadFiles, model.ThreadFiles{
+			ThreadID: thread.ID,
+			File:     url,
+		})
+	}
+	
+	if len(threadFiles) > 0 {
+		if err = h.threadRepo.InsertFile(threadFiles); err != nil {
+			return nil, status.Error(codes.Internal, "Failed to save thread files")
+		}
+	}
+
+	return h.threadToResponse(&thread), nil
+}
+
 func (h *ThreadHandler) PostThread(ctx context.Context, req *threadpb.PostThreadRequest) (*threadpb.ThreadResponse, error) {
 	log.Println(req.UserId)
 	log.Println(req.CategoryId)

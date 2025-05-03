@@ -26,6 +26,7 @@ const (
 	ThreadService_GetLikedThreads_FullMethodName        = "/thread.ThreadService/GetLikedThreads"
 	ThreadService_GetBookmarkThreads_FullMethodName     = "/thread.ThreadService/GetBookmarkThreads"
 	ThreadService_PostThread_FullMethodName             = "/thread.ThreadService/PostThread"
+	ThreadService_ReplyThread_FullMethodName            = "/thread.ThreadService/ReplyThread"
 	ThreadService_GetAllThreadCategories_FullMethodName = "/thread.ThreadService/GetAllThreadCategories"
 	ThreadService_GetAllCommunity_FullMethodName        = "/thread.ThreadService/GetAllCommunity"
 	ThreadService_GetAllThreadFile_FullMethodName       = "/thread.ThreadService/GetAllThreadFile"
@@ -46,6 +47,7 @@ type ThreadServiceClient interface {
 	GetLikedThreads(ctx context.Context, in *GetLikedThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetBookmarkThreads(ctx context.Context, in *GetBookmarkThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	PostThread(ctx context.Context, in *PostThreadRequest, opts ...grpc.CallOption) (*ThreadResponse, error)
+	ReplyThread(ctx context.Context, in *ReplyThreadRequest, opts ...grpc.CallOption) (*ThreadResponse, error)
 	GetAllThreadCategories(ctx context.Context, in *GetAllThreadCategoriesRequest, opts ...grpc.CallOption) (*GetAllThreadCategoriesResponse, error)
 	GetAllCommunity(ctx context.Context, in *GetAllCommunitiesRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error)
 	GetAllThreadFile(ctx context.Context, in *GetAllThreadFileRequest, opts ...grpc.CallOption) (*GetAllThreadFileResponse, error)
@@ -133,6 +135,16 @@ func (c *threadServiceClient) PostThread(ctx context.Context, in *PostThreadRequ
 	return out, nil
 }
 
+func (c *threadServiceClient) ReplyThread(ctx context.Context, in *ReplyThreadRequest, opts ...grpc.CallOption) (*ThreadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ThreadResponse)
+	err := c.cc.Invoke(ctx, ThreadService_ReplyThread_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *threadServiceClient) GetAllThreadCategories(ctx context.Context, in *GetAllThreadCategoriesRequest, opts ...grpc.CallOption) (*GetAllThreadCategoriesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetAllThreadCategoriesResponse)
@@ -214,6 +226,7 @@ type ThreadServiceServer interface {
 	GetLikedThreads(context.Context, *GetLikedThreadsRequest) (*GetAllThreadsResponse, error)
 	GetBookmarkThreads(context.Context, *GetBookmarkThreadsRequest) (*GetAllThreadsResponse, error)
 	PostThread(context.Context, *PostThreadRequest) (*ThreadResponse, error)
+	ReplyThread(context.Context, *ReplyThreadRequest) (*ThreadResponse, error)
 	GetAllThreadCategories(context.Context, *GetAllThreadCategoriesRequest) (*GetAllThreadCategoriesResponse, error)
 	GetAllCommunity(context.Context, *GetAllCommunitiesRequest) (*GetAllCommunitiesResponse, error)
 	GetAllThreadFile(context.Context, *GetAllThreadFileRequest) (*GetAllThreadFileResponse, error)
@@ -251,6 +264,9 @@ func (UnimplementedThreadServiceServer) GetBookmarkThreads(context.Context, *Get
 }
 func (UnimplementedThreadServiceServer) PostThread(context.Context, *PostThreadRequest) (*ThreadResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostThread not implemented")
+}
+func (UnimplementedThreadServiceServer) ReplyThread(context.Context, *ReplyThreadRequest) (*ThreadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReplyThread not implemented")
 }
 func (UnimplementedThreadServiceServer) GetAllThreadCategories(context.Context, *GetAllThreadCategoriesRequest) (*GetAllThreadCategoriesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllThreadCategories not implemented")
@@ -420,6 +436,24 @@ func _ThreadService_PostThread_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_ReplyThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReplyThreadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).ReplyThread(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_ReplyThread_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).ReplyThread(ctx, req.(*ReplyThreadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ThreadService_GetAllThreadCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAllThreadCategoriesRequest)
 	if err := dec(in); err != nil {
@@ -580,6 +614,10 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PostThread",
 			Handler:    _ThreadService_PostThread_Handler,
+		},
+		{
+			MethodName: "ReplyThread",
+			Handler:    _ThreadService_ReplyThread_Handler,
 		},
 		{
 			MethodName: "GetAllThreadCategories",

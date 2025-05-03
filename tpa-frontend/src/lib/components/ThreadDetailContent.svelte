@@ -9,8 +9,8 @@
     type Thread,
   } from "../model/thread";
   import type { User, UserThread } from "../model/user";
-  import ComposePost from "./ComposePost.svelte";
   import { navigate } from "svelte-routing";
+  import ComposeReply from "./ComposeReply.svelte";
 
   export let thread: Thread & { userData: UserThread };
   export let replies: (Thread & { userData: UserThread })[] = [];
@@ -253,7 +253,7 @@
     </div>
 
     <!-- Reply Composer -->
-    <ComposePost {user} refreshData={handleReplyCreated} />
+    <ComposeReply {thread} {user} refreshData={handleReplyCreated} />
 
     <div class="posts">
       {#each replies as replyThread (replyThread.id)}
@@ -279,7 +279,7 @@
           </div>
           <div class="post-content">
             <div class="reply-to">
-              Replying to <span class="reply-username">@{thread.userData?.username || "unknown"}</span>
+              Replied to <span class="reply-username">@{thread.userData?.username || "unknown"}</span>
             </div>
             <div class="post-header">
               <div class="post-reply-info">
@@ -810,18 +810,6 @@
   }
 
   /* Replies section */
-  .replies-header {
-    padding: 16px;
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .replies-header h2 {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
-  }
-
   .reply-to {
     color: var(--text-tertiary);
     font-size: 14px;

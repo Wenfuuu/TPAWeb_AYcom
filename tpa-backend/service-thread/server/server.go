@@ -47,6 +47,10 @@ func (s *ThreadServer) PostThread(ctx context.Context, req *threadpb.PostThreadR
 	return s.threadHandler.PostThread(ctx, req)
 }
 
+func (s *ThreadServer) ReplyThread(ctx context.Context, req *threadpb.ReplyThreadRequest) (*threadpb.ThreadResponse, error) {
+	return s.threadHandler.ReplyThread(ctx, req)
+}
+
 func (s *ThreadServer) LikeThread(ctx context.Context, req *threadpb.LikeThreadRequest) (*threadpb.ActionResponse, error) {
 	return s.threadHandler.LikeThread(ctx, req)
 }

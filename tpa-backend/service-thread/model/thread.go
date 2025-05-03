@@ -41,7 +41,7 @@ type Bookmark struct {
 type Thread struct {
 	ID             uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	UserID         uuid.UUID 	`gorm:"type:uuid;not null" json:"userId"`
-	CategoryID     uuid.UUID 	`gorm:"type:uuid;not null" json:"categoryId"`
+	CategoryID     uuid.UUID 	`gorm:"type:uuid" json:"categoryId"`
 	CommunityID    uuid.UUID 	`gorm:"type:uuid;" json:"communityId"`
 	ReplyToID      *uuid.UUID 	`gorm:"type:uuid" json:"replyToId"`
 	RepostOfID     *uuid.UUID 	`gorm:"type:uuid" json:"repostOfId"`
@@ -49,7 +49,7 @@ type Thread struct {
 	ReplyPermission string   	`gorm:"type:varchar(50);not null" json:"replyPermission"`
 	IsAdvertisement bool     	`gorm:"default:false" json:"isAdvertisement"`
 	Status         string    	`gorm:"type:varchar(20);default:'published'" json:"status"` // "published" or "scheduled"
-	ScheduledAt    *time.Time 	`json:"scheduledAt"` // Pointer to allow null
+	ScheduledAt    *time.Time 	`json:"scheduledAt"`
 	CreatedAt      time.Time 	`gorm:"autoCreateTime" json:"createdAt"`
 }
 
