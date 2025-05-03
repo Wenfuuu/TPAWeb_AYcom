@@ -14,10 +14,14 @@
     let threads: (Thread & { userData: UserThread })[] = [];
     const currentActiveTab: "for-you" | "following" = "for-you";
 
-    async function refreshData(page: number): Promise<void> {
+    async function refreshData(page: number, search: string = ""): Promise<void> {
+        let data;
         if(user) {
-            const data = await fetchBookmarkWithUser(page, user.id);
+            console.log(search);
+            data = await fetchBookmarkWithUser(page, user.id, search);
+
             if(data) threads = data;
+            else threads = [];
         }
         // console.log(threads);
     }

@@ -10,7 +10,7 @@
   import ThreadFeed from "./ThreadFeed.svelte";
 
   export let threads: (Thread & { userData: UserThread })[] = [];
-  export let refreshData: (page: number) => Promise<void>;
+  export let refreshData: (page: number, search: string) => Promise<void>;
   export let user: User | null;
 
   let page = 1;
@@ -43,7 +43,7 @@
 
           let newThreads;
           if(user){
-            newThreads = await fetchBookmarkWithUser(page+1, user.id);
+            newThreads = await fetchBookmarkWithUser(page+1, user.id, searchQuery);
           }
 
           if(!newThreads){
@@ -69,15 +69,15 @@
     }
   }
 
-  function handleSearch() {
-    // Implement search functionality here
+  async function handleSearch() {
+    // search here
     console.log("Searching for:", searchQuery);
-    // You would typically filter threads or fetch new ones based on the search query
+    await refreshData(1, searchQuery);
   }
 
   onMount(async () => {
     observeScroll();
-    await refreshData(page);
+    await refreshData(page, searchQuery);
   });
 </script>
 
@@ -103,7 +103,7 @@
                         class="search-input"
                         placeholder="Search Bookmarks"
                         bind:value={searchQuery}
-                        on:keydown={(e) => e.key === "Enter" && handleSearch()}
+                        on:input={handleSearch}
                     />
                 </div>
             </div>
@@ -142,6 +142,8 @@
             </div>
         {:else if !hasMore && threads.length > 0}
             <p>No more thread available!</p>
+        {:else if threads.length == 0}
+            <p>No bookmark available!</p>
         {/if}
         </div>
     </main>

@@ -753,6 +753,7 @@ type GetBookmarkRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Page          int32                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Search        string                 `protobuf:"bytes,3,opt,name=search,proto3" json:"search,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -797,6 +798,13 @@ func (x *GetBookmarkRequest) GetPage() int32 {
 func (x *GetBookmarkRequest) GetUserId() string {
 	if x != nil {
 		return x.UserId
+	}
+	return ""
+}
+
+func (x *GetBookmarkRequest) GetSearch() string {
+	if x != nil {
+		return x.Search
 	}
 	return ""
 }
@@ -1668,10 +1676,11 @@ const file_thread_proto_rawDesc = "" +
 	"\athreads\x18\x01 \x03(\v2\x0e.thread.ThreadR\athreads\"I\n" +
 	"\x1aGetFollowingThreadsRequest\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\x05R\x04page\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\"A\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\"Y\n" +
 	"\x12GetBookmarkRequest\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\x05R\x04page\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\"2\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x16\n" +
+	"\x06search\x18\x03 \x01(\tR\x06search\"2\n" +
 	"\x17GetRepostThreadsRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"1\n" +
 	"\x16GetLikedThreadsRequest\x12\x17\n" +

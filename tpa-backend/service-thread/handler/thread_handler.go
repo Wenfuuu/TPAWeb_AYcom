@@ -109,7 +109,7 @@ func (h *ThreadHandler) GetFollowingThreads(ctx context.Context, req *threadpb.G
 
 func (h *ThreadHandler) GetBookmark(ctx context.Context, req *threadpb.GetBookmarkRequest) (*threadpb.GetAllThreadsResponse, error) {
 	page := int(req.Page)
-	modelThreads, err := h.threadRepo.GetBookmark(page, req.UserId)
+	modelThreads, err := h.threadRepo.GetBookmark(page, req.UserId, req.Search)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Database error")
 	}

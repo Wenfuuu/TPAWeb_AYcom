@@ -99,6 +99,7 @@ message GetFollowingThreadsRequest {
 message GetBookmarkRequest {
     int32 page = 1;
     string user_id = 2;
+    string search = 3;
 }
 
 message GetRepostThreadsRequest {

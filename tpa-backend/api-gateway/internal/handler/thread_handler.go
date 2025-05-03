@@ -101,6 +101,7 @@ func (h *ThreadHandler) GetFollowingThreads(c *gin.Context) {
 func (h *ThreadHandler) GetBookmark(c *gin.Context) {
 	pageStr := c.Query("page")
 	userId := c.Query("user_id")
+	search := c.Query("search")
 
 	page, err := strconv.Atoi(pageStr)
 	if err != nil || page < 1 {
@@ -110,6 +111,7 @@ func (h *ThreadHandler) GetBookmark(c *gin.Context) {
 	resp, err := h.Client.GetBookmark(context.Background(), &threadpb.GetBookmarkRequest{
 		Page: int32(page),
 		UserId: userId,
+		Search: search,
 	})
 
 	if err != nil {

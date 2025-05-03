@@ -57,7 +57,7 @@ func (r *ThreadRepository) GetFollowingThreads(page int, userIds []string) ([]mo
 	return threads, result.Error
 }
 
-func (r *ThreadRepository) GetBookmark(page int, userId string) ([]model.Thread, error) {
+func (r *ThreadRepository) GetBookmark(page int, userId string, search string) ([]model.Thread, error) {
 	var threads []model.Thread
 
 	limit := 5
@@ -66,6 +66,7 @@ func (r *ThreadRepository) GetBookmark(page int, userId string) ([]model.Thread,
 	result := r.DB.
 		Joins("JOIN bookmarks ON bookmarks.thread_id = threads.id").
 		Where("bookmarks.user_id = ?", userId).
+		Where("threads.content LIKE ?", "%"+search+"%").
 		Offset(offset).
 		Find(&threads)
 	

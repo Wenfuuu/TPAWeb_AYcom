@@ -61,8 +61,8 @@ function formatTweetDate(date: Date): string {
   }
 }
 
-export async function fetchBookmarkWithUser(page: number, userid: string): Promise<(Thread & { userData: UserThread })[] | null> {
-    const allThreads = await fetchUserBookmark(page, userid);
+export async function fetchBookmarkWithUser(page: number, userid: string, search: string): Promise<(Thread & { userData: UserThread })[] | null> {
+    const allThreads = await fetchUserBookmark(page, userid, search);
     const allUsers = await fetchUser();
     const fileURLS = await fetchFiles();
     const likedThreads = (await fetchLikedThread(userid)) || [];
@@ -411,11 +411,12 @@ export async function fetchThreadDetail(thread_id: string) {
     return threads;
 }
 
-export async function fetchUserBookmark(page: number, user_id: string) {
+export async function fetchUserBookmark(page: number, user_id: string, search: string) {
     const response = await axios.get<Thread[]>(BASE_API_URL + "/thread-bookmark", {
         params: {
             page,
-            user_id
+            user_id,
+            search
         }
     });
     const threads = response.data;
