@@ -98,6 +98,28 @@ func (h *ThreadHandler) GetFollowingThreads(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Threads)
 }
 
+func (h *ThreadHandler) GetBookmark(c *gin.Context) {
+	pageStr := c.Query("page")
+	userId := c.Query("user_id")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	resp, err := h.Client.GetBookmark(context.Background(), &threadpb.GetBookmarkRequest{
+		Page: int32(page),
+		UserId: userId,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.Threads)
+}
+
 func (h *ThreadHandler) GetRepostThreads(c *gin.Context) {
 	userId := c.Query("user_id")
 

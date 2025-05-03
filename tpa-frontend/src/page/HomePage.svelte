@@ -8,7 +8,7 @@
   import type { User, UserThread } from "../lib/model/user";
   import { fetchFollowingThread, fetchThreadWithUser, type Thread } from "../lib/model/thread";
 
-  let isDarkMode = true; // Default to dark mode
+  let isDarkMode = true;
   let user: User | null = null;
   let threads: (Thread & { userData: UserThread })[] = [];
   const currentActiveTab: "for-you" | "following" = "for-you";
@@ -18,7 +18,7 @@
       const data = await fetchThreadWithUser(page, user.id);
       if(data) threads = data;
     }
-    console.log(threads);
+    // console.log(threads);
   }
 
   async function refreshFollowingData(page: number): Promise<void> {

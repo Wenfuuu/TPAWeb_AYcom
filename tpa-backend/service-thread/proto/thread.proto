@@ -9,6 +9,7 @@ service ThreadService {
     rpc GetThreadById(GetThreadByIdRequest) returns (GetThreadResponse);
     rpc GetAllThreads(GetAllThreadsRequest) returns (GetAllThreadsResponse);
     rpc GetFollowingThreads(GetFollowingThreadsRequest) returns (GetAllThreadsResponse);
+    rpc GetBookmark(GetBookmarkRequest) returns (GetAllThreadsResponse);
     rpc GetRepostThreads(GetRepostThreadsRequest) returns (GetAllThreadsResponse);
     rpc GetLikedThreads(GetLikedThreadsRequest) returns (GetAllThreadsResponse);
     rpc GetBookmarkThreads(GetBookmarkThreadsRequest) returns (GetAllThreadsResponse);
@@ -91,6 +92,11 @@ message GetAllThreadsResponse {
 }
 
 message GetFollowingThreadsRequest {
+    int32 page = 1;
+    string user_id = 2;
+}
+
+message GetBookmarkRequest {
     int32 page = 1;
     string user_id = 2;
 }

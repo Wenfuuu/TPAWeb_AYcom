@@ -101,6 +101,7 @@ func InitRoutes(
 		{
 			thread.GET("/thread", threadHandler.GetAllThreads) // NEED GUARD
 			thread.GET("/thread-following", threadHandler.GetFollowingThreads) // NEED GUARD
+			thread.GET("/thread-bookmark", threadHandler.GetBookmark) // NEED GUARD
 			thread.GET("/thread-category", threadHandler.GetAllThreadCategories) // NEED GUARD
 			thread.GET("/community", threadHandler.GetAllCommunity) // NEED GUARD
 			thread.GET("/thread-file", threadHandler.GetAllThreadFile) // NEED GUARD
@@ -118,11 +119,6 @@ func InitRoutes(
 			thread.GET("/thread-detail", threadHandler.GetThreadById)
 			thread.GET("/thread-reply", threadHandler.GetReplies)
 		}
-		// follow := api.Group("/follows")
-		// {
-		// 	follow.GET("/follower", followHandler.GetFollower)
-		// 	follow.GET("/following", followHandler.GetFollowing)
-		// }
 	}
 
 }

@@ -23,6 +23,7 @@ const (
 	ThreadService_GetThreadById_FullMethodName          = "/thread.ThreadService/GetThreadById"
 	ThreadService_GetAllThreads_FullMethodName          = "/thread.ThreadService/GetAllThreads"
 	ThreadService_GetFollowingThreads_FullMethodName    = "/thread.ThreadService/GetFollowingThreads"
+	ThreadService_GetBookmark_FullMethodName            = "/thread.ThreadService/GetBookmark"
 	ThreadService_GetRepostThreads_FullMethodName       = "/thread.ThreadService/GetRepostThreads"
 	ThreadService_GetLikedThreads_FullMethodName        = "/thread.ThreadService/GetLikedThreads"
 	ThreadService_GetBookmarkThreads_FullMethodName     = "/thread.ThreadService/GetBookmarkThreads"
@@ -47,6 +48,7 @@ type ThreadServiceClient interface {
 	GetThreadById(ctx context.Context, in *GetThreadByIdRequest, opts ...grpc.CallOption) (*GetThreadResponse, error)
 	GetAllThreads(ctx context.Context, in *GetAllThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetFollowingThreads(ctx context.Context, in *GetFollowingThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
+	GetBookmark(ctx context.Context, in *GetBookmarkRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetRepostThreads(ctx context.Context, in *GetRepostThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetLikedThreads(ctx context.Context, in *GetLikedThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetBookmarkThreads(ctx context.Context, in *GetBookmarkThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
@@ -105,6 +107,16 @@ func (c *threadServiceClient) GetFollowingThreads(ctx context.Context, in *GetFo
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetAllThreadsResponse)
 	err := c.cc.Invoke(ctx, ThreadService_GetFollowingThreads_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) GetBookmark(ctx context.Context, in *GetBookmarkRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllThreadsResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetBookmark_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -259,6 +271,7 @@ type ThreadServiceServer interface {
 	GetThreadById(context.Context, *GetThreadByIdRequest) (*GetThreadResponse, error)
 	GetAllThreads(context.Context, *GetAllThreadsRequest) (*GetAllThreadsResponse, error)
 	GetFollowingThreads(context.Context, *GetFollowingThreadsRequest) (*GetAllThreadsResponse, error)
+	GetBookmark(context.Context, *GetBookmarkRequest) (*GetAllThreadsResponse, error)
 	GetRepostThreads(context.Context, *GetRepostThreadsRequest) (*GetAllThreadsResponse, error)
 	GetLikedThreads(context.Context, *GetLikedThreadsRequest) (*GetAllThreadsResponse, error)
 	GetBookmarkThreads(context.Context, *GetBookmarkThreadsRequest) (*GetAllThreadsResponse, error)
@@ -294,6 +307,9 @@ func (UnimplementedThreadServiceServer) GetAllThreads(context.Context, *GetAllTh
 }
 func (UnimplementedThreadServiceServer) GetFollowingThreads(context.Context, *GetFollowingThreadsRequest) (*GetAllThreadsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFollowingThreads not implemented")
+}
+func (UnimplementedThreadServiceServer) GetBookmark(context.Context, *GetBookmarkRequest) (*GetAllThreadsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBookmark not implemented")
 }
 func (UnimplementedThreadServiceServer) GetRepostThreads(context.Context, *GetRepostThreadsRequest) (*GetAllThreadsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRepostThreads not implemented")
@@ -426,6 +442,24 @@ func _ThreadService_GetFollowingThreads_Handler(srv interface{}, ctx context.Con
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ThreadServiceServer).GetFollowingThreads(ctx, req.(*GetFollowingThreadsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_GetBookmark_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBookmarkRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetBookmark(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetBookmark_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetBookmark(ctx, req.(*GetBookmarkRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -704,6 +738,10 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFollowingThreads",
 			Handler:    _ThreadService_GetFollowingThreads_Handler,
+		},
+		{
+			MethodName: "GetBookmark",
+			Handler:    _ThreadService_GetBookmark_Handler,
 		},
 		{
 			MethodName: "GetRepostThreads",

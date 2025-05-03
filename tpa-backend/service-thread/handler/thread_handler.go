@@ -107,6 +107,23 @@ func (h *ThreadHandler) GetFollowingThreads(ctx context.Context, req *threadpb.G
 	}, nil
 }
 
+func (h *ThreadHandler) GetBookmark(ctx context.Context, req *threadpb.GetBookmarkRequest) (*threadpb.GetAllThreadsResponse, error) {
+	page := int(req.Page)
+	modelThreads, err := h.threadRepo.GetBookmark(page, req.UserId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbThreads []*threadpb.Thread
+	for _, t := range modelThreads {
+		pbThreads = append(pbThreads, h.threadToProto(&t))
+	}
+
+	return &threadpb.GetAllThreadsResponse{
+		Threads: pbThreads,
+	}, nil
+}
+
 func (h *ThreadHandler) GetRepostThreads(ctx context.Context, req *threadpb.GetRepostThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
 	modelThreads, err := h.threadRepo.GetRepostThreads(req.UserId)
 	if err != nil {

@@ -35,6 +35,10 @@ func (s *ThreadServer) GetFollowingThreads(ctx context.Context, req *threadpb.Ge
 	return s.threadHandler.GetFollowingThreads(ctx, req)
 }
 
+func (s *ThreadServer) GetBookmark(ctx context.Context, req *threadpb.GetBookmarkRequest) (*threadpb.GetAllThreadsResponse, error) {
+	return s.threadHandler.GetBookmark(ctx, req)
+}
+
 func (s *ThreadServer) GetRepostThreads(ctx context.Context, req *threadpb.GetRepostThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
 	return s.threadHandler.GetRepostThreads(ctx, req)
 }
