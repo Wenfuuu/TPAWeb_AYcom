@@ -16,6 +16,9 @@
   export let replies: (Thread & { userData: UserThread })[] = [];
 
   export let refreshData: (page: number) => Promise<void>;
+  export let loadThreadData: (threadId: string, page: number) => Promise<void>;
+  export let handleBackNavigation: () => void;
+//   export let changePrevId: () => void;
 
   export let user: User | null;
 
@@ -90,7 +93,7 @@
 
   async function handleReplyCreated() {
     hasMore = true;
-    refreshData(page);
+    loadThreadData(thread.id, page);
   }
 
   function toggleLike(targetThread: Thread) {
@@ -155,7 +158,7 @@
 
   onMount(async () => {
     observeScroll();
-    await refreshData(1);
+    if(thread) loadThreadData(thread.id, 1);
   });
 </script>
 
@@ -163,7 +166,9 @@
   <main class="content-area" bind:this={contentAreaElement}>
     <!-- Header -->
     <div class="header">
-      <button type="button" class="back-button" aria-label="Back button" on:click={() => navigate("/")}>
+      <button type="button" class="back-button" aria-label="Back button" on:click={() => {
+        handleBackNavigation();
+      }}>
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="m15 18-6-6 6-6"></path>
         </svg>
@@ -696,30 +701,6 @@
     border-bottom: 1px solid var(--border-color);
   }
 
-  .post-stats {
-    display: flex;
-    justify-content: space-between;
-    padding: 16px 0;
-    border-bottom: 1px solid var(--border-color);
-    margin-bottom: 16px;
-  }
-
-  .stat-item {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .stat-count {
-    color: var(--text-primary);
-    font-weight: 700;
-    font-size: 15px;
-  }
-
-  .stat-label {
-    color: var(--text-tertiary);
-    font-size: 13px;
-  }
-
   .post-images {
     border-radius: 16px;
     overflow: hidden;
@@ -821,11 +802,6 @@
   .post-action.bookmark.active {
     color: var(--button-primary);
     background-color: rgba(var(--button-primary-rgb, 29, 155, 240), 0.7);
-  }
-
-  .post-action.share:hover {
-    color: var(--button-primary);
-    background-color: rgba(var(--button-primary-rgb, 29, 155, 240), 0.1);
   }
 
   .post-action svg {

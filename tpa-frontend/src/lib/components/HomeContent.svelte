@@ -110,8 +110,8 @@
 
   async function handlePostCreated() {
     hasMore = true;
-    if(currentActiveTab === "for-you") await refreshData(page);
-    else refreshFollowingData(page);
+    if(currentActiveTab === "for-you") await refreshData(1);
+    else refreshFollowingData(1);
   }
 
   function toggleLike(thread: Thread) {

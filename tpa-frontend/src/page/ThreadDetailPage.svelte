@@ -13,26 +13,70 @@
   let thread: (Thread & { userData: UserThread });
   let replies: (Thread & { userData: UserThread })[] = [];
   const currentActiveTab: "for-you" | "following" = "for-you";
-  let prevId = "";
+  let currId = "";
+  const idStack: string[] = [];
 
-  async function refreshData(page: number): Promise<void> {
+  async function refreshData(page: number, fromBack = false): Promise<void> {
+    console.log("stackk:  " + idStack);
+
     const currentUrl = window.location.href;
     const urlParts = currentUrl.split("/");
     const threadId = urlParts[urlParts.length - 1];
-    if(prevId != "" && prevId != threadId) location.reload();
-    prevId = threadId;
 
-    if(user){
-        const data = await fetchThreadDetailWithUser(threadId, user.id);
-        if(data) thread = data;
+    // Check if we've navigated to a different thread
+    if (currId !== "" && currId !== threadId && !fromBack) {
+        // Store previous thread before updating current
+        // prevId = currId;
+        idStack.push(currId);
+        currId = threadId;
 
-        const replyData = await fetchThreadRepliesWithUser(page, threadId, user.id);
-        if(replyData) replies = replyData;
+        // Load the new thread data without page reload
+        await loadThreadData(threadId, page);
+        return;
+    } else if (currId === "") {
+        // First load of any thread
+        currId = threadId;
     }
-    console.log(thread);
-    console.log(replies);
-    console.log(replies.length);
+
+    // Load thread data
+    await loadThreadData(threadId, page);
   }
+
+    async function loadThreadData(threadId: string, page: number): Promise<void> {
+        if (user) {
+            // Fetch thread details
+            const data = await fetchThreadDetailWithUser(threadId, user.id);
+            if (data) thread = data;
+
+            // Fetch thread replies
+            const replyData = await fetchThreadRepliesWithUser(page, threadId, user.id);
+            if (replyData) replies = replyData;
+            else replies = [];
+
+            console.log("Thread loaded:", thread);
+            console.log("Replies loaded:", replies.length);
+        }
+    }
+
+    function handleBackNavigation() {
+        if (idStack.length > 0) {
+            const prevId = idStack.pop();
+            if (prevId) {
+                navigate(`/thread-detail/${prevId}`);
+                refreshData(1, true);
+            }
+        } else {
+            navigate("/home");
+        }
+
+        // console.log("aaaaaaa" + prevId);
+        // if (prevId) {
+        //     navigate(`/thread-detail/${prevId}`);
+        //     refreshData(1);
+        // } else {
+        //     navigate("/home");
+        // }
+    }
 
   onMount(async() => {
     await checkAuth(navigate);
@@ -65,7 +109,8 @@
   <LeftSidebar {toggleTheme} {isDarkMode} {user} {refreshData} refreshFollowingData={refreshData}
   {currentActiveTab} />
   <!-- <HomeContent {threads} {user} {refreshData} {refreshFollowingData} {currentActiveTab} /> -->
-   <ThreadDetailContent {thread} {replies} {refreshData} {user} />
+   <ThreadDetailContent {thread} {replies} {refreshData}
+    {loadThreadData} {user} {handleBackNavigation} />
   <RightSidebar />
 </div>
 
