@@ -139,6 +139,52 @@ func (h *ThreadHandler) GetBookmarkThreads(ctx context.Context, req *threadpb.Ge
 	}, nil
 }
 
+func (h *ThreadHandler) RepostThread(ctx context.Context, req *threadpb.RepostThreadRequest) (*threadpb.ThreadResponse, error) {
+	userID, err := uuid.Parse(req.UserId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid user ID: %v", err)
+    }
+
+	modelThread, err := h.threadRepo.GetThreadById(req.ThreadId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+	
+	thread := model.Thread{
+		UserID: userID,
+		RepostOfID: &modelThread.ID,
+		Content: modelThread.Content,
+		ReplyPermission: modelThread.ReplyPermission,
+		IsAdvertisement: modelThread.IsAdvertisement,
+		ScheduledAt: modelThread.ScheduledAt,
+	}
+
+	if err := h.threadRepo.Create(&thread); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to repost thread")
+	}
+
+	fileUrls, err := h.threadRepo.GetFileById(modelThread.ID.String())// img url from the reposted thread
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var threadFiles []model.ThreadFiles
+	for _, url := range fileUrls {
+		threadFiles = append(threadFiles, model.ThreadFiles{
+			ThreadID: thread.ID,
+			File:     url.File,
+		})
+	}
+
+	if len(threadFiles) > 0 {
+		if err = h.threadRepo.InsertFile(threadFiles); err != nil {
+			return nil, status.Error(codes.Internal, "Failed to save thread files")
+		}
+	}
+
+	return h.threadToResponse(&thread), nil
+}
+
 func (h *ThreadHandler) ReplyThread(ctx context.Context, req *threadpb.ReplyThreadRequest) (*threadpb.ThreadResponse, error) {
 	userID, err := uuid.Parse(req.UserId)
     if err != nil {

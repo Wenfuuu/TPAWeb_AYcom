@@ -5,18 +5,21 @@
   bookmarkThread,
     fetchCommunity,
     fetchFollowingThread,
+    fetchThreadCategory,
     fetchThreadWithUser,
     likeThread,
     unbookmarkThread,
     unlikeThread,
     type Community,
     type Thread,
+    type ThreadCategory,
   } from "../model/thread";
 
   import ComposePost from "./ComposePost.svelte";
   import { navigate } from "svelte-routing";
 
   export let threads: (Thread & { userData: UserThread })[] = [];
+  let categories: ThreadCategory[] = [];
   let communities: Community[] = [];
 
   export let refreshData: (page: number) => Promise<void>;
@@ -161,6 +164,7 @@
   onMount(async () => {
     observeScroll();
     await refreshData(page);
+    categories = await fetchThreadCategory();
     communities = await fetchCommunity();
   });
 </script>
@@ -254,6 +258,12 @@
                   <circle cx="5" cy="12" r="1"></circle>
                 </svg>
               </button>
+            </div>
+
+            <div class="post-community">
+              Categories: {categories.find(
+                (c) => c.id === thread.category_id
+              )?.name || ""}
             </div>
 
             {#if thread.community_id != "00000000-0000-0000-0000-000000000000"}

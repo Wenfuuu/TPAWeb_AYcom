@@ -13,6 +13,7 @@ service ThreadService {
     rpc GetBookmarkThreads(GetBookmarkThreadsRequest) returns (GetAllThreadsResponse);
     rpc PostThread(PostThreadRequest) returns (ThreadResponse);
     rpc ReplyThread(ReplyThreadRequest) returns (ThreadResponse);
+    rpc RepostThread(RepostThreadRequest) returns (ThreadResponse);
     rpc GetAllThreadCategories(GetAllThreadCategoriesRequest) returns (GetAllThreadCategoriesResponse);
     rpc GetAllCommunity(GetAllCommunitiesRequest) returns (GetAllCommunitiesResponse);
     rpc GetAllThreadFile(GetAllThreadFileRequest) returns (GetAllThreadFileResponse);
@@ -117,6 +118,11 @@ message ReplyThreadRequest {
     bool is_advertisement = 5;
     string scheduled_at = 6;
     repeated string image_urls = 7;
+}
+
+message RepostThreadRequest {
+    string user_id = 1;
+    string thread_id = 2;
 }
 
 message Thread {

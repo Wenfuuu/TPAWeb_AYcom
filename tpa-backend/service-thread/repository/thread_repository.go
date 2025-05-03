@@ -123,6 +123,12 @@ func (r *ThreadRepository) GetAllThreadFile() ([]model.ThreadFiles, error) {
 	return files, result.Error
 }
 
+func (r *ThreadRepository) GetFileById(thread_id string) ([]model.ThreadFiles, error) {
+	var files []model.ThreadFiles
+	result := r.DB.Where("thread_id = ?", thread_id).Find(&files)
+	return files, result.Error
+}
+
 func (r *ThreadRepository) Create(thread *model.Thread) error {
 	return r.DB.Create(thread).Error
 }
