@@ -86,7 +86,7 @@ services:
 
   # Chat Service
 
-  # Community Service ??
+  # AI
 
   # User Database
   db-user:

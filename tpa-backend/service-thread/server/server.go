@@ -35,6 +35,10 @@ func (s *ThreadServer) GetFollowingThreads(ctx context.Context, req *threadpb.Ge
 	return s.threadHandler.GetFollowingThreads(ctx, req)
 }
 
+func (s *ThreadServer) GetRepostThreads(ctx context.Context, req *threadpb.GetRepostThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
+	return s.threadHandler.GetRepostThreads(ctx, req)
+}
+
 func (s *ThreadServer) GetLikedThreads(ctx context.Context, req *threadpb.GetLikedThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
 	return s.threadHandler.GetLikedThreads(ctx, req)
 }

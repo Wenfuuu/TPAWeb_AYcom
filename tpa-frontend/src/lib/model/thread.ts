@@ -67,11 +67,13 @@ export async function fetchThreadWithUser(page: number, userid: string): Promise
     const fileURLS = await fetchFiles();
     const likedThreads = (await fetchLikedThread(userid)) || [];
     const bookmarkThreads = (await fetchBookmarkThread(userid)) || [];
+    const repostThreads = (await fetchRepostThread(userid)) || [];
 
     if(!allThreads) return null;
 
     const likedThreadIds = new Set(likedThreads.map(t => t.id));
     const bookmarkThreadIds = new Set(bookmarkThreads.map(t => t.id));
+    const repostThreadIds = new Set(repostThreads.map(t => t.id));
 
     threads = allThreads.map(thread => {
         const user = allUsers.find(u => u.id === thread.user_id);
@@ -108,7 +110,7 @@ export async function fetchThreadWithUser(page: number, userid: string): Promise
             insights,
             userData,
             isLiked: likedThreadIds.has(thread.id),
-            isReposted: false,
+            isReposted: repostThreadIds.has(thread.id),
             isBookmarked: bookmarkThreadIds.has(thread.id)
         };
     });
@@ -122,11 +124,13 @@ export async function fetchFollowingThread(page: number, userid: string): Promis
     const fileURLS = await fetchFiles();
     const likedThreads = (await fetchLikedThread(userid)) || [];
     const bookmarkThreads = (await fetchBookmarkThread(userid)) || [];
+    const repostThreads = (await fetchRepostThread(userid)) || [];
 
     if(!allThreads) return null;
 
     const likedThreadIds = new Set(likedThreads?.map(t => t.id));
     const bookmarkThreadIds = new Set(bookmarkThreads.map(t => t.id));
+    const repostThreadIds = new Set(repostThreads.map(t => t.id));
 
     threads = allThreads.map(thread => {
         const user = allUsers.find(u => u.id === thread.user_id);
@@ -163,7 +167,7 @@ export async function fetchFollowingThread(page: number, userid: string): Promis
             insights,
             userData,
             isLiked: likedThreadIds.has(thread.id),
-            isReposted: false,
+            isReposted: repostThreadIds.has(thread.id),
             isBookmarked: bookmarkThreadIds.has(thread.id)
         };
     });
@@ -177,6 +181,7 @@ export async function fetchThreadDetailWithUser(threadid: string, userid: string
     const fileURLS = await fetchFiles();
     const likedThreads = (await fetchLikedThread(userid)) || [];
     const bookmarkThreads = (await fetchBookmarkThread(userid)) || [];
+    const repostThreads = (await fetchRepostThread(userid)) || [];
 
     if (!allThread) return null;
 
@@ -184,6 +189,7 @@ export async function fetchThreadDetailWithUser(threadid: string, userid: string
 
     const likedThreadIds = new Set(likedThreads.map(t => t.id));
     const bookmarkThreadIds = new Set(bookmarkThreads.map(t => t.id));
+    const repostThreadIds = new Set(repostThreads.map(t => t.id));
 
     const result = threadsArray.map(thread => {
         const user = allUsers.find(u => u.id === thread.user_id);
@@ -221,7 +227,7 @@ export async function fetchThreadDetailWithUser(threadid: string, userid: string
             insights,
             userData,
             isLiked: likedThreadIds.has(thread.id),
-            isReposted: false,
+            isReposted: repostThreadIds.has(thread.id),
             isBookmarked: bookmarkThreadIds.has(thread.id)
         };
     });
@@ -235,11 +241,13 @@ export async function fetchThreadRepliesWithUser(page: number, threadid: string,
     const fileURLS = await fetchFiles();
     const likedThreads = (await fetchLikedThread(userid)) || [];
     const bookmarkThreads = (await fetchBookmarkThread(userid)) || [];
+    const repostThreads = (await fetchRepostThread(userid)) || [];
 
     if(!allThreads) return null;
 
     const likedThreadIds = new Set(likedThreads?.map(t => t.id));
     const bookmarkThreadIds = new Set(bookmarkThreads.map(t => t.id));
+    const repostThreadIds = new Set(repostThreads.map(t => t.id));
 
     threads = allThreads.map(thread => {
         const user = allUsers.find(u => u.id === thread.user_id);
@@ -276,11 +284,21 @@ export async function fetchThreadRepliesWithUser(page: number, threadid: string,
             insights,
             userData,
             isLiked: likedThreadIds.has(thread.id),
-            isReposted: false,
+            isReposted: repostThreadIds.has(thread.id),
             isBookmarked: bookmarkThreadIds.has(thread.id)
         };
     });
 
+    return threads;
+}
+
+export async function fetchRepostThread(user_id: string) {
+    const response = await axios.get<Thread[]>(BASE_API_URL + "/repost", {
+        params: {
+            user_id
+        }
+    });
+    const threads = response.data;
     return threads;
 }
 
@@ -387,6 +405,20 @@ export async function bookmarkThread(userId: string, threadId: string) {
 
 export async function unbookmarkThread(userId: string, threadId: string) {
     await axios.post(BASE_API_URL + "/unbookmark", {
+        userId,
+        threadId
+    });
+}
+
+export async function repostThread(userId: string, repostOfId: string) {
+    await axios.post(BASE_API_URL + "/repost", {
+        userId,
+        repostOfId
+    });
+}
+
+export async function unrepostThread(userId: string, threadId: string) {
+    await axios.post(BASE_API_URL + "/unrepost", {
         userId,
         threadId
     });

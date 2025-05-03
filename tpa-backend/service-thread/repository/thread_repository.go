@@ -57,6 +57,16 @@ func (r *ThreadRepository) GetFollowingThreads(page int, userIds []string) ([]mo
 	return threads, result.Error
 }
 
+func (r *ThreadRepository) GetRepostThreads(userId string) ([]model.Thread, error) {
+	var threads []model.Thread
+
+	result := r.DB.
+		Where("repost_of_id IS NOT NULL AND user_id = ?", userId).
+		Find(&threads)
+	
+	return threads, result.Error
+}
+
 func (r *ThreadRepository) GetLikedThreads(userId string) ([]model.Thread, error) {
 	var threads []model.Thread
 

@@ -8,8 +8,10 @@
     fetchThreadCategory,
     fetchThreadWithUser,
     likeThread,
+    repostThread,
     unbookmarkThread,
     unlikeThread,
+    unrepostThread,
     type Community,
     type Thread,
     type ThreadCategory,
@@ -133,6 +135,28 @@
       if(user){
         await unlikeThread(user.id, thread.id);
         toggleLike(thread);
+      }
+    }
+
+    threads = [...threads];
+  }
+
+  function toggleRepost(thread: Thread) {
+    thread.isReposted = !thread.isReposted;
+  }
+
+  async function handleRepost(thread: Thread): Promise<void> {
+    if(!thread.isReposted){
+      //repost thread
+      if(user){
+        await repostThread(user.id, thread.id);
+        toggleRepost(thread);
+      }
+    }else{
+      //unrepost thread
+      if(user){
+        await unrepostThread(user.id, thread.id);
+        toggleRepost(thread);
       }
     }
 
@@ -318,6 +342,8 @@
                 <span>{thread.insights?.replies || 0}</span>
               </button>
               <button type="button" class="post-action repost"
+              class:active={thread.isReposted}
+              on:click|stopPropagation={() => handleRepost(thread)}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -677,6 +703,16 @@
   .post-action.reply.active {
     color: var(--button-primary);
     background-color: rgba(var(--button-primary-rgb, 29, 155, 240), 0.5);
+  }
+
+  .post-action.repost:hover {
+    color: green;
+    background-color: rgba(var(--button-primary-rgb, 29, 240, 40), 0.1);
+  }
+
+  .post-action.repost.active {
+    color: green;
+    background-color: rgba(var(--button-primary-rgb, 29, 240, 40), 0.7);
   }
 
   .post-action.like:hover {
