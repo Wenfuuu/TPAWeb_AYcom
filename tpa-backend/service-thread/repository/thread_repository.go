@@ -16,6 +16,23 @@ func NewThreadRepository() *ThreadRepository {
 	}
 }
 
+func (r *ThreadRepository) GetTopHashtags() ([]model.HashtagCount, error) {
+	var hashtags []model.HashtagCount
+
+	limit := 5
+
+	result := r.DB.
+		Table("thread_hashtags").
+		Select("hashtags.id, hashtags.name, COUNT(thread_hashtags.hashtag_id) as count").
+		Joins("JOIN hashtags ON hashtags.id = thread_hashtags.hashtag_id").
+		Group("hashtags.id, hashtags.name").
+		Order("count DESC").
+		Limit(limit).
+		Scan(&hashtags)
+
+	return hashtags, result.Error
+}
+
 func (r *ThreadRepository) GetReplies(page int, id string) ([]model.Thread, error) {
 	var threads []model.Thread
 

@@ -69,7 +69,6 @@ func InitRoutes(
 	authHandler := handler.NewAuthHandler(authClient)
 	authMiddleware := middleware.NewAuthMiddleware(authClient)
 	threadHandler := handler.NewThreadHandler(threadClient)
-	// followHandler := handler.NewFollowHandler(followClient)
 
 	r.POST("/verify-recaptcha", verifyRecaptcha)
 
@@ -119,6 +118,7 @@ func InitRoutes(
 			thread.POST("/unbookmark", threadHandler.UnbookmarkThread)
 			thread.GET("/thread-detail", threadHandler.GetThreadById)
 			thread.GET("/thread-reply", threadHandler.GetReplies)
+			thread.GET("/top-hashtag", threadHandler.GetTopHashtags)
 		}
 	}
 

@@ -27,6 +27,30 @@ func NewThreadHandler(userClient userpb.UserServiceClient) *ThreadHandler {
 	}
 }
 
+func (h *ThreadHandler) GetTopHashtags(ctx context.Context, req *threadpb.GetTopHashtagsRequest) (*threadpb.HashtagCountResponse, error) {
+	modelHashtags, err := h.threadRepo.GetTopHashtags();
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbHashtags []*threadpb.HashtagCount
+	for _, t := range modelHashtags {
+		pbHashtags = append(pbHashtags, h.hashtagCountToProto(&t))
+	}
+
+	return &threadpb.HashtagCountResponse{
+		HashtagCount: pbHashtags,
+	}, nil
+}
+
+func (h *ThreadHandler) hashtagCountToProto(hashtag *model.HashtagCount) *threadpb.HashtagCount {
+	return &threadpb.HashtagCount{
+		Id: 	hashtag.ID.String(),
+		Name: 	hashtag.Name,
+		Count: 	int32(hashtag.Count),
+	}
+}
+
 func (h *ThreadHandler) GetReplies(ctx context.Context, req *threadpb.GetRepliesRequest) (*threadpb.GetAllThreadsResponse, error) {
 	page := int(req.Page)
 	modelThreads, err := h.threadRepo.GetReplies(page, req.ThreadId)

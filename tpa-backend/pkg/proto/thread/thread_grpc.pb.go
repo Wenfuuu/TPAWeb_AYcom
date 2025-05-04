@@ -38,6 +38,7 @@ const (
 	ThreadService_UnlikeThread_FullMethodName           = "/thread.ThreadService/UnlikeThread"
 	ThreadService_BookmarkThread_FullMethodName         = "/thread.ThreadService/BookmarkThread"
 	ThreadService_UnbookmarkThread_FullMethodName       = "/thread.ThreadService/UnbookmarkThread"
+	ThreadService_GetTopHashtags_FullMethodName         = "/thread.ThreadService/GetTopHashtags"
 )
 
 // ThreadServiceClient is the client API for ThreadService service.
@@ -63,6 +64,7 @@ type ThreadServiceClient interface {
 	UnlikeThread(ctx context.Context, in *UnlikeThreadRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	BookmarkThread(ctx context.Context, in *BookmarkThreadRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	UnbookmarkThread(ctx context.Context, in *UnbookmarkThreadRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	GetTopHashtags(ctx context.Context, in *GetTopHashtagsRequest, opts ...grpc.CallOption) (*HashtagCountResponse, error)
 }
 
 type threadServiceClient struct {
@@ -263,6 +265,16 @@ func (c *threadServiceClient) UnbookmarkThread(ctx context.Context, in *Unbookma
 	return out, nil
 }
 
+func (c *threadServiceClient) GetTopHashtags(ctx context.Context, in *GetTopHashtagsRequest, opts ...grpc.CallOption) (*HashtagCountResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(HashtagCountResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetTopHashtags_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ThreadServiceServer is the server API for ThreadService service.
 // All implementations must embed UnimplementedThreadServiceServer
 // for forward compatibility.
@@ -286,6 +298,7 @@ type ThreadServiceServer interface {
 	UnlikeThread(context.Context, *UnlikeThreadRequest) (*ActionResponse, error)
 	BookmarkThread(context.Context, *BookmarkThreadRequest) (*ActionResponse, error)
 	UnbookmarkThread(context.Context, *UnbookmarkThreadRequest) (*ActionResponse, error)
+	GetTopHashtags(context.Context, *GetTopHashtagsRequest) (*HashtagCountResponse, error)
 	mustEmbedUnimplementedThreadServiceServer()
 }
 
@@ -352,6 +365,9 @@ func (UnimplementedThreadServiceServer) BookmarkThread(context.Context, *Bookmar
 }
 func (UnimplementedThreadServiceServer) UnbookmarkThread(context.Context, *UnbookmarkThreadRequest) (*ActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnbookmarkThread not implemented")
+}
+func (UnimplementedThreadServiceServer) GetTopHashtags(context.Context, *GetTopHashtagsRequest) (*HashtagCountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTopHashtags not implemented")
 }
 func (UnimplementedThreadServiceServer) mustEmbedUnimplementedThreadServiceServer() {}
 func (UnimplementedThreadServiceServer) testEmbeddedByValue()                       {}
@@ -716,6 +732,24 @@ func _ThreadService_UnbookmarkThread_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_GetTopHashtags_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTopHashtagsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetTopHashtags(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetTopHashtags_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetTopHashtags(ctx, req.(*GetTopHashtagsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ThreadService_ServiceDesc is the grpc.ServiceDesc for ThreadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -798,6 +832,10 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UnbookmarkThread",
 			Handler:    _ThreadService_UnbookmarkThread_Handler,
+		},
+		{
+			MethodName: "GetTopHashtags",
+			Handler:    _ThreadService_GetTopHashtags_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

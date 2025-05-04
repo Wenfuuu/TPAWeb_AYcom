@@ -24,6 +24,19 @@ service ThreadService {
     rpc UnlikeThread(UnlikeThreadRequest) returns (ActionResponse);
     rpc BookmarkThread(BookmarkThreadRequest) returns (ActionResponse);
     rpc UnbookmarkThread(UnbookmarkThreadRequest) returns (ActionResponse);
+    rpc GetTopHashtags(GetTopHashtagsRequest) returns (HashtagCountResponse);
+}
+
+message GetTopHashtagsRequest {}
+
+message HashtagCountResponse {
+    repeated HashtagCount hashtagCount = 1;
+}
+
+message HashtagCount {
+    string id = 1;
+    string name = 2;
+    int32 count = 3;
 }
 
 message ReplyThreadRequest {

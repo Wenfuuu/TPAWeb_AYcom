@@ -56,6 +56,17 @@ func (h *ThreadHandler) GetThreadById(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Thread)
 }
 
+func (h *ThreadHandler) GetTopHashtags(c *gin.Context) {
+	resp, err := h.Client.GetTopHashtags(context.Background(), &threadpb.GetTopHashtagsRequest{})
+		
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	
+	c.JSON(http.StatusOK, resp.HashtagCount)
+}
+
 func (h *ThreadHandler) GetAllThreads(c *gin.Context) {
 	pageStr := c.Query("page")
 

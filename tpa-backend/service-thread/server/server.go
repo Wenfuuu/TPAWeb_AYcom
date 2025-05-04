@@ -19,6 +19,10 @@ func NewThreadServer(userClient userpb.UserServiceClient) *ThreadServer {
 	}
 }
 
+func (s *ThreadServer) GetTopHashtags(ctx context.Context, req *threadpb.GetTopHashtagsRequest) (*threadpb.HashtagCountResponse, error) {
+	return s.threadHandler.GetTopHashtags(ctx, req)
+}
+
 func (s *ThreadServer) GetReplies(ctx context.Context, req *threadpb.GetRepliesRequest) (*threadpb.GetAllThreadsResponse, error) {
 	return s.threadHandler.GetReplies(ctx, req)
 }

@@ -64,8 +64,14 @@ type Hashtag struct {
 
 type ThreadHashtag struct {
 	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
-	ThreadID  uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_hashtag" json:"thread_id"`
-	HashtagID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_hashtag" json:"hashtag_id"`
+	ThreadID  uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_hashtag" json:"threadId"`
+	HashtagID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_hashtag" json:"hashtagId"`
+}
+
+type HashtagCount struct {
+	ID         	uuid.UUID `json:"id"`
+	Name       	string    `json:"name"`
+	Count 		int       `json:"count"`
 }
 
 func (thread *Thread) BeforeCreate(tx *gorm.DB) (err error) {
