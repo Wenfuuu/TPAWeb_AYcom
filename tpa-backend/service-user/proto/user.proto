@@ -17,7 +17,9 @@ service UserService {
   rpc GetFollowing(GetFollowingRequest) returns (FollowResponse);
 }
 
-message GetWhoToFollowRequest {}
+message GetWhoToFollowRequest {
+  string user_id = 1;
+}
 
 message GetFollowerRequest {
   string user_id = 1;

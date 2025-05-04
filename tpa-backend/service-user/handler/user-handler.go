@@ -219,7 +219,7 @@ func (h *UserHandler) DeleteUser(ctx context.Context, req *userpb.DeleteUserRequ
 }
 
 func (h *UserHandler) GetWhoToFollow(ctx context.Context, req *userpb.GetWhoToFollowRequest) (*userpb.GetAllUsersResponse, error) {
-	modelUsers, err := h.userRepo.GetWhoToFollow()
+	modelUsers, err := h.userRepo.GetWhoToFollow(req.UserId)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Database error")
 	}

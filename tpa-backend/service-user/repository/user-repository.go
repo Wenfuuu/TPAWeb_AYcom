@@ -37,7 +37,7 @@ func (r *UserRepository) GetAllUsers() ([]model.User, error) {
 	return users, result.Error
 }
 
-func (r *UserRepository) GetWhoToFollow() ([]model.User, error) {
+func (r *UserRepository) GetWhoToFollow(userid string) ([]model.User, error) {
 	var users []model.User
 
 	limit := 3
@@ -46,6 +46,7 @@ func (r *UserRepository) GetWhoToFollow() ([]model.User, error) {
 		Table("follows").
 		Select("users.*").
 		Joins("JOIN users ON users.id = follows.following_id").
+		Where("users.id != ?", userid).
 		Group("users.id").
 		Order("COUNT(follows.follower_id) DESC").
 		Limit(limit).

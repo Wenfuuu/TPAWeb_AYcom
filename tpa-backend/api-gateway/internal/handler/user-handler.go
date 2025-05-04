@@ -63,8 +63,11 @@ func(h *UserHandler) GetAllUsers(c *gin.Context) {
 }
 
 func(h *UserHandler) GetWhoToFollow(c *gin.Context) {
+	userId := c.Query("user_id")
+
 	resp, err := h.Client.GetWhoToFollow(context.Background(), &userpb.GetWhoToFollowRequest{
 		// add current logged in later
+		UserId: userId,
 	})
 		
 	if err != nil {

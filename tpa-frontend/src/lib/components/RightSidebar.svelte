@@ -1,4 +1,9 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import { fetchWhoToFolllow, type User } from "../model/user";
+  import { checkAuth, getAuthUser } from "../utils/auth";
+  import { navigate } from "svelte-routing";
+
   // Sample trending topics
   const trendingTopics = [
     {
@@ -23,22 +28,18 @@
     }
   ];
 
-  // Sample users to follow
-  const usersToFollow = [
-    {
-      name: "Brawhalla",
-      username: "@Brawlhalla",
-      verified: true,
-      avatar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=48&width=48"
-    },
-    {
-      name: "Peach",
-      username: "@peachship",
-      verified: false,
-      avatar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=48&width=48",
-      description: "🍑 VTuber"
+  let user: User | null;
+  let toFollow: User[] = [];
+
+  onMount(async() => {
+    await checkAuth(navigate);
+
+    const usr = await getAuthUser();
+    if(usr) {
+      user = usr;
+      toFollow = await fetchWhoToFolllow(user.id);
     }
-  ];
+  });
 </script>
 
 <div class="sidebar right-sidebar">
@@ -69,19 +70,18 @@
         </div>
       {/each}
     </div>
-    <a href="/test" class="show-more">Show more</a>
   </div>
 
   <div class="sidebar-section follow-section">
     <h2>Who to follow</h2>
     <div class="follow-suggestions">
-      {#each usersToFollow as user (user.username)}
+      {#each toFollow as user (user.id)}
         <div class="follow-item">
-          <img src={user.avatar || "/placeholder.svg"} alt={user.name} class="follow-avatar" />
+          <img src={user.profile_picture || "/placeholder.svg"} alt={user.name} class="follow-avatar" />
           <div class="follow-info">
             <div class="follow-name">
               {user.name}
-              {#if user.verified}
+              {#if user.is_premium}
                 <span class="verified-badge">
                   <svg viewBox="0 0 24 24" width="16" height="16" fill="rgb(29, 155, 240)">
                     <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"></path>
@@ -89,28 +89,12 @@
                 </span>
               {/if}
             </div>
-            <div class="follow-username">{user.username}</div>
-            {#if user.description}
-              <div class="follow-description">{user.description}</div>
-            {/if}
+            <div class="follow-username">@{user.username}</div>
           </div>
           <button type="button" class="follow-button">Follow</button>
         </div>
       {/each}
     </div>
-    <a href="/test" class="show-more">Show more</a>
-  </div>
-
-  <div class="sidebar-footer">
-    <nav class="footer-links">
-      <a href="/test">Terms of Service</a>
-      <a href="/test">Privacy Policy</a>
-      <a href="/test">Cookie Policy</a>
-      <a href="/test">Accessibility</a>
-      <a href="/test">Ads info</a>
-      <a href="/test">More</a>
-    </nav>
-    <div class="copyright">© 2023 X Corp.</div>
   </div>
 </div>
 
@@ -237,18 +221,6 @@
     color: var(--text-tertiary);
   }
 
-  .show-more {
-    color: var(--button-primary);
-    font-size: 15px;
-    text-decoration: none;
-    display: block;
-    margin-top: 16px;
-  }
-
-  .show-more:hover {
-    text-decoration: underline;
-  }
-
   .follow-suggestions {
     display: flex;
     flex-direction: column;
@@ -299,11 +271,6 @@
     margin-bottom: 2px;
   }
 
-  .follow-description {
-    font-size: 14px;
-    color: var(--text-primary);
-  }
-
   .follow-button {
     background-color: var(--text-primary);
     color: var(--card-background);
@@ -320,32 +287,6 @@
 
   .follow-button:hover {
     opacity: 0.9;
-  }
-
-  .sidebar-footer {
-    padding: 16px 0;
-    color: var(--text-tertiary);
-    font-size: 13px;
-  }
-
-  .footer-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-
-  .footer-links a {
-    color: var(--text-tertiary);
-    text-decoration: none;
-  }
-
-  .footer-links a:hover {
-    text-decoration: underline;
-  }
-
-  .copyright {
-    color: var(--text-tertiary);
   }
 
   @media (max-width: 1024px) {

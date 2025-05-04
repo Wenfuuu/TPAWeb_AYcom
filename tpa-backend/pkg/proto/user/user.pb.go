@@ -23,6 +23,7 @@ const (
 
 type GetWhoToFollowRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -55,6 +56,13 @@ func (x *GetWhoToFollowRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetWhoToFollowRequest.ProtoReflect.Descriptor instead.
 func (*GetWhoToFollowRequest) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *GetWhoToFollowRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
 }
 
 type GetFollowerRequest struct {
@@ -1194,8 +1202,9 @@ var File_user_proto protoreflect.FileDescriptor
 const file_user_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"user.proto\x12\x04user\"\x17\n" +
-	"\x15GetWhoToFollowRequest\"-\n" +
+	"user.proto\x12\x04user\"0\n" +
+	"\x15GetWhoToFollowRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"-\n" +
 	"\x12GetFollowerRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\".\n" +
 	"\x13GetFollowingRequest\x12\x17\n" +

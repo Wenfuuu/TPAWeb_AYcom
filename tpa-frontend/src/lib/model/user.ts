@@ -32,3 +32,13 @@ export async function fetchUser() {
     const users = response.data;
     return users;
 }
+
+export async function fetchWhoToFolllow(user_id: string) {
+    const response = await axios.get<User[]>(BASE_API_URL + "/who-to-follow", {
+        params: {
+            user_id
+        }
+    });
+    const users = response.data;
+    return users;
+}
