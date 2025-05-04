@@ -45,6 +45,12 @@ export type Thread = {
   isBookmarked: boolean;
 };
 
+export type Hashtag = {
+    id: string;
+    name: string;
+    count: number;
+}
+
 const BASE_API_URL = "http://localhost:8080/api/threads";
 
 let threads: (Thread & { userData: UserThread })[] = [];
@@ -63,6 +69,12 @@ function formatTweetDate(date: Date): string {
   } else {
     return format(date, "MMM d, yyyy"); // e.g., "Jul 16, 2020"
   }
+}
+
+export async function fetchTopHashtags(){
+    const response = await axios.get<Hashtag[]>(BASE_API_URL + "/top-hashtag");
+    const hashtags = response.data;
+    return hashtags;
 }
 
 export async function fetchBookmarkWithUser(page: number, userid: string, search: string): Promise<(Thread & { userData: UserThread })[] | null> {

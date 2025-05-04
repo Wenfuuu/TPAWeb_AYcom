@@ -3,21 +3,22 @@
   import { fetchWhoToFolllow, type User } from "../model/user";
   import { checkAuth, getAuthUser } from "../utils/auth";
   import { navigate } from "svelte-routing";
+  import { fetchTopHashtags, type Hashtag } from "../model/thread";
 
   // Sample trending topics
-  const trendingTopics = [
-    { category: "Politics · Trending", title: "Trump", posts: "1,209 posts" },
-    { category: "NCT Dream · Trending", title: "#NCT꿈", posts: "300K posts" },
-    { category: "Trending in Indonesia", title: "Pagi", posts: "12.5K posts" },
-    {
-      category: "Trending in Indonesia",
-      title: "#teddysoekinspirasI",
-      posts: "2,543 posts",
-    },
-  ];
+  // const trendingTopics = [
+  //   { title: "Trump", posts: "1,209 posts" },
+  //   { title: "#NCT꿈", posts: "300K posts" },
+  //   { title: "Pagi", posts: "12.5K posts" },
+  //   {
+  //     title: "#teddysoekinspirasI",
+  //     posts: "2,543 posts",
+  //   },
+  // ];
 
   let user: User | null;
   let toFollow: User[] = [];
+  let topHashtags: Hashtag[] = [];
   let searchQuery = "";
   let isSearchFocused = false;
 
@@ -82,6 +83,8 @@
     if (usr) {
       user = usr;
       toFollow = await fetchWhoToFolllow(user.id);
+      topHashtags = await fetchTopHashtags();
+      // console.log(topHashtags);
     }
   });
 
@@ -239,11 +242,10 @@
   <div class="sidebar-section trending-section">
     <h2>What's happening</h2>
     <div class="trending-topics">
-      {#each trendingTopics as topic (topic.title)}
+      {#each topHashtags as hashtag (hashtag.id)}
         <div class="trending-item">
-          <div class="trending-item-category">{topic.category}</div>
-          <div class="trending-item-title">{topic.title}</div>
-          <div class="trending-item-posts">{topic.posts}</div>
+          <div class="trending-item-title">#{hashtag.name}</div>
+          <div class="trending-item-posts">{hashtag.count} Posts</div>
         </div>
       {/each}
     </div>
@@ -480,12 +482,6 @@
 
   .trending-item:hover {
     background-color: var(--hover-background);
-  }
-
-  .trending-item-category {
-    font-size: 13px;
-    color: var(--text-tertiary);
-    margin-bottom: 4px;
   }
 
   .trending-item-title {
