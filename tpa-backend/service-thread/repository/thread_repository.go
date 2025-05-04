@@ -170,6 +170,12 @@ func (r *ThreadRepository) GetAllCommunity() ([]model.Community, error) {
 	return communities, result.Error
 }
 
+func (r *ThreadRepository) GetAllCommunityCategories() ([]model.CommunityCategory, error) {
+	var categories []model.CommunityCategory
+	result := r.DB.Find(&categories)
+	return categories, result.Error
+}
+
 func (r *ThreadRepository) GetAllThreadFile() ([]model.ThreadFiles, error) {
 	var files []model.ThreadFiles
 	result := r.DB.Find(&files)

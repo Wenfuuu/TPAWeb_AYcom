@@ -19,26 +19,27 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ThreadService_GetReplies_FullMethodName             = "/thread.ThreadService/GetReplies"
-	ThreadService_GetThreadById_FullMethodName          = "/thread.ThreadService/GetThreadById"
-	ThreadService_GetAllThreads_FullMethodName          = "/thread.ThreadService/GetAllThreads"
-	ThreadService_GetFollowingThreads_FullMethodName    = "/thread.ThreadService/GetFollowingThreads"
-	ThreadService_GetBookmark_FullMethodName            = "/thread.ThreadService/GetBookmark"
-	ThreadService_GetRepostThreads_FullMethodName       = "/thread.ThreadService/GetRepostThreads"
-	ThreadService_GetLikedThreads_FullMethodName        = "/thread.ThreadService/GetLikedThreads"
-	ThreadService_GetBookmarkThreads_FullMethodName     = "/thread.ThreadService/GetBookmarkThreads"
-	ThreadService_PostThread_FullMethodName             = "/thread.ThreadService/PostThread"
-	ThreadService_ReplyThread_FullMethodName            = "/thread.ThreadService/ReplyThread"
-	ThreadService_RepostThread_FullMethodName           = "/thread.ThreadService/RepostThread"
-	ThreadService_UnrepostThread_FullMethodName         = "/thread.ThreadService/UnrepostThread"
-	ThreadService_GetAllThreadCategories_FullMethodName = "/thread.ThreadService/GetAllThreadCategories"
-	ThreadService_GetAllCommunity_FullMethodName        = "/thread.ThreadService/GetAllCommunity"
-	ThreadService_GetAllThreadFile_FullMethodName       = "/thread.ThreadService/GetAllThreadFile"
-	ThreadService_LikeThread_FullMethodName             = "/thread.ThreadService/LikeThread"
-	ThreadService_UnlikeThread_FullMethodName           = "/thread.ThreadService/UnlikeThread"
-	ThreadService_BookmarkThread_FullMethodName         = "/thread.ThreadService/BookmarkThread"
-	ThreadService_UnbookmarkThread_FullMethodName       = "/thread.ThreadService/UnbookmarkThread"
-	ThreadService_GetTopHashtags_FullMethodName         = "/thread.ThreadService/GetTopHashtags"
+	ThreadService_GetReplies_FullMethodName                = "/thread.ThreadService/GetReplies"
+	ThreadService_GetThreadById_FullMethodName             = "/thread.ThreadService/GetThreadById"
+	ThreadService_GetAllThreads_FullMethodName             = "/thread.ThreadService/GetAllThreads"
+	ThreadService_GetFollowingThreads_FullMethodName       = "/thread.ThreadService/GetFollowingThreads"
+	ThreadService_GetBookmark_FullMethodName               = "/thread.ThreadService/GetBookmark"
+	ThreadService_GetRepostThreads_FullMethodName          = "/thread.ThreadService/GetRepostThreads"
+	ThreadService_GetLikedThreads_FullMethodName           = "/thread.ThreadService/GetLikedThreads"
+	ThreadService_GetBookmarkThreads_FullMethodName        = "/thread.ThreadService/GetBookmarkThreads"
+	ThreadService_PostThread_FullMethodName                = "/thread.ThreadService/PostThread"
+	ThreadService_ReplyThread_FullMethodName               = "/thread.ThreadService/ReplyThread"
+	ThreadService_RepostThread_FullMethodName              = "/thread.ThreadService/RepostThread"
+	ThreadService_UnrepostThread_FullMethodName            = "/thread.ThreadService/UnrepostThread"
+	ThreadService_GetAllThreadCategories_FullMethodName    = "/thread.ThreadService/GetAllThreadCategories"
+	ThreadService_GetAllCommunity_FullMethodName           = "/thread.ThreadService/GetAllCommunity"
+	ThreadService_GetAllCommunityCategories_FullMethodName = "/thread.ThreadService/GetAllCommunityCategories"
+	ThreadService_GetAllThreadFile_FullMethodName          = "/thread.ThreadService/GetAllThreadFile"
+	ThreadService_LikeThread_FullMethodName                = "/thread.ThreadService/LikeThread"
+	ThreadService_UnlikeThread_FullMethodName              = "/thread.ThreadService/UnlikeThread"
+	ThreadService_BookmarkThread_FullMethodName            = "/thread.ThreadService/BookmarkThread"
+	ThreadService_UnbookmarkThread_FullMethodName          = "/thread.ThreadService/UnbookmarkThread"
+	ThreadService_GetTopHashtags_FullMethodName            = "/thread.ThreadService/GetTopHashtags"
 )
 
 // ThreadServiceClient is the client API for ThreadService service.
@@ -59,6 +60,7 @@ type ThreadServiceClient interface {
 	UnrepostThread(ctx context.Context, in *UnrepostThreadRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	GetAllThreadCategories(ctx context.Context, in *GetAllThreadCategoriesRequest, opts ...grpc.CallOption) (*GetAllThreadCategoriesResponse, error)
 	GetAllCommunity(ctx context.Context, in *GetAllCommunitiesRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error)
+	GetAllCommunityCategories(ctx context.Context, in *GetAllCommunityCategoriesRequest, opts ...grpc.CallOption) (*GetAllCommunityCategoriesResponse, error)
 	GetAllThreadFile(ctx context.Context, in *GetAllThreadFileRequest, opts ...grpc.CallOption) (*GetAllThreadFileResponse, error)
 	LikeThread(ctx context.Context, in *LikeThreadRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	UnlikeThread(ctx context.Context, in *UnlikeThreadRequest, opts ...grpc.CallOption) (*ActionResponse, error)
@@ -215,6 +217,16 @@ func (c *threadServiceClient) GetAllCommunity(ctx context.Context, in *GetAllCom
 	return out, nil
 }
 
+func (c *threadServiceClient) GetAllCommunityCategories(ctx context.Context, in *GetAllCommunityCategoriesRequest, opts ...grpc.CallOption) (*GetAllCommunityCategoriesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllCommunityCategoriesResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetAllCommunityCategories_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *threadServiceClient) GetAllThreadFile(ctx context.Context, in *GetAllThreadFileRequest, opts ...grpc.CallOption) (*GetAllThreadFileResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetAllThreadFileResponse)
@@ -293,6 +305,7 @@ type ThreadServiceServer interface {
 	UnrepostThread(context.Context, *UnrepostThreadRequest) (*ActionResponse, error)
 	GetAllThreadCategories(context.Context, *GetAllThreadCategoriesRequest) (*GetAllThreadCategoriesResponse, error)
 	GetAllCommunity(context.Context, *GetAllCommunitiesRequest) (*GetAllCommunitiesResponse, error)
+	GetAllCommunityCategories(context.Context, *GetAllCommunityCategoriesRequest) (*GetAllCommunityCategoriesResponse, error)
 	GetAllThreadFile(context.Context, *GetAllThreadFileRequest) (*GetAllThreadFileResponse, error)
 	LikeThread(context.Context, *LikeThreadRequest) (*ActionResponse, error)
 	UnlikeThread(context.Context, *UnlikeThreadRequest) (*ActionResponse, error)
@@ -350,6 +363,9 @@ func (UnimplementedThreadServiceServer) GetAllThreadCategories(context.Context, 
 }
 func (UnimplementedThreadServiceServer) GetAllCommunity(context.Context, *GetAllCommunitiesRequest) (*GetAllCommunitiesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllCommunity not implemented")
+}
+func (UnimplementedThreadServiceServer) GetAllCommunityCategories(context.Context, *GetAllCommunityCategoriesRequest) (*GetAllCommunityCategoriesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllCommunityCategories not implemented")
 }
 func (UnimplementedThreadServiceServer) GetAllThreadFile(context.Context, *GetAllThreadFileRequest) (*GetAllThreadFileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllThreadFile not implemented")
@@ -642,6 +658,24 @@ func _ThreadService_GetAllCommunity_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_GetAllCommunityCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllCommunityCategoriesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetAllCommunityCategories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetAllCommunityCategories_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetAllCommunityCategories(ctx, req.(*GetAllCommunityCategoriesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ThreadService_GetAllThreadFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAllThreadFileRequest)
 	if err := dec(in); err != nil {
@@ -812,6 +846,10 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllCommunity",
 			Handler:    _ThreadService_GetAllCommunity_Handler,
+		},
+		{
+			MethodName: "GetAllCommunityCategories",
+			Handler:    _ThreadService_GetAllCommunityCategories_Handler,
 		},
 		{
 			MethodName: "GetAllThreadFile",

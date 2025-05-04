@@ -19,6 +19,7 @@ service ThreadService {
     rpc UnrepostThread(UnrepostThreadRequest) returns (ActionResponse);
     rpc GetAllThreadCategories(GetAllThreadCategoriesRequest) returns (GetAllThreadCategoriesResponse);
     rpc GetAllCommunity(GetAllCommunitiesRequest) returns (GetAllCommunitiesResponse);
+    rpc GetAllCommunityCategories(GetAllCommunityCategoriesRequest) returns (GetAllCommunityCategoriesResponse);
     rpc GetAllThreadFile(GetAllThreadFileRequest) returns (GetAllThreadFileResponse);
     rpc LikeThread(LikeThreadRequest) returns (ActionResponse);
     rpc UnlikeThread(UnlikeThreadRequest) returns (ActionResponse);
@@ -133,6 +134,12 @@ message GetAllThreadCategoriesResponse {
     repeated ThreadCategory thread_categories = 1;
 }
 
+message GetAllCommunityCategoriesRequest {}
+
+message GetAllCommunityCategoriesResponse {
+    repeated CommunityCategory community_categories = 1;
+}
+
 message GetAllCommunitiesRequest {}
 
 message GetAllCommunitiesResponse {
@@ -181,9 +188,14 @@ message Community {
     string name = 2;
     string description = 3;
     string logo = 4;
-    string category = 5;
+    string category_id = 5;
     string banner = 6;
     string rule = 7;
+}
+
+message CommunityCategory {
+    string id = 1;
+    string name = 2;
 }
 
 message ThreadFile {

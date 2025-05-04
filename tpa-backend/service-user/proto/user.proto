@@ -21,7 +21,8 @@ service UserService {
 message RegisterPremiumRequest {
   string user_id = 1;
   string identity_number = 2;
-  string face_picture = 3;
+  string reason = 3;
+  string face_picture = 4;
 }
 
 message RegisterPremiumResponse {

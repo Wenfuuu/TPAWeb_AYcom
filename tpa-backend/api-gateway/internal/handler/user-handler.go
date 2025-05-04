@@ -82,6 +82,7 @@ func(h *UserHandler) RegisterPremium(c *gin.Context) {
 	var requestBody struct {
 		UserID   		string 		`json:"userId" binding:"required"`
 		IdentityNumber 	string    	`json:"identityNumber" binding:"required"`
+		Reason 			string    	`json:"reason" binding:"required"`
 		FacePicture		string 		`json:"facePicture" binding:"required"`
 	}
 
@@ -93,6 +94,7 @@ func(h *UserHandler) RegisterPremium(c *gin.Context) {
 	resp, err := h.Client.RegisterPremium(context.Background(), &userpb.RegisterPremiumRequest{
 		UserId: 		requestBody.UserID,
 		IdentityNumber: requestBody.IdentityNumber,
+		Reason: 		requestBody.Reason,	
 		FacePicture: 	requestBody.FacePicture,
 	})
 

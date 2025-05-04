@@ -95,6 +95,10 @@ func (s *ThreadServer) GetAllCommunity(ctx context.Context, req *threadpb.GetAll
 	return s.threadHandler.GetAllCommunity(ctx, req)
 }
 
+func (s *ThreadServer) GetAllCommunityCategories(ctx context.Context, req *threadpb.GetAllCommunityCategoriesRequest) (*threadpb.GetAllCommunityCategoriesResponse, error) {
+	return s.threadHandler.GetAllCommunityCategories(ctx, req)
+}
+
 func (s *ThreadServer) GetAllThreadFile(ctx context.Context, req *threadpb.GetAllThreadFileRequest) (*threadpb.GetAllThreadFileResponse, error) {
 	return s.threadHandler.GetAllThreadFile(ctx, req)
 }

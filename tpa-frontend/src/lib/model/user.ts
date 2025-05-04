@@ -43,11 +43,12 @@ export async function fetchWhoToFolllow(user_id: string) {
     return users;
 }
 
-export async function registerPremium(userId: string, identityNumber: string, facePicture: string): Promise<string | boolean> {
+export async function registerPremium(userId: string, identityNumber: string, facePicture: string, reason: string): Promise<string | boolean> {
   try {
     await axios.post(BASE_API_URL + "/register-premium", {
       userId,
       identityNumber,
+      reason,
       facePicture,
     });
   } catch (error: unknown) {

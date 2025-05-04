@@ -25,7 +25,8 @@ type RegisterPremiumRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	UserId         string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	IdentityNumber string                 `protobuf:"bytes,2,opt,name=identity_number,json=identityNumber,proto3" json:"identity_number,omitempty"`
-	FacePicture    string                 `protobuf:"bytes,3,opt,name=face_picture,json=facePicture,proto3" json:"face_picture,omitempty"`
+	Reason         string                 `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
+	FacePicture    string                 `protobuf:"bytes,4,opt,name=face_picture,json=facePicture,proto3" json:"face_picture,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -70,6 +71,13 @@ func (x *RegisterPremiumRequest) GetUserId() string {
 func (x *RegisterPremiumRequest) GetIdentityNumber() string {
 	if x != nil {
 		return x.IdentityNumber
+	}
+	return ""
+}
+
+func (x *RegisterPremiumRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
 	}
 	return ""
 }
@@ -1306,11 +1314,12 @@ var File_user_proto protoreflect.FileDescriptor
 const file_user_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"user.proto\x12\x04user\"}\n" +
+	"user.proto\x12\x04user\"\x95\x01\n" +
 	"\x16RegisterPremiumRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12'\n" +
-	"\x0fidentity_number\x18\x02 \x01(\tR\x0eidentityNumber\x12!\n" +
-	"\fface_picture\x18\x03 \x01(\tR\vfacePicture\"3\n" +
+	"\x0fidentity_number\x18\x02 \x01(\tR\x0eidentityNumber\x12\x16\n" +
+	"\x06reason\x18\x03 \x01(\tR\x06reason\x12!\n" +
+	"\fface_picture\x18\x04 \x01(\tR\vfacePicture\"3\n" +
 	"\x17RegisterPremiumResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"0\n" +
 	"\x15GetWhoToFollowRequest\x12\x17\n" +

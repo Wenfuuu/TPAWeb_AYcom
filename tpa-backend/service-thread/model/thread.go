@@ -23,9 +23,14 @@ type Community struct {
 	Name			string		`json:"name"`
 	Description    	string    	`gorm:"type:text;not null" json:"description"`
 	Logo    		string    	`gorm:"type:text;not null" json:"logo"`
-	Category    	string    	`gorm:"type:text;not null" json:"category"`
+	CategoryID     	uuid.UUID 	`gorm:"type:uuid" json:"categoryId"`
 	Banner    		string    	`gorm:"type:text;not null" json:"banner"`
 	Rule    		string    	`gorm:"type:text;not null" json:"rule"`
+}
+
+type CommunityCategory struct {
+	ID 		uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	Name	string		`json:"name"`
 }
 
 type Like struct {
@@ -102,6 +107,11 @@ func (threadFile *ThreadFiles) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 func (category *ThreadCategory) BeforeCreate(tx *gorm.DB) (err error) {
+	category.ID = uuid.New()
+	return
+}
+
+func (category *CommunityCategory) BeforeCreate(tx *gorm.DB) (err error) {
 	category.ID = uuid.New()
 	return
 }

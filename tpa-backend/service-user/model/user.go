@@ -43,6 +43,7 @@ type PremiumRequest struct {
 	UserID   		uuid.UUID 	`gorm:"type:uuid;not null;" json:"userId"`
 	User     		User      	`gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
 	IdentityNumber 	string    	`gorm:"not null;" json:"identityNumber"`
+	Reason 			string    	`gorm:"not null;" json:"reason"`
 	FacePicture		string 		`gorm:"not null;" json:"facePicture"`
 }
 
