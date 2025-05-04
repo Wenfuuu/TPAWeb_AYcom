@@ -6,6 +6,7 @@
   import LoginPage from "./page/LoginPage.svelte";
   import ThreadDetailPage from "./page/ThreadDetailPage.svelte";
   import BookmarkPage from "./page/BookmarkPage.svelte";
+  import PremiumPage from "./page/PremiumPage.svelte";
 
   // You need to export the URL prop to make router work
   export let url = "";
@@ -34,6 +35,10 @@
 
   <Route path="/bookmarks">
     <BookmarkPage />
+  </Route>
+
+  <Route path="/premium">
+    <PremiumPage />
   </Route>
 
 </Router>

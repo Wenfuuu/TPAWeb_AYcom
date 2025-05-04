@@ -78,6 +78,34 @@ func(h *UserHandler) GetWhoToFollow(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Users)
 }
 
+func(h *UserHandler) RegisterPremium(c *gin.Context) {
+	var requestBody struct {
+		UserID   		string 		`json:"userId" binding:"required"`
+		IdentityNumber 	string    	`json:"identityNumber" binding:"required"`
+		FacePicture		string 		`json:"facePicture" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := h.Client.RegisterPremium(context.Background(), &userpb.RegisterPremiumRequest{
+		UserId: 		requestBody.UserID,
+		IdentityNumber: requestBody.IdentityNumber,
+		FacePicture: 	requestBody.FacePicture,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": resp.Message,
+	})
+}
+
 func(h *UserHandler) UploadImage(c *gin.Context) {
 	// Get file from request
 	file, err := c.FormFile("file")

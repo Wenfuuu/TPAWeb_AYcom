@@ -32,6 +32,10 @@ func (s *UserServer) Register(ctx context.Context, req *userpb.RegisterRequest) 
 	return s.userHandler.Register(ctx, req)
 }
 
+func (s *UserServer) RegisterPremium(ctx context.Context, req *userpb.RegisterPremiumRequest) (*userpb.RegisterPremiumResponse, error) {
+	return s.userHandler.RegisterPremium(ctx, req)
+}
+
 func(s *UserServer) GetUserByEmail(ctx context.Context, req *userpb.GetUserByEmailRequest) (*userpb.UserResponse, error) {
 	return s.userHandler.GetUserByEmail(ctx, req)
 }

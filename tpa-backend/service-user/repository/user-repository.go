@@ -73,6 +73,10 @@ func (r *UserRepository) FindByID(id string) (*model.User, error) {
 	return &user, nil
 }
 
+func (r *UserRepository) RegisterPremium(premium *model.PremiumRequest) error {
+	return r.DB.Create(premium).Error
+}
+
 func (r *UserRepository) CreateSecurityQuestion(securityQuestion *model.SecurityQuestion) error {
 	return r.DB.Create(securityQuestion).Error
 }
@@ -112,4 +116,30 @@ func (r *UserRepository) UsernameExists(username string) (bool, error) {
 		return false, nil
 	}
 	return false, result.Error
+}
+
+func (r *UserRepository) AlreadyRegisteredPremium(user_id string) (bool, error) {
+	var request model.PremiumRequest
+	result := r.DB.Where("user_id = ?", user_id).First(&request)
+	if result.Error == nil {
+		return true, nil
+	}
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
+	return false, result.Error
+}
+
+func (r *UserRepository) AlreadyPremium(user_id string) (bool, error) {
+	var user model.User
+	result := r.DB.First(&user, "id = ?", user_id)
+	
+    if result.Error != nil {
+        if result.Error == gorm.ErrRecordNotFound {
+            return false, nil
+        }
+        return false, result.Error
+    }
+    
+    return user.IsPremium, nil
 }

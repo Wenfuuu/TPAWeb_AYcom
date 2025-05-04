@@ -19,16 +19,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_GetUserByEmail_FullMethodName = "/user.UserService/GetUserByEmail"
-	UserService_Register_FullMethodName       = "/user.UserService/Register"
-	UserService_GetUser_FullMethodName        = "/user.UserService/GetUser"
-	UserService_UpdateUser_FullMethodName     = "/user.UserService/UpdateUser"
-	UserService_DeleteUser_FullMethodName     = "/user.UserService/DeleteUser"
-	UserService_GetAllUsers_FullMethodName    = "/user.UserService/GetAllUsers"
-	UserService_GetWhoToFollow_FullMethodName = "/user.UserService/GetWhoToFollow"
-	UserService_UploadImage_FullMethodName    = "/user.UserService/UploadImage"
-	UserService_GetFollower_FullMethodName    = "/user.UserService/GetFollower"
-	UserService_GetFollowing_FullMethodName   = "/user.UserService/GetFollowing"
+	UserService_GetUserByEmail_FullMethodName  = "/user.UserService/GetUserByEmail"
+	UserService_Register_FullMethodName        = "/user.UserService/Register"
+	UserService_GetUser_FullMethodName         = "/user.UserService/GetUser"
+	UserService_UpdateUser_FullMethodName      = "/user.UserService/UpdateUser"
+	UserService_DeleteUser_FullMethodName      = "/user.UserService/DeleteUser"
+	UserService_GetAllUsers_FullMethodName     = "/user.UserService/GetAllUsers"
+	UserService_GetWhoToFollow_FullMethodName  = "/user.UserService/GetWhoToFollow"
+	UserService_UploadImage_FullMethodName     = "/user.UserService/UploadImage"
+	UserService_GetFollower_FullMethodName     = "/user.UserService/GetFollower"
+	UserService_GetFollowing_FullMethodName    = "/user.UserService/GetFollowing"
+	UserService_RegisterPremium_FullMethodName = "/user.UserService/RegisterPremium"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -45,6 +46,7 @@ type UserServiceClient interface {
 	UploadImage(ctx context.Context, in *UploadImageRequest, opts ...grpc.CallOption) (*UploadImageResponse, error)
 	GetFollower(ctx context.Context, in *GetFollowerRequest, opts ...grpc.CallOption) (*FollowResponse, error)
 	GetFollowing(ctx context.Context, in *GetFollowingRequest, opts ...grpc.CallOption) (*FollowResponse, error)
+	RegisterPremium(ctx context.Context, in *RegisterPremiumRequest, opts ...grpc.CallOption) (*RegisterPremiumResponse, error)
 }
 
 type userServiceClient struct {
@@ -155,6 +157,16 @@ func (c *userServiceClient) GetFollowing(ctx context.Context, in *GetFollowingRe
 	return out, nil
 }
 
+func (c *userServiceClient) RegisterPremium(ctx context.Context, in *RegisterPremiumRequest, opts ...grpc.CallOption) (*RegisterPremiumResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RegisterPremiumResponse)
+	err := c.cc.Invoke(ctx, UserService_RegisterPremium_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -169,6 +181,7 @@ type UserServiceServer interface {
 	UploadImage(context.Context, *UploadImageRequest) (*UploadImageResponse, error)
 	GetFollower(context.Context, *GetFollowerRequest) (*FollowResponse, error)
 	GetFollowing(context.Context, *GetFollowingRequest) (*FollowResponse, error)
+	RegisterPremium(context.Context, *RegisterPremiumRequest) (*RegisterPremiumResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -208,6 +221,9 @@ func (UnimplementedUserServiceServer) GetFollower(context.Context, *GetFollowerR
 }
 func (UnimplementedUserServiceServer) GetFollowing(context.Context, *GetFollowingRequest) (*FollowResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFollowing not implemented")
+}
+func (UnimplementedUserServiceServer) RegisterPremium(context.Context, *RegisterPremiumRequest) (*RegisterPremiumResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterPremium not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -410,6 +426,24 @@ func _UserService_GetFollowing_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_RegisterPremium_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterPremiumRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).RegisterPremium(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_RegisterPremium_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).RegisterPremium(ctx, req.(*RegisterPremiumRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -456,6 +490,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFollowing",
 			Handler:    _UserService_GetFollowing_Handler,
+		},
+		{
+			MethodName: "RegisterPremium",
+			Handler:    _UserService_RegisterPremium_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

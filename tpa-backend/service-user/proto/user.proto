@@ -15,6 +15,17 @@ service UserService {
   rpc UploadImage(UploadImageRequest) returns (UploadImageResponse);
   rpc GetFollower(GetFollowerRequest) returns (FollowResponse);
   rpc GetFollowing(GetFollowingRequest) returns (FollowResponse);
+  rpc RegisterPremium(RegisterPremiumRequest) returns (RegisterPremiumResponse);
+}
+
+message RegisterPremiumRequest {
+  string user_id = 1;
+  string identity_number = 2;
+  string face_picture = 3;
+}
+
+message RegisterPremiumResponse {
+  string message = 1;
 }
 
 message GetWhoToFollowRequest {

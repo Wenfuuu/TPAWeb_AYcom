@@ -38,8 +38,22 @@ type SecurityQuestion struct {
 	Answer   string    `json:"securityAnswer"`
 }
 
+type PremiumRequest struct {
+	ID       		uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	UserID   		uuid.UUID 	`gorm:"type:uuid;not null;" json:"userId"`
+	User     		User      	`gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
+	IdentityNumber 	string    	`gorm:"not null;" json:"identityNumber"`
+	FacePicture		string 		`gorm:"not null;" json:"facePicture"`
+}
+
 func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
 	user.ID = uuid.New()
+
+	return
+}
+
+func (req *PremiumRequest) BeforeCreate(tx *gorm.DB) (err error) {
+	req.ID = uuid.New()
 
 	return
 }

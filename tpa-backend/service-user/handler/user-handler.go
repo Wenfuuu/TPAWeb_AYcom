@@ -11,6 +11,7 @@ import (
 
 	"github.com/Wenfuuu/tpa-web/service-user/model"
 	"github.com/Wenfuuu/tpa-web/service-user/utils"
+	"github.com/google/uuid"
 
 	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
 	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
@@ -79,6 +80,46 @@ func (h *UserHandler) followToProto(follow *model.Follow) *userpb.Follow {
 		FollowerId: follow.FollowerID.String(),
 		FollowingId: follow.FollowingID.String(),
 	}
+}
+
+func (h *UserHandler) RegisterPremium(ctx context.Context, req *userpb.RegisterPremiumRequest) (*userpb.RegisterPremiumResponse, error) {
+	// hash id
+	hashedId, err := utils.EncryptPassword(req.IdentityNumber)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to hash password")
+	}
+
+	// check already registered
+	exists, err := h.userRepo.AlreadyRegisteredPremium(req.UserId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+	if exists {
+		return nil, status.Error(codes.AlreadyExists, "User already requested a premium request")
+	}
+
+	// check already premium
+	exists, err = h.userRepo.AlreadyPremium(req.UserId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+	if exists {
+		return nil, status.Error(codes.AlreadyExists, "User already premium")
+	}
+
+	request := model.PremiumRequest{
+		UserID: 		uuid.MustParse(req.UserId),
+		IdentityNumber: hashedId,
+		FacePicture: 	req.FacePicture,
+	}
+
+	if err := h.userRepo.RegisterPremium(&request); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to register premium")
+	}
+
+	return &userpb.RegisterPremiumResponse{
+		Message: "Success request premium",
+	}, nil
 }
 
 func (h *UserHandler) Register(ctx context.Context, req *userpb.RegisterRequest) (*userpb.UserResponse, error) {

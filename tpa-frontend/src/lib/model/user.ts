@@ -42,3 +42,21 @@ export async function fetchWhoToFolllow(user_id: string) {
     const users = response.data;
     return users;
 }
+
+export async function registerPremium(userId: string, identityNumber: string, facePicture: string): Promise<string | boolean> {
+  try {
+    await axios.post(BASE_API_URL + "/register-premium", {
+      userId,
+      identityNumber,
+      facePicture,
+    });
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      return error.message;
+    }
+
+    return "An unexpected error occurred.";
+  }
+
+  return true;
+}
