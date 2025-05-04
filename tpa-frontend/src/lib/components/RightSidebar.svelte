@@ -1,61 +1,238 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte"; // Import onDestroy
   import { fetchWhoToFolllow, type User } from "../model/user";
   import { checkAuth, getAuthUser } from "../utils/auth";
   import { navigate } from "svelte-routing";
 
   // Sample trending topics
   const trendingTopics = [
-    {
-      category: "Politics · Trending",
-      title: "Trump",
-      posts: "1,209 posts"
-    },
-    {
-      category: "NCT Dream · Trending",
-      title: "#NCT꿈",
-      posts: "300K posts"
-    },
-    {
-      category: "Trending in Indonesia",
-      title: "Pagi",
-      posts: "12.5K posts"
-    },
+    { category: "Politics · Trending", title: "Trump", posts: "1,209 posts" },
+    { category: "NCT Dream · Trending", title: "#NCT꿈", posts: "300K posts" },
+    { category: "Trending in Indonesia", title: "Pagi", posts: "12.5K posts" },
     {
       category: "Trending in Indonesia",
       title: "#teddysoekinspirasI",
-      posts: "2,543 posts"
-    }
+      posts: "2,543 posts",
+    },
   ];
 
   let user: User | null;
   let toFollow: User[] = [];
+  let searchQuery = "";
+  let isSearchFocused = false;
 
-  onMount(async() => {
+  let recentSearches: string[] = [];
+  let searchContainerNode: HTMLElement;
+
+  function handleSearch() {
+    if (!searchQuery.trim()) return;
+
+    const existingIndex = recentSearches.indexOf(searchQuery);
+    if (existingIndex !== -1) {
+      recentSearches.splice(existingIndex, 1);
+    }
+    recentSearches = [searchQuery, ...recentSearches];
+
+    localStorage.setItem("recent-search", JSON.stringify(recentSearches));
+    console.log("Searching for:", searchQuery);
+
+    //navigate to explore page
+
+    isSearchFocused = false;
+  }
+
+  function removeRecentSearch(index: number, event: MouseEvent) {
+    event.stopPropagation();
+    recentSearches = recentSearches.filter((_, i) => i !== index);
+    localStorage.setItem("recent-search", JSON.stringify(recentSearches));
+  }
+
+  function clearAllRecentSearches(event: MouseEvent) {
+    event.stopPropagation();
+    recentSearches = [];
+    localStorage.setItem("recent-search", JSON.stringify(recentSearches));
+  }
+
+  function selectRecentSearch(search: string) {
+    searchQuery = search;
+    handleSearch();
+  }
+
+  function handleClickOutside(event: MouseEvent) {
+    if (
+      searchContainerNode &&
+      !searchContainerNode.contains(event.target as Node)
+    ) {
+      isSearchFocused = false;
+    }
+  }
+
+  onMount(async () => {
+    // localStorage.setItem("recent-search", JSON.stringify(recentSearches));
+    const recent = localStorage.getItem("recent-search");
+    if(recent){
+      // console.log(recent);
+      recentSearches = JSON.parse(recent);
+    }
+
+    document.addEventListener("click", handleClickOutside, true);
+
     await checkAuth(navigate);
-
     const usr = await getAuthUser();
-    if(usr) {
+    if (usr) {
       user = usr;
       toFollow = await fetchWhoToFolllow(user.id);
     }
   });
+
+  onDestroy(() => {
+    document.removeEventListener("click", handleClickOutside, true);
+  });
 </script>
 
 <div class="sidebar right-sidebar">
-  <div class="search-container">
-    <div class="search-box">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <div class="search-container" bind:this={searchContainerNode}>
+    <div
+      class="search-box"
+      class:focused={isSearchFocused}
+      role="button"
+      tabindex="0"
+      on:click|stopPropagation
+      on:keydown={(e) => {
+        if (e.key === "Enter") {
+          isSearchFocused = true;
+          e.preventDefault();
+        }
+      }}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        on:click={handleSearch}
+      >
         <circle cx="11" cy="11" r="8"></circle>
         <path d="m21 21-4.3-4.3"></path>
       </svg>
-      <input type="text" placeholder="Search" />
+      <input
+        type="text"
+        placeholder="Search"
+        bind:value={searchQuery}
+        on:focus={() => (isSearchFocused = true)}
+        on:keydown={(e) => e.key === "Enter" && handleSearch()}
+      />
+      {#if searchQuery}
+        <button
+          type="button"
+          class="clear-input"
+          aria-label="Clear search input"
+          on:click={() => (searchQuery = "")}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      {/if}
     </div>
+
+    {#if isSearchFocused && recentSearches.length > 0}
+      <div class="recent-searches">
+        <div class="recent-header">
+          <span>Recent</span>
+          <button
+            type="button"
+            class="clear-all"
+            on:click={clearAllRecentSearches}
+          >
+            Clear all
+          </button>
+        </div>
+        <div class="recent-items">
+          {#each recentSearches.slice(0, 3) as search, index (search)}
+            <div
+              class="recent-item"
+              role="button"
+              tabindex="0"
+              on:click={() => selectRecentSearch(search)}
+              on:keydown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  selectRecentSearch(search);
+                  e.preventDefault();
+                }
+              }}
+            >
+              <div class="search-icon-container">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.3-4.3"></path>
+                </svg>
+              </div>
+              <span class="recent-text">{search}</span>
+              <button
+                type="button"
+                class="remove-recent"
+                on:click={(e) => removeRecentSearch(index, e)}
+                aria-label="Remove recent search {search}"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          {/each}
+        </div>
+      </div>
+    {/if}
   </div>
 
   <div class="sidebar-section premium-section">
     <h2>Subscribe to Premium</h2>
-    <p>Subscribe to unlock new features and if eligible, receive a share of revenue.</p>
+    <p>
+      Subscribe to unlock new features and if eligible, receive a share of
+      revenue.
+    </p>
     <button type="button" class="subscribe-button">Subscribe</button>
   </div>
 
@@ -77,14 +254,26 @@
     <div class="follow-suggestions">
       {#each toFollow as user (user.id)}
         <div class="follow-item">
-          <img src={user.profile_picture || "/placeholder.svg"} alt={user.name} class="follow-avatar" />
+          <img
+            src={user.profile_picture || "/placeholder.svg"}
+            alt={user.name}
+            class="follow-avatar"
+          />
           <div class="follow-info">
             <div class="follow-name">
               {user.name}
               {#if user.is_premium}
-                <span class="verified-badge">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="rgb(29, 155, 240)">
-                    <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"></path>
+                <span class="verified-badge" aria-label="Verified account">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="16"
+                    height="16"
+                    fill="rgb(29, 155, 240)"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"
+                    ></path>
                   </svg>
                 </span>
               {/if}
@@ -124,9 +313,10 @@
     padding: 12px 16px;
     margin: 6px 0;
     transition: background-color 0.2s;
+    border: 1px solid transparent;
   }
 
-  .search-box:focus-within {
+  .search-box.focused {
     background-color: var(--card-background);
     border: 1px solid var(--button-primary);
   }
@@ -147,6 +337,95 @@
 
   .search-box input::placeholder {
     color: var(--text-tertiary);
+  }
+
+  .clear-input {
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Recent searches dropdown */
+  .recent-searches {
+    position: absolute;
+    top: calc(100% - 6px);
+    left: 0;
+    right: 0;
+    background-color: var(--background);
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 20;
+    overflow: hidden;
+    border: 1px solid var(--divider-color, #333);
+  }
+
+  .recent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+  }
+
+  .recent-header span {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 18px;
+  }
+
+  .clear-all {
+    background: none;
+    border: none;
+    color: var(--button-primary);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .recent-items {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .recent-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .recent-item:hover {
+    background-color: var(--hover-background);
+  }
+
+  .search-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    color: var(--text-tertiary);
+  }
+
+  .recent-text {
+    flex: 1;
+    color: var(--text-primary);
+    font-size: 15px;
+  }
+
+  .remove-recent {
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .sidebar-section {
@@ -291,7 +570,7 @@
 
   @media (max-width: 1024px) {
     .right-sidebar {
-      display: none
+      display: none;
     }
   }
 </style>
