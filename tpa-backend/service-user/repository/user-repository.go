@@ -37,6 +37,23 @@ func (r *UserRepository) GetAllUsers() ([]model.User, error) {
 	return users, result.Error
 }
 
+func (r *UserRepository) GetWhoToFollow() ([]model.User, error) {
+	var users []model.User
+
+	limit := 3
+
+	result := r.DB.
+		Table("follows").
+		Select("users.*").
+		Joins("JOIN users ON users.id = follows.following_id").
+		Group("users.id").
+		Order("COUNT(follows.follower_id) DESC").
+		Limit(limit).
+		Scan(&users)
+
+	return users, result.Error
+}
+
 func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 	var user model.User
 	result := r.DB.Where("email = ?", email).First(&user)

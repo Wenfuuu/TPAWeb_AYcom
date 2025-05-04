@@ -62,6 +62,19 @@ func(h *UserHandler) GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Users)
 }
 
+func(h *UserHandler) GetWhoToFollow(c *gin.Context) {
+	resp, err := h.Client.GetWhoToFollow(context.Background(), &userpb.GetWhoToFollowRequest{
+		// add current logged in later
+	})
+		
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	
+	c.JSON(http.StatusOK, resp.Users)
+}
+
 func(h *UserHandler) UploadImage(c *gin.Context) {
 	// Get file from request
 	file, err := c.FormFile("file")

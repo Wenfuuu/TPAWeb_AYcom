@@ -84,6 +84,7 @@ func InitRoutes(
 			users.POST("/upload/:type", userHandler.UploadImage) // NEED GUARD
 			users.GET("/follower", userHandler.GetFollower)
 			users.GET("/following", userHandler.GetFollowing)
+			users.GET("/who-to-follow", userHandler.GetWhoToFollow)
 		}
 		auth := api.Group("/auth")
 		{

@@ -67,6 +67,7 @@ func (r *ThreadRepository) GetBookmark(page int, userId string, search string) (
 		Joins("JOIN bookmarks ON bookmarks.thread_id = threads.id").
 		Where("bookmarks.user_id = ?", userId).
 		Where("threads.content LIKE ?", "%"+search+"%").
+		Limit(limit).
 		Offset(offset).
 		Find(&threads)
 	

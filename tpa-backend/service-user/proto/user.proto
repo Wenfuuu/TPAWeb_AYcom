@@ -11,10 +11,13 @@ service UserService {
   rpc UpdateUser(UpdateUserRequest) returns (UserResponse);
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
   rpc GetAllUsers(GetAllUsersRequest) returns (GetAllUsersResponse);
+  rpc GetWhoToFollow(GetWhoToFollowRequest) returns (GetAllUsersResponse);
   rpc UploadImage(UploadImageRequest) returns (UploadImageResponse);
   rpc GetFollower(GetFollowerRequest) returns (FollowResponse);
   rpc GetFollowing(GetFollowingRequest) returns (FollowResponse);
 }
+
+message GetWhoToFollowRequest {}
 
 message GetFollowerRequest {
   string user_id = 1;

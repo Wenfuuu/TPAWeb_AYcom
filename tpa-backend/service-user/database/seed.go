@@ -47,21 +47,39 @@ func Seed(db *gorm.DB) {
 	// 	db.Create(&element)
 	// }
 
-	followerId, err := uuid.Parse("ae2cf219-a6e3-46d7-aee0-6f05eb23f602")
+	userId1, err := uuid.Parse("ae2cf219-a6e3-46d7-aee0-6f05eb23f602")
 	if err != nil {
 		return
 	}
 
-	followingId, err := uuid.Parse("f3122b31-7b92-400d-b94d-28ef100ca23b")
+	userId2, err := uuid.Parse("f3122b31-7b92-400d-b94d-28ef100ca23b")
+	if err != nil {
+		return
+	}
+
+	userId3, err := uuid.Parse("812c2aa8-09e0-401d-b0ac-c068f7b93152")
+	if err != nil {
+		return
+	}
+
+	userId4, err := uuid.Parse("7e54e720-c237-404c-86d5-e220890db84c")
 	if err != nil {
 		return
 	}
 
 	var follows = []model.Follow{
-		{
-			FollowerID:     followerId,
-			FollowingID:	followingId,
-		},
+		{FollowerID: userId1, FollowingID: userId2},
+		// {FollowerID: userId1, FollowingID: userId3},
+		// {FollowerID: userId1, FollowingID: userId4},
+		{FollowerID: userId2, FollowingID: userId1},
+		{FollowerID: userId2, FollowingID: userId3},
+		{FollowerID: userId2, FollowingID: userId4},
+		{FollowerID: userId3, FollowingID: userId1},
+		{FollowerID: userId3, FollowingID: userId2},
+		// {FollowerID: userId3, FollowingID: userId4},
+		{FollowerID: userId4, FollowingID: userId1},
+		{FollowerID: userId4, FollowingID: userId2},
+		{FollowerID: userId4, FollowingID: userId3},
 	}
 
 	for _, element := range follows {

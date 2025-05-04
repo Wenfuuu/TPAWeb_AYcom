@@ -135,13 +135,11 @@
   .search-box {
     display: flex;
     align-items: center;
-    background-color: var(--search-background, var(--hover-background));
+    background-color: var(--hover-background);
     border-radius: 9999px;
     padding: 12px 16px;
     margin: 6px 0;
     transition: background-color 0.2s;
-    border-color: var(--divider-color);
-    border: solid 1px;
   }
 
   .search-box:focus-within {

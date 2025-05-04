@@ -25,6 +25,7 @@ const (
 	UserService_UpdateUser_FullMethodName     = "/user.UserService/UpdateUser"
 	UserService_DeleteUser_FullMethodName     = "/user.UserService/DeleteUser"
 	UserService_GetAllUsers_FullMethodName    = "/user.UserService/GetAllUsers"
+	UserService_GetWhoToFollow_FullMethodName = "/user.UserService/GetWhoToFollow"
 	UserService_UploadImage_FullMethodName    = "/user.UserService/UploadImage"
 	UserService_GetFollower_FullMethodName    = "/user.UserService/GetFollower"
 	UserService_GetFollowing_FullMethodName   = "/user.UserService/GetFollowing"
@@ -40,6 +41,7 @@ type UserServiceClient interface {
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
 	GetAllUsers(ctx context.Context, in *GetAllUsersRequest, opts ...grpc.CallOption) (*GetAllUsersResponse, error)
+	GetWhoToFollow(ctx context.Context, in *GetWhoToFollowRequest, opts ...grpc.CallOption) (*GetAllUsersResponse, error)
 	UploadImage(ctx context.Context, in *UploadImageRequest, opts ...grpc.CallOption) (*UploadImageResponse, error)
 	GetFollower(ctx context.Context, in *GetFollowerRequest, opts ...grpc.CallOption) (*FollowResponse, error)
 	GetFollowing(ctx context.Context, in *GetFollowingRequest, opts ...grpc.CallOption) (*FollowResponse, error)
@@ -113,6 +115,16 @@ func (c *userServiceClient) GetAllUsers(ctx context.Context, in *GetAllUsersRequ
 	return out, nil
 }
 
+func (c *userServiceClient) GetWhoToFollow(ctx context.Context, in *GetWhoToFollowRequest, opts ...grpc.CallOption) (*GetAllUsersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllUsersResponse)
+	err := c.cc.Invoke(ctx, UserService_GetWhoToFollow_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userServiceClient) UploadImage(ctx context.Context, in *UploadImageRequest, opts ...grpc.CallOption) (*UploadImageResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UploadImageResponse)
@@ -153,6 +165,7 @@ type UserServiceServer interface {
 	UpdateUser(context.Context, *UpdateUserRequest) (*UserResponse, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
 	GetAllUsers(context.Context, *GetAllUsersRequest) (*GetAllUsersResponse, error)
+	GetWhoToFollow(context.Context, *GetWhoToFollowRequest) (*GetAllUsersResponse, error)
 	UploadImage(context.Context, *UploadImageRequest) (*UploadImageResponse, error)
 	GetFollower(context.Context, *GetFollowerRequest) (*FollowResponse, error)
 	GetFollowing(context.Context, *GetFollowingRequest) (*FollowResponse, error)
@@ -183,6 +196,9 @@ func (UnimplementedUserServiceServer) DeleteUser(context.Context, *DeleteUserReq
 }
 func (UnimplementedUserServiceServer) GetAllUsers(context.Context, *GetAllUsersRequest) (*GetAllUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllUsers not implemented")
+}
+func (UnimplementedUserServiceServer) GetWhoToFollow(context.Context, *GetWhoToFollowRequest) (*GetAllUsersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWhoToFollow not implemented")
 }
 func (UnimplementedUserServiceServer) UploadImage(context.Context, *UploadImageRequest) (*UploadImageResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UploadImage not implemented")
@@ -322,6 +338,24 @@ func _UserService_GetAllUsers_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_GetWhoToFollow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetWhoToFollowRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetWhoToFollow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetWhoToFollow_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetWhoToFollow(ctx, req.(*GetWhoToFollowRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _UserService_UploadImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UploadImageRequest)
 	if err := dec(in); err != nil {
@@ -406,6 +440,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllUsers",
 			Handler:    _UserService_GetAllUsers_Handler,
+		},
+		{
+			MethodName: "GetWhoToFollow",
+			Handler:    _UserService_GetWhoToFollow_Handler,
 		},
 		{
 			MethodName: "UploadImage",

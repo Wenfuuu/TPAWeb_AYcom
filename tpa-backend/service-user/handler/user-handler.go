@@ -218,6 +218,22 @@ func (h *UserHandler) DeleteUser(ctx context.Context, req *userpb.DeleteUserRequ
 	}, nil
 }
 
+func (h *UserHandler) GetWhoToFollow(ctx context.Context, req *userpb.GetWhoToFollowRequest) (*userpb.GetAllUsersResponse, error) {
+	modelUsers, err := h.userRepo.GetWhoToFollow()
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbUsers []*userpb.User
+	for _, u := range modelUsers {
+		pbUsers = append(pbUsers, h.userToProto(&u))
+	}
+
+	return &userpb.GetAllUsersResponse{
+		Users: pbUsers,
+	}, nil
+}
+
 func (h *UserHandler) GetAllUsers(ctx context.Context, req *userpb.GetAllUsersRequest) (*userpb.GetAllUsersResponse, error) {
 	modelUsers, err := h.userRepo.GetAllUsers()
 	if err != nil {

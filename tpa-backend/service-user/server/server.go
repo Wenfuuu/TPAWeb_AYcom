@@ -52,6 +52,10 @@ func (s *UserServer) GetAllUsers(ctx context.Context, req *userpb.GetAllUsersReq
 	return s.userHandler.GetAllUsers(ctx, req)
 }
 
+func (s *UserServer) GetWhoToFollow(ctx context.Context, req *userpb.GetWhoToFollowRequest) (*userpb.GetAllUsersResponse, error) {
+	return s.userHandler.GetWhoToFollow(ctx, req)
+}
+
 func (s *UserServer) UploadImage(ctx context.Context, req *userpb.UploadImageRequest) (*userpb.UploadImageResponse, error) {
 	return s.userHandler.UploadImage(ctx, req)
 }
