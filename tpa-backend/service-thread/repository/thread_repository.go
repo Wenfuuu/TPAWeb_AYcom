@@ -18,6 +18,10 @@ func NewThreadRepository() *ThreadRepository {
 	}
 }
 
+func (r *ThreadRepository) RequestJoinCommunity(req *model.JoinCommunityRequest) error {
+	return r.DB.Create(req).Error
+}
+
 func (r *ThreadRepository) GetTopHashtags() ([]model.HashtagCount, error) {
 	var hashtags []model.HashtagCount
 

@@ -33,6 +33,12 @@ type CommunityCategory struct {
 	Name	string		`json:"name"`
 }
 
+type JoinCommunityRequest struct {
+	ID 				uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	UserID			uuid.UUID 	`gorm:"type:uuid;uniqueIndex:idx_join" json:"userId"`
+	CommunityID  	uuid.UUID 	`gorm:"type:uuid;uniqueIndex:idx_join" json:"communityId"`
+}
+
 type Like struct {
 	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	UserID    uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_user_thread" json:"userId"`
@@ -113,5 +119,10 @@ func (category *ThreadCategory) BeforeCreate(tx *gorm.DB) (err error) {
 
 func (category *CommunityCategory) BeforeCreate(tx *gorm.DB) (err error) {
 	category.ID = uuid.New()
+	return
+}
+
+func (join *JoinCommunityRequest) BeforeCreate(tx *gorm.DB) (err error) {
+	join.ID = uuid.New()
 	return
 }

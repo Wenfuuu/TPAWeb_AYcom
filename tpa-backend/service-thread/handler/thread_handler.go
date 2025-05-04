@@ -384,6 +384,31 @@ func (h *ThreadHandler) PostThread(ctx context.Context, req *threadpb.PostThread
 	return h.threadToResponse(&thread), nil
 }
 
+func (h *ThreadHandler) RequestJoinCommunity(ctx context.Context, req *threadpb.RequestJoinCommunityRequest) (*threadpb.ActionResponse, error) {
+	userID, err := uuid.Parse(req.UserId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid user ID: %v", err)
+    }
+
+    communityID, err := uuid.Parse(req.CommunityId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid community ID: %v", err)
+    }
+
+	request := model.JoinCommunityRequest{
+		UserID: userID,
+		CommunityID: communityID,
+	}
+
+	if err := h.threadRepo.RequestJoinCommunity(&request); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to request join community!")
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Success request join a community!",
+	}, nil
+}
+
 func (h *ThreadHandler) LikeThread(ctx context.Context, req *threadpb.LikeThreadRequest) (*threadpb.ActionResponse, error) {
 	userID, err := uuid.Parse(req.UserId)
     if err != nil {
@@ -392,7 +417,7 @@ func (h *ThreadHandler) LikeThread(ctx context.Context, req *threadpb.LikeThread
 
     threadID, err := uuid.Parse(req.ThreadId)
     if err != nil {
-        return nil, fmt.Errorf("invalid category ID: %v", err)
+        return nil, fmt.Errorf("invalid thread ID: %v", err)
     }
 
 	like := model.Like{

@@ -79,8 +79,8 @@ func InitRoutes(
 			// users.GET("/me", authMiddleware(), getProfile)
 			// users.PUT("/:id", authMiddleware(), updateUser)
 			// users.DELETE("/:id", authMiddleware(), deleteUser)
-			users.GET("/user", userHandler.GetAllUsers) // NEED GUARD
-			users.POST("/upload/:type", userHandler.UploadImage) // NEED GUARD
+			users.GET("/user", userHandler.GetAllUsers)
+			users.POST("/upload/:type", userHandler.UploadImage)
 			users.GET("/follower", userHandler.GetFollower)
 			users.GET("/following", userHandler.GetFollowing)
 			users.GET("/who-to-follow", userHandler.GetWhoToFollow)
@@ -100,14 +100,15 @@ func InitRoutes(
 		}
 		thread := api.Group("/threads")
 		{
-			thread.GET("/thread", threadHandler.GetAllThreads) // NEED GUARD
-			thread.GET("/thread-following", threadHandler.GetFollowingThreads) // NEED GUARD
-			thread.GET("/thread-bookmark", threadHandler.GetBookmark) // NEED GUARD
-			thread.GET("/thread-category", threadHandler.GetAllThreadCategories) // NEED GUARD
-			thread.GET("/community", threadHandler.GetAllCommunity) // NEED GUARD
+			thread.GET("/thread", threadHandler.GetAllThreads)
+			thread.GET("/thread-following", threadHandler.GetFollowingThreads)
+			thread.GET("/thread-bookmark", threadHandler.GetBookmark)
+			thread.GET("/thread-category", threadHandler.GetAllThreadCategories)
+			thread.GET("/community", threadHandler.GetAllCommunity)
 			thread.GET("/community-pagination", threadHandler.GetCommunityPagination)
-			thread.GET("/community-category", threadHandler.GetAllCommunityCategories) // NEED GUARD
-			thread.GET("/thread-file", threadHandler.GetAllThreadFile) // NEED GUARD
+			thread.GET("/community-category", threadHandler.GetAllCommunityCategories)
+			thread.POST("/request-join-community", threadHandler.RequestJoinCommunity)
+			thread.GET("/thread-file", threadHandler.GetAllThreadFile)
 			thread.POST("/post", threadHandler.PostThread)
 			thread.POST("/reply", threadHandler.ReplyThread)
 			thread.GET("/repost", threadHandler.GetRepostThreads)

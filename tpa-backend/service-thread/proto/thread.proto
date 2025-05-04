@@ -27,6 +27,12 @@ service ThreadService {
     rpc UnbookmarkThread(UnbookmarkThreadRequest) returns (ActionResponse);
     rpc GetTopHashtags(GetTopHashtagsRequest) returns (HashtagCountResponse);
     rpc GetCommunityPagination(GetCommunityPaginationRequest) returns (GetAllCommunitiesResponse);
+    rpc RequestJoinCommunity(RequestJoinCommunityRequest) returns (ActionResponse);
+}
+
+message RequestJoinCommunityRequest {
+    string user_id = 1;
+    string community_id = 2;
 }
 
 message GetTopHashtagsRequest {}

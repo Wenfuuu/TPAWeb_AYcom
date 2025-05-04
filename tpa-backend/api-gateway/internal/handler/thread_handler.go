@@ -458,6 +458,32 @@ func (h *ThreadHandler) GetCommunityPagination(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Communities)
 }
 
+func (h *ThreadHandler) RequestJoinCommunity(c *gin.Context) {
+	var requestBody struct {
+		UserID          string   	`json:"userId" binding:"required"`
+		CommunityID     string   	`json:"communityId" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := h.Client.RequestJoinCommunity(context.Background(), &threadpb.RequestJoinCommunityRequest{
+		UserId: requestBody.UserID,
+		CommunityId: requestBody.CommunityID,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": resp.Message,
+	})
+}
+
 func (h *ThreadHandler) GetAllCommunityCategories(c *gin.Context) {
 	resp, err := h.Client.GetAllCommunityCategories(context.Background(), &threadpb.GetAllCommunityCategoriesRequest{})
 		
