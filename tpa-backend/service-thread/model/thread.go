@@ -22,6 +22,10 @@ type Community struct {
 	ID 				uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	Name			string		`json:"name"`
 	Description    	string    	`gorm:"type:text;not null" json:"description"`
+	Logo    		string    	`gorm:"type:text;not null" json:"logo"`
+	Category    	string    	`gorm:"type:text;not null" json:"category"`
+	Banner    		string    	`gorm:"type:text;not null" json:"banner"`
+	Rule    		string    	`gorm:"type:text;not null" json:"rule"`
 }
 
 type Like struct {

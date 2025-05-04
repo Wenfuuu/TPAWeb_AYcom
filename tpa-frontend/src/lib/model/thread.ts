@@ -11,6 +11,10 @@ export type Community = {
     id: string
     name: string
     description: string
+    logo: string
+    category: string
+    banner: string
+    rule: string
 }
 
 export type ThreadFile = {

@@ -167,6 +167,10 @@ message Community {
     string id = 1;
     string name = 2;
     string description = 3;
+    string logo = 4;
+    string category = 5;
+    string banner = 6;
+    string rule = 7;
 }
 
 message ThreadFile {

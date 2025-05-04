@@ -395,10 +395,18 @@ func Seed(db *gorm.DB) {
 		{
 			Name: "Hololive",
 			Description: "A very special place for everyone",
+			Logo: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//hoshimachi-suisei-hololive.gif",
+			Category: "Game",
+			Banner: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(125).png",
+			Rule: "Please support your oshis wholeheartedly",
 		},
 		{
 			Name: "Hoyoverse",
 			Description: "A place that talks about the best game creator",
+			Logo: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(2).png",
+			Category: "Game",
+			Banner: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(3).png",
+			Rule: "Enjoy hoyoverse games",
 		},
 	}
 	for _, element := range communities {

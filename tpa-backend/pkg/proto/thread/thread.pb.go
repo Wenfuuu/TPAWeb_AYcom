@@ -1470,6 +1470,10 @@ type Community struct {
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Logo          string                 `protobuf:"bytes,4,opt,name=logo,proto3" json:"logo,omitempty"`
+	Category      string                 `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
+	Banner        string                 `protobuf:"bytes,6,opt,name=banner,proto3" json:"banner,omitempty"`
+	Rule          string                 `protobuf:"bytes,7,opt,name=rule,proto3" json:"rule,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1521,6 +1525,34 @@ func (x *Community) GetName() string {
 func (x *Community) GetDescription() string {
 	if x != nil {
 		return x.Description
+	}
+	return ""
+}
+
+func (x *Community) GetLogo() string {
+	if x != nil {
+		return x.Logo
+	}
+	return ""
+}
+
+func (x *Community) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *Community) GetBanner() string {
+	if x != nil {
+		return x.Banner
+	}
+	return ""
+}
+
+func (x *Community) GetRule() string {
+	if x != nil {
+		return x.Rule
 	}
 	return ""
 }
@@ -1726,11 +1758,15 @@ const file_thread_proto_rawDesc = "" +
 	"created_at\x18\f \x01(\tR\tcreatedAt\"4\n" +
 	"\x0eThreadCategory\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"Q\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\xad\x01\n" +
 	"\tCommunity\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription\"M\n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x12\n" +
+	"\x04logo\x18\x04 \x01(\tR\x04logo\x12\x1a\n" +
+	"\bcategory\x18\x05 \x01(\tR\bcategory\x12\x16\n" +
+	"\x06banner\x18\x06 \x01(\tR\x06banner\x12\x12\n" +
+	"\x04rule\x18\a \x01(\tR\x04rule\"M\n" +
 	"\n" +
 	"ThreadFile\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +

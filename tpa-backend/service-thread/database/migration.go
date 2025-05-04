@@ -10,6 +10,8 @@ func Migrate(db *gorm.DB) {
 	// db.Migrator().DropTable(&model.ThreadFiles{})
 	// db.Migrator().DropTable(&model.ThreadCategory{})
 	// db.Migrator().DropTable(&model.Community{})
+	// db.Migrator().DropTable(&model.Like{})
+	// db.Migrator().DropTable(&model.Bookmark{})
 
 	db.AutoMigrate(&model.Thread{})
 	db.AutoMigrate(&model.ThreadFiles{})
