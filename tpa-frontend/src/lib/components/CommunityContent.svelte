@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { navigate } from "svelte-routing";
   import type { User } from "../model/user";
-  import { fetchCommunity, fetchCommunityCategory, type Community, type CommunityCategory } from "../model/community";
+  import { fetchCommunity, fetchCommunityCategory, requestJoinCommunity, type Community, type CommunityCategory } from "../model/community";
 
   // Props
   export let communities: Community[] = [];
@@ -59,16 +59,16 @@
     if (!user) return;
 
     // call api endpoint
+    await requestJoinCommunity(user.id, communityId);
 
     // refresh data
+    refreshData(currentPage, searchQuery, activeTab);
   }
 
-  // Function to navigate to community detail page
   function navigateToCommunity(communityId: string) {
     navigate(`/community/${communityId}`);
   }
 
-  // Function to navigate to create community page
   function navigateToCreateCommunity() {
     navigate("/create-community");
   }

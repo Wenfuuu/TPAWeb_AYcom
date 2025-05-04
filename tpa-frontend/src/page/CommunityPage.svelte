@@ -5,7 +5,7 @@
   import type { User } from "../lib/model/user";
   import LeftSidebar from "../lib/components/LeftSidebar.svelte";
   import RightSidebar from "../lib/components/RightSidebar.svelte";
-  import { fetchCommunityWithCategory, fetchPendingWithCategory, type Community } from "../lib/model/community";
+  import { fetchCommunityWithCategory, fetchJoinedWithCategory, fetchPendingWithCategory, type Community } from "../lib/model/community";
   import CommunityContent from "../lib/components/CommunityContent.svelte";
 
     let isDarkMode = true;
@@ -18,9 +18,9 @@
         let data;
         if(user) {
             // console.log(currTab);
-            if(currTab === "available") data = await fetchCommunityWithCategory(page, limit, search);
+            if(currTab === "available") data = await fetchCommunityWithCategory(user.id, page, limit, search);
             else if(currTab === "pending") data = await fetchPendingWithCategory(user.id, page, limit, search);
-            else data = await fetchCommunityWithCategory(page, limit, search);
+            else data = await fetchJoinedWithCategory(user.id, page, limit, search);
 
             if(data) communities = data;
             else communities = [];
