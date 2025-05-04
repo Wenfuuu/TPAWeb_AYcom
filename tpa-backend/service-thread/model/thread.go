@@ -57,6 +57,17 @@ type Thread struct {
 	CreatedAt      time.Time 	`gorm:"autoCreateTime" json:"createdAt"`
 }
 
+type Hashtag struct {
+	ID 		uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	Name	string		`json:"name"`
+}
+
+type ThreadHashtag struct {
+	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	ThreadID  uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_hashtag" json:"thread_id"`
+	HashtagID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_hashtag" json:"hashtag_id"`
+}
+
 func (thread *Thread) BeforeCreate(tx *gorm.DB) (err error) {
 	thread.ID = uuid.New()
 
@@ -66,6 +77,16 @@ func (thread *Thread) BeforeCreate(tx *gorm.DB) (err error) {
 		thread.Status = "scheduled"
 	}
 
+	return
+}
+
+func (hashtag *Hashtag) BeforeCreate(tx *gorm.DB) (err error) {
+	hashtag.ID = uuid.New()
+	return
+}
+
+func (threadHashtag *ThreadHashtag) BeforeCreate(tx *gorm.DB) (err error) {
+	threadHashtag.ID = uuid.New()
 	return
 }
 
