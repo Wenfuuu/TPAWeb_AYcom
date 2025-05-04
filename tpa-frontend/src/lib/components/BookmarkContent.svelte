@@ -8,6 +8,7 @@
   import { navigate } from "svelte-routing";
 
   import ThreadFeed from "./ThreadFeed.svelte";
+  import { debounce } from "../utils/utils";
 
   export let threads: (Thread & { userData: UserThread })[] = [];
   export let refreshData: (page: number, search: string) => Promise<void>;
@@ -22,6 +23,12 @@
 
   let sentinel: HTMLDivElement | null = null;
   let observer: IntersectionObserver | null = null;
+
+  const debouncedSearch = debounce(handleSearch, 300);
+  async function handleSearch() {
+    // search here
+    await refreshData(1, searchQuery);
+  }
 
   function observeScroll() {
     if (observer) {
@@ -69,12 +76,6 @@
     }
   }
 
-  async function handleSearch() {
-    // search here
-    console.log("Searching for:", searchQuery);
-    await refreshData(1, searchQuery);
-  }
-
   onMount(async () => {
     observeScroll();
     await refreshData(page, searchQuery);
@@ -103,7 +104,7 @@
                         class="search-input"
                         placeholder="Search Bookmarks"
                         bind:value={searchQuery}
-                        on:input={handleSearch}
+                        on:input={debouncedSearch}
                     />
                 </div>
             </div>
