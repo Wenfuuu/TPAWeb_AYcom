@@ -28,15 +28,15 @@ type Community struct {
 	Rule    		string    	`gorm:"type:text;not null" json:"rule"`
 }
 
-type CommunityCategory struct {
-	ID 		uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
-	Name	string		`json:"name"`
-}
-
 type JoinCommunityRequest struct {
 	ID 				uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	UserID			uuid.UUID 	`gorm:"type:uuid;uniqueIndex:idx_join" json:"userId"`
 	CommunityID  	uuid.UUID 	`gorm:"type:uuid;uniqueIndex:idx_join" json:"communityId"`
+}
+
+type CommunityCategory struct {
+	ID 		uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	Name	string		`json:"name"`
 }
 
 type Like struct {

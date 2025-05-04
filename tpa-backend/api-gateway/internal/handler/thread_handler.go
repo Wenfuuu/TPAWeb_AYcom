@@ -430,6 +430,36 @@ func (h *ThreadHandler) GetAllCommunity(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Communities)
 }
 
+func (h *ThreadHandler) GetPendingCommunity(c *gin.Context) {
+	userId := c.Query("user_id")
+	pageStr := c.Query("page")
+	limitStr := c.Query("limit")
+	search := c.Query("search")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
+	}
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit < 1 {
+		limit = 25
+	}
+
+	resp, err := h.Client.GetPendingCommunity(context.Background(), &threadpb.GetPendingCommunityRequest{
+		UserId: userId,
+		Page: int32(page),
+		Limit: int32(limit),
+		Search: search,
+	})
+		
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	
+	c.JSON(http.StatusOK, resp.Communities)
+}
+
 func (h *ThreadHandler) GetCommunityPagination(c *gin.Context) {
 	pageStr := c.Query("page")
 	limitStr := c.Query("limit")

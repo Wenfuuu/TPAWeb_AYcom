@@ -176,6 +176,22 @@ func (r *ThreadRepository) GetAllCommunity() ([]model.Community, error) {
 	return communities, result.Error
 }
 
+func (r *ThreadRepository) GetPendingCommunity(userid string, page int, limit int, search string) ([]model.Community, error) {
+	var communities []model.Community
+
+	offset := (page - 1) * limit
+
+	result := r.DB.
+		Joins("JOIN join_community_requests ON join_community_requests.community_id = communities.id").
+		Where("join_community_requests.user_id = ?", userid).
+		Where("LOWER(communities.name) LIKE ?", "%"+strings.ToLower(search)+"%").
+		Limit(limit).
+		Offset(offset).
+		Find(&communities)
+
+	return communities, result.Error
+}
+
 func (r *ThreadRepository) GetCommunityPagination(page int, limit int, search string) ([]model.Community, error) {
 	var communities []model.Community
 

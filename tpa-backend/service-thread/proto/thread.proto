@@ -28,6 +28,7 @@ service ThreadService {
     rpc GetTopHashtags(GetTopHashtagsRequest) returns (HashtagCountResponse);
     rpc GetCommunityPagination(GetCommunityPaginationRequest) returns (GetAllCommunitiesResponse);
     rpc RequestJoinCommunity(RequestJoinCommunityRequest) returns (ActionResponse);
+    rpc GetPendingCommunity(GetPendingCommunityRequest) returns (GetAllCommunitiesResponse);
 }
 
 message RequestJoinCommunityRequest {
@@ -157,6 +158,13 @@ message GetCommunityPaginationRequest {
     int32 page = 1;
     int32 limit = 2;
     string search = 3;
+}
+
+message GetPendingCommunityRequest {
+    string user_id = 1;
+    int32 page = 2;
+    int32 limit = 3;
+    string search = 4;
 }
 
 message GetAllThreadFileRequest {}

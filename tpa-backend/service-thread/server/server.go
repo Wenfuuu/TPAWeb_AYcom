@@ -99,6 +99,10 @@ func (s *ThreadServer) GetAllCommunity(ctx context.Context, req *threadpb.GetAll
 	return s.threadHandler.GetAllCommunity(ctx, req)
 }
 
+func (s *ThreadServer) GetPendingCommunity(ctx context.Context, req *threadpb.GetPendingCommunityRequest) (*threadpb.GetAllCommunitiesResponse, error) {
+	return s.threadHandler.GetPendingCommunity(ctx, req)
+}
+
 func (s *ThreadServer) GetCommunityPagination(ctx context.Context, req *threadpb.GetCommunityPaginationRequest) (*threadpb.GetAllCommunitiesResponse, error) {
 	return s.threadHandler.GetCommunityPagination(ctx, req)
 }
