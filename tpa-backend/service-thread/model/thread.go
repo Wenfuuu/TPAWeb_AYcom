@@ -28,6 +28,12 @@ type Community struct {
 	Rule    		string    	`gorm:"type:text;not null" json:"rule"`
 }
 
+type CommunityMembers struct {
+	ID 				uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	UserID			uuid.UUID 	`gorm:"type:uuid;uniqueIndex:idx_member" json:"userId"`
+	CommunityID  	uuid.UUID 	`gorm:"type:uuid;uniqueIndex:idx_member" json:"communityId"`
+}
+
 type JoinCommunityRequest struct {
 	ID 				uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	UserID			uuid.UUID 	`gorm:"type:uuid;uniqueIndex:idx_join" json:"userId"`

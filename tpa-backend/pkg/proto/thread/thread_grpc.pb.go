@@ -43,6 +43,8 @@ const (
 	ThreadService_GetCommunityPagination_FullMethodName    = "/thread.ThreadService/GetCommunityPagination"
 	ThreadService_RequestJoinCommunity_FullMethodName      = "/thread.ThreadService/RequestJoinCommunity"
 	ThreadService_GetPendingCommunity_FullMethodName       = "/thread.ThreadService/GetPendingCommunity"
+	ThreadService_JoinCommunity_FullMethodName             = "/thread.ThreadService/JoinCommunity"
+	ThreadService_GetJoinedCommunity_FullMethodName        = "/thread.ThreadService/GetJoinedCommunity"
 )
 
 // ThreadServiceClient is the client API for ThreadService service.
@@ -73,6 +75,8 @@ type ThreadServiceClient interface {
 	GetCommunityPagination(ctx context.Context, in *GetCommunityPaginationRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error)
 	RequestJoinCommunity(ctx context.Context, in *RequestJoinCommunityRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	GetPendingCommunity(ctx context.Context, in *GetPendingCommunityRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error)
+	JoinCommunity(ctx context.Context, in *JoinCommunityRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	GetJoinedCommunity(ctx context.Context, in *GetJoinedCommunityRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error)
 }
 
 type threadServiceClient struct {
@@ -323,6 +327,26 @@ func (c *threadServiceClient) GetPendingCommunity(ctx context.Context, in *GetPe
 	return out, nil
 }
 
+func (c *threadServiceClient) JoinCommunity(ctx context.Context, in *JoinCommunityRequest, opts ...grpc.CallOption) (*ActionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActionResponse)
+	err := c.cc.Invoke(ctx, ThreadService_JoinCommunity_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) GetJoinedCommunity(ctx context.Context, in *GetJoinedCommunityRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllCommunitiesResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetJoinedCommunity_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ThreadServiceServer is the server API for ThreadService service.
 // All implementations must embed UnimplementedThreadServiceServer
 // for forward compatibility.
@@ -351,6 +375,8 @@ type ThreadServiceServer interface {
 	GetCommunityPagination(context.Context, *GetCommunityPaginationRequest) (*GetAllCommunitiesResponse, error)
 	RequestJoinCommunity(context.Context, *RequestJoinCommunityRequest) (*ActionResponse, error)
 	GetPendingCommunity(context.Context, *GetPendingCommunityRequest) (*GetAllCommunitiesResponse, error)
+	JoinCommunity(context.Context, *JoinCommunityRequest) (*ActionResponse, error)
+	GetJoinedCommunity(context.Context, *GetJoinedCommunityRequest) (*GetAllCommunitiesResponse, error)
 	mustEmbedUnimplementedThreadServiceServer()
 }
 
@@ -432,6 +458,12 @@ func (UnimplementedThreadServiceServer) RequestJoinCommunity(context.Context, *R
 }
 func (UnimplementedThreadServiceServer) GetPendingCommunity(context.Context, *GetPendingCommunityRequest) (*GetAllCommunitiesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPendingCommunity not implemented")
+}
+func (UnimplementedThreadServiceServer) JoinCommunity(context.Context, *JoinCommunityRequest) (*ActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method JoinCommunity not implemented")
+}
+func (UnimplementedThreadServiceServer) GetJoinedCommunity(context.Context, *GetJoinedCommunityRequest) (*GetAllCommunitiesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetJoinedCommunity not implemented")
 }
 func (UnimplementedThreadServiceServer) mustEmbedUnimplementedThreadServiceServer() {}
 func (UnimplementedThreadServiceServer) testEmbeddedByValue()                       {}
@@ -886,6 +918,42 @@ func _ThreadService_GetPendingCommunity_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_JoinCommunity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JoinCommunityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).JoinCommunity(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_JoinCommunity_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).JoinCommunity(ctx, req.(*JoinCommunityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_GetJoinedCommunity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetJoinedCommunityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetJoinedCommunity(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetJoinedCommunity_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetJoinedCommunity(ctx, req.(*GetJoinedCommunityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ThreadService_ServiceDesc is the grpc.ServiceDesc for ThreadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -988,6 +1056,14 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPendingCommunity",
 			Handler:    _ThreadService_GetPendingCommunity_Handler,
+		},
+		{
+			MethodName: "JoinCommunity",
+			Handler:    _ThreadService_JoinCommunity_Handler,
+		},
+		{
+			MethodName: "GetJoinedCommunity",
+			Handler:    _ThreadService_GetJoinedCommunity_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

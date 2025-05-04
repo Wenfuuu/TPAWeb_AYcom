@@ -75,6 +75,10 @@ func (s *ThreadServer) RequestJoinCommunity(ctx context.Context, req *threadpb.R
 	return s.threadHandler.RequestJoinCommunity(ctx, req)
 }
 
+func (s *ThreadServer) JoinCommunity(ctx context.Context, req *threadpb.JoinCommunityRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.JoinCommunity(ctx, req)
+}
+
 func (s *ThreadServer) LikeThread(ctx context.Context, req *threadpb.LikeThreadRequest) (*threadpb.ActionResponse, error) {
 	return s.threadHandler.LikeThread(ctx, req)
 }
@@ -101,6 +105,10 @@ func (s *ThreadServer) GetAllCommunity(ctx context.Context, req *threadpb.GetAll
 
 func (s *ThreadServer) GetPendingCommunity(ctx context.Context, req *threadpb.GetPendingCommunityRequest) (*threadpb.GetAllCommunitiesResponse, error) {
 	return s.threadHandler.GetPendingCommunity(ctx, req)
+}
+
+func (s *ThreadServer) GetJoinedCommunity(ctx context.Context, req *threadpb.GetJoinedCommunityRequest) (*threadpb.GetAllCommunitiesResponse, error) {
+	return s.threadHandler.GetJoinedCommunity(ctx, req)
 }
 
 func (s *ThreadServer) GetCommunityPagination(ctx context.Context, req *threadpb.GetCommunityPaginationRequest) (*threadpb.GetAllCommunitiesResponse, error) {

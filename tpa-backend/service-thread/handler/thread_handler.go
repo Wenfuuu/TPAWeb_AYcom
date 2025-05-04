@@ -384,6 +384,31 @@ func (h *ThreadHandler) PostThread(ctx context.Context, req *threadpb.PostThread
 	return h.threadToResponse(&thread), nil
 }
 
+func (h *ThreadHandler) JoinCommunity(ctx context.Context, req *threadpb.JoinCommunityRequest) (*threadpb.ActionResponse, error) {
+	userID, err := uuid.Parse(req.UserId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid user ID: %v", err)
+    }
+
+    communityID, err := uuid.Parse(req.CommunityId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid community ID: %v", err)
+    }
+
+	member := model.CommunityMembers{
+		UserID: userID,
+		CommunityID: communityID,
+	}
+
+	if err := h.threadRepo.JoinCommunity(&member, req.UserId, req.CommunityId); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to join community!")
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Success join a community!",
+	}, nil
+}
+
 func (h *ThreadHandler) RequestJoinCommunity(ctx context.Context, req *threadpb.RequestJoinCommunityRequest) (*threadpb.ActionResponse, error) {
 	userID, err := uuid.Parse(req.UserId)
     if err != nil {
@@ -546,6 +571,25 @@ func (h *ThreadHandler) GetPendingCommunity(ctx context.Context, req *threadpb.G
 	limit := int(req.Limit)
 
 	modelCommunities, err := h.threadRepo.GetPendingCommunity(req.UserId, page, limit, req.Search)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbThreads []*threadpb.Community
+	for _, t := range modelCommunities {
+		pbThreads = append(pbThreads, h.communityToProto(&t))
+	}
+
+	return &threadpb.GetAllCommunitiesResponse{
+		Communities: pbThreads,
+	}, nil
+}
+
+func (h *ThreadHandler) GetJoinedCommunity(ctx context.Context, req *threadpb.GetJoinedCommunityRequest) (*threadpb.GetAllCommunitiesResponse, error) {
+	page := int(req.Page)
+	limit := int(req.Limit)
+
+	modelCommunities, err := h.threadRepo.GetJoinedCommunity(req.UserId, page, limit, req.Search)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Database error")
 	}

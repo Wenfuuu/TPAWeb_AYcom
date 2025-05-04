@@ -29,6 +29,13 @@ service ThreadService {
     rpc GetCommunityPagination(GetCommunityPaginationRequest) returns (GetAllCommunitiesResponse);
     rpc RequestJoinCommunity(RequestJoinCommunityRequest) returns (ActionResponse);
     rpc GetPendingCommunity(GetPendingCommunityRequest) returns (GetAllCommunitiesResponse);
+    rpc JoinCommunity(JoinCommunityRequest) returns (ActionResponse);
+    rpc GetJoinedCommunity(GetJoinedCommunityRequest) returns (GetAllCommunitiesResponse);
+}
+
+message JoinCommunityRequest {
+    string user_id = 1;
+    string community_id = 2;
 }
 
 message RequestJoinCommunityRequest {
@@ -161,6 +168,13 @@ message GetCommunityPaginationRequest {
 }
 
 message GetPendingCommunityRequest {
+    string user_id = 1;
+    int32 page = 2;
+    int32 limit = 3;
+    string search = 4;
+}
+
+message GetJoinedCommunityRequest {
     string user_id = 1;
     int32 page = 2;
     int32 limit = 3;

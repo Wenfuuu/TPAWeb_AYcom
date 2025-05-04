@@ -18,6 +18,19 @@ func NewThreadRepository() *ThreadRepository {
 	}
 }
 
+func (r *ThreadRepository) JoinCommunity(req *model.CommunityMembers, userid string, communityid string) error {
+	var joinRequest model.JoinCommunityRequest
+	if err := r.DB.Where("user_id = ? AND community_id = ?", userid, communityid).First(&joinRequest).Error; err != nil {
+		return err
+	}
+
+	if err := r.DB.Delete(&joinRequest).Error; err != nil{
+		return err
+	}
+
+	return r.DB.Create(req).Error
+}
+
 func (r *ThreadRepository) RequestJoinCommunity(req *model.JoinCommunityRequest) error {
 	return r.DB.Create(req).Error
 }
@@ -184,6 +197,22 @@ func (r *ThreadRepository) GetPendingCommunity(userid string, page int, limit in
 	result := r.DB.
 		Joins("JOIN join_community_requests ON join_community_requests.community_id = communities.id").
 		Where("join_community_requests.user_id = ?", userid).
+		Where("LOWER(communities.name) LIKE ?", "%"+strings.ToLower(search)+"%").
+		Limit(limit).
+		Offset(offset).
+		Find(&communities)
+
+	return communities, result.Error
+}
+
+func (r *ThreadRepository) GetJoinedCommunity(userid string, page int, limit int, search string) ([]model.Community, error) {
+	var communities []model.Community
+
+	offset := (page - 1) * limit
+
+	result := r.DB.
+		Joins("JOIN community_members ON community_members.community_id = communities.id").
+		Where("community_members.user_id = ?", userid).
 		Where("LOWER(communities.name) LIKE ?", "%"+strings.ToLower(search)+"%").
 		Limit(limit).
 		Offset(offset).

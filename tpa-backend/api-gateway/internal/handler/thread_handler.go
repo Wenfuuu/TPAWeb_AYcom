@@ -460,6 +460,36 @@ func (h *ThreadHandler) GetPendingCommunity(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Communities)
 }
 
+func (h *ThreadHandler) GetJoinedCommunity(c *gin.Context) {
+	userId := c.Query("user_id")
+	pageStr := c.Query("page")
+	limitStr := c.Query("limit")
+	search := c.Query("search")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
+	}
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit < 1 {
+		limit = 25
+	}
+
+	resp, err := h.Client.GetJoinedCommunity(context.Background(), &threadpb.GetJoinedCommunityRequest{
+		UserId: userId,
+		Page: int32(page),
+		Limit: int32(limit),
+		Search: search,
+	})
+		
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	
+	c.JSON(http.StatusOK, resp.Communities)
+}
+
 func (h *ThreadHandler) GetCommunityPagination(c *gin.Context) {
 	pageStr := c.Query("page")
 	limitStr := c.Query("limit")
@@ -486,6 +516,32 @@ func (h *ThreadHandler) GetCommunityPagination(c *gin.Context) {
 	}
 	
 	c.JSON(http.StatusOK, resp.Communities)
+}
+
+func (h *ThreadHandler) JoinCommunity(c *gin.Context) {
+	var requestBody struct {
+		UserID          string   	`json:"userId" binding:"required"`
+		CommunityID     string   	`json:"communityId" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := h.Client.JoinCommunity(context.Background(), &threadpb.JoinCommunityRequest{
+		UserId: requestBody.UserID,
+		CommunityId: requestBody.CommunityID,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": resp.Message,
+	})
 }
 
 func (h *ThreadHandler) RequestJoinCommunity(c *gin.Context) {
