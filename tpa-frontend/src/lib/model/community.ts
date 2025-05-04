@@ -10,17 +10,51 @@ export type Community = {
   name: string;
   description: string;
   logo: string;
-  category: string;
+  category_id: string;
   banner: string;
   rule: string;
+  category: string;
 };
 
 const BASE_API_URL = "http://localhost:8080/api/threads";
+
+let communities: Community[] = [];
+
+export async function fetchCommunityWithCategory(page: number, limit: number, search: string) {
+    const paginatedCommunity = await fetchCommunityPagination(page, limit, search);
+    const categories = await fetchCommunityCategory();
+
+    if(!paginatedCommunity) return null;
+
+    communities = paginatedCommunity.map(community => {
+        const c = categories.find(c => c.id === community.category_id);
+        const category: string = c ? c.name : "Unknown";
+
+        return {
+          ...community,
+          category,
+        };
+    });
+
+    return communities;
+}
 
 export async function fetchCommunity() {
   const response = await axios.get<Community[]>(BASE_API_URL + "/community");
   const communities = response.data;
   return communities;
+}
+
+export async function fetchCommunityPagination(page: number, limit: number, search: string) {
+    const response = await axios.get<Community[]>(BASE_API_URL + "/community-pagination", {
+        params: {
+            page,
+            limit,
+            search
+        }
+    });
+    const communities = response.data;
+    return communities;
 }
 
 export async function fetchCommunityCategory() {

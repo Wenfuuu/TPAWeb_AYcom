@@ -8,7 +8,6 @@
   import RightSidebar from "../lib/components/RightSidebar.svelte";
   import BookmarkContent from "../lib/components/BookmarkContent.svelte";
 
-
     let isDarkMode = true;
     let user: User | null = null;
     let threads: (Thread & { userData: UserThread })[] = [];
@@ -24,6 +23,13 @@
             else threads = [];
         }
         // console.log(threads);
+    }
+
+    function toggleTheme() {
+      isDarkMode = !isDarkMode;
+      const newTheme = isDarkMode ? "dark" : "light";
+      localStorage.setItem("theme", newTheme);
+      document.documentElement.setAttribute("data-theme", newTheme);
     }
 
     onMount(async() => {
@@ -44,14 +50,6 @@
 
         await refreshData(1);
     });
-
-  function toggleTheme() {
-    isDarkMode = !isDarkMode;
-    const newTheme = isDarkMode ? "dark" : "light";
-    localStorage.setItem("theme", newTheme);
-    document.documentElement.setAttribute("data-theme", newTheme);
-  }
-
 </script>
 
 <div class="home-container">

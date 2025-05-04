@@ -15,7 +15,7 @@ type ThreadFiles struct {
 
 type ThreadCategory struct {
 	ID 		uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
-	Name	string		`json:"name"`
+	Name	string		`gorm:"unique" json:"name"`
 }
 
 type Community struct {

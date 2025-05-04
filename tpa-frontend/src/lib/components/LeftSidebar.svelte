@@ -9,10 +9,10 @@
   export let toggleTheme: () => void;
   export let isDarkMode: boolean;
   export let user: User | null;
-  export let currentActiveTab: "for-you" | "following";
+  export let currentActiveTab: "for-you" | "following" = "for-you";
 
   export let refreshData: (page: number) => Promise<void>;
-  export let refreshFollowingData: (page: number) => Promise<void>;
+  export let refreshFollowingData: (page: number) => Promise<void> = async() => {};
 
   let showComposeModal = false;
 
