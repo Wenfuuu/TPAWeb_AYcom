@@ -26,6 +26,7 @@ service ThreadService {
     rpc BookmarkThread(BookmarkThreadRequest) returns (ActionResponse);
     rpc UnbookmarkThread(UnbookmarkThreadRequest) returns (ActionResponse);
     rpc GetTopHashtags(GetTopHashtagsRequest) returns (HashtagCountResponse);
+    rpc GetCommunityPagination(GetCommunityPaginationRequest) returns (GetAllCommunitiesResponse);
 }
 
 message GetTopHashtagsRequest {}
@@ -144,6 +145,12 @@ message GetAllCommunitiesRequest {}
 
 message GetAllCommunitiesResponse {
     repeated Community communities = 1;
+}
+
+message GetCommunityPaginationRequest {
+    int32 page = 1;
+    int32 limit = 2;
+    string search = 3;
 }
 
 message GetAllThreadFileRequest {}

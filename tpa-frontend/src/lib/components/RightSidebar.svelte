@@ -5,17 +5,6 @@
   import { navigate } from "svelte-routing";
   import { fetchTopHashtags, type Hashtag } from "../model/thread";
 
-  // Sample trending topics
-  // const trendingTopics = [
-  //   { title: "Trump", posts: "1,209 posts" },
-  //   { title: "#NCT꿈", posts: "300K posts" },
-  //   { title: "Pagi", posts: "12.5K posts" },
-  //   {
-  //     title: "#teddysoekinspirasI",
-  //     posts: "2,543 posts",
-  //   },
-  // ];
-
   let user: User | null;
   let toFollow: User[] = [];
   let topHashtags: Hashtag[] = [];

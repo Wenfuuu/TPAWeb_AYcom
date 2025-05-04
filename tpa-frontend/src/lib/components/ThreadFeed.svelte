@@ -1,8 +1,9 @@
 <script lang="ts">
   import { navigate } from "svelte-routing";
-  import { bookmarkThread, fetchCommunity, fetchThreadCategory, likeThread, repostThread, unbookmarkThread, unlikeThread, unrepostThread, type Community, type Thread, type ThreadCategory } from "../model/thread";
+  import { bookmarkThread, fetchThreadCategory, likeThread, repostThread, unbookmarkThread, unlikeThread, unrepostThread, type Thread, type ThreadCategory } from "../model/thread";
   import type { User, UserThread } from "../model/user";
   import { onMount } from "svelte";
+  import { fetchCommunity, type Community } from "../model/community";
 
   export let threads: (Thread & { userData: UserThread })[] = [];
   export let user: User | null;

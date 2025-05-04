@@ -40,6 +40,7 @@ const (
 	ThreadService_BookmarkThread_FullMethodName            = "/thread.ThreadService/BookmarkThread"
 	ThreadService_UnbookmarkThread_FullMethodName          = "/thread.ThreadService/UnbookmarkThread"
 	ThreadService_GetTopHashtags_FullMethodName            = "/thread.ThreadService/GetTopHashtags"
+	ThreadService_GetCommunityPagination_FullMethodName    = "/thread.ThreadService/GetCommunityPagination"
 )
 
 // ThreadServiceClient is the client API for ThreadService service.
@@ -67,6 +68,7 @@ type ThreadServiceClient interface {
 	BookmarkThread(ctx context.Context, in *BookmarkThreadRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	UnbookmarkThread(ctx context.Context, in *UnbookmarkThreadRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	GetTopHashtags(ctx context.Context, in *GetTopHashtagsRequest, opts ...grpc.CallOption) (*HashtagCountResponse, error)
+	GetCommunityPagination(ctx context.Context, in *GetCommunityPaginationRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error)
 }
 
 type threadServiceClient struct {
@@ -287,6 +289,16 @@ func (c *threadServiceClient) GetTopHashtags(ctx context.Context, in *GetTopHash
 	return out, nil
 }
 
+func (c *threadServiceClient) GetCommunityPagination(ctx context.Context, in *GetCommunityPaginationRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllCommunitiesResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetCommunityPagination_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ThreadServiceServer is the server API for ThreadService service.
 // All implementations must embed UnimplementedThreadServiceServer
 // for forward compatibility.
@@ -312,6 +324,7 @@ type ThreadServiceServer interface {
 	BookmarkThread(context.Context, *BookmarkThreadRequest) (*ActionResponse, error)
 	UnbookmarkThread(context.Context, *UnbookmarkThreadRequest) (*ActionResponse, error)
 	GetTopHashtags(context.Context, *GetTopHashtagsRequest) (*HashtagCountResponse, error)
+	GetCommunityPagination(context.Context, *GetCommunityPaginationRequest) (*GetAllCommunitiesResponse, error)
 	mustEmbedUnimplementedThreadServiceServer()
 }
 
@@ -384,6 +397,9 @@ func (UnimplementedThreadServiceServer) UnbookmarkThread(context.Context, *Unboo
 }
 func (UnimplementedThreadServiceServer) GetTopHashtags(context.Context, *GetTopHashtagsRequest) (*HashtagCountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTopHashtags not implemented")
+}
+func (UnimplementedThreadServiceServer) GetCommunityPagination(context.Context, *GetCommunityPaginationRequest) (*GetAllCommunitiesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCommunityPagination not implemented")
 }
 func (UnimplementedThreadServiceServer) mustEmbedUnimplementedThreadServiceServer() {}
 func (UnimplementedThreadServiceServer) testEmbeddedByValue()                       {}
@@ -784,6 +800,24 @@ func _ThreadService_GetTopHashtags_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_GetCommunityPagination_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCommunityPaginationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetCommunityPagination(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetCommunityPagination_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetCommunityPagination(ctx, req.(*GetCommunityPaginationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ThreadService_ServiceDesc is the grpc.ServiceDesc for ThreadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -874,6 +908,10 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTopHashtags",
 			Handler:    _ThreadService_GetTopHashtags_Handler,
+		},
+		{
+			MethodName: "GetCommunityPagination",
+			Handler:    _ThreadService_GetCommunityPagination_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -3,11 +3,48 @@ package database
 import (
 	// "time"
 
+	"math/rand"
+	"strconv"
+	"time"
+
 	"github.com/Wenfuuu/tpa-web/service-thread/model"
 	"github.com/google/uuid"
 
 	"gorm.io/gorm"
 )
+
+func generateRandomCommunities() []model.Community {
+    rand.Seed(time.Now().UnixNano())
+
+    logos := []string{
+        "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//hoshimachi-suisei-hololive.gif",
+        "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(2).png",
+    }
+
+    banners := []string{
+        "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(125).png",
+        "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(3).png",
+    }
+
+    categoryIDs := []uuid.UUID{
+        uuid.MustParse("928c8cc1-a75c-4fd2-a080-f2e4e090e698"),
+        uuid.MustParse("b49f4771-6207-46a2-84ef-8208775ae922"),
+    }
+
+    communities := []model.Community{}
+    for i := 0; i < 30; i++ {
+        community := model.Community{
+            Name:        "Community " + strconv.Itoa(i+1), // Convert i+1 to string
+            Description: "Description for community " + strconv.Itoa(i+1),
+            Logo:        logos[rand.Intn(len(logos))],
+            Banner:      banners[rand.Intn(len(banners))],
+            CategoryID:  categoryIDs[rand.Intn(len(categoryIDs))],
+            Rule:        "Random rule for community",
+        }
+        communities = append(communities, community)
+    }
+    return communities
+}
 
 func Seed(db *gorm.DB) {
 	// var threads = []model.Thread{
@@ -403,27 +440,33 @@ func Seed(db *gorm.DB) {
 		db.Create(&element)
 	}
 
-	var communities = []model.Community{
-		{
-			Name: "Hololive",
-			Description: "A very special place for everyone",
-			Logo: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//hoshimachi-suisei-hololive.gif",
-			CategoryID: uuid.MustParse("928c8cc1-a75c-4fd2-a080-f2e4e090e698"),
-			Banner: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(125).png",
-			Rule: "Please support your oshis wholeheartedly",
-		},
-		{
-			Name: "Hoyoverse",
-			Description: "A place that talks about the best game creator",
-			Logo: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(2).png",
-			CategoryID: uuid.MustParse("b49f4771-6207-46a2-84ef-8208775ae922"),
-			Banner: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(3).png",
-			Rule: "Enjoy hoyoverse games",
-		},
-	}
+	// var communities = []model.Community{
+	// 	{
+	// 		Name: "Hololive",
+	// 		Description: "A very special place for everyone",
+	// 		Logo: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//hoshimachi-suisei-hololive.gif",
+	// 		CategoryID: uuid.MustParse("928c8cc1-a75c-4fd2-a080-f2e4e090e698"),
+	// 		Banner: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(125).png",
+	// 		Rule: "Please support your oshis wholeheartedly",
+	// 	},
+	// 	{
+	// 		Name: "Hoyoverse",
+	// 		Description: "A place that talks about the best game creator",
+	// 		Logo: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(2).png",
+	// 		CategoryID: uuid.MustParse("b49f4771-6207-46a2-84ef-8208775ae922"),
+	// 		Banner: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(3).png",
+	// 		Rule: "Enjoy hoyoverse games",
+	// 	},
+	// }
+	// for _, element := range communities {
+	// 	db.Create(&element)
+	// }
+	
+	communities := generateRandomCommunities()
 	for _, element := range communities {
 		db.Create(&element)
 	}
+
 
 	// var hashtags = []model.Hashtag{
 	// 	{

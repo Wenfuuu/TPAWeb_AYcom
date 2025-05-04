@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"strings"
+
 	"github.com/Wenfuuu/tpa-web/service-thread/database"
 	"github.com/Wenfuuu/tpa-web/service-thread/model"
 	"gorm.io/gorm"
@@ -83,7 +85,7 @@ func (r *ThreadRepository) GetBookmark(page int, userId string, search string) (
 	result := r.DB.
 		Joins("JOIN bookmarks ON bookmarks.thread_id = threads.id").
 		Where("bookmarks.user_id = ?", userId).
-		Where("threads.content LIKE ?", "%"+search+"%").
+		Where("LOWER(threads.content) LIKE ?", "%"+strings.ToLower(search)+"%").
 		Limit(limit).
 		Offset(offset).
 		Find(&threads)
@@ -167,6 +169,20 @@ func (r *ThreadRepository) GetAllThreadCategories() ([]model.ThreadCategory, err
 func (r *ThreadRepository) GetAllCommunity() ([]model.Community, error) {
 	var communities []model.Community
 	result := r.DB.Find(&communities)
+	return communities, result.Error
+}
+
+func (r *ThreadRepository) GetCommunityPagination(page int, limit int, search string) ([]model.Community, error) {
+	var communities []model.Community
+
+	offset := (page - 1) * limit
+
+	result := r.DB.
+		Where("LOWER(name) LIKE ?", "%"+strings.ToLower(search)+"%").
+		Limit(limit).
+		Offset(offset).
+		Find(&communities)
+	
 	return communities, result.Error
 }
 

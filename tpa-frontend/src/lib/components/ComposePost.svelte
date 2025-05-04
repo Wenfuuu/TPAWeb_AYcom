@@ -2,8 +2,9 @@
   import { type User } from "../model/user";
   import { uploadImage } from "../utils/supabaseStorage";
   import axios from "axios";
-  import { fetchCommunity, fetchThreadCategory, type Community, type ThreadCategory } from "../model/thread";
+  import { fetchThreadCategory, type ThreadCategory } from "../model/thread";
   import { onMount } from "svelte";
+  import { fetchCommunity, type Community } from "../model/community";
 
   export let user: User | null;
   let threadCategories: ThreadCategory[] = [];

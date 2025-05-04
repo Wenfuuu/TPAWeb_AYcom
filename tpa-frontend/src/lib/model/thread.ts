@@ -7,16 +7,6 @@ export type ThreadCategory = {
     name: string
 }
 
-export type Community = {
-    id: string
-    name: string
-    description: string
-    logo: string
-    category: string
-    banner: string
-    rule: string
-}
-
 export type ThreadFile = {
     id: string
     thread_id: string
@@ -453,12 +443,6 @@ export async function fetchThreadCategory() {
     const response = await axios.get<ThreadCategory[]>(BASE_API_URL + "/thread-category");
     const categories = response.data;
     return categories;
-}
-
-export async function fetchCommunity() {
-    const response = await axios.get<Community[]>(BASE_API_URL + "/community");
-    const communities = response.data;
-    return communities;
 }
 
 export async function fetchFiles() {

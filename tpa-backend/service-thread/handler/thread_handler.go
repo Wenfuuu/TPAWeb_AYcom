@@ -516,6 +516,25 @@ func (h *ThreadHandler) GetAllCommunity(ctx context.Context, req *threadpb.GetAl
 	}, nil
 }
 
+func (h *ThreadHandler) GetCommunityPagination(ctx context.Context, req *threadpb.GetCommunityPaginationRequest) (*threadpb.GetAllCommunitiesResponse, error) {
+	page := int(req.Page)
+	limit := int(req.Limit)
+
+	modelCommunities, err := h.threadRepo.GetCommunityPagination(page, limit, req.Search)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbThreads []*threadpb.Community
+	for _, t := range modelCommunities {
+		pbThreads = append(pbThreads, h.communityToProto(&t))
+	}
+
+	return &threadpb.GetAllCommunitiesResponse{
+		Communities: pbThreads,
+	}, nil
+}
+
 func (h *ThreadHandler) GetAllCommunityCategories(ctx context.Context, req *threadpb.GetAllCommunityCategoriesRequest) (*threadpb.GetAllCommunityCategoriesResponse, error) {
 	modelCategories, err := h.threadRepo.GetAllCommunityCategories()
 	if err != nil {
