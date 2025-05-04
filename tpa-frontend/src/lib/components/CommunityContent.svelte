@@ -2,13 +2,14 @@
   import { onMount } from "svelte";
   import { navigate } from "svelte-routing";
   import type { User } from "../model/user";
-  import { fetchCommunityCategory, type Community, type CommunityCategory } from "../model/community";
+  import { fetchCommunity, fetchCommunityCategory, type Community, type CommunityCategory } from "../model/community";
 
   // Props
   export let communities: Community[] = [];
   export let user: User | null = null;
-  export let refreshData: (page: number, search?: string) => Promise<void>;
+  export let refreshData: (page: number, search: string, currTab: "joined" | "pending" | "available") => Promise<void>;
   export let changeLimit: (limit: 25 | 30 | 35) => void;
+  let activeTab: "joined" | "pending" | "available";
 
   // State variables
   let searchQuery = "";
@@ -17,11 +18,6 @@
   let totalPages = 10; // This would typically come from an API response
   let currentLimit: 25 | 30 | 35 = 25;
   let isLoading = false;
-  let activeTab: "joined" | "pending" | "available" = "available";
-
-  // Mock data for joined and pending communities (in a real app, these would come from API)
-  let joinedCommunities: Community[] = [];
-  let pendingCommunities: Community[] = [];
 
   // Categories for filtering
   let categories: CommunityCategory[] = [];
@@ -29,7 +25,7 @@
   async function handleSearch() {
     currentPage = 1;
     isLoading = true;
-    await refreshData(currentPage, searchQuery);
+    await refreshData(currentPage, searchQuery, activeTab);
     isLoading = false;
   }
 
@@ -37,7 +33,7 @@
     currentPage = 1;
     isLoading = true;
     // In a real app, you would include the category in the API call
-    await refreshData(currentPage, searchQuery);
+    await refreshData(currentPage, searchQuery, activeTab);
     isLoading = false;
   }
 
@@ -45,7 +41,7 @@
     if (page < 1 || page > totalPages) return;
     currentPage = page;
     isLoading = true;
-    await refreshData(currentPage, searchQuery);
+    await refreshData(currentPage, searchQuery, activeTab);
     isLoading = false;
   }
 
@@ -54,7 +50,7 @@
     changeLimit(limit);
     currentPage = 1;
     isLoading = true;
-    await refreshData(currentPage, searchQuery);
+    await refreshData(currentPage, searchQuery, activeTab);
     isLoading = false;
   }
 
@@ -62,20 +58,9 @@
   async function requestToJoin(communityId: string) {
     if (!user) return;
 
-    try {
-      // In a real app, you would make an API call here
-      console.log(`Requesting to join community ${communityId}`);
+    // call api endpoint
 
-      // Mock implementation: move from available to pending
-      const community = communities.find(c => c.id === communityId);
-      if (community) {
-        pendingCommunities = [...pendingCommunities, community];
-        // Refresh the data to update the UI
-        await refreshData(currentPage, searchQuery);
-      }
-    } catch (error) {
-      console.error("Error requesting to join community:", error);
-    }
+    // refresh data
   }
 
   // Function to navigate to community detail page
@@ -86,26 +71,6 @@
   // Function to navigate to create community page
   function navigateToCreateCommunity() {
     navigate("/create-community");
-  }
-
-  // Function to get displayed communities based on active tab
-  function getDisplayedCommunities() {
-    switch (activeTab) {
-      case "joined":
-        return joinedCommunities;
-      case "pending":
-        return pendingCommunities;
-      case "available":
-        return communities.filter(community => {
-          // Filter by category if not "all"
-          if (selectedCategory !== "all" && community.category !== selectedCategory) {
-            return false;
-          }
-          return true;
-        });
-      default:
-        return [];
-    }
   }
 
   // Generate page numbers for pagination
@@ -148,11 +113,8 @@
 
     categories = await fetchCommunityCategory();
 
-    // In a real app, you would fetch totalPages from API response
-    // Example: const response = await fetchCommunities(1, searchQuery);
-    // totalPages = response.totalPages;
-
-    // fetch joined and pending communities later
+    const allCommunity = await fetchCommunity();
+    totalPages = Math.ceil(allCommunity.length / currentLimit);
 
     isLoading = false;
   });
@@ -160,7 +122,7 @@
 
 <main class="content-area">
   <div class="header">
-    <h1>Communities</h1>
+    <h1>Communitiess</h1>
     <button type="button" class="create-button" on:click={navigateToCreateCommunity}>
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -214,25 +176,32 @@
       type="button"
       class="tab-button"
       class:active={activeTab === "joined"}
-      on:click={() => activeTab = "joined"}
+      on:click={() => {
+        activeTab = "joined";
+        refreshData(currentPage, searchQuery, activeTab);
+      }}
     >
       Joined
-      <span class="count">{joinedCommunities.length}</span>
     </button>
     <button
       type="button"
       class="tab-button"
       class:active={activeTab === "pending"}
-      on:click={() => activeTab = "pending"}
+      on:click={() => {
+        activeTab = "pending";
+        refreshData(currentPage, searchQuery, activeTab);
+      }}
     >
       Pending
-      <span class="count">{pendingCommunities.length}</span>
     </button>
     <button
       type="button"
       class="tab-button"
       class:active={activeTab === "available"}
-      on:click={() => activeTab = "available"}
+      on:click={() => {
+        activeTab = "available";
+        refreshData(currentPage, searchQuery, activeTab);
+      }}
     >
       Available
     </button>
@@ -245,7 +214,7 @@
     </div>
   {:else}
     <div class="communities-container">
-      {#if getDisplayedCommunities().length === 0}
+      {#if communities.length === 0}
         <div class="empty-state">
           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -260,7 +229,7 @@
         </div>
       {:else}
         <div class="communities-grid">
-          {#each getDisplayedCommunities() as community (community.id)}
+          {#each communities as community (community.id)}
             <div class="community-card" role="button" tabindex="0" on:click={() => navigateToCommunity(community.id)}
                 on:keydown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -535,25 +504,6 @@
     height: 4px;
     background-color: var(--button-primary);
     border-radius: 4px 4px 0 0;
-  }
-
-  .count {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--hover-background);
-    color: var(--text-tertiary);
-    border-radius: 9999px;
-    min-width: 20px;
-    height: 20px;
-    font-size: 12px;
-    margin-left: 4px;
-    padding: 0 6px;
-  }
-
-  .tab-button.active .count {
-    background-color: rgba(var(--button-primary-rgb, 29, 155, 240), 0.1);
-    color: var(--button-primary);
   }
 
   .loading-container {

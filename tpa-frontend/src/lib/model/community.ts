@@ -39,18 +39,50 @@ export async function fetchCommunityWithCategory(page: number, limit: number, se
     return communities;
 }
 
+export async function fetchPendingWithCategory(userid: string, page: number, limit: number, search: string) {
+    const paginatedCommunity = await fetchPendingCommunity(userid, page, limit, search);
+    const categories = await fetchCommunityCategory();
+
+    if(!paginatedCommunity) return null;
+
+    communities = paginatedCommunity.map(community => {
+        const c = categories.find(c => c.id === community.category_id);
+        const category: string = c ? c.name : "Unknown";
+
+        return {
+          ...community,
+          category,
+        };
+    });
+
+    return communities;
+}
+
 export async function fetchCommunity() {
   const response = await axios.get<Community[]>(BASE_API_URL + "/community");
   const communities = response.data;
   return communities;
 }
 
-export async function fetchCommunityPagination(page: number, limit: number, search: string) {
+async function fetchCommunityPagination(page: number, limit: number, search: string) {
     const response = await axios.get<Community[]>(BASE_API_URL + "/community-pagination", {
         params: {
             page,
             limit,
             search
+        }
+    });
+    const communities = response.data;
+    return communities;
+}
+
+async function fetchPendingCommunity(user_id: string, page: number, limit: number, search: string) {
+  const response = await axios.get<Community[]>(BASE_API_URL + "/pending-community", {
+        params: {
+          user_id,
+          page,
+          limit,
+          search
         }
     });
     const communities = response.data;

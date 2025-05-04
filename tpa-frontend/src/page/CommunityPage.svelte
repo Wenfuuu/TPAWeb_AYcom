@@ -5,7 +5,7 @@
   import type { User } from "../lib/model/user";
   import LeftSidebar from "../lib/components/LeftSidebar.svelte";
   import RightSidebar from "../lib/components/RightSidebar.svelte";
-  import { fetchCommunityWithCategory, type Community } from "../lib/model/community";
+  import { fetchCommunityWithCategory, fetchPendingWithCategory, type Community } from "../lib/model/community";
   import CommunityContent from "../lib/components/CommunityContent.svelte";
 
     let isDarkMode = true;
@@ -13,11 +13,14 @@
     let communities: Community[] = [];
     let limit: 25 | 30 | 35 = 25;
 
-    async function refreshData(page: number, search: string = ""): Promise<void> {
+    async function refreshData(page: number, search: string = "", currTab: "joined" | "pending" | "available" = "available"): Promise<void> {
+        // console.log("refreshing data");
         let data;
         if(user) {
-            // console.log(search);
-            data = await fetchCommunityWithCategory(page, limit, search);
+            // console.log(currTab);
+            if(currTab === "available") data = await fetchCommunityWithCategory(page, limit, search);
+            else if(currTab === "pending") data = await fetchPendingWithCategory(user.id, page, limit, search);
+            else data = await fetchCommunityWithCategory(page, limit, search);
 
             if(data) communities = data;
             else communities = [];
