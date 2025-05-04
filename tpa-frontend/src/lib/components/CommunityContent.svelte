@@ -7,7 +7,8 @@
   // Props
   export let communities: Community[] = [];
   export let user: User | null = null;
-  export let refreshData: (page: number, search: string, currTab: "joined" | "pending" | "available") => Promise<void>;
+  export let refreshData: (page: number, search: string,
+  currTab: "joined" | "pending" | "available", categoryId: string) => Promise<void>;
   export let changeLimit: (limit: 25 | 30 | 35) => void;
   let activeTab: "joined" | "pending" | "available";
 
@@ -25,15 +26,25 @@
   async function handleSearch() {
     currentPage = 1;
     isLoading = true;
-    await refreshData(currentPage, searchQuery, activeTab);
+    await refreshData(currentPage, searchQuery, activeTab, selectedCategory);
     isLoading = false;
   }
 
   async function handleCategoryChange() {
     currentPage = 1;
     isLoading = true;
-    // In a real app, you would include the category in the API call
-    await refreshData(currentPage, searchQuery, activeTab);
+
+    if (selectedCategory === "all") {
+      // Refresh data to show all communities
+      await refreshData(currentPage, searchQuery, activeTab, selectedCategory);
+    } else {
+      // Filter communities by the selected category
+      await refreshData(currentPage, searchQuery, activeTab, selectedCategory);
+      console.log(selectedCategory);
+      // communities = communities.filter((community) => community.category === selectedCategory);
+      console.log(communities);
+    }
+
     isLoading = false;
   }
 
@@ -41,7 +52,7 @@
     if (page < 1 || page > totalPages) return;
     currentPage = page;
     isLoading = true;
-    await refreshData(currentPage, searchQuery, activeTab);
+    await refreshData(currentPage, searchQuery, activeTab, selectedCategory);
     isLoading = false;
   }
 
@@ -50,7 +61,7 @@
     changeLimit(limit);
     currentPage = 1;
     isLoading = true;
-    await refreshData(currentPage, searchQuery, activeTab);
+    await refreshData(currentPage, searchQuery, activeTab, selectedCategory);
     isLoading = false;
   }
 
@@ -62,7 +73,7 @@
     await requestJoinCommunity(user.id, communityId);
 
     // refresh data
-    refreshData(currentPage, searchQuery, activeTab);
+    refreshData(currentPage, searchQuery, activeTab, selectedCategory);
   }
 
   function navigateToCommunity(communityId: string) {
@@ -178,7 +189,7 @@
       class:active={activeTab === "joined"}
       on:click={() => {
         activeTab = "joined";
-        refreshData(currentPage, searchQuery, activeTab);
+        refreshData(currentPage, searchQuery, activeTab, selectedCategory);
       }}
     >
       Joined
@@ -189,7 +200,7 @@
       class:active={activeTab === "pending"}
       on:click={() => {
         activeTab = "pending";
-        refreshData(currentPage, searchQuery, activeTab);
+        refreshData(currentPage, searchQuery, activeTab, selectedCategory);
       }}
     >
       Pending
@@ -200,7 +211,7 @@
       class:active={activeTab === "available"}
       on:click={() => {
         activeTab = "available";
-        refreshData(currentPage, searchQuery, activeTab);
+        refreshData(currentPage, searchQuery, activeTab, selectedCategory);
       }}
     >
       Available

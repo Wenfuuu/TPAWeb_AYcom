@@ -435,6 +435,7 @@ func (h *ThreadHandler) GetPendingCommunity(c *gin.Context) {
 	pageStr := c.Query("page")
 	limitStr := c.Query("limit")
 	search := c.Query("search")
+	category_id := c.Query("category_id")
 
 	page, err := strconv.Atoi(pageStr)
 	if err != nil || page < 1 {
@@ -450,6 +451,7 @@ func (h *ThreadHandler) GetPendingCommunity(c *gin.Context) {
 		Page: int32(page),
 		Limit: int32(limit),
 		Search: search,
+		CategoryId: category_id,
 	})
 		
 	if err != nil {
@@ -465,6 +467,7 @@ func (h *ThreadHandler) GetJoinedCommunity(c *gin.Context) {
 	pageStr := c.Query("page")
 	limitStr := c.Query("limit")
 	search := c.Query("search")
+	category_id := c.Query("category_id")
 
 	page, err := strconv.Atoi(pageStr)
 	if err != nil || page < 1 {
@@ -480,6 +483,7 @@ func (h *ThreadHandler) GetJoinedCommunity(c *gin.Context) {
 		Page: int32(page),
 		Limit: int32(limit),
 		Search: search,
+		CategoryId: category_id,
 	})
 		
 	if err != nil {
@@ -494,6 +498,7 @@ func (h *ThreadHandler) GetCommunityPagination(c *gin.Context) {
 	pageStr := c.Query("page")
 	limitStr := c.Query("limit")
 	search := c.Query("search")
+	category_id := c.Query("category_id")
 
 	page, err := strconv.Atoi(pageStr)
 	if err != nil || page < 1 {
@@ -508,6 +513,7 @@ func (h *ThreadHandler) GetCommunityPagination(c *gin.Context) {
 		Page: int32(page),
 		Limit: int32(limit),
 		Search: search,
+		CategoryId: category_id,
 	})
 		
 	if err != nil {

@@ -13,14 +13,16 @@
     let communities: Community[] = [];
     let limit: 25 | 30 | 35 = 25;
 
-    async function refreshData(page: number, search: string = "", currTab: "joined" | "pending" | "available" = "available"): Promise<void> {
+    async function refreshData(page: number, search: string = "", currTab: "joined" | "pending" | "available" = "available",
+        categoryId: string = "all"
+    ): Promise<void> {
         // console.log("refreshing data");
         let data;
         if(user) {
             // console.log(currTab);
-            if(currTab === "available") data = await fetchCommunityWithCategory(user.id, page, limit, search);
-            else if(currTab === "pending") data = await fetchPendingWithCategory(user.id, page, limit, search);
-            else data = await fetchJoinedWithCategory(user.id, page, limit, search);
+            if(currTab === "available") data = await fetchCommunityWithCategory(user.id, page, limit, search, categoryId);
+            else if(currTab === "pending") data = await fetchPendingWithCategory(user.id, page, limit, search, categoryId);
+            else data = await fetchJoinedWithCategory(user.id, page, limit, search, categoryId);
 
             if(data) communities = data;
             else communities = [];

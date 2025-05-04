@@ -27,15 +27,11 @@ export async function requestJoinCommunity(userId: string, communityId: string) 
   });
 }
 
-export async function fetchCommunityWithCategory(userid: string, page: number, limit: number, search: string) {
-  const paginatedCommunity = await fetchCommunityPagination(
-    page,
-    limit,
-    search
-  );
+export async function fetchCommunityWithCategory(userid: string, page: number, limit: number, search: string, categoryid: string) {
+  const paginatedCommunity = await fetchCommunityPagination(page, limit, search, categoryid);
   const categories = await fetchCommunityCategory();
-  let pendingCommunities = await fetchPendingCommunity(userid, 1, 1000, "");
-  let joinedCommunities = await fetchJoinedCommunity(userid, 1, 1000, "");
+  let pendingCommunities = await fetchPendingCommunity(userid, 1, 1000, "", categoryid);
+  let joinedCommunities = await fetchJoinedCommunity(userid, 1, 1000, "", categoryid);
   if(!pendingCommunities) pendingCommunities = [];
   if(!joinedCommunities) joinedCommunities = [];
 
@@ -63,8 +59,8 @@ export async function fetchCommunityWithCategory(userid: string, page: number, l
   return communities;
 }
 
-export async function fetchPendingWithCategory(userid: string, page: number, limit: number, search: string) {
-    const paginatedCommunity = await fetchPendingCommunity(userid, page, limit, search);
+export async function fetchPendingWithCategory(userid: string, page: number, limit: number, search: string, categoryid: string) {
+    const paginatedCommunity = await fetchPendingCommunity(userid, page, limit, search, categoryid);
     const categories = await fetchCommunityCategory();
 
     if(!paginatedCommunity) return null;
@@ -82,8 +78,8 @@ export async function fetchPendingWithCategory(userid: string, page: number, lim
     return communities;
 }
 
-export async function fetchJoinedWithCategory(userid: string, page: number, limit: number, search: string) {
-    const paginatedCommunity = await fetchJoinedCommunity(userid, page, limit, search);
+export async function fetchJoinedWithCategory(userid: string, page: number, limit: number, search: string, categoryid: string) {
+    const paginatedCommunity = await fetchJoinedCommunity(userid, page, limit, search, categoryid);
     const categories = await fetchCommunityCategory();
 
     if(!paginatedCommunity) return null;
@@ -107,38 +103,41 @@ export async function fetchCommunity() {
   return communities;
 }
 
-async function fetchCommunityPagination(page: number, limit: number, search: string) {
+async function fetchCommunityPagination(page: number, limit: number, search: string, category_id: string) {
     const response = await axios.get<Community[]>(BASE_API_URL + "/community-pagination", {
         params: {
             page,
             limit,
-            search
+            search,
+            category_id
         }
     });
     const communities = response.data;
     return communities;
 }
 
-async function fetchPendingCommunity(user_id: string, page: number, limit: number, search: string) {
+async function fetchPendingCommunity(user_id: string, page: number, limit: number, search: string, category_id: string) {
   const response = await axios.get<Community[]>(BASE_API_URL + "/pending-community", {
         params: {
           user_id,
           page,
           limit,
-          search
+          search,
+          category_id
         }
     });
     const communities = response.data;
     return communities;
 }
 
-async function fetchJoinedCommunity(user_id: string, page: number, limit: number, search: string) {
+async function fetchJoinedCommunity(user_id: string, page: number, limit: number, search: string, category_id: string) {
   const response = await axios.get<Community[]>(BASE_API_URL + "/joined-community", {
         params: {
           user_id,
           page,
           limit,
-          search
+          search,
+          category_id
         }
     });
     const communities = response.data;

@@ -189,15 +189,21 @@ func (r *ThreadRepository) GetAllCommunity() ([]model.Community, error) {
 	return communities, result.Error
 }
 
-func (r *ThreadRepository) GetPendingCommunity(userid string, page int, limit int, search string) ([]model.Community, error) {
+func (r *ThreadRepository) GetPendingCommunity(userid string, page int, limit int, search string, category_id string) ([]model.Community, error) {
 	var communities []model.Community
 
 	offset := (page - 1) * limit
 
-	result := r.DB.
+	query := r.DB.
 		Joins("JOIN join_community_requests ON join_community_requests.community_id = communities.id").
 		Where("join_community_requests.user_id = ?", userid).
-		Where("LOWER(communities.name) LIKE ?", "%"+strings.ToLower(search)+"%").
+		Where("LOWER(communities.name) LIKE ?", "%"+strings.ToLower(search)+"%")
+
+	if category_id != "all" {
+		query = query.Where("communities.category_id = ?", category_id)
+	}
+
+	result := query.
 		Limit(limit).
 		Offset(offset).
 		Find(&communities)
@@ -205,15 +211,21 @@ func (r *ThreadRepository) GetPendingCommunity(userid string, page int, limit in
 	return communities, result.Error
 }
 
-func (r *ThreadRepository) GetJoinedCommunity(userid string, page int, limit int, search string) ([]model.Community, error) {
+func (r *ThreadRepository) GetJoinedCommunity(userid string, page int, limit int, search string, category_id string) ([]model.Community, error) {
 	var communities []model.Community
 
 	offset := (page - 1) * limit
 
-	result := r.DB.
+	query := r.DB.
 		Joins("JOIN community_members ON community_members.community_id = communities.id").
 		Where("community_members.user_id = ?", userid).
-		Where("LOWER(communities.name) LIKE ?", "%"+strings.ToLower(search)+"%").
+		Where("LOWER(communities.name) LIKE ?", "%"+strings.ToLower(search)+"%")
+
+	if category_id != "all" {
+		query = query.Where("communities.category_id = ?", category_id)
+	}
+
+	result := query.
 		Limit(limit).
 		Offset(offset).
 		Find(&communities)
@@ -221,17 +233,22 @@ func (r *ThreadRepository) GetJoinedCommunity(userid string, page int, limit int
 	return communities, result.Error
 }
 
-func (r *ThreadRepository) GetCommunityPagination(page int, limit int, search string) ([]model.Community, error) {
+func (r *ThreadRepository) GetCommunityPagination(page int, limit int, search string, category_id string) ([]model.Community, error) {
 	var communities []model.Community
 
 	offset := (page - 1) * limit
 
-	result := r.DB.
-		Where("LOWER(name) LIKE ?", "%"+strings.ToLower(search)+"%").
+	query := r.DB.Where("LOWER(name) LIKE ?", "%"+strings.ToLower(search)+"%")
+
+	if category_id != "all" {
+		query = query.Where("category_id = ?", category_id)
+	}
+
+	result := query.
 		Limit(limit).
 		Offset(offset).
 		Find(&communities)
-	
+
 	return communities, result.Error
 }
 

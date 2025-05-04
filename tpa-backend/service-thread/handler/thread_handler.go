@@ -570,7 +570,7 @@ func (h *ThreadHandler) GetPendingCommunity(ctx context.Context, req *threadpb.G
 	page := int(req.Page)
 	limit := int(req.Limit)
 
-	modelCommunities, err := h.threadRepo.GetPendingCommunity(req.UserId, page, limit, req.Search)
+	modelCommunities, err := h.threadRepo.GetPendingCommunity(req.UserId, page, limit, req.Search, req.CategoryId)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Database error")
 	}
@@ -589,7 +589,7 @@ func (h *ThreadHandler) GetJoinedCommunity(ctx context.Context, req *threadpb.Ge
 	page := int(req.Page)
 	limit := int(req.Limit)
 
-	modelCommunities, err := h.threadRepo.GetJoinedCommunity(req.UserId, page, limit, req.Search)
+	modelCommunities, err := h.threadRepo.GetJoinedCommunity(req.UserId, page, limit, req.Search, req.CategoryId)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Database error")
 	}
@@ -608,7 +608,7 @@ func (h *ThreadHandler) GetCommunityPagination(ctx context.Context, req *threadp
 	page := int(req.Page)
 	limit := int(req.Limit)
 
-	modelCommunities, err := h.threadRepo.GetCommunityPagination(page, limit, req.Search)
+	modelCommunities, err := h.threadRepo.GetCommunityPagination(page, limit, req.Search, req.CategoryId)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Database error")
 	}

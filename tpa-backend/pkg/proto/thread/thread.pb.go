@@ -1430,6 +1430,7 @@ type GetCommunityPaginationRequest struct {
 	Page          int32                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
 	Search        string                 `protobuf:"bytes,3,opt,name=search,proto3" json:"search,omitempty"`
+	CategoryId    string                 `protobuf:"bytes,4,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1485,12 +1486,20 @@ func (x *GetCommunityPaginationRequest) GetSearch() string {
 	return ""
 }
 
+func (x *GetCommunityPaginationRequest) GetCategoryId() string {
+	if x != nil {
+		return x.CategoryId
+	}
+	return ""
+}
+
 type GetPendingCommunityRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Page          int32                  `protobuf:"varint,2,opt,name=page,proto3" json:"page,omitempty"`
 	Limit         int32                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
 	Search        string                 `protobuf:"bytes,4,opt,name=search,proto3" json:"search,omitempty"`
+	CategoryId    string                 `protobuf:"bytes,5,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1553,12 +1562,20 @@ func (x *GetPendingCommunityRequest) GetSearch() string {
 	return ""
 }
 
+func (x *GetPendingCommunityRequest) GetCategoryId() string {
+	if x != nil {
+		return x.CategoryId
+	}
+	return ""
+}
+
 type GetJoinedCommunityRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Page          int32                  `protobuf:"varint,2,opt,name=page,proto3" json:"page,omitempty"`
 	Limit         int32                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
 	Search        string                 `protobuf:"bytes,4,opt,name=search,proto3" json:"search,omitempty"`
+	CategoryId    string                 `protobuf:"bytes,5,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1617,6 +1634,13 @@ func (x *GetJoinedCommunityRequest) GetLimit() int32 {
 func (x *GetJoinedCommunityRequest) GetSearch() string {
 	if x != nil {
 		return x.Search
+	}
+	return ""
+}
+
+func (x *GetJoinedCommunityRequest) GetCategoryId() string {
+	if x != nil {
+		return x.CategoryId
 	}
 	return ""
 }
@@ -2312,21 +2336,27 @@ const file_thread_proto_rawDesc = "" +
 	"\x14community_categories\x18\x01 \x03(\v2\x19.thread.CommunityCategoryR\x13communityCategories\"\x1a\n" +
 	"\x18GetAllCommunitiesRequest\"P\n" +
 	"\x19GetAllCommunitiesResponse\x123\n" +
-	"\vcommunities\x18\x01 \x03(\v2\x11.thread.CommunityR\vcommunities\"a\n" +
+	"\vcommunities\x18\x01 \x03(\v2\x11.thread.CommunityR\vcommunities\"\x82\x01\n" +
 	"\x1dGetCommunityPaginationRequest\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\x05R\x04page\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06search\x18\x03 \x01(\tR\x06search\"w\n" +
+	"\x06search\x18\x03 \x01(\tR\x06search\x12\x1f\n" +
+	"\vcategory_id\x18\x04 \x01(\tR\n" +
+	"categoryId\"\x98\x01\n" +
 	"\x1aGetPendingCommunityRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x12\n" +
 	"\x04page\x18\x02 \x01(\x05R\x04page\x12\x14\n" +
 	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06search\x18\x04 \x01(\tR\x06search\"v\n" +
+	"\x06search\x18\x04 \x01(\tR\x06search\x12\x1f\n" +
+	"\vcategory_id\x18\x05 \x01(\tR\n" +
+	"categoryId\"\x97\x01\n" +
 	"\x19GetJoinedCommunityRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x12\n" +
 	"\x04page\x18\x02 \x01(\x05R\x04page\x12\x14\n" +
 	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06search\x18\x04 \x01(\tR\x06search\"\x19\n" +
+	"\x06search\x18\x04 \x01(\tR\x06search\x12\x1f\n" +
+	"\vcategory_id\x18\x05 \x01(\tR\n" +
+	"categoryId\"\x19\n" +
 	"\x17GetAllThreadFileRequest\"Q\n" +
 	"\x18GetAllThreadFileResponse\x125\n" +
 	"\fthread_files\x18\x01 \x03(\v2\x12.thread.ThreadFileR\vthreadFiles\"\xa2\x02\n" +
