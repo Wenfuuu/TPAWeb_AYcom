@@ -447,6 +447,22 @@ func (h *ThreadHandler) JoinCommunity(ctx context.Context, req *threadpb.JoinCom
 	}, nil
 }
 
+func (h *ThreadHandler) GetJoinCommunity(ctx context.Context, req *threadpb.GetJoinCommunityRequest) (*threadpb.GetJoinCommunityResponse, error) {
+	modelRequests, err := h.threadRepo.GetJoinCommunity(req.CommunityId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbRequests []*threadpb.JoinRequests
+	for _, t := range modelRequests {
+		pbRequests = append(pbRequests, h.joinRequestToProto(&t))
+	}
+
+	return &threadpb.GetJoinCommunityResponse{
+		JoinRequests: pbRequests,
+	}, nil
+}
+
 func (h *ThreadHandler) RequestJoinCommunity(ctx context.Context, req *threadpb.RequestJoinCommunityRequest) (*threadpb.ActionResponse, error) {
 	userID, err := uuid.Parse(req.UserId)
     if err != nil {
@@ -755,6 +771,14 @@ func (h *ThreadHandler) communityToProto(community *model.Community) *threadpb.C
 		Rule: 			community.Rule,
 		CreatorId: 		community.CreatorID.String(),
 		CreatedAt: 		community.CreatedAt.Format(time.RFC3339),
+	}
+}
+
+func (h *ThreadHandler) joinRequestToProto(request *model.JoinCommunityRequest) *threadpb.JoinRequests {
+	return &threadpb.JoinRequests{
+		Id: 			request.ID.String(),
+		UserId: 		request.UserID.String(),
+		CommunityId: 	request.CommunityID.String(),
 	}
 }
 

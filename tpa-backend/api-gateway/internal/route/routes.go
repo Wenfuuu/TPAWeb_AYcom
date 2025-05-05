@@ -111,6 +111,7 @@ func InitRoutes(
 			thread.GET("/top-community-member", threadHandler.GetTopCommunityMembers)
 			thread.GET("/community-pagination", threadHandler.GetCommunityPagination)
 			thread.GET("/community-category", threadHandler.GetAllCommunityCategories)
+			thread.GET("/request-join-community", threadHandler.GetJoinCommunity)
 			thread.POST("/request-join-community", threadHandler.RequestJoinCommunity)
 			thread.POST("/join-community", threadHandler.JoinCommunity)
 			thread.GET("/pending-community", threadHandler.GetPendingCommunity)

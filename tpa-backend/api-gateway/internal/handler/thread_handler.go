@@ -639,6 +639,21 @@ func (h *ThreadHandler) JoinCommunity(c *gin.Context) {
 	})
 }
 
+func (h *ThreadHandler) GetJoinCommunity(c *gin.Context) {
+	community_id := c.Query("community_id")
+
+	resp, err := h.Client.GetJoinCommunity(context.Background(), &threadpb.GetJoinCommunityRequest{
+		CommunityId: community_id,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.JoinRequests)
+}
+
 func (h *ThreadHandler) RequestJoinCommunity(c *gin.Context) {
 	var requestBody struct {
 		UserID          string   	`json:"userId" binding:"required"`

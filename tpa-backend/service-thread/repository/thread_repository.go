@@ -31,6 +31,14 @@ func (r *ThreadRepository) JoinCommunity(req *model.CommunityMembers, userid str
 	return r.DB.Create(req).Error
 }
 
+func (r *ThreadRepository) GetJoinCommunity(community_id string) ([]model.JoinCommunityRequest, error) {
+	var requests []model.JoinCommunityRequest
+
+	result := r.DB.Where("community_id = ?", community_id).Find(&requests)
+
+	return requests, result.Error
+}
+
 func (r *ThreadRepository) RequestJoinCommunity(req *model.JoinCommunityRequest) error {
 	return r.DB.Create(req).Error
 }
