@@ -87,8 +87,12 @@ func (s *ThreadServer) RequestJoinCommunity(ctx context.Context, req *threadpb.R
 	return s.threadHandler.RequestJoinCommunity(ctx, req)
 }
 
-func (s *ThreadServer) JoinCommunity(ctx context.Context, req *threadpb.JoinCommunityRequest) (*threadpb.ActionResponse, error) {
-	return s.threadHandler.JoinCommunity(ctx, req)
+func (s *ThreadServer) AcceptJoinCommunity(ctx context.Context, req *threadpb.AcceptJoinCommunityRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.AcceptJoinCommunity(ctx, req)
+}
+
+func (s *ThreadServer) RejectJoinCommunity(ctx context.Context, req *threadpb.RejectJoinCommunityRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.RejectJoinCommunity(ctx, req)
 }
 
 func (s *ThreadServer) LikeThread(ctx context.Context, req *threadpb.LikeThreadRequest) (*threadpb.ActionResponse, error) {

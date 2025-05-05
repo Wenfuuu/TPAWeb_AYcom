@@ -32,7 +32,8 @@ service ThreadService {
     rpc GetCommunityPagination(GetCommunityPaginationRequest) returns (GetAllCommunitiesResponse);
     rpc RequestJoinCommunity(RequestJoinCommunityRequest) returns (ActionResponse);
     rpc GetPendingCommunity(GetPendingCommunityRequest) returns (GetAllCommunitiesResponse);
-    rpc JoinCommunity(JoinCommunityRequest) returns (ActionResponse);
+    rpc AcceptJoinCommunity(AcceptJoinCommunityRequest) returns (ActionResponse);
+    rpc RejectJoinCommunity(RejectJoinCommunityRequest) returns (ActionResponse);
     rpc GetJoinCommunity(GetJoinCommunityRequest) returns (GetJoinCommunityResponse);
     rpc GetJoinedCommunity(GetJoinedCommunityRequest) returns (GetAllCommunitiesResponse);
     rpc GetCommunityMembers(GetCommunityMembersRequest) returns (CommunityMembersResponse);
@@ -72,7 +73,12 @@ message CommunityMembers {
     string role = 4;
 }
 
-message JoinCommunityRequest {
+message AcceptJoinCommunityRequest {
+    string user_id = 1;
+    string community_id = 2;
+}
+
+message RejectJoinCommunityRequest {
     string user_id = 1;
     string community_id = 2;
 }

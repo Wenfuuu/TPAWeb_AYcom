@@ -422,7 +422,17 @@ func (h *ThreadHandler) PostThread(ctx context.Context, req *threadpb.PostThread
 	return h.threadToResponse(&thread), nil
 }
 
-func (h *ThreadHandler) JoinCommunity(ctx context.Context, req *threadpb.JoinCommunityRequest) (*threadpb.ActionResponse, error) {
+func (h *ThreadHandler) RejectJoinCommunity(ctx context.Context, req *threadpb.RejectJoinCommunityRequest) (*threadpb.ActionResponse, error) {
+	if err := h.threadRepo.RejectJoinCommunity(req.UserId, req.CommunityId); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to join community!")
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Success rejected a join request!",
+	}, nil
+}
+
+func (h *ThreadHandler) AcceptJoinCommunity(ctx context.Context, req *threadpb.AcceptJoinCommunityRequest) (*threadpb.ActionResponse, error) {
 	userID, err := uuid.Parse(req.UserId)
     if err != nil {
         return nil, fmt.Errorf("invalid user ID: %v", err)
@@ -438,12 +448,12 @@ func (h *ThreadHandler) JoinCommunity(ctx context.Context, req *threadpb.JoinCom
 		CommunityID: communityID,
 	}
 
-	if err := h.threadRepo.JoinCommunity(&member, req.UserId, req.CommunityId); err != nil {
+	if err := h.threadRepo.AcceptJoinCommunity(&member, req.UserId, req.CommunityId); err != nil {
 		return nil, status.Error(codes.Internal, "Failed to join community!")
 	}
 
 	return &threadpb.ActionResponse{
-		Message: "Success join a community!",
+		Message: "Success accepted a join request!",
 	}, nil
 }
 

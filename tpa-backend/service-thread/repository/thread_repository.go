@@ -18,7 +18,7 @@ func NewThreadRepository() *ThreadRepository {
 	}
 }
 
-func (r *ThreadRepository) JoinCommunity(req *model.CommunityMembers, userid string, communityid string) error {
+func (r *ThreadRepository) AcceptJoinCommunity(req *model.CommunityMembers, userid string, communityid string) error {
 	var joinRequest model.JoinCommunityRequest
 	if err := r.DB.Where("user_id = ? AND community_id = ?", userid, communityid).First(&joinRequest).Error; err != nil {
 		return err
@@ -29,6 +29,18 @@ func (r *ThreadRepository) JoinCommunity(req *model.CommunityMembers, userid str
 	}
 
 	return r.DB.Create(req).Error
+}
+
+func (r *ThreadRepository) RejectJoinCommunity(userid string, communityid string) error {
+    var joinRequest model.JoinCommunityRequest
+    if err := r.DB.Where("user_id = ? AND community_id = ?", userid, communityid).First(&joinRequest).Error; err != nil {
+        return err
+    }
+
+    if err := r.DB.Delete(&joinRequest).Error; err != nil {
+        return err
+    }
+    return nil
 }
 
 func (r *ThreadRepository) GetJoinCommunity(community_id string) ([]model.JoinCommunityRequest, error) {

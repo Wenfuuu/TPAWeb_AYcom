@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import {
+  acceptJoinRequest,
+    rejectJoinRequest,
     requestJoinCommunity,
     type Community,
     type CommunityMember,
@@ -26,6 +28,7 @@
   export let topMembers: CommunityMember[] = [];
   export let moderators: CommunityMember[] = [];
   export let joinRequests: JoinCommunityRequest[] = [];
+  export let isModerator = false;
 
   let activeTab: "top" | "latest" | "media" | "about" | "manage" = "latest";
   let page = 1;
@@ -77,7 +80,7 @@
             isLoading = false;
             return;
           }
-          console.log("Fetched new threads:", newThreads.length);
+          // console.log("Fetched new threads:", newThreads.length);
           threads = [
             ...threads,
             ...newThreads.filter(
@@ -106,14 +109,16 @@
     await requestJoinCommunity(user.id, community.id);
   }
 
-  async function acceptRequest(requestId: string) {
-    console.log(`Accepted request for ID: ${requestId}`);
-
+  async function acceptRequest(userId: string, communityId: string) {
+    // console.log("Accepting request");
+    await acceptJoinRequest(userId, communityId);
+    await refreshData(page, activeTab);
   }
 
-  async function rejectRequest(requestId: string) {
-    console.log(`Rejected request for ID: ${requestId}`);
-
+  async function rejectRequest(userId: string, communityId: string) {
+    // console.log("Rejecting request");
+    await rejectJoinRequest(userId, communityId);
+    await refreshData(page, activeTab);
   }
 
   onMount(async () => {
@@ -184,7 +189,10 @@
           class="join-button"
           class:joined={community.is_joined}
           class:pending={community.is_pending}
-          on:click={joinCommunity}
+          on:click={() => {
+            joinCommunity();
+            refreshData(page, activeTab);
+          }}
           disabled={community.is_pending}
         >
           {#if community && community.is_joined}
@@ -247,18 +255,20 @@
       >
         About
       </button>
-      <button
-        type="button"
-        class="tab-button"
-        class:active={activeTab === "manage"}
-        on:click={() => {
-          activeTab = "manage";
-          page = 1;
-          refreshData(page, activeTab);
-        }}
-      >
-        Manage
-      </button>
+      {#if isModerator}
+        <button
+          type="button"
+          class="tab-button"
+          class:active={activeTab === "manage"}
+          on:click={() => {
+            activeTab = "manage";
+            page = 1;
+            refreshData(page, activeTab);
+          }}
+        >
+          Manage
+        </button>
+      {/if}
     </div>
 
     {#if activeTab === "latest"}
@@ -397,12 +407,12 @@
                 <div class="manage-actions">
                   <button type="button"
                     class="accept-button"
-                    on:click={() => acceptRequest(request.id)}
+                    on:click={() => acceptRequest(request.user_id, community.id)}
                     >Accept</button
                   >
                   <button type="button"
                     class="reject-button"
-                    on:click={() => rejectRequest(request.id)}
+                    on:click={() => rejectRequest(request.user_id, community.id)}
                     >Reject</button
                   >
                 </div>
@@ -834,7 +844,6 @@
     background-color: var(--button-primary-hover);
   }
 
-  /* Updated styling for the about section */
   .about-section {
     padding: 16px;
     background-color: var(--card-background);
@@ -843,40 +852,6 @@
     margin-bottom: 16px;
   }
 
-  .about-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 12px;
-  }
-
-  .about-detail {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 8px;
-  }
-
-  .about-subtitle {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-top: 16px;
-    margin-bottom: 8px;
-  }
-
-  .about-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .about-list-item {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 4px;
-  }
-
-  /* Updated styling for the manage section */
   .manage-section {
     padding: 16px;
     background-color: var(--card-background);

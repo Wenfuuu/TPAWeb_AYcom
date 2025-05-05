@@ -259,8 +259,10 @@ async function fetchJoinedCommunity(user_id: string, page: number, limit: number
 }
 
 export async function fetchTopMember(community_id: string) {
-  const topMembers = await fetchTopCommunityMember(community_id);
+  let topMembers = await fetchTopCommunityMember(community_id);
   const allUsers = await fetchUser();
+
+  if(!topMembers) topMembers = [];
 
   const members: CommunityMember[] = topMembers.map((member) => {
     const user = allUsers.find((u) => u.id === member.user_id);
@@ -282,8 +284,10 @@ export async function fetchTopMember(community_id: string) {
 }
 
 export async function fetchModerator(community_id: string) {
-  const topMembers = await fetchCommunityModerator(community_id);
+  let topMembers = await fetchCommunityModerator(community_id);
   const allUsers = await fetchUser();
+
+  if(!topMembers) topMembers = [];
 
   const members: CommunityMember[] = topMembers.map((member) => {
     const user = allUsers.find((u) => u.id === member.user_id);
@@ -311,7 +315,8 @@ async function fetchCommunityModerator(community_id: string) {
       community_id
     }
   });
-  const members = response.data;
+  let members: CommunityMember[] = response.data;
+  if(!members) members = [];
   const moderator = members.filter((m) => m.role !== "member");
   return moderator;
 }
@@ -334,6 +339,20 @@ async function fetchTopCommunityMember(community_id: string) {
   });
   const communities = response.data;
   return communities;
+}
+
+export async function acceptJoinRequest(userId: string, communityId: string) {
+  await axios.post(BASE_API_URL + "/accept-join-community", {
+    userId,
+    communityId
+  });
+}
+
+export async function rejectJoinRequest(userId: string, communityId: string) {
+  await axios.post(BASE_API_URL + "/reject-join-community", {
+    userId,
+    communityId,
+  });
 }
 
 export async function fetchCommunityCategory() {

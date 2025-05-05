@@ -16,11 +16,26 @@
   let topMembers: CommunityMember[] = [];
   let moderators: CommunityMember[] = [];
   let joinRequests: JoinCommunityRequest[] = [];
+  let isModerator = false;
 
     async function refreshData(page: number,
         currTab: "top" | "latest" | "media" | "about" | "manage" = "latest"
     ){
         if(user) {
+            // get current community
+            const currentUrl = window.location.href;
+            const urlParts = currentUrl.split("/");
+            const communityId = urlParts[urlParts.length - 1];
+
+            if(user) community = await fetchCommunityDetailWithCreator(user.id, communityId);
+
+            topMembers = await fetchTopMember(community.id);
+            // console.log(topMembers);
+            moderators = await fetchModerator(community.id);
+            // console.log(moderators);
+            joinRequests = await fetchJoinRequest(community.id);
+            console.log(joinRequests);
+
             let data;
             console.log(currTab);
             if(currTab === "latest") data = await fetchCommunityThreadWithUser(page, user.id, community.id);
@@ -32,6 +47,13 @@
 
             if(data) threads = data;
             console.log(threads);
+
+            topMembers = await fetchTopMember(community.id);
+            moderators = await fetchModerator(community.id);
+            joinRequests = await fetchJoinRequest(community.id);
+
+            const moderatorIds = new Set(moderators.map(t => t.user_id));
+            isModerator = moderatorIds.has(user.id);
         }
     }
 
@@ -58,20 +80,6 @@
             document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
         }
 
-        // get current community
-        const currentUrl = window.location.href;
-        const urlParts = currentUrl.split("/");
-        const communityId = urlParts[urlParts.length - 1];
-
-        if(user) community = await fetchCommunityDetailWithCreator(user.id, communityId);
-
-        topMembers = await fetchTopMember(community.id);
-        // console.log(topMembers);
-        moderators = await fetchModerator(community.id);
-        // console.log(moderators);
-        joinRequests = await fetchJoinRequest(community.id);
-        // console.log(joinRequests);
-
         refreshData(1);
     });
 
@@ -80,7 +88,7 @@
 <div class="home-container">
   <LeftSidebar {toggleTheme} {isDarkMode} {user} {refreshData} />
   <CommunityDetailContent {community} {threads} {user} {refreshData}
-  {topMembers} {moderators} {joinRequests} />
+  {topMembers} {moderators} {joinRequests} {isModerator} />
   <RightSidebar />
 </div>
 
