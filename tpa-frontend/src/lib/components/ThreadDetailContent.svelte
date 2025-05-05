@@ -213,7 +213,18 @@
           <div class="post-images" class:grid-2={thread.images.length === 2} class:grid-3={thread.images.length === 3} class:grid-4={thread.images.length === 4}>
             {#each thread.images as image, i (i)}
               <div class="image-container">
-                <img src={image || "/placeholder.svg"} alt="Post image {i + 1}" />
+                <!-- <img src={image || "/placeholder.svg"} alt="Post image {i + 1}" /> -->
+                 {#if image.endsWith(".png") || image.endsWith(".jpg")
+                 || image.endsWith(".jpeg") || image.endsWith(".gif")}
+                  <img
+                    src={image || "/placeholder.svg"}
+                    alt="Post image {i + 1}"
+                  />
+                {:else}
+                  <video src={image} controls class="post-video">
+                    <track kind="captions" src="path_to_captions.vtt" srclang="en" label="English">
+                  </video>
+                {/if}
               </div>
             {/each}
           </div>
@@ -936,6 +947,14 @@
 
   .pulse {
     animation: pulse 1.5s infinite;
+  }
+
+  .post-video {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    background-color: #000;
+    overflow: hidden;
   }
 
   @keyframes pulse {

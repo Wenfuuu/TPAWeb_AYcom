@@ -25,6 +25,12 @@ export type JoinCommunityRequest = {
   username: string;
 };
 
+export type CommunityMedia = {
+  id: string;
+  thread_id: string;
+  file: string;
+}
+
 export type Community = {
   id: string;
   name: string;
@@ -266,7 +272,7 @@ export async function fetchTopMember(community_id: string) {
 
   const members: CommunityMember[] = topMembers.map((member) => {
     const user = allUsers.find((u) => u.id === member.user_id);
-    console.log(user);
+    // console.log(user);
     const name = user ? user.name : "Unknown";
     const username = user ? user.username : "Unknown";
     const profile_picture = user ? user.profile_picture : "Unknown";
@@ -291,7 +297,7 @@ export async function fetchModerator(community_id: string) {
 
   const members: CommunityMember[] = topMembers.map((member) => {
     const user = allUsers.find((u) => u.id === member.user_id);
-    console.log(user);
+    // console.log(user);
     const name = user ? user.name : "Unknown";
     const username = user ? user.username : "Unknown";
     const profile_picture = user ? user.profile_picture : "Unknown";
@@ -361,4 +367,17 @@ export async function fetchCommunityCategory() {
   );
   const categories = response.data;
   return categories;
+}
+
+export async function fetchCommunityMedia(page: number, community_id: string) {
+  const response = await axios.get<CommunityMedia[]>(
+    BASE_API_URL + "/community-media", {
+      params: {
+        page,
+        community_id
+      }
+    }
+  );
+  const media = response.data;
+  return media;
 }

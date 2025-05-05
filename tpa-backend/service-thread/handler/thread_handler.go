@@ -746,6 +746,24 @@ func (h *ThreadHandler) GetAllCommunityCategories(ctx context.Context, req *thre
 	}, nil
 }
 
+func (h *ThreadHandler) GetCommunityMedia(ctx context.Context, req *threadpb.GetCommunityMediaRequest) (*threadpb.GetAllThreadFileResponse, error) {
+	page := int(req.Page)
+
+	modelFiles, err := h.threadRepo.GetCommunityMedia(page, req.CommunityId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbThreads []*threadpb.ThreadFile
+	for _, t := range modelFiles {
+		pbThreads = append(pbThreads, h.fileToProto(&t))
+	}
+
+	return &threadpb.GetAllThreadFileResponse{
+		ThreadFiles: pbThreads,
+	}, nil
+}
+
 func (h *ThreadHandler) GetAllThreadFile(ctx context.Context, req *threadpb.GetAllThreadFileRequest) (*threadpb.GetAllThreadFileResponse, error) {
 	modelFiles, err := h.threadRepo.GetAllThreadFile()
 	if err != nil {

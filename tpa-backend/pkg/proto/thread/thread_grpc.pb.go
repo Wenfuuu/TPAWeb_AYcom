@@ -52,6 +52,7 @@ const (
 	ThreadService_GetJoinedCommunity_FullMethodName        = "/thread.ThreadService/GetJoinedCommunity"
 	ThreadService_GetCommunityMembers_FullMethodName       = "/thread.ThreadService/GetCommunityMembers"
 	ThreadService_GetTopCommunityMembers_FullMethodName    = "/thread.ThreadService/GetTopCommunityMembers"
+	ThreadService_GetCommunityMedia_FullMethodName         = "/thread.ThreadService/GetCommunityMedia"
 )
 
 // ThreadServiceClient is the client API for ThreadService service.
@@ -91,6 +92,7 @@ type ThreadServiceClient interface {
 	GetJoinedCommunity(ctx context.Context, in *GetJoinedCommunityRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error)
 	GetCommunityMembers(ctx context.Context, in *GetCommunityMembersRequest, opts ...grpc.CallOption) (*CommunityMembersResponse, error)
 	GetTopCommunityMembers(ctx context.Context, in *GetTopCommunityMembersRequest, opts ...grpc.CallOption) (*CommunityMembersResponse, error)
+	GetCommunityMedia(ctx context.Context, in *GetCommunityMediaRequest, opts ...grpc.CallOption) (*GetAllThreadFileResponse, error)
 }
 
 type threadServiceClient struct {
@@ -431,6 +433,16 @@ func (c *threadServiceClient) GetTopCommunityMembers(ctx context.Context, in *Ge
 	return out, nil
 }
 
+func (c *threadServiceClient) GetCommunityMedia(ctx context.Context, in *GetCommunityMediaRequest, opts ...grpc.CallOption) (*GetAllThreadFileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllThreadFileResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetCommunityMedia_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ThreadServiceServer is the server API for ThreadService service.
 // All implementations must embed UnimplementedThreadServiceServer
 // for forward compatibility.
@@ -468,6 +480,7 @@ type ThreadServiceServer interface {
 	GetJoinedCommunity(context.Context, *GetJoinedCommunityRequest) (*GetAllCommunitiesResponse, error)
 	GetCommunityMembers(context.Context, *GetCommunityMembersRequest) (*CommunityMembersResponse, error)
 	GetTopCommunityMembers(context.Context, *GetTopCommunityMembersRequest) (*CommunityMembersResponse, error)
+	GetCommunityMedia(context.Context, *GetCommunityMediaRequest) (*GetAllThreadFileResponse, error)
 	mustEmbedUnimplementedThreadServiceServer()
 }
 
@@ -576,6 +589,9 @@ func (UnimplementedThreadServiceServer) GetCommunityMembers(context.Context, *Ge
 }
 func (UnimplementedThreadServiceServer) GetTopCommunityMembers(context.Context, *GetTopCommunityMembersRequest) (*CommunityMembersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTopCommunityMembers not implemented")
+}
+func (UnimplementedThreadServiceServer) GetCommunityMedia(context.Context, *GetCommunityMediaRequest) (*GetAllThreadFileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCommunityMedia not implemented")
 }
 func (UnimplementedThreadServiceServer) mustEmbedUnimplementedThreadServiceServer() {}
 func (UnimplementedThreadServiceServer) testEmbeddedByValue()                       {}
@@ -1192,6 +1208,24 @@ func _ThreadService_GetTopCommunityMembers_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_GetCommunityMedia_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCommunityMediaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetCommunityMedia(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetCommunityMedia_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetCommunityMedia(ctx, req.(*GetCommunityMediaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ThreadService_ServiceDesc is the grpc.ServiceDesc for ThreadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1330,6 +1364,10 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTopCommunityMembers",
 			Handler:    _ThreadService_GetTopCommunityMembers_Handler,
+		},
+		{
+			MethodName: "GetCommunityMedia",
+			Handler:    _ThreadService_GetCommunityMedia_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

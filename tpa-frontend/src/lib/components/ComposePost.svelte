@@ -1,6 +1,6 @@
 <script lang="ts">
   import { type User } from "../model/user";
-  import { uploadImage } from "../utils/supabaseStorage";
+  import { uploadImage, uploadVideo } from "../utils/supabaseStorage";
   import axios from "axios";
   import { fetchThreadCategory, type ThreadCategory } from "../model/thread";
   import { onMount } from "svelte";
@@ -16,6 +16,11 @@
   let imageFiles: File[] = [];
   let supabaseURLS: string[] = [];
   let currentImageIndex = 0;
+
+  let videoFile: File | null = null;
+  let videoPreviewUrl = "";
+  let videoSupabaseURL = "";
+  let hasVideo = false;
 
   // Variables for category and community selection
   let selectedCategoryId = "";
@@ -52,6 +57,17 @@
         await uploadImagesToSupabase();
       }
 
+      // Upload video to supabase if exists
+      if (videoFile) {
+        const videoUrl = await uploadVideo(videoFile);
+        if (videoUrl) {
+          videoSupabaseURL = videoUrl;
+          supabaseURLS.push(videoUrl);
+        }
+      }
+
+      console.log(videoSupabaseURL);
+
       // call api to create thread
       let isAdvertisement;
       if (user?.role == "user") isAdvertisement = false;
@@ -76,6 +92,10 @@
       selectedCategoryId = "";
       selectedCommunityId = "";
       isPostingToCommunity = false;
+      videoFile = null;
+      videoPreviewUrl = "";
+      videoSupabaseURL = "";
+      hasVideo = false;
 
       refreshData();
     }
@@ -97,7 +117,7 @@
   }
 
   // for image preview
-  function handleImageUpload(event: Event): void {
+  function handleMediaUpload(event: Event): void {
     const target = event.target as HTMLInputElement;
     const files = target.files;
 
@@ -105,17 +125,32 @@
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      imageFiles = [...imageFiles, file];
-      const reader = new FileReader();
 
-      reader.onload = (e: ProgressEvent<FileReader>) => {
-        const result = e.target?.result;
-        if (typeof result === "string") {
-          uploadedImages = [...uploadedImages, result];
+      // Check if the file is a video
+      if (file.type.startsWith("video/")) {
+        // Only allow one video
+        if (hasVideo) {
+          alert("Only one video allowed. Please remove the existing video first.");
+          continue;
         }
-      };
 
-      reader.readAsDataURL(file);
+        videoFile = file;
+        videoPreviewUrl = URL.createObjectURL(file);
+        hasVideo = true;
+      } else if (file.type.startsWith("image/")) {
+        // Handle image files
+        imageFiles = [...imageFiles, file];
+        const reader = new FileReader();
+
+        reader.onload = (e: ProgressEvent<FileReader>) => {
+          const result = e.target?.result;
+          if (typeof result === "string") {
+            uploadedImages = [...uploadedImages, result];
+          }
+        };
+
+        reader.readAsDataURL(file);
+      }
     }
   }
 
@@ -125,6 +160,13 @@
     if (currentImageIndex >= uploadedImages.length) {
       currentImageIndex = Math.max(0, uploadedImages.length - 1);
     }
+  }
+
+  function removeVideo(): void {
+    videoFile = null;
+    videoPreviewUrl = "";
+    hasVideo = false;
+    URL.revokeObjectURL(videoPreviewUrl); // Clean up the URL object
   }
 
   function toggleReplyOptions(): void {
@@ -277,6 +319,37 @@
               {/each}
             </div>
           {/if}
+        </div>
+      </div>
+    {/if}
+
+    {#if hasVideo && videoPreviewUrl}
+      <div class="video-preview">
+        <div class="video-container">
+          <video controls src={videoPreviewUrl}>
+            <track kind="captions" src="path_to_captions.vtt" srclang="en" label="English">
+          </video>
+          <button
+            type="button"
+            class="remove-button"
+            aria-label="Remove Video"
+            on:click={removeVideo}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
       </div>
     {/if}
@@ -579,9 +652,9 @@
           <input
             type="file"
             id="image-upload"
-            accept="image/*"
+            accept="image/*, video*/"
             multiple
-            on:change={handleImageUpload}
+            on:change={handleMediaUpload}
             class="hidden-input"
           />
         </label>
@@ -1016,5 +1089,26 @@
     background-color: var(--button-primary-hover);
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  .video-preview {
+    margin: 12px 0;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+  }
+
+  .video-container {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    background-color: #000;
+    overflow: hidden;
+  }
+
+  .video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 </style>

@@ -147,6 +147,10 @@ func (s *ThreadServer) GetAllCommunityCategories(ctx context.Context, req *threa
 	return s.threadHandler.GetAllCommunityCategories(ctx, req)
 }
 
+func (s *ThreadServer) GetCommunityMedia(ctx context.Context, req *threadpb.GetCommunityMediaRequest) (*threadpb.GetAllThreadFileResponse, error) {
+	return s.threadHandler.GetCommunityMedia(ctx, req)
+}
+
 func (s *ThreadServer) GetAllThreadFile(ctx context.Context, req *threadpb.GetAllThreadFileRequest) (*threadpb.GetAllThreadFileResponse, error) {
 	return s.threadHandler.GetAllThreadFile(ctx, req)
 }

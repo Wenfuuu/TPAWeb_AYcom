@@ -1,10 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import {
-  acceptJoinRequest,
+    acceptJoinRequest,
+    fetchCommunityMedia,
     rejectJoinRequest,
     requestJoinCommunity,
     type Community,
+    type CommunityMedia,
     type CommunityMember,
     type JoinCommunityRequest,
   } from "../model/community";
@@ -28,6 +30,7 @@
   export let topMembers: CommunityMember[] = [];
   export let moderators: CommunityMember[] = [];
   export let joinRequests: JoinCommunityRequest[] = [];
+  export let communityMedia: CommunityMedia[] = [];
   export let isModerator = false;
 
   let activeTab: "top" | "latest" | "media" | "about" | "manage" = "latest";
@@ -59,6 +62,7 @@
           await new Promise((resolve) => setTimeout(resolve, 500));
 
           let newThreads;
+          let newMedias;
           if (user) {
             if (activeTab === "latest") {
               newThreads = await fetchCommunityThreadWithUser(
@@ -72,21 +76,39 @@
                 user.id,
                 community.id
               );
+            } else if (activeTab === "media") {
+              newMedias = await fetchCommunityMedia(page, community.id);
             }
           }
 
-          if (!newThreads) {
-            hasMore = false;
-            isLoading = false;
-            return;
+          if(activeTab === "media") {
+            if(!newMedias) {
+              hasMore = false;
+              isLoading = false;
+              return;
+            }
+
+            communityMedia = [
+              ...communityMedia,
+              ...newMedias.filter(
+                (newMedia) => !newMedias.some((t: CommunityMedia) => t.id === newMedia.id)
+              )
+            ];
+          }else{
+            if (!newThreads) {
+              hasMore = false;
+              isLoading = false;
+              return;
+            }
+            // console.log("Fetched new threads:", newThreads.length);
+            threads = [
+              ...threads,
+              ...newThreads.filter(
+                (newThread) => !threads.some((t) => t.id === newThread.id)
+              ),
+            ];
           }
-          // console.log("Fetched new threads:", newThreads.length);
-          threads = [
-            ...threads,
-            ...newThreads.filter(
-              (newThread) => !threads.some((t) => t.id === newThread.id)
-            ),
-          ];
+
           page += 1;
 
           isLoading = false;
@@ -372,7 +394,40 @@
         {/if}
       </div>
     {:else if activeTab === "media"}
-      <p>media here</p>
+      <div class="media-section">
+        <h2 class="media-title">Media</h2>
+        <div class="media-grid">
+          {#each communityMedia as mediaItem (mediaItem.id)}
+            <div role="button"
+              class="media-item"
+              on:click={() => navigate(`/thread-detail/${mediaItem.thread_id}`)}
+              on:keydown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  navigate(`/thread-detail/${mediaItem.thread_id}`);
+                }
+              }}
+              tabindex="0"
+            >
+              {#if mediaItem.file.endsWith(".gif") || mediaItem.file.endsWith(".jpg") || mediaItem.file.endsWith(".png") || mediaItem.file.endsWith(".jpeg")}
+                <img
+                  src={mediaItem.file}
+                  alt="Media content"
+                  class="media-content"
+                />
+              {:else}
+                <video src={mediaItem.file} controls class="media-content">
+                  <track kind="captions" src="path_to_captions.vtt" srclang="en" label="English">
+                </video>
+              {/if}
+            </div>
+          {/each}
+        </div>
+        <div bind:this={sentinel} class="loading-sentinel">
+          {#if isLoading}
+            <p>Loading more media...</p>
+          {/if}
+        </div>
+      </div>
     {:else if activeTab === "about"}
       <div class="about-section">
         <h2>About {community.name}</h2>
@@ -405,14 +460,18 @@
                   {request.name}
                 </span>
                 <div class="manage-actions">
-                  <button type="button"
+                  <button
+                    type="button"
                     class="accept-button"
-                    on:click={() => acceptRequest(request.user_id, community.id)}
+                    on:click={() =>
+                      acceptRequest(request.user_id, community.id)}
                     >Accept</button
                   >
-                  <button type="button"
+                  <button
+                    type="button"
                     class="reject-button"
-                    on:click={() => rejectRequest(request.user_id, community.id)}
+                    on:click={() =>
+                      rejectRequest(request.user_id, community.id)}
                     >Reject</button
                   >
                 </div>
@@ -922,5 +981,42 @@
     color: var(--text-secondary);
     text-align: center;
     margin-top: 16px;
+  }
+
+  .media-section {
+    padding: 16px;
+    background-color: var(--card-background);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+  }
+
+  .media-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .media-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .media-item {
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .media-item:hover {
+    transform: scale(1.05);
+  }
+
+  .media-content {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
   }
 </style>

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { User, UserThread } from "../lib/model/user";
-  import { fetchCommunityDetailWithCreator, fetchJoinRequest, fetchModerator, fetchTopMember, type Community, type CommunityMember, type JoinCommunityRequest } from "../lib/model/community";
+  import { fetchCommunityDetailWithCreator, fetchCommunityMedia, fetchJoinRequest, fetchModerator, fetchTopMember, type Community, type CommunityMedia, type CommunityMember, type JoinCommunityRequest } from "../lib/model/community";
   import { checkAuth, getAuthUser } from "../lib/utils/auth";
   import { navigate } from "svelte-routing";
   import { fetchCommunityThreadWithUser, fetchTopCommunityThreadWithUser, type Thread } from "../lib/model/thread";
@@ -16,6 +16,7 @@
   let topMembers: CommunityMember[] = [];
   let moderators: CommunityMember[] = [];
   let joinRequests: JoinCommunityRequest[] = [];
+  let communityMedia: CommunityMedia[] = [];
   let isModerator = false;
 
     async function refreshData(page: number,
@@ -51,6 +52,8 @@
             topMembers = await fetchTopMember(community.id);
             moderators = await fetchModerator(community.id);
             joinRequests = await fetchJoinRequest(community.id);
+            communityMedia = await fetchCommunityMedia(page, community.id);
+            // console.log(communityMedia);
 
             const moderatorIds = new Set(moderators.map(t => t.user_id));
             isModerator = moderatorIds.has(user.id);
@@ -88,7 +91,7 @@
 <div class="home-container">
   <LeftSidebar {toggleTheme} {isDarkMode} {user} {refreshData} />
   <CommunityDetailContent {community} {threads} {user} {refreshData}
-  {topMembers} {moderators} {joinRequests} {isModerator} />
+  {topMembers} {moderators} {joinRequests} {communityMedia} {isModerator} />
   <RightSidebar />
 </div>
 

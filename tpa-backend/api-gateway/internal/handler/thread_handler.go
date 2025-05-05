@@ -109,6 +109,28 @@ func (h *ThreadHandler) GetTopCommunityThreads(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Threads)
 }
 
+func (h *ThreadHandler) GetCommunityMedia(c *gin.Context) {
+	pageStr := c.Query("page")
+	communityId := c.Query("community_id")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	resp, err := h.Client.GetCommunityMedia(context.Background(), &threadpb.GetCommunityMediaRequest{
+		Page: int32(page),
+		CommunityId: communityId,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.ThreadFiles)
+}
+
 func (h *ThreadHandler) GetCommunityThreads(c *gin.Context) {
 	pageStr := c.Query("page")
 	communityId := c.Query("community_id")

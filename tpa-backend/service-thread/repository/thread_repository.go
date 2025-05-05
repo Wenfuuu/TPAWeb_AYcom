@@ -344,6 +344,22 @@ func (r *ThreadRepository) GetAllCommunityCategories() ([]model.CommunityCategor
 	return categories, result.Error
 }
 
+func (r *ThreadRepository) GetCommunityMedia(page int, community_id string) ([]model.ThreadFiles, error) {
+	var files []model.ThreadFiles
+
+	limit := 9
+	offset := (page - 1) * limit
+
+	result := r.DB.
+		Joins("JOIN threads ON threads.id = thread_files.thread_id").
+		Where("threads.community_id = ?", community_id).
+		Limit(limit).
+		Offset(offset).
+		Find(&files)
+
+	return files, result.Error
+}
+
 func (r *ThreadRepository) GetAllThreadFile() ([]model.ThreadFiles, error) {
 	var files []model.ThreadFiles
 	result := r.DB.Find(&files)

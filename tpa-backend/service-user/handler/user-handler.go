@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"path/filepath"
 	"strings"
 	"time"
@@ -77,7 +78,7 @@ func (h *UserHandler) GetFollowing(ctx context.Context, req *userpb.GetFollowing
 
 func (h *UserHandler) followToProto(follow *model.Follow) *userpb.Follow {
 	return &userpb.Follow{
-		FollowerId: follow.FollowerID.String(),
+		FollowerId:  follow.FollowerID.String(),
 		FollowingId: follow.FollowingID.String(),
 	}
 }
@@ -108,9 +109,9 @@ func (h *UserHandler) RegisterPremium(ctx context.Context, req *userpb.RegisterP
 	}
 
 	request := model.PremiumRequest{
-		UserID: 		uuid.MustParse(req.UserId),
+		UserID:         uuid.MustParse(req.UserId),
 		IdentityNumber: hashedId,
-		FacePicture: 	req.FacePicture,
+		FacePicture:    req.FacePicture,
 	}
 
 	if err := h.userRepo.RegisterPremium(&request); err != nil {
@@ -158,12 +159,12 @@ func (h *UserHandler) Register(ctx context.Context, req *userpb.RegisterRequest)
 		ProfilePicture: req.ProfilePicture,
 		Banner:         req.Banner,
 		DateOfBirth:    req.DateOfBirth,
-		IsActive: 		req.IsActive,
-		IsBanned: 		req.IsBanned,
-		Role: 			req.Role,
-		IsSubscribed: 	req.IsSubscribed,
-		IsPremium: 		req.IsPremium,
-		Bio: 			req.Bio,
+		IsActive:       req.IsActive,
+		IsBanned:       req.IsBanned,
+		Role:           req.Role,
+		IsSubscribed:   req.IsSubscribed,
+		IsPremium:      req.IsPremium,
+		Bio:            req.Bio,
 	}
 
 	if err := h.userRepo.Create(&user); err != nil {
@@ -173,8 +174,8 @@ func (h *UserHandler) Register(ctx context.Context, req *userpb.RegisterRequest)
 	// log.Printf(req.SecurityQuestion)
 	securityQuestion := model.SecurityQuestion{
 		UserID:   user.ID,
-		Question: req.SecurityQuestion, 
-		Answer:   req.SecurityAnswer,   
+		Question: req.SecurityQuestion,
+		Answer:   req.SecurityAnswer,
 	}
 
 	if err := h.userRepo.CreateSecurityQuestion(&securityQuestion); err != nil {
@@ -301,63 +302,115 @@ func (h *UserHandler) UploadImage(ctx context.Context, req *userpb.UploadImageRe
 		return nil, status.Error(codes.Internal, "Failed to initialize supabase client")
 	}
 
+	// Generate unique filename with timestamp
 	fileExt := strings.ToLower(filepath.Ext(req.Filename))
-    
-    contentType := "application/octet-stream" // default
-    switch fileExt {
-    case ".png":
-        contentType = "image/png"
-    case ".jpg", ".jpeg":
-        contentType = "image/jpeg"
-    case ".gif":
-        contentType = "image/gif"
-    case ".webp":
-        contentType = "image/webp"
-    case ".svg":
-        contentType = "image/svg+xml"
-    }
+	fileBase := strings.TrimSuffix(req.Filename, fileExt)
+	timestamp := time.Now().UnixNano()
+	uniqueFilename := fmt.Sprintf("%s_%d%s", fileBase, timestamp, fileExt)
+
+	contentType := "application/octet-stream" // default
+	switch fileExt {
+	case ".png":
+		contentType = "image/png"
+	case ".jpg", ".jpeg":
+		contentType = "image/jpeg"
+	case ".gif":
+		contentType = "image/gif"
+	case ".webp":
+		contentType = "image/webp"
+	case ".svg":
+		contentType = "image/svg+xml"
+	}
 
 	// Upload to Supabase Storage
 	fileReader := bytes.NewReader(req.ImageData)
-	_, err = supabase.Storage.UploadFile(bucketName, req.Filename, fileReader, storage_go.FileOptions{
+	_, err = supabase.Storage.UploadFile(bucketName, uniqueFilename, fileReader, storage_go.FileOptions{
 		CacheControl: stringPtr("3600"),
-		ContentType: &contentType,
+		ContentType:  &contentType,
 	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Failed to upload image")
 	}
-	
+
 	// Get public URL
-	publicURL := supabase.Storage.GetPublicUrl(bucketName, req.Filename).SignedURL
-	
+	publicURL := supabase.Storage.GetPublicUrl(bucketName, uniqueFilename).SignedURL
+
 	return &userpb.UploadImageResponse{
 		ImageUrl: publicURL,
 	}, nil
 }
 
+func (h *UserHandler) UploadVideo(ctx context.Context, req *userpb.UploadVideoRequest) (*userpb.UploadVideoResponse, error) {
+	supabaseURL := utils.GetDotEnv("SUPABASE_URL")
+	supabaseKey := utils.GetDotEnv("SUPABASE_KEY")
+	bucketName := utils.GetDotEnv("BUCKET_NAME")
+
+	supabase, err := supa.NewClient(supabaseURL, supabaseKey, nil)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to initialize supabase client")
+	}
+
+	// Generate unique filename with timestamp
+	fileExt := strings.ToLower(filepath.Ext(req.Filename))
+	fileBase := strings.TrimSuffix(req.Filename, fileExt)
+	timestamp := time.Now().UnixNano()
+	uniqueFilename := fmt.Sprintf("%s_%d%s", fileBase, timestamp, fileExt)
+
+	contentType := "application/octet-stream" // default
+	switch fileExt {
+	case ".mp4":
+		contentType = "video/mp4"
+	case ".avi":
+		contentType = "video/x-msvideo"
+	case ".mov":
+		contentType = "video/quicktime"
+	case ".mkv":
+		contentType = "video/x-matroska"
+	default:
+		return nil, status.Error(codes.InvalidArgument, "Unsupported video format")
+	}
+
+	// Upload to Supabase Storage
+	fileReader := bytes.NewReader(req.VideoData)
+	_, err = supabase.Storage.UploadFile(bucketName, uniqueFilename, fileReader, storage_go.FileOptions{
+		CacheControl: stringPtr("3600"),
+		ContentType:  &contentType,
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to upload video")
+	}
+
+	// Get public URL
+	publicURL := supabase.Storage.GetPublicUrl(bucketName, uniqueFilename).SignedURL
+
+	return &userpb.UploadVideoResponse{
+		VideoUrl: publicURL,
+	}, nil
+}
+
 func stringPtr(s string) *string {
-    return &s
+	return &s
 }
 
 // Helper functions
 func (h *UserHandler) userToProto(user *model.User) *userpb.User {
 	return &userpb.User{
-		Id:        		user.ID.String(),
-		Name: 			user.Name,
-		Username: 		user.Username,
-		Email:     		user.Email,
-		Password:     	user.Password,
-		Gender: 		user.Gender,
+		Id:             user.ID.String(),
+		Name:           user.Name,
+		Username:       user.Username,
+		Email:          user.Email,
+		Password:       user.Password,
+		Gender:         user.Gender,
 		ProfilePicture: user.ProfilePicture,
-		Banner: 		user.Banner,
-		DateOfBirth: 	user.DateOfBirth,
-		IsActive: 		user.IsActive,
-		IsBanned: 		user.IsBanned,
-		Role: 			user.Role,
-		IsSubscribed: 	user.IsSubscribed,
-		IsPremium: 		user.IsPremium,
-		Bio: 			user.Bio,
-		CreatedAt: 		user.CreatedAt.Format(time.RFC3339),
+		Banner:         user.Banner,
+		DateOfBirth:    user.DateOfBirth,
+		IsActive:       user.IsActive,
+		IsBanned:       user.IsBanned,
+		Role:           user.Role,
+		IsSubscribed:   user.IsSubscribed,
+		IsPremium:      user.IsPremium,
+		Bio:            user.Bio,
+		CreatedAt:      user.CreatedAt.Format(time.RFC3339),
 	}
 }
 

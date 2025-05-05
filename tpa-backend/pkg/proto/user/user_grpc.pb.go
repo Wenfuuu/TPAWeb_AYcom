@@ -30,6 +30,7 @@ const (
 	UserService_GetFollower_FullMethodName     = "/user.UserService/GetFollower"
 	UserService_GetFollowing_FullMethodName    = "/user.UserService/GetFollowing"
 	UserService_RegisterPremium_FullMethodName = "/user.UserService/RegisterPremium"
+	UserService_UploadVideo_FullMethodName     = "/user.UserService/UploadVideo"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -47,6 +48,7 @@ type UserServiceClient interface {
 	GetFollower(ctx context.Context, in *GetFollowerRequest, opts ...grpc.CallOption) (*FollowResponse, error)
 	GetFollowing(ctx context.Context, in *GetFollowingRequest, opts ...grpc.CallOption) (*FollowResponse, error)
 	RegisterPremium(ctx context.Context, in *RegisterPremiumRequest, opts ...grpc.CallOption) (*RegisterPremiumResponse, error)
+	UploadVideo(ctx context.Context, in *UploadVideoRequest, opts ...grpc.CallOption) (*UploadVideoResponse, error)
 }
 
 type userServiceClient struct {
@@ -167,6 +169,16 @@ func (c *userServiceClient) RegisterPremium(ctx context.Context, in *RegisterPre
 	return out, nil
 }
 
+func (c *userServiceClient) UploadVideo(ctx context.Context, in *UploadVideoRequest, opts ...grpc.CallOption) (*UploadVideoResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UploadVideoResponse)
+	err := c.cc.Invoke(ctx, UserService_UploadVideo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -182,6 +194,7 @@ type UserServiceServer interface {
 	GetFollower(context.Context, *GetFollowerRequest) (*FollowResponse, error)
 	GetFollowing(context.Context, *GetFollowingRequest) (*FollowResponse, error)
 	RegisterPremium(context.Context, *RegisterPremiumRequest) (*RegisterPremiumResponse, error)
+	UploadVideo(context.Context, *UploadVideoRequest) (*UploadVideoResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -224,6 +237,9 @@ func (UnimplementedUserServiceServer) GetFollowing(context.Context, *GetFollowin
 }
 func (UnimplementedUserServiceServer) RegisterPremium(context.Context, *RegisterPremiumRequest) (*RegisterPremiumResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterPremium not implemented")
+}
+func (UnimplementedUserServiceServer) UploadVideo(context.Context, *UploadVideoRequest) (*UploadVideoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UploadVideo not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -444,6 +460,24 @@ func _UserService_RegisterPremium_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_UploadVideo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UploadVideoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).UploadVideo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_UploadVideo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).UploadVideo(ctx, req.(*UploadVideoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -494,6 +528,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RegisterPremium",
 			Handler:    _UserService_RegisterPremium_Handler,
+		},
+		{
+			MethodName: "UploadVideo",
+			Handler:    _UserService_UploadVideo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

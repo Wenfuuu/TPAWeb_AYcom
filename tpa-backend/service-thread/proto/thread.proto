@@ -38,6 +38,12 @@ service ThreadService {
     rpc GetJoinedCommunity(GetJoinedCommunityRequest) returns (GetAllCommunitiesResponse);
     rpc GetCommunityMembers(GetCommunityMembersRequest) returns (CommunityMembersResponse);
     rpc GetTopCommunityMembers(GetTopCommunityMembersRequest) returns (CommunityMembersResponse);
+    rpc GetCommunityMedia(GetCommunityMediaRequest) returns (GetAllThreadFileResponse);
+}
+
+message GetCommunityMediaRequest {
+    int32 page = 1;
+    string community_id = 2;
 }
 
 message GetJoinCommunityRequest {

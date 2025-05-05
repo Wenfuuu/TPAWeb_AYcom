@@ -16,6 +16,7 @@ service UserService {
   rpc GetFollower(GetFollowerRequest) returns (FollowResponse);
   rpc GetFollowing(GetFollowingRequest) returns (FollowResponse);
   rpc RegisterPremium(RegisterPremiumRequest) returns (RegisterPremiumResponse);
+  rpc UploadVideo(UploadVideoRequest) returns (UploadVideoResponse);
 }
 
 message RegisterPremiumRequest {
@@ -123,6 +124,15 @@ message UploadImageRequest {
 
 message UploadImageResponse {
   string image_url = 2;
+}
+
+message UploadVideoRequest {
+  bytes video_data = 1;
+  string filename = 2;
+}
+
+message UploadVideoResponse {
+  string video_url = 1;
 }
 
 message User {

@@ -1101,6 +1101,102 @@ func (x *UploadImageResponse) GetImageUrl() string {
 	return ""
 }
 
+type UploadVideoRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	VideoData     []byte                 `protobuf:"bytes,1,opt,name=video_data,json=videoData,proto3" json:"video_data,omitempty"`
+	Filename      string                 `protobuf:"bytes,2,opt,name=filename,proto3" json:"filename,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadVideoRequest) Reset() {
+	*x = UploadVideoRequest{}
+	mi := &file_user_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadVideoRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadVideoRequest) ProtoMessage() {}
+
+func (x *UploadVideoRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadVideoRequest.ProtoReflect.Descriptor instead.
+func (*UploadVideoRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *UploadVideoRequest) GetVideoData() []byte {
+	if x != nil {
+		return x.VideoData
+	}
+	return nil
+}
+
+func (x *UploadVideoRequest) GetFilename() string {
+	if x != nil {
+		return x.Filename
+	}
+	return ""
+}
+
+type UploadVideoResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	VideoUrl      string                 `protobuf:"bytes,1,opt,name=video_url,json=videoUrl,proto3" json:"video_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadVideoResponse) Reset() {
+	*x = UploadVideoResponse{}
+	mi := &file_user_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadVideoResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadVideoResponse) ProtoMessage() {}
+
+func (x *UploadVideoResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadVideoResponse.ProtoReflect.Descriptor instead.
+func (*UploadVideoResponse) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *UploadVideoResponse) GetVideoUrl() string {
+	if x != nil {
+		return x.VideoUrl
+	}
+	return ""
+}
+
 type User struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -1125,7 +1221,7 @@ type User struct {
 
 func (x *User) Reset() {
 	*x = User{}
-	mi := &file_user_proto_msgTypes[18]
+	mi := &file_user_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1137,7 +1233,7 @@ func (x *User) String() string {
 func (*User) ProtoMessage() {}
 
 func (x *User) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[18]
+	mi := &file_user_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1150,7 +1246,7 @@ func (x *User) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use User.ProtoReflect.Descriptor instead.
 func (*User) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{18}
+	return file_user_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *User) GetId() string {
@@ -1274,7 +1370,7 @@ type UserResponse struct {
 
 func (x *UserResponse) Reset() {
 	*x = UserResponse{}
-	mi := &file_user_proto_msgTypes[19]
+	mi := &file_user_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1286,7 +1382,7 @@ func (x *UserResponse) String() string {
 func (*UserResponse) ProtoMessage() {}
 
 func (x *UserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[19]
+	mi := &file_user_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1299,7 +1395,7 @@ func (x *UserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserResponse.ProtoReflect.Descriptor instead.
 func (*UserResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{19}
+	return file_user_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *UserResponse) GetUser() *User {
@@ -1396,7 +1492,13 @@ const file_user_proto_rawDesc = "" +
 	"image_data\x18\x01 \x01(\fR\timageData\x12\x1a\n" +
 	"\bfilename\x18\x02 \x01(\tR\bfilename\"2\n" +
 	"\x13UploadImageResponse\x12\x1b\n" +
-	"\timage_url\x18\x02 \x01(\tR\bimageUrl\"\xb8\x03\n" +
+	"\timage_url\x18\x02 \x01(\tR\bimageUrl\"O\n" +
+	"\x12UploadVideoRequest\x12\x1d\n" +
+	"\n" +
+	"video_data\x18\x01 \x01(\fR\tvideoData\x12\x1a\n" +
+	"\bfilename\x18\x02 \x01(\tR\bfilename\"2\n" +
+	"\x13UploadVideoResponse\x12\x1b\n" +
+	"\tvideo_url\x18\x01 \x01(\tR\bvideoUrl\"\xb8\x03\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
@@ -1419,7 +1521,7 @@ const file_user_proto_rawDesc = "" +
 	"created_at\x18\x10 \x01(\tR\tcreatedAt\".\n" +
 	"\fUserResponse\x12\x1e\n" +
 	"\x04user\x18\x01 \x01(\v2\n" +
-	".user.UserR\x04user2\xda\x05\n" +
+	".user.UserR\x04user2\x9e\x06\n" +
 	"\vUserService\x12A\n" +
 	"\x0eGetUserByEmail\x12\x1b.user.GetUserByEmailRequest\x1a\x12.user.UserResponse\x125\n" +
 	"\bRegister\x12\x15.user.RegisterRequest\x1a\x12.user.UserResponse\x123\n" +
@@ -1433,7 +1535,8 @@ const file_user_proto_rawDesc = "" +
 	"\vUploadImage\x12\x18.user.UploadImageRequest\x1a\x19.user.UploadImageResponse\x12=\n" +
 	"\vGetFollower\x12\x18.user.GetFollowerRequest\x1a\x14.user.FollowResponse\x12?\n" +
 	"\fGetFollowing\x12\x19.user.GetFollowingRequest\x1a\x14.user.FollowResponse\x12N\n" +
-	"\x0fRegisterPremium\x12\x1c.user.RegisterPremiumRequest\x1a\x1d.user.RegisterPremiumResponseB+Z)github.com/Wenfuuu/tpa-web/pkg/proto/userb\x06proto3"
+	"\x0fRegisterPremium\x12\x1c.user.RegisterPremiumRequest\x1a\x1d.user.RegisterPremiumResponse\x12B\n" +
+	"\vUploadVideo\x12\x18.user.UploadVideoRequest\x1a\x19.user.UploadVideoResponseB+Z)github.com/Wenfuuu/tpa-web/pkg/proto/userb\x06proto3"
 
 var (
 	file_user_proto_rawDescOnce sync.Once
@@ -1447,7 +1550,7 @@ func file_user_proto_rawDescGZIP() []byte {
 	return file_user_proto_rawDescData
 }
 
-var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_user_proto_goTypes = []any{
 	(*RegisterPremiumRequest)(nil),  // 0: user.RegisterPremiumRequest
 	(*RegisterPremiumResponse)(nil), // 1: user.RegisterPremiumResponse
@@ -1467,14 +1570,16 @@ var file_user_proto_goTypes = []any{
 	(*GetAllUsersResponse)(nil),     // 15: user.GetAllUsersResponse
 	(*UploadImageRequest)(nil),      // 16: user.UploadImageRequest
 	(*UploadImageResponse)(nil),     // 17: user.UploadImageResponse
-	(*User)(nil),                    // 18: user.User
-	(*UserResponse)(nil),            // 19: user.UserResponse
+	(*UploadVideoRequest)(nil),      // 18: user.UploadVideoRequest
+	(*UploadVideoResponse)(nil),     // 19: user.UploadVideoResponse
+	(*User)(nil),                    // 20: user.User
+	(*UserResponse)(nil),            // 21: user.UserResponse
 }
 var file_user_proto_depIdxs = []int32{
 	6,  // 0: user.FollowResponse.follows:type_name -> user.Follow
-	18, // 1: user.LoginResponse.user:type_name -> user.User
-	18, // 2: user.GetAllUsersResponse.users:type_name -> user.User
-	18, // 3: user.UserResponse.user:type_name -> user.User
+	20, // 1: user.LoginResponse.user:type_name -> user.User
+	20, // 2: user.GetAllUsersResponse.users:type_name -> user.User
+	20, // 3: user.UserResponse.user:type_name -> user.User
 	7,  // 4: user.UserService.GetUserByEmail:input_type -> user.GetUserByEmailRequest
 	8,  // 5: user.UserService.Register:input_type -> user.RegisterRequest
 	10, // 6: user.UserService.GetUser:input_type -> user.GetUserRequest
@@ -1486,19 +1591,21 @@ var file_user_proto_depIdxs = []int32{
 	3,  // 12: user.UserService.GetFollower:input_type -> user.GetFollowerRequest
 	4,  // 13: user.UserService.GetFollowing:input_type -> user.GetFollowingRequest
 	0,  // 14: user.UserService.RegisterPremium:input_type -> user.RegisterPremiumRequest
-	19, // 15: user.UserService.GetUserByEmail:output_type -> user.UserResponse
-	19, // 16: user.UserService.Register:output_type -> user.UserResponse
-	19, // 17: user.UserService.GetUser:output_type -> user.UserResponse
-	19, // 18: user.UserService.UpdateUser:output_type -> user.UserResponse
-	13, // 19: user.UserService.DeleteUser:output_type -> user.DeleteUserResponse
-	15, // 20: user.UserService.GetAllUsers:output_type -> user.GetAllUsersResponse
-	15, // 21: user.UserService.GetWhoToFollow:output_type -> user.GetAllUsersResponse
-	17, // 22: user.UserService.UploadImage:output_type -> user.UploadImageResponse
-	5,  // 23: user.UserService.GetFollower:output_type -> user.FollowResponse
-	5,  // 24: user.UserService.GetFollowing:output_type -> user.FollowResponse
-	1,  // 25: user.UserService.RegisterPremium:output_type -> user.RegisterPremiumResponse
-	15, // [15:26] is the sub-list for method output_type
-	4,  // [4:15] is the sub-list for method input_type
+	18, // 15: user.UserService.UploadVideo:input_type -> user.UploadVideoRequest
+	21, // 16: user.UserService.GetUserByEmail:output_type -> user.UserResponse
+	21, // 17: user.UserService.Register:output_type -> user.UserResponse
+	21, // 18: user.UserService.GetUser:output_type -> user.UserResponse
+	21, // 19: user.UserService.UpdateUser:output_type -> user.UserResponse
+	13, // 20: user.UserService.DeleteUser:output_type -> user.DeleteUserResponse
+	15, // 21: user.UserService.GetAllUsers:output_type -> user.GetAllUsersResponse
+	15, // 22: user.UserService.GetWhoToFollow:output_type -> user.GetAllUsersResponse
+	17, // 23: user.UserService.UploadImage:output_type -> user.UploadImageResponse
+	5,  // 24: user.UserService.GetFollower:output_type -> user.FollowResponse
+	5,  // 25: user.UserService.GetFollowing:output_type -> user.FollowResponse
+	1,  // 26: user.UserService.RegisterPremium:output_type -> user.RegisterPremiumResponse
+	19, // 27: user.UserService.UploadVideo:output_type -> user.UploadVideoResponse
+	16, // [16:28] is the sub-list for method output_type
+	4,  // [4:16] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
 	4,  // [4:4] is the sub-list for extension extendee
 	0,  // [0:4] is the sub-list for field type_name
@@ -1515,7 +1622,7 @@ func file_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_proto_rawDesc), len(file_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

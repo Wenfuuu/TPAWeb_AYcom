@@ -63,3 +63,7 @@ func (s *UserServer) GetWhoToFollow(ctx context.Context, req *userpb.GetWhoToFol
 func (s *UserServer) UploadImage(ctx context.Context, req *userpb.UploadImageRequest) (*userpb.UploadImageResponse, error) {
 	return s.userHandler.UploadImage(ctx, req)
 }
+
+func (s *UserServer) UploadVideo(ctx context.Context, req *userpb.UploadVideoRequest) (*userpb.UploadVideoResponse, error) {
+	return s.userHandler.UploadVideo(ctx, req)
+}
