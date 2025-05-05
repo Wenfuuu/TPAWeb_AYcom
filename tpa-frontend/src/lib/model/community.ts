@@ -6,6 +6,18 @@ export type CommunityCategory = {
   name: string;
 };
 
+export type CommunityMember = {
+  id: string;
+  user_id: string;
+  community_id: string;
+  role: string;
+  name: string;
+  username: string;
+  profile_picture: string;
+  is_premium: boolean;
+  bio: string;
+};
+
 export type Community = {
   id: string;
   name: string;
@@ -207,6 +219,39 @@ async function fetchJoinedCommunity(user_id: string, page: number, limit: number
     });
     const communities = response.data;
     return communities;
+}
+
+export async function fetchTopMember(community_id: string) {
+  const topMembers = await fetchTopCommunityMember(community_id);
+  const allUsers = await fetchUser();
+
+  const members: CommunityMember[] = topMembers.map((member) => {
+    const user = allUsers.find((u) => u.id === member.user_id);
+    console.log(user);
+    const name = user ? user.name : "Unknown";
+    const username = user ? user.username : "Unknown";
+    const profile_picture = user ? user.profile_picture : "Unknown";
+    const is_premium = user?.is_premium ? user.is_premium : false;
+    const bio = user?.bio ? user.bio : "Unknown";
+
+    return {
+      ...member,
+      name, username, profile_picture,
+      is_premium, bio
+    };
+  });
+
+  return members;
+}
+
+async function fetchTopCommunityMember(community_id: string) {
+  const response = await axios.get<CommunityMember[]>(BASE_API_URL + "/top-community-member", {
+    params: {
+      community_id
+    }
+  });
+  const communities = response.data;
+  return communities;
 }
 
 export async function fetchCommunityCategory() {

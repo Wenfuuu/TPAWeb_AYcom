@@ -1,11 +1,19 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { requestJoinCommunity, type Community } from "../model/community";
-  import { fetchCommunityThreadWithUser, type Thread } from "../model/thread";
+  import {
+    requestJoinCommunity,
+    type Community,
+    type CommunityMember,
+  } from "../model/community";
   import type { User } from "../model/user";
   import type { UserThread } from "../model/user";
   import ThreadFeed from "./ThreadFeed.svelte";
   import { navigate } from "svelte-routing";
+  import {
+    fetchCommunityThreadWithUser,
+    fetchTopCommunityThreadWithUser,
+    type Thread,
+  } from "../model/thread";
 
   export let community: Community;
   export let user: User | null;
@@ -14,6 +22,7 @@
     page: number,
     currTab: "top" | "latest" | "media" | "about" | "manage"
   ) => Promise<void>;
+  export let topMembers: CommunityMember[] = [];
 
   let activeTab: "top" | "latest" | "media" | "about" | "manage" = "latest";
   let page = 1;
@@ -45,11 +54,19 @@
 
           let newThreads;
           if (user) {
-            newThreads = await fetchCommunityThreadWithUser(
-              page,
-              user.id,
-              community.id
-            );
+            if (activeTab === "latest") {
+              newThreads = await fetchCommunityThreadWithUser(
+                page,
+                user.id,
+                community.id
+              );
+            } else if (activeTab === "top") {
+              newThreads = await fetchTopCommunityThreadWithUser(
+                page,
+                user.id,
+                community.id
+              );
+            }
           }
 
           if (!newThreads) {
@@ -81,8 +98,8 @@
     }
   }
 
-  async function joinCommunity(){
-    if(!user) return;
+  async function joinCommunity() {
+    if (!user) return;
     await requestJoinCommunity(user.id, community.id);
   }
 
@@ -175,6 +192,7 @@
         class:active={activeTab === "top"}
         on:click={() => {
           activeTab = "top";
+          page = 1;
           refreshData(page, activeTab);
         }}
       >
@@ -186,6 +204,7 @@
         class:active={activeTab === "latest"}
         on:click={() => {
           activeTab = "latest";
+          page = 1;
           refreshData(page, activeTab);
         }}
       >
@@ -197,6 +216,7 @@
         class:active={activeTab === "media"}
         on:click={() => {
           activeTab = "media";
+          page = 1;
           refreshData(page, activeTab);
         }}
       >
@@ -208,6 +228,7 @@
         class:active={activeTab === "about"}
         on:click={() => {
           activeTab = "about";
+          page = 1;
           refreshData(page, activeTab);
         }}
       >
@@ -219,6 +240,7 @@
         class:active={activeTab === "manage"}
         on:click={() => {
           activeTab = "manage";
+          page = 1;
           refreshData(page, activeTab);
         }}
       >
@@ -259,7 +281,73 @@
         {/if}
       </div>
     {:else if activeTab === "top"}
-      <p>top here</p>
+      <!-- top members here -->
+      <div class="top-members">
+        <p class="top-members-title">Top Members</p>
+        {#each topMembers as member (member.id)}
+          <div class="follow-item">
+            <img
+              src={member.profile_picture || "/placeholder.svg"}
+              alt={member.name}
+              class="follow-avatar"
+            />
+            <div class="follow-info">
+              <div class="follow-name">
+                {member.name}
+                {#if member.is_premium}
+                  <span class="verified-badge" aria-label="Verified account">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      fill="rgb(29, 155, 240)"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"
+                      ></path>
+                    </svg>
+                  </span>
+                {/if}
+              </div>
+              <div class="follow-username">@{member.username}</div>
+            </div>
+            <button type="button" class="follow-button">Follow</button>
+          </div>
+        {/each}
+      </div>
+
+      <ThreadFeed {threads} {user} />
+      <div bind:this={sentinel} class="loading-sentinel">
+        {#if isLoading}
+          <div class="skeleton-loading">
+            {#each Array(3) as _, i (i)}
+              <div class="skeleton-post">
+                <div class="skeleton-avatar pulse"></div>
+                <div class="skeleton-content">
+                  <div class="skeleton-header">
+                    <div class="skeleton-name pulse"></div>
+                    <div class="skeleton-username pulse"></div>
+                  </div>
+                  <div class="skeleton-text pulse"></div>
+                  <div class="skeleton-text-short pulse"></div>
+                  {#if i % 2 === 0}
+                    <div class="skeleton-image pulse"></div>
+                  {/if}
+                  <div class="skeleton-actions">
+                    <div class="skeleton-action pulse"></div>
+                    <div class="skeleton-action pulse"></div>
+                    <div class="skeleton-action pulse"></div>
+                    <div class="skeleton-action pulse"></div>
+                  </div>
+                </div>
+              </div>
+            {/each}
+          </div>
+        {:else if !hasMore && threads.length > 0}
+          <p class="no-threads">No more thread available!</p>
+        {/if}
+      </div>
     {:else if activeTab === "media"}
       <p>media here</p>
     {:else if activeTab === "about"}
@@ -514,6 +602,69 @@
     color: var(--text-tertiary);
   }
 
+  .follow-item {
+    display: flex;
+    padding: 12px 0;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .follow-item:hover {
+    background-color: var(--hover-background);
+  }
+
+  .follow-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-right: 12px;
+  }
+
+  .follow-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .follow-name {
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+
+  .verified-badge {
+    margin-left: 4px;
+    display: flex;
+    align-items: center;
+  }
+
+  .follow-username {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    margin-bottom: 2px;
+  }
+
+  .follow-button {
+    background-color: var(--text-primary);
+    color: var(--card-background);
+    border: none;
+    border-radius: 9999px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    height: fit-content;
+    align-self: center;
+    transition: background-color 0.2s;
+  }
+
+  .follow-button:hover {
+    opacity: 0.9;
+  }
+
   @media (max-width: 768px) {
     .content-area {
       border-right: none; /* Remove border on mobile */
@@ -543,5 +694,84 @@
     to {
       opacity: 1;
     }
+  }
+
+  /* Updated styling for the top members section */
+  .top-members {
+    padding: 16px;
+    background-color: var(--card-background);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+  }
+
+  .top-members-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .follow-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+
+  .follow-item:hover {
+    background-color: var(--hover-background);
+  }
+
+  .follow-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-right: 12px;
+    object-fit: cover;
+  }
+
+  .follow-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .follow-name {
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .verified-badge {
+    margin-left: 4px;
+    display: flex;
+    align-items: center;
+  }
+
+  .follow-username {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .follow-button {
+    background-color: var(--button-primary);
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .follow-button:hover {
+    background-color: var(--button-primary-hover);
   }
 </style>

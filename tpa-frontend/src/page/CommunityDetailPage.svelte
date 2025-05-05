@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { User, UserThread } from "../lib/model/user";
-  import { fetchCommunityDetailWithCreator, type Community } from "../lib/model/community";
+  import { fetchCommunityDetailWithCreator, fetchTopMember, type Community, type CommunityMember } from "../lib/model/community";
   import { checkAuth, getAuthUser } from "../lib/utils/auth";
   import { navigate } from "svelte-routing";
-  import { fetchCommunityThreadWithUser, type Thread } from "../lib/model/thread";
+  import { fetchCommunityThreadWithUser, fetchTopCommunityThreadWithUser, type Thread } from "../lib/model/thread";
   import LeftSidebar from "../lib/components/LeftSidebar.svelte";
   import RightSidebar from "../lib/components/RightSidebar.svelte";
   import CommunityDetailContent from "../lib/components/CommunityDetailContent.svelte";
@@ -13,14 +13,20 @@
   let user: User | null = null;
   let community: Community;
   let threads: (Thread & { userData: UserThread })[] = [];
+  let topMembers: CommunityMember[] = [];
 
     async function refreshData(page: number,
         currTab: "top" | "latest" | "media" | "about" | "manage" = "latest"
     ){
         if(user) {
             let data;
+            console.log(currTab);
             if(currTab === "latest") data = await fetchCommunityThreadWithUser(page, user.id, community.id);
-            else data = await fetchCommunityThreadWithUser(page, user.id, community.id);
+            else if(currTab === "top") {
+                console.log("fetching top");
+                data = await fetchTopCommunityThreadWithUser(page, user.id, community.id);
+            }
+            // else data = await fetchCommunityThreadWithUser(page, user.id, community.id);
 
             if(data) threads = data;
             console.log(threads);
@@ -56,9 +62,10 @@
         const communityId = urlParts[urlParts.length - 1];
 
         if(user) community = await fetchCommunityDetailWithCreator(user.id, communityId);
-        console.log(community);
 
-        // refresh threads based on page
+        topMembers = await fetchTopMember(community.id);
+        console.log(topMembers);
+
         refreshData(1);
     });
 
@@ -66,7 +73,8 @@
 
 <div class="home-container">
   <LeftSidebar {toggleTheme} {isDarkMode} {user} {refreshData} />
-  <CommunityDetailContent {community} {threads} {user} {refreshData} />
+  <CommunityDetailContent {community} {threads} {user} {refreshData}
+  {topMembers} />
   <RightSidebar />
 </div>
 
