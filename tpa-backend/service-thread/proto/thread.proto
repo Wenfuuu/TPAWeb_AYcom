@@ -9,6 +9,7 @@ service ThreadService {
     rpc GetThreadById(GetThreadByIdRequest) returns (GetThreadResponse);
     rpc GetAllThreads(GetAllThreadsRequest) returns (GetAllThreadsResponse);
     rpc GetCommunityThreads(GetCommunityThreadsRequest) returns (GetAllThreadsResponse);
+    rpc GetTopCommunityThreads(GetTopCommunityThreadsRequest) returns (GetAllThreadsResponse);
     rpc GetFollowingThreads(GetFollowingThreadsRequest) returns (GetAllThreadsResponse);
     rpc GetBookmark(GetBookmarkRequest) returns (GetAllThreadsResponse);
     rpc GetRepostThreads(GetRepostThreadsRequest) returns (GetAllThreadsResponse);
@@ -34,9 +35,14 @@ service ThreadService {
     rpc JoinCommunity(JoinCommunityRequest) returns (ActionResponse);
     rpc GetJoinedCommunity(GetJoinedCommunityRequest) returns (GetAllCommunitiesResponse);
     rpc GetCommunityMembers(GetCommunityMembersRequest) returns (CommunityMembersResponse);
+    rpc GetTopCommunityMembers(GetTopCommunityMembersRequest) returns (CommunityMembersResponse);
 }
 
 message GetCommunityMembersRequest {
+    string community_id = 1;
+}
+
+message GetTopCommunityMembersRequest {
     string community_id = 1;
 }
 
@@ -48,7 +54,7 @@ message CommunityMembers {
     string id = 1;
     string user_id = 2;
     string community_id = 3;
-    string rule = 4;
+    string role = 4;
 }
 
 message JoinCommunityRequest {
@@ -136,6 +142,11 @@ message GetAllThreadsRequest {
 
 message GetAllThreadsResponse {
     repeated Thread threads = 1;
+}
+
+message GetTopCommunityThreadsRequest {
+    int32 page = 1;
+    string community_id = 2;
 }
 
 message GetCommunityThreadsRequest {

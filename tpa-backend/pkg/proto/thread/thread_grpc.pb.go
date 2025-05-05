@@ -23,6 +23,7 @@ const (
 	ThreadService_GetThreadById_FullMethodName             = "/thread.ThreadService/GetThreadById"
 	ThreadService_GetAllThreads_FullMethodName             = "/thread.ThreadService/GetAllThreads"
 	ThreadService_GetCommunityThreads_FullMethodName       = "/thread.ThreadService/GetCommunityThreads"
+	ThreadService_GetTopCommunityThreads_FullMethodName    = "/thread.ThreadService/GetTopCommunityThreads"
 	ThreadService_GetFollowingThreads_FullMethodName       = "/thread.ThreadService/GetFollowingThreads"
 	ThreadService_GetBookmark_FullMethodName               = "/thread.ThreadService/GetBookmark"
 	ThreadService_GetRepostThreads_FullMethodName          = "/thread.ThreadService/GetRepostThreads"
@@ -47,6 +48,8 @@ const (
 	ThreadService_GetPendingCommunity_FullMethodName       = "/thread.ThreadService/GetPendingCommunity"
 	ThreadService_JoinCommunity_FullMethodName             = "/thread.ThreadService/JoinCommunity"
 	ThreadService_GetJoinedCommunity_FullMethodName        = "/thread.ThreadService/GetJoinedCommunity"
+	ThreadService_GetCommunityMembers_FullMethodName       = "/thread.ThreadService/GetCommunityMembers"
+	ThreadService_GetTopCommunityMembers_FullMethodName    = "/thread.ThreadService/GetTopCommunityMembers"
 )
 
 // ThreadServiceClient is the client API for ThreadService service.
@@ -57,6 +60,7 @@ type ThreadServiceClient interface {
 	GetThreadById(ctx context.Context, in *GetThreadByIdRequest, opts ...grpc.CallOption) (*GetThreadResponse, error)
 	GetAllThreads(ctx context.Context, in *GetAllThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetCommunityThreads(ctx context.Context, in *GetCommunityThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
+	GetTopCommunityThreads(ctx context.Context, in *GetTopCommunityThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetFollowingThreads(ctx context.Context, in *GetFollowingThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetBookmark(ctx context.Context, in *GetBookmarkRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetRepostThreads(ctx context.Context, in *GetRepostThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
@@ -81,6 +85,8 @@ type ThreadServiceClient interface {
 	GetPendingCommunity(ctx context.Context, in *GetPendingCommunityRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error)
 	JoinCommunity(ctx context.Context, in *JoinCommunityRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	GetJoinedCommunity(ctx context.Context, in *GetJoinedCommunityRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error)
+	GetCommunityMembers(ctx context.Context, in *GetCommunityMembersRequest, opts ...grpc.CallOption) (*CommunityMembersResponse, error)
+	GetTopCommunityMembers(ctx context.Context, in *GetTopCommunityMembersRequest, opts ...grpc.CallOption) (*CommunityMembersResponse, error)
 }
 
 type threadServiceClient struct {
@@ -125,6 +131,16 @@ func (c *threadServiceClient) GetCommunityThreads(ctx context.Context, in *GetCo
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetAllThreadsResponse)
 	err := c.cc.Invoke(ctx, ThreadService_GetCommunityThreads_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) GetTopCommunityThreads(ctx context.Context, in *GetTopCommunityThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllThreadsResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetTopCommunityThreads_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -371,6 +387,26 @@ func (c *threadServiceClient) GetJoinedCommunity(ctx context.Context, in *GetJoi
 	return out, nil
 }
 
+func (c *threadServiceClient) GetCommunityMembers(ctx context.Context, in *GetCommunityMembersRequest, opts ...grpc.CallOption) (*CommunityMembersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CommunityMembersResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetCommunityMembers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) GetTopCommunityMembers(ctx context.Context, in *GetTopCommunityMembersRequest, opts ...grpc.CallOption) (*CommunityMembersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CommunityMembersResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetTopCommunityMembers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ThreadServiceServer is the server API for ThreadService service.
 // All implementations must embed UnimplementedThreadServiceServer
 // for forward compatibility.
@@ -379,6 +415,7 @@ type ThreadServiceServer interface {
 	GetThreadById(context.Context, *GetThreadByIdRequest) (*GetThreadResponse, error)
 	GetAllThreads(context.Context, *GetAllThreadsRequest) (*GetAllThreadsResponse, error)
 	GetCommunityThreads(context.Context, *GetCommunityThreadsRequest) (*GetAllThreadsResponse, error)
+	GetTopCommunityThreads(context.Context, *GetTopCommunityThreadsRequest) (*GetAllThreadsResponse, error)
 	GetFollowingThreads(context.Context, *GetFollowingThreadsRequest) (*GetAllThreadsResponse, error)
 	GetBookmark(context.Context, *GetBookmarkRequest) (*GetAllThreadsResponse, error)
 	GetRepostThreads(context.Context, *GetRepostThreadsRequest) (*GetAllThreadsResponse, error)
@@ -403,6 +440,8 @@ type ThreadServiceServer interface {
 	GetPendingCommunity(context.Context, *GetPendingCommunityRequest) (*GetAllCommunitiesResponse, error)
 	JoinCommunity(context.Context, *JoinCommunityRequest) (*ActionResponse, error)
 	GetJoinedCommunity(context.Context, *GetJoinedCommunityRequest) (*GetAllCommunitiesResponse, error)
+	GetCommunityMembers(context.Context, *GetCommunityMembersRequest) (*CommunityMembersResponse, error)
+	GetTopCommunityMembers(context.Context, *GetTopCommunityMembersRequest) (*CommunityMembersResponse, error)
 	mustEmbedUnimplementedThreadServiceServer()
 }
 
@@ -424,6 +463,9 @@ func (UnimplementedThreadServiceServer) GetAllThreads(context.Context, *GetAllTh
 }
 func (UnimplementedThreadServiceServer) GetCommunityThreads(context.Context, *GetCommunityThreadsRequest) (*GetAllThreadsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCommunityThreads not implemented")
+}
+func (UnimplementedThreadServiceServer) GetTopCommunityThreads(context.Context, *GetTopCommunityThreadsRequest) (*GetAllThreadsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTopCommunityThreads not implemented")
 }
 func (UnimplementedThreadServiceServer) GetFollowingThreads(context.Context, *GetFollowingThreadsRequest) (*GetAllThreadsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFollowingThreads not implemented")
@@ -496,6 +538,12 @@ func (UnimplementedThreadServiceServer) JoinCommunity(context.Context, *JoinComm
 }
 func (UnimplementedThreadServiceServer) GetJoinedCommunity(context.Context, *GetJoinedCommunityRequest) (*GetAllCommunitiesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetJoinedCommunity not implemented")
+}
+func (UnimplementedThreadServiceServer) GetCommunityMembers(context.Context, *GetCommunityMembersRequest) (*CommunityMembersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCommunityMembers not implemented")
+}
+func (UnimplementedThreadServiceServer) GetTopCommunityMembers(context.Context, *GetTopCommunityMembersRequest) (*CommunityMembersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTopCommunityMembers not implemented")
 }
 func (UnimplementedThreadServiceServer) mustEmbedUnimplementedThreadServiceServer() {}
 func (UnimplementedThreadServiceServer) testEmbeddedByValue()                       {}
@@ -586,6 +634,24 @@ func _ThreadService_GetCommunityThreads_Handler(srv interface{}, ctx context.Con
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ThreadServiceServer).GetCommunityThreads(ctx, req.(*GetCommunityThreadsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_GetTopCommunityThreads_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTopCommunityThreadsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetTopCommunityThreads(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetTopCommunityThreads_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetTopCommunityThreads(ctx, req.(*GetTopCommunityThreadsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1022,6 +1088,42 @@ func _ThreadService_GetJoinedCommunity_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_GetCommunityMembers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCommunityMembersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetCommunityMembers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetCommunityMembers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetCommunityMembers(ctx, req.(*GetCommunityMembersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_GetTopCommunityMembers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTopCommunityMembersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetTopCommunityMembers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetTopCommunityMembers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetTopCommunityMembers(ctx, req.(*GetTopCommunityMembersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ThreadService_ServiceDesc is the grpc.ServiceDesc for ThreadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1044,6 +1146,10 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCommunityThreads",
 			Handler:    _ThreadService_GetCommunityThreads_Handler,
+		},
+		{
+			MethodName: "GetTopCommunityThreads",
+			Handler:    _ThreadService_GetTopCommunityThreads_Handler,
 		},
 		{
 			MethodName: "GetFollowingThreads",
@@ -1140,6 +1246,14 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetJoinedCommunity",
 			Handler:    _ThreadService_GetJoinedCommunity_Handler,
+		},
+		{
+			MethodName: "GetCommunityMembers",
+			Handler:    _ThreadService_GetCommunityMembers_Handler,
+		},
+		{
+			MethodName: "GetTopCommunityMembers",
+			Handler:    _ThreadService_GetTopCommunityMembers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

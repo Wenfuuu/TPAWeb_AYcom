@@ -96,6 +96,25 @@ func (h *ThreadHandler) GetAllThreads(ctx context.Context, req *threadpb.GetAllT
 	}, nil
 }
 
+func (h *ThreadHandler) GetTopCommunityThreads(ctx context.Context, req *threadpb.GetTopCommunityThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
+	page := int(req.Page)
+	communityId := req.CommunityId
+
+	modelThreads, err := h.threadRepo.GetTopCommunityThreads(page, communityId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbThreads []*threadpb.Thread
+	for _, t := range modelThreads {
+		pbThreads = append(pbThreads, h.threadToProto(&t))
+	}
+
+	return &threadpb.GetAllThreadsResponse{
+		Threads: pbThreads,
+	}, nil
+}
+
 func (h *ThreadHandler) GetCommunityThreads(ctx context.Context, req *threadpb.GetCommunityThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
 	page := int(req.Page)
 	communityId := req.CommunityId
@@ -580,6 +599,38 @@ func (h *ThreadHandler) GetCommunityById(ctx context.Context, req *threadpb.GetC
 	}, nil
 }
 
+func (h *ThreadHandler) GetTopCommunityMembers(ctx context.Context, req *threadpb.GetTopCommunityMembersRequest) (*threadpb.CommunityMembersResponse, error) {
+	modelMembers, err := h.threadRepo.GetTopCommunityMembers(req.CommunityId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbMembers []*threadpb.CommunityMembers
+	for _, t := range modelMembers {
+		pbMembers = append(pbMembers, h.memberToProto(&t))
+	}
+
+	return &threadpb.CommunityMembersResponse{
+		CommunityMembers: pbMembers,
+	}, nil
+}
+
+func (h *ThreadHandler) GetCommunityMembers(ctx context.Context, req *threadpb.GetCommunityMembersRequest) (*threadpb.CommunityMembersResponse, error) {
+	modelMembers, err := h.threadRepo.GetCommunityMembers(req.CommunityId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbMembers []*threadpb.CommunityMembers
+	for _, t := range modelMembers {
+		pbMembers = append(pbMembers, h.memberToProto(&t))
+	}
+
+	return &threadpb.CommunityMembersResponse{
+		CommunityMembers: pbMembers,
+	}, nil
+}
+
 func (h *ThreadHandler) GetAllCommunity(ctx context.Context, req *threadpb.GetAllCommunitiesRequest) (*threadpb.GetAllCommunitiesResponse, error) {
 	modelCommunities, err := h.threadRepo.GetAllCommunity()
 	if err != nil {
@@ -704,6 +755,15 @@ func (h *ThreadHandler) communityToProto(community *model.Community) *threadpb.C
 		Rule: 			community.Rule,
 		CreatorId: 		community.CreatorID.String(),
 		CreatedAt: 		community.CreatedAt.Format(time.RFC3339),
+	}
+}
+
+func (h *ThreadHandler) memberToProto(member *model.CommunityMembers) *threadpb.CommunityMembers {
+	return &threadpb.CommunityMembers{
+		Id: 			member.ID.String(),
+		UserId: 		member.UserID.String(),
+		CommunityId: 	member.CommunityID.String(),
+		Role: 			member.Role,
 	}
 }
 

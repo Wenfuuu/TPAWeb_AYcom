@@ -87,6 +87,28 @@ func (h *ThreadHandler) GetAllThreads(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Threads)
 }
 
+func (h *ThreadHandler) GetTopCommunityThreads(c *gin.Context) {
+	pageStr := c.Query("page")
+	communityId := c.Query("community_id")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	resp, err := h.Client.GetTopCommunityThreads(context.Background(), &threadpb.GetTopCommunityThreadsRequest{
+		Page: int32(page),
+		CommunityId: communityId,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.Threads)
+}
+
 func (h *ThreadHandler) GetCommunityThreads(c *gin.Context) {
 	pageStr := c.Query("page")
 	communityId := c.Query("community_id")
@@ -454,6 +476,36 @@ func (h *ThreadHandler) GetCommunityById(c *gin.Context) {
 	}
 	
 	c.JSON(http.StatusOK, resp.Community)
+}
+
+func (h *ThreadHandler) GetCommunityMembers(c *gin.Context) {
+	communityId := c.Query("community_id")
+
+	resp, err := h.Client.GetCommunityMembers(context.Background(), &threadpb.GetCommunityMembersRequest{
+		CommunityId: communityId,
+	})
+		
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	
+	c.JSON(http.StatusOK, resp.CommunityMembers)
+}
+
+func (h *ThreadHandler) GetTopCommunityMembers(c *gin.Context) {
+	communityId := c.Query("community_id")
+
+	resp, err := h.Client.GetTopCommunityMembers(context.Background(), &threadpb.GetTopCommunityMembersRequest{
+		CommunityId: communityId,
+	})
+		
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	
+	c.JSON(http.StatusOK, resp.CommunityMembers)
 }
 
 func (h *ThreadHandler) GetAllCommunity(c *gin.Context) {

@@ -48,14 +48,14 @@ type CommunityCategory struct {
 	Name	string		`json:"name"`
 }
 
-type Like struct {
+type Bookmark struct {
 	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	UserID    uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_user_thread" json:"userId"`
 	ThreadID  uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_user_thread" json:"threadId"`
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"createdAt"`
 }
 
-type Bookmark struct {
+type Like struct {
 	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	UserID    uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_user_thread" json:"userId"`
 	ThreadID  uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_user_thread" json:"threadId"`

@@ -24,7 +24,7 @@ func (r *ThreadRepository) JoinCommunity(req *model.CommunityMembers, userid str
 		return err
 	}
 
-	if err := r.DB.Delete(&joinRequest).Error; err != nil{
+	if err := r.DB.Delete(&joinRequest).Error; err != nil {
 		return err
 	}
 
@@ -82,6 +82,26 @@ func (r *ThreadRepository) GetAllThreads(page int) ([]model.Thread, error) {
 	return threads, result.Error
 }
 
+func (r *ThreadRepository) GetTopCommunityThreads(page int, communityId string) ([]model.Thread, error) {
+	var threads []model.Thread
+
+	limit := 5
+	offset := (page - 1) * limit
+
+	result := r.DB.
+		Table("threads").
+		Select("threads.*, COUNT(likes.id) AS like_count").
+		Joins("LEFT JOIN likes ON likes.thread_id = threads.id").
+		Where("threads.community_id = ?", communityId).
+		Group("threads.id").
+		Order("like_count DESC").
+		Limit(limit).
+		Offset(offset).
+		Scan(&threads)
+
+	return threads, result.Error
+}
+
 func (r *ThreadRepository) GetCommunityThreads(page int, communityId string) ([]model.Thread, error) {
 	var threads []model.Thread
 
@@ -117,7 +137,7 @@ func (r *ThreadRepository) GetBookmark(page int, userId string, search string) (
 		Limit(limit).
 		Offset(offset).
 		Find(&threads)
-	
+
 	return threads, result.Error
 }
 
@@ -127,7 +147,7 @@ func (r *ThreadRepository) GetRepostThreads(userId string) ([]model.Thread, erro
 	result := r.DB.
 		Where("repost_of_id IS NOT NULL AND user_id = ?", userId).
 		Find(&threads)
-	
+
 	return threads, result.Error
 }
 
@@ -138,7 +158,7 @@ func (r *ThreadRepository) GetLikedThreads(userId string) ([]model.Thread, error
 		Joins("JOIN likes ON likes.thread_id = threads.id").
 		Where("likes.user_id = ?", userId).
 		Find(&threads)
-	
+
 	return threads, result.Error
 }
 
@@ -149,7 +169,7 @@ func (r *ThreadRepository) GetBookmarkThreads(userId string) ([]model.Thread, er
 		Joins("JOIN bookmarks ON bookmarks.thread_id = threads.id").
 		Where("bookmarks.user_id = ?", userId).
 		Find(&threads)
-	
+
 	return threads, result.Error
 }
 
@@ -201,6 +221,32 @@ func (r *ThreadRepository) GetCommunityById(id string) (*model.Community, error)
 		return nil, result.Error
 	}
 	return &community, nil
+}
+
+func (r *ThreadRepository) GetCommunityMembers(community_id string) ([]model.CommunityMembers, error) {
+	var members []model.CommunityMembers
+
+	result := r.DB.
+		Where("community_id = ?", community_id).
+		Find(&members)
+
+	return members, result.Error
+}
+
+func (r *ThreadRepository) GetTopCommunityMembers(community_id string) ([]model.CommunityMembers, error) {
+	var members []model.CommunityMembers
+
+	result := r.DB.
+		Table("community_members").
+		Select("community_members.id, community_members.user_id, community_members.community_id, community_members.role, COUNT(follows.follower_id) AS follower_count").
+		Joins("LEFT JOIN follows ON follows.following_id = community_members.user_id").
+		Where("community_members.community_id = ?", community_id).
+		Group("community_members.id, community_members.user_id, community_members.community_id, community_members.role").
+		Order("follower_count DESC").
+		Limit(3).
+		Find(&members)
+
+	return members, result.Error
 }
 
 func (r *ThreadRepository) GetAllCommunity() ([]model.Community, error) {
@@ -296,4 +342,4 @@ func (r *ThreadRepository) Create(thread *model.Thread) error {
 
 func (r *ThreadRepository) InsertFile(files []model.ThreadFiles) error {
 	return r.DB.Create(files).Error
-} 
+}

@@ -35,6 +35,10 @@ func (s *ThreadServer) GetAllThreads(ctx context.Context, req *threadpb.GetAllTh
 	return s.threadHandler.GetAllThreads(ctx, req)
 }
 
+func (s *ThreadServer) GetTopCommunityThreads(ctx context.Context, req *threadpb.GetTopCommunityThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
+	return s.threadHandler.GetTopCommunityThreads(ctx, req)
+}
+
 func (s *ThreadServer) GetCommunityThreads(ctx context.Context, req *threadpb.GetCommunityThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
 	return s.threadHandler.GetCommunityThreads(ctx, req)
 }
@@ -105,6 +109,14 @@ func (s *ThreadServer) GetAllThreadCategories(ctx context.Context, req *threadpb
 
 func (s *ThreadServer) GetCommunityById(ctx context.Context, req *threadpb.GetCommunityByIdRequest) (*threadpb.GetCommunityResponse, error) {
 	return s.threadHandler.GetCommunityById(ctx, req)
+}
+
+func (s *ThreadServer) GetCommunityMembers(ctx context.Context, req *threadpb.GetCommunityMembersRequest) (*threadpb.CommunityMembersResponse, error) {
+	return s.threadHandler.GetCommunityMembers(ctx, req)
+}
+
+func (s *ThreadServer) GetTopCommunityMembers(ctx context.Context, req *threadpb.GetTopCommunityMembersRequest) (*threadpb.CommunityMembersResponse, error) {
+	return s.threadHandler.GetTopCommunityMembers(ctx, req)
 }
 
 func (s *ThreadServer) GetAllCommunity(ctx context.Context, req *threadpb.GetAllCommunitiesRequest) (*threadpb.GetAllCommunitiesResponse, error) {
