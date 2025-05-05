@@ -8,6 +8,7 @@ service ThreadService {
     rpc GetReplies(GetRepliesRequest) returns (GetAllThreadsResponse);
     rpc GetThreadById(GetThreadByIdRequest) returns (GetThreadResponse);
     rpc GetAllThreads(GetAllThreadsRequest) returns (GetAllThreadsResponse);
+    rpc GetCommunityThreads(GetCommunityThreadsRequest) returns (GetAllThreadsResponse);
     rpc GetFollowingThreads(GetFollowingThreadsRequest) returns (GetAllThreadsResponse);
     rpc GetBookmark(GetBookmarkRequest) returns (GetAllThreadsResponse);
     rpc GetRepostThreads(GetRepostThreadsRequest) returns (GetAllThreadsResponse);
@@ -119,6 +120,11 @@ message GetAllThreadsRequest {
 
 message GetAllThreadsResponse {
     repeated Thread threads = 1;
+}
+
+message GetCommunityThreadsRequest {
+    int32 page = 1;
+    string community_id = 2;
 }
 
 message GetFollowingThreadsRequest {

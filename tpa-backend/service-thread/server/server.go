@@ -35,6 +35,10 @@ func (s *ThreadServer) GetAllThreads(ctx context.Context, req *threadpb.GetAllTh
 	return s.threadHandler.GetAllThreads(ctx, req)
 }
 
+func (s *ThreadServer) GetCommunityThreads(ctx context.Context, req *threadpb.GetCommunityThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
+	return s.threadHandler.GetCommunityThreads(ctx, req)
+}
+
 func (s *ThreadServer) GetFollowingThreads(ctx context.Context, req *threadpb.GetFollowingThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
 	return s.threadHandler.GetFollowingThreads(ctx, req)
 }

@@ -104,6 +104,7 @@ func InitRoutes(
 			thread.GET("/thread-following", threadHandler.GetFollowingThreads)
 			thread.GET("/thread-bookmark", threadHandler.GetBookmark)
 			thread.GET("/thread-category", threadHandler.GetAllThreadCategories)
+			thread.GET("/thread-community", threadHandler.GetCommunityThreads)
 			thread.GET("/community", threadHandler.GetAllCommunity)
 			thread.GET("/community-pagination", threadHandler.GetCommunityPagination)
 			thread.GET("/community-category", threadHandler.GetAllCommunityCategories)

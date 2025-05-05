@@ -96,6 +96,25 @@ func (h *ThreadHandler) GetAllThreads(ctx context.Context, req *threadpb.GetAllT
 	}, nil
 }
 
+func (h *ThreadHandler) GetCommunityThreads(ctx context.Context, req *threadpb.GetCommunityThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
+	page := int(req.Page)
+	communityId := req.CommunityId
+
+	modelThreads, err := h.threadRepo.GetCommunityThreads(page, communityId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbThreads []*threadpb.Thread
+	for _, t := range modelThreads {
+		pbThreads = append(pbThreads, h.threadToProto(&t))
+	}
+
+	return &threadpb.GetAllThreadsResponse{
+		Threads: pbThreads,
+	}, nil
+}
+
 func (h *ThreadHandler) GetFollowingThreads(ctx context.Context, req *threadpb.GetFollowingThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
 	page := int(req.Page)
 	userId := req.UserId // the current account id

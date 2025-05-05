@@ -87,6 +87,28 @@ func (h *ThreadHandler) GetAllThreads(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Threads)
 }
 
+func (h *ThreadHandler) GetCommunityThreads(c *gin.Context) {
+	pageStr := c.Query("page")
+	communityId := c.Query("community_id")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	resp, err := h.Client.GetCommunityThreads(context.Background(), &threadpb.GetCommunityThreadsRequest{
+		Page: int32(page),
+		CommunityId: communityId,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.Threads)
+}
+
 func (h *ThreadHandler) GetFollowingThreads(c *gin.Context) {
 	pageStr := c.Query("page")
 	userId := c.Query("user_id")

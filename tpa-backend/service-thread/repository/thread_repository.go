@@ -82,6 +82,17 @@ func (r *ThreadRepository) GetAllThreads(page int) ([]model.Thread, error) {
 	return threads, result.Error
 }
 
+func (r *ThreadRepository) GetCommunityThreads(page int, communityId string) ([]model.Thread, error) {
+	var threads []model.Thread
+
+	// add offset here
+	limit := 5
+	offset := (page - 1) * limit
+
+	result := r.DB.Where("community_id = ?", communityId).Order("created_at DESC").Limit(limit).Offset(offset).Find(&threads)
+	return threads, result.Error
+}
+
 func (r *ThreadRepository) GetFollowingThreads(page int, userIds []string) ([]model.Thread, error) {
 	var threads []model.Thread
 

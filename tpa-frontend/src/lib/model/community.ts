@@ -105,6 +105,16 @@ export async function fetchCommunity() {
   return communities;
 }
 
+export async function fetchCommunityDetail(community_id: string) {
+  const response = await axios.get<Community>(BASE_API_URL + "/community-detail", {
+    params: {
+      community_id
+    }
+  });
+  const communities = response.data;
+  return communities;
+}
+
 async function fetchCommunityPagination(page: number, limit: number, search: string, category_id: string) {
     const response = await axios.get<Community[]>(BASE_API_URL + "/community-pagination", {
         params: {

@@ -28,7 +28,7 @@
   let replySettings: ReplySettingType = "everyone";
   let showReplyOptions = false;
 
-  onMount(async() => {
+  onMount(async () => {
     threadCategories = await fetchThreadCategory();
     communities = await fetchCommunity();
   });
@@ -54,7 +54,7 @@
 
       // call api to create thread
       let isAdvertisement;
-      if(user?.role == "user") isAdvertisement = false;
+      if (user?.role == "user") isAdvertisement = false;
       else isAdvertisement = true;
       // console.log(user);
 
@@ -66,7 +66,7 @@
         replyPermission: replySettings,
         isAdvertisement,
         scheduledAt: "",
-        imageUrls: supabaseURLS
+        imageUrls: supabaseURLS,
       });
 
       newPostText = "";
@@ -174,21 +174,43 @@
     <img src={user?.profile_picture} alt="Your avatar" />
   </div>
   <div class="compose-input">
-    <textarea
-      placeholder="What's happening?"
-      bind:value={newPostText}
+    <textarea placeholder="What's happening?" bind:value={newPostText}
     ></textarea>
 
     {#if uploadedImages.length > 0}
       <div class="image-carousel">
         <div class="carousel-container">
-          <div class="carousel-images" class:has-multiple={uploadedImages.length > 1}>
+          <div
+            class="carousel-images"
+            class:has-multiple={uploadedImages.length > 1}
+          >
             {#each uploadedImages as image, i (i)}
-              <div class="carousel-image" class:active={i === currentImageIndex}>
-                <img src={image || "/placeholder.svg"} alt="Uploaded image {i+1}" />
+              <div
+                class="carousel-image"
+                class:active={i === currentImageIndex}
+              >
+                <img
+                  src={image || "/placeholder.svg"}
+                  alt="Uploaded image {i + 1}"
+                />
                 <button type="button" class="edit-button">Edit</button>
-                <button type="button" class="remove-button" aria-label="Remove Button" on:click={() => removeImage(i)}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <button
+                  type="button"
+                  class="remove-button"
+                  aria-label="Remove Button"
+                  on:click={() => removeImage(i)}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                   </svg>
@@ -199,13 +221,50 @@
 
           {#if uploadedImages.length > 1}
             <div class="carousel-nav">
-              <button type="button" class="nav-button prev" aria-label="Button Prev" disabled={currentImageIndex === 0} on:click={() => currentImageIndex = Math.max(0, currentImageIndex - 1)}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button
+                type="button"
+                class="nav-button prev"
+                aria-label="Button Prev"
+                disabled={currentImageIndex === 0}
+                on:click={() =>
+                  (currentImageIndex = Math.max(0, currentImageIndex - 1))}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <path d="m15 18-6-6 6-6"></path>
                 </svg>
               </button>
-              <button type="button" class="nav-button next" aria-label="Button Next" disabled={currentImageIndex === uploadedImages.length - 1} on:click={() => currentImageIndex = Math.min(uploadedImages.length - 1, currentImageIndex + 1)}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button
+                type="button"
+                class="nav-button next"
+                aria-label="Button Next"
+                disabled={currentImageIndex === uploadedImages.length - 1}
+                on:click={() =>
+                  (currentImageIndex = Math.min(
+                    uploadedImages.length - 1,
+                    currentImageIndex + 1
+                  ))}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <path d="m9 18 6-6-6-6"></path>
                 </svg>
               </button>
@@ -213,7 +272,8 @@
 
             <div class="carousel-indicators">
               {#each uploadedImages as _, i (i)}
-                <span class="indicator" class:active={i === currentImageIndex}></span>
+                <span class="indicator" class:active={i === currentImageIndex}
+                ></span>
               {/each}
             </div>
           {/if}
@@ -225,22 +285,55 @@
     <div class="post-options">
       <!-- Category selection -->
       <div class="option-dropdown">
-        <button type="button" class="option-button" on:click={toggleCategoryDropdown}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path>
+        <button
+          type="button"
+          class="option-button"
+          on:click={toggleCategoryDropdown}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"
+            ></path>
           </svg>
-          {selectedCategoryId ? threadCategories.find(c => c.id === selectedCategoryId)?.name || "Select category" : "Select category"}
+          {selectedCategoryId
+            ? threadCategories.find((c) => c.id === selectedCategoryId)?.name ||
+              "Select category"
+            : "Select category"}
         </button>
 
         {#if showCategoryDropdown}
           <div class="dropdown-menu">
             {#each threadCategories as category (category.id)}
-              <button type="button" class="dropdown-item" on:click={() => selectCategory(category.id)}>
+              <button
+                type="button"
+                class="dropdown-item"
+                on:click={() => selectCategory(category.id)}
+              >
                 <div class="item-text">
                   <h4>{category.name}</h4>
                 </div>
                 {#if selectedCategoryId === category.id}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>
                 {/if}
@@ -252,8 +345,22 @@
 
       <!-- Post type toggle -->
       <div class="post-type-toggle">
-        <button type="button" class="option-button" on:click={togglePostingType}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button
+          type="button"
+          class="option-button"
+          on:click={togglePostingType}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
             <circle cx="9" cy="7" r="4"></circle>
             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -266,25 +373,58 @@
       <!-- Community selection (only shown when posting to community) -->
       {#if isPostingToCommunity}
         <div class="option-dropdown">
-          <button type="button" class="option-button" on:click={toggleCommunityDropdown}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5Z"></path>
+          <button
+            type="button"
+            class="option-button"
+            on:click={toggleCommunityDropdown}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5Z"
+              ></path>
               <path d="M3 10h18"></path>
               <path d="M10 3v18"></path>
             </svg>
-            {selectedCommunityId ? communities.find(c => c.id === selectedCommunityId)?.name || "Select community" : "Select community"}
+            {selectedCommunityId
+              ? communities.find((c) => c.id === selectedCommunityId)?.name ||
+                "Select community"
+              : "Select community"}
           </button>
 
           {#if showCommunityDropdown}
             <div class="dropdown-menu">
               {#each communities as community (community.id)}
-                <button type="button" class="dropdown-item" on:click={() => selectCommunity(community.id)}>
+                <button
+                  type="button"
+                  class="dropdown-item"
+                  on:click={() => selectCommunity(community.id)}
+                >
                   <div class="item-text">
                     <h4>{community.name}</h4>
                     <p>{community.description}</p>
                   </div>
                   {#if selectedCommunityId === community.id}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
                       <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                   {/if}
@@ -298,7 +438,17 @@
 
     <div class="reply-settings">
       <button type="button" class="reply-button" on:click={toggleReplyOptions}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <circle cx="12" cy="12" r="10"></circle>
           <path d="M12 8h.01"></path>
           <path d="M11 12h1v4h1"></path>
@@ -314,9 +464,26 @@
 
       {#if showReplyOptions}
         <div class="reply-dropdown">
-          <button type="button" class="reply-option" on:click={() => setReplyOption("everyone")}>
-            <div class="option-icon everyone" class:selected={replySettings === "everyone"}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button
+            type="button"
+            class="reply-option"
+            on:click={() => setReplyOption("everyone")}
+          >
+            <div
+              class="option-icon everyone"
+              class:selected={replySettings === "everyone"}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <circle cx="12" cy="12" r="10"></circle>
               </svg>
             </div>
@@ -326,9 +493,26 @@
             </div>
           </button>
 
-          <button type="button" class="reply-option" on:click={() => setReplyOption("following")}>
-            <div class="option-icon following" class:selected={replySettings === "following"}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button
+            type="button"
+            class="reply-option"
+            on:click={() => setReplyOption("following")}
+          >
+            <div
+              class="option-icon following"
+              class:selected={replySettings === "following"}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                 <circle cx="9" cy="7" r="4"></circle>
                 <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -341,9 +525,26 @@
             </div>
           </button>
 
-          <button type="button" class="reply-option" on:click={() => setReplyOption("verified")}>
-            <div class="option-icon mentioned" class:selected={replySettings === "verified"}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button
+            type="button"
+            class="reply-option"
+            on:click={() => setReplyOption("verified")}
+          >
+            <div
+              class="option-icon mentioned"
+              class:selected={replySettings === "verified"}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
               </svg>
             </div>
@@ -360,7 +561,17 @@
       <div class="compose-tools">
         <!-- Image upload button -->
         <label class="tool-button" for="image-upload">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
             <circle cx="9" cy="9" r="2"></circle>
             <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
@@ -377,7 +588,17 @@
 
         <!-- Poll button -->
         <button type="button" class="tool-button" aria-label="Create poll">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="M3 3v18h18"></path>
             <path d="M18 17V9"></path>
             <path d="M13 17V5"></path>
@@ -387,7 +608,17 @@
 
         <!-- Schedule button -->
         <button type="button" class="tool-button" aria-label="Schedule post">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
@@ -480,6 +711,8 @@
     top: 100%;
     left: 0;
     width: 100%;
+    max-height: 200px; /* Set a fixed height for the dropdown */
+    overflow-y: auto; /* Enable vertical scrolling */
     background-color: var(--card-background);
     border-radius: 16px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
