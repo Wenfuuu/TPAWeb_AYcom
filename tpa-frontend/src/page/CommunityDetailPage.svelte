@@ -1,10 +1,13 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { User } from "../lib/model/user";
-  import { fetchCommunityDetail, type Community } from "../lib/model/community";
+  import type { User, UserThread } from "../lib/model/user";
+  import { fetchCommunityDetailWithCreator, type Community } from "../lib/model/community";
   import { checkAuth, getAuthUser } from "../lib/utils/auth";
   import { navigate } from "svelte-routing";
-  import { fetchCommunityThreadWithUser } from "../lib/model/thread";
+  import { fetchCommunityThreadWithUser, type Thread } from "../lib/model/thread";
+  import LeftSidebar from "../lib/components/LeftSidebar.svelte";
+  import RightSidebar from "../lib/components/RightSidebar.svelte";
+  import CommunityDetailContent from "../lib/components/CommunityDetailContent.svelte";
 
   let isDarkMode = true; // Default to dark mode
   let user: User | null = null;
@@ -12,10 +15,13 @@
   let threads: (Thread & { userData: UserThread })[] = [];
 
     async function refreshData(page: number,
-        currTab: "top" | "latest" | "media" | "about" | "manage" = "top"
+        currTab: "top" | "latest" | "media" | "about" | "manage" = "latest"
     ){
         if(user) {
-            const data = await fetchCommunityThreadWithUser(page, user.id, community.id);
+            let data;
+            if(currTab === "latest") data = await fetchCommunityThreadWithUser(page, user.id, community.id);
+            else data = await fetchCommunityThreadWithUser(page, user.id, community.id);
+
             if(data) threads = data;
             console.log(threads);
         }
@@ -48,7 +54,8 @@
         const currentUrl = window.location.href;
         const urlParts = currentUrl.split("/");
         const communityId = urlParts[urlParts.length - 1];
-        community = await fetchCommunityDetail(communityId);
+
+        if(user) community = await fetchCommunityDetailWithCreator(user.id, communityId);
         console.log(community);
 
         // refresh threads based on page
@@ -57,8 +64,18 @@
 
 </script>
 
-
+<div class="home-container">
+  <LeftSidebar {toggleTheme} {isDarkMode} {user} {refreshData} />
+  <CommunityDetailContent {community} {threads} {user} {refreshData} />
+  <RightSidebar />
+</div>
 
 <style>
-
+    .home-container {
+        display: flex;
+        width: 100%;
+        height: 100vh;
+        background-color: var(--background);
+        color: var(--text-primary);
+    }
 </style>

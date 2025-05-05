@@ -33,6 +33,22 @@ service ThreadService {
     rpc GetPendingCommunity(GetPendingCommunityRequest) returns (GetAllCommunitiesResponse);
     rpc JoinCommunity(JoinCommunityRequest) returns (ActionResponse);
     rpc GetJoinedCommunity(GetJoinedCommunityRequest) returns (GetAllCommunitiesResponse);
+    rpc GetCommunityMembers(GetCommunityMembersRequest) returns (CommunityMembersResponse);
+}
+
+message GetCommunityMembersRequest {
+    string community_id = 1;
+}
+
+message CommunityMembersResponse {
+    repeated CommunityMembers communityMembers = 1;
+}
+
+message CommunityMembers {
+    string id = 1;
+    string user_id = 2;
+    string community_id = 3;
+    string rule = 4;
 }
 
 message JoinCommunityRequest {

@@ -95,7 +95,11 @@
 
     <nav class="navigation">
       {#each navItems as item (item.name)}
-        <a href={item.name.toLowerCase()} class="nav-item">
+        <button
+          type="button"
+          class="nav-item"
+          on:click={() => navigate(`/${item.name.toLowerCase()}`)}
+        >
           <span class="icon">
             {#if item.icon === "home"}
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -118,7 +122,7 @@
             {/if}
           </span>
           <span class="nav-text">{item.name}</span>
-        </a>
+        </button>
       {/each}
     </nav>
 
@@ -159,7 +163,7 @@
               {:else}
                 <!-- Moon icon for dark mode -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 A7 7 0 0 0 21 12.79z"></path>
                 </svg>
               {/if}
             </button>
@@ -248,10 +252,12 @@
     padding: 12px;
     border-radius: 9999px;
     color: var(--text-primary);
+    background-color: var(--background);
     text-decoration: none;
     font-size: 18px;
     font-weight: 400;
     transition: background-color 0.2s;
+    border: none;
   }
 
   .nav-item:hover {

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { fetchUser } from "./user";
 
 export type CommunityCategory = {
   id: string;
@@ -16,6 +17,9 @@ export type Community = {
   category: string;
   creator_id: string;
   created_at: string;
+  creator_name: string;
+  is_joined: boolean;
+  is_pending: boolean;
 };
 
 const BASE_API_URL = "http://localhost:8080/api/threads";
@@ -32,6 +36,7 @@ export async function requestJoinCommunity(userId: string, communityId: string) 
 export async function fetchCommunityWithCategory(userid: string, page: number, limit: number, search: string, categoryid: string) {
   const paginatedCommunity = await fetchCommunityPagination(page, limit, search, categoryid);
   const categories = await fetchCommunityCategory();
+  const allUsers = await fetchUser();
   let pendingCommunities = await fetchPendingCommunity(userid, 1, 1000, "", categoryid);
   let joinedCommunities = await fetchJoinedCommunity(userid, 1, 1000, "", categoryid);
   if(!pendingCommunities) pendingCommunities = [];
@@ -52,9 +57,13 @@ export async function fetchCommunityWithCategory(userid: string, page: number, l
     const c = categories.find((c) => c.id === community.category_id);
     const category: string = c ? c.name : "Unknown";
 
+    const user = allUsers.find((u) => u.id === community.creator_id);
+    const creator_name = user ? user.name : "Unknown";
+
     return {
       ...community,
       category,
+      creator_name,
     };
   });
 
@@ -64,6 +73,7 @@ export async function fetchCommunityWithCategory(userid: string, page: number, l
 export async function fetchPendingWithCategory(userid: string, page: number, limit: number, search: string, categoryid: string) {
     const paginatedCommunity = await fetchPendingCommunity(userid, page, limit, search, categoryid);
     const categories = await fetchCommunityCategory();
+    const allUsers = await fetchUser();
 
     if(!paginatedCommunity) return null;
 
@@ -71,9 +81,13 @@ export async function fetchPendingWithCategory(userid: string, page: number, lim
         const c = categories.find(c => c.id === community.category_id);
         const category: string = c ? c.name : "Unknown";
 
+        const user = allUsers.find((u) => u.id === community.creator_id);
+        const creator_name = user ? user.name : "Unknown";
+
         return {
           ...community,
           category,
+          creator_name
         };
     });
 
@@ -83,16 +97,21 @@ export async function fetchPendingWithCategory(userid: string, page: number, lim
 export async function fetchJoinedWithCategory(userid: string, page: number, limit: number, search: string, categoryid: string) {
     const paginatedCommunity = await fetchJoinedCommunity(userid, page, limit, search, categoryid);
     const categories = await fetchCommunityCategory();
+    const allUsers = await fetchUser();
 
     if(!paginatedCommunity) return null;
 
     communities = paginatedCommunity.map(community => {
-        const c = categories.find(c => c.id === community.category_id);
+        const c = categories.find((c) => c.id === community.category_id);
         const category: string = c ? c.name : "Unknown";
+
+        const user = allUsers.find((u) => u.id === community.creator_id);
+        const creator_name = user ? user.name : "Unknown";
 
         return {
           ...community,
           category,
+          creator_name,
         };
     });
 
@@ -103,6 +122,40 @@ export async function fetchCommunity() {
   const response = await axios.get<Community[]>(BASE_API_URL + "/community");
   const communities = response.data;
   return communities;
+}
+
+export async function fetchCommunityDetailWithCreator(user_id: string, community_id: string) {
+  const community = await fetchCommunityDetail(community_id);
+  const categories = await fetchCommunityCategory();
+  const allUsers = await fetchUser();
+
+  let pendingCommunities = await fetchPendingCommunity(user_id, 1, 1000, "", "all");
+  let joinedCommunities = await fetchJoinedCommunity(user_id, 1, 1000, "", "all");
+  if(!pendingCommunities) pendingCommunities = [];
+  if(!joinedCommunities) joinedCommunities = [];
+
+  const communityArray = Array.isArray(community) ? community : [community];
+
+  communities = communityArray.map((community) => {
+    const c = categories.find((c) => c.id === community.category_id);
+    const category: string = c ? c.name : "Unknown";
+
+    const user = allUsers.find((u) => u.id === community.creator_id);
+    const creator_name = user ? user.name : "Unknown";
+
+    const is_joined = joinedCommunities.some((joined) => joined.id === community.id);
+    const is_pending = pendingCommunities.some((pending) => pending.id === community.id);
+
+    return {
+      ...community,
+      category,
+      creator_name,
+      is_joined,
+      is_pending,
+    };
+  });
+
+  return communities[0];
 }
 
 export async function fetchCommunityDetail(community_id: string) {

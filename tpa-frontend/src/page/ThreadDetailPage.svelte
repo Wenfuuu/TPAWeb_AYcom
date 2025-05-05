@@ -108,7 +108,6 @@
 <div class="home-container">
   <LeftSidebar {toggleTheme} {isDarkMode} {user} {refreshData} refreshFollowingData={refreshData}
   {currentActiveTab} />
-  <!-- <HomeContent {threads} {user} {refreshData} {refreshFollowingData} {currentActiveTab} /> -->
    <ThreadDetailContent {thread} {replies} {refreshData}
     {loadThreadData} {user} {handleBackNavigation} />
   <RightSidebar />
