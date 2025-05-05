@@ -4,6 +4,7 @@
     requestJoinCommunity,
     type Community,
     type CommunityMember,
+    type JoinCommunityRequest,
   } from "../model/community";
   import type { User } from "../model/user";
   import type { UserThread } from "../model/user";
@@ -24,6 +25,7 @@
   ) => Promise<void>;
   export let topMembers: CommunityMember[] = [];
   export let moderators: CommunityMember[] = [];
+  export let joinRequests: JoinCommunityRequest[] = [];
 
   let activeTab: "top" | "latest" | "media" | "about" | "manage" = "latest";
   let page = 1;
@@ -102,6 +104,16 @@
   async function joinCommunity() {
     if (!user) return;
     await requestJoinCommunity(user.id, community.id);
+  }
+
+  async function acceptRequest(requestId: string) {
+    console.log(`Accepted request for ID: ${requestId}`);
+
+  }
+
+  async function rejectRequest(requestId: string) {
+    console.log(`Rejected request for ID: ${requestId}`);
+
   }
 
   onMount(async () => {
@@ -371,7 +383,36 @@
         </ul>
       </div>
     {:else if activeTab === "manage"}
-      <p>manage here</p>
+      <div class="manage-section">
+        <h2 class="manage-title">Manage Requests</h2>
+        {#if joinRequests.length > 0}
+          <ul class="manage-list">
+            {#each joinRequests as request (request.id)}
+              <li class="manage-list-item">
+                <span class="request-info">
+                  <strong>Username:</strong>
+                  {request.username} - <strong>Name:</strong>
+                  {request.name}
+                </span>
+                <div class="manage-actions">
+                  <button type="button"
+                    class="accept-button"
+                    on:click={() => acceptRequest(request.id)}
+                    >Accept</button
+                  >
+                  <button type="button"
+                    class="reject-button"
+                    on:click={() => rejectRequest(request.id)}
+                    >Reject</button
+                  >
+                </div>
+              </li>
+            {/each}
+          </ul>
+        {:else}
+          <p class="no-requests">No pending requests.</p>
+        {/if}
+      </div>
     {/if}
   </main>
 {/if}
@@ -833,5 +874,78 @@
     font-size: 14px;
     color: var(--text-secondary);
     margin-bottom: 4px;
+  }
+
+  /* Updated styling for the manage section */
+  .manage-section {
+    padding: 16px;
+    background-color: var(--card-background);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+  }
+
+  .manage-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .manage-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .manage-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .request-info {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .manage-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .accept-button,
+  .reject-button {
+    background-color: var(--button-primary);
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .reject-button {
+    background-color: var(--text-primary);
+    color: var(--card-background);
+  }
+
+  .accept-button:hover {
+    background-color: var(--button-primary-hover);
+  }
+
+  .reject-button:hover {
+    opacity: 0.9;
+  }
+
+  .no-requests {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: 16px;
   }
 </style>

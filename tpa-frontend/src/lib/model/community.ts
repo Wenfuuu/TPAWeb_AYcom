@@ -17,6 +17,14 @@ export type CommunityMember = {
   is_premium: boolean;
 };
 
+export type JoinCommunityRequest = {
+  id: string;
+  user_id: string;
+  community_id: string;
+  name: string;
+  username: string;
+};
+
 export type Community = {
   id: string;
   name: string;
@@ -177,6 +185,36 @@ export async function fetchCommunityDetail(community_id: string) {
   });
   const communities = response.data;
   return communities;
+}
+
+export async function fetchJoinRequest(community_id: string) {
+  let allRequests = await fetchJoinCommunityRequest(community_id);
+  const allUsers = await fetchUser();
+
+  if(!allRequests) allRequests = [];
+
+  const requests = allRequests.map(request => {
+    const user = allUsers.find((u) => u.id === request.user_id);
+    const name = user ? user.name : "Unknown";
+    const username = user ? user.username : "Unknown";
+
+    return{
+      ...request,
+      name,
+      username
+    };
+  });
+  return requests;
+}
+
+async function fetchJoinCommunityRequest(community_id: string) {
+  const response = await axios.get<JoinCommunityRequest[]>(BASE_API_URL + "/request-join-community", {
+    params: {
+      community_id
+    }
+  });
+  const requests = response.data;
+  return requests;
 }
 
 async function fetchCommunityPagination(page: number, limit: number, search: string, category_id: string) {
