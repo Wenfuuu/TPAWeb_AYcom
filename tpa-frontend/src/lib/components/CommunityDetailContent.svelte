@@ -23,6 +23,7 @@
     currTab: "top" | "latest" | "media" | "about" | "manage"
   ) => Promise<void>;
   export let topMembers: CommunityMember[] = [];
+  export let moderators: CommunityMember[] = [];
 
   let activeTab: "top" | "latest" | "media" | "about" | "manage" = "latest";
   let page = 1;
@@ -351,7 +352,24 @@
     {:else if activeTab === "media"}
       <p>media here</p>
     {:else if activeTab === "about"}
-      <p>about here</p>
+      <div class="about-section">
+        <h2>About {community.name}</h2>
+        <p><strong>Creator:</strong> {community.creator_name}</p>
+        <p>
+          <strong>Created on:</strong>
+          {new Date(community.created_at).toLocaleDateString()}
+        </p>
+        <h3>Community Rules</h3>
+        <p>
+          {community.rule}
+        </p>
+        <h3>Moderators</h3>
+        <ul>
+          {#each moderators as moderator (moderator.id)}
+            <li>{moderator.name} (@{moderator.username})</li>
+          {/each}
+        </ul>
+      </div>
     {:else if activeTab === "manage"}
       <p>manage here</p>
     {/if}
@@ -773,5 +791,47 @@
 
   .follow-button:hover {
     background-color: var(--button-primary-hover);
+  }
+
+  /* Updated styling for the about section */
+  .about-section {
+    padding: 16px;
+    background-color: var(--card-background);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+  }
+
+  .about-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .about-detail {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .about-subtitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 16px;
+    margin-bottom: 8px;
+  }
+
+  .about-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .about-list-item {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
   }
 </style>

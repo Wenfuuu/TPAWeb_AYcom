@@ -15,7 +15,6 @@ export type CommunityMember = {
   username: string;
   profile_picture: string;
   is_premium: boolean;
-  bio: string;
 };
 
 export type Community = {
@@ -241,6 +240,51 @@ export async function fetchTopMember(community_id: string) {
     };
   });
 
+  return members;
+}
+
+export async function fetchModerator(community_id: string) {
+  const topMembers = await fetchCommunityModerator(community_id);
+  const allUsers = await fetchUser();
+
+  const members: CommunityMember[] = topMembers.map((member) => {
+    const user = allUsers.find((u) => u.id === member.user_id);
+    console.log(user);
+    const name = user ? user.name : "Unknown";
+    const username = user ? user.username : "Unknown";
+    const profile_picture = user ? user.profile_picture : "Unknown";
+    const is_premium = user?.is_premium ? user.is_premium : false;
+
+    return {
+      ...member,
+      name,
+      username,
+      profile_picture,
+      is_premium,
+    };
+  });
+
+  return members;
+}
+
+async function fetchCommunityModerator(community_id: string) {
+  const response = await axios.get<CommunityMember[]>(BASE_API_URL + "/community-member", {
+    params: {
+      community_id
+    }
+  });
+  const members = response.data;
+  const moderator = members.filter((m) => m.role !== "member");
+  return moderator;
+}
+
+export async function fetchCommunityMember(community_id: string) {
+  const response = await axios.get<CommunityMember[]>(BASE_API_URL + "/community-member", {
+    params: {
+      community_id
+    }
+  });
+  const members = response.data;
   return members;
 }
 
