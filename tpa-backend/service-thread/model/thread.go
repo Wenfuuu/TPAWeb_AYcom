@@ -26,12 +26,15 @@ type Community struct {
 	CategoryID     	uuid.UUID 	`gorm:"type:uuid" json:"categoryId"`
 	Banner    		string    	`gorm:"type:text;not null" json:"banner"`
 	Rule    		string    	`gorm:"type:text;not null" json:"rule"`
+	CreatorID		uuid.UUID 	`gorm:"type:uuid" json:"creatorId"`
+	CreatedAt       time.Time 	`json:"createdAt" gorm:"autoCreateTime"`
 }
 
 type CommunityMembers struct {
 	ID 				uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	UserID			uuid.UUID 	`gorm:"type:uuid;uniqueIndex:idx_member" json:"userId"`
 	CommunityID  	uuid.UUID 	`gorm:"type:uuid;uniqueIndex:idx_member" json:"communityId"`
+	Role            	string  `json:"role" gorm:"default:'member'"`
 }
 
 type JoinCommunityRequest struct {

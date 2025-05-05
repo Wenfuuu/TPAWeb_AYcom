@@ -124,6 +124,7 @@ func InitRoutes(
 			thread.POST("/bookmark", threadHandler.BookmarkThread)
 			thread.POST("/unbookmark", threadHandler.UnbookmarkThread)
 			thread.GET("/thread-detail", threadHandler.GetThreadById)
+			thread.GET("/community-detail", threadHandler.GetCommunityById)
 			thread.GET("/thread-reply", threadHandler.GetReplies)
 			thread.GET("/top-hashtag", threadHandler.GetTopHashtags)
 		}

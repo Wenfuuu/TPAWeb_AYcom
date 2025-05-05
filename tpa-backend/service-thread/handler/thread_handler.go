@@ -550,6 +550,17 @@ func (h *ThreadHandler) GetAllThreadCategories(ctx context.Context, req *threadp
 	}, nil
 }
 
+func (h *ThreadHandler) GetCommunityById(ctx context.Context, req *threadpb.GetCommunityByIdRequest) (*threadpb.GetCommunityResponse, error) {
+	modelCommunity, err := h.threadRepo.GetCommunityById(req.CommunityId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	return &threadpb.GetCommunityResponse{
+		Community: h.communityToProto(modelCommunity),
+	}, nil
+}
+
 func (h *ThreadHandler) GetAllCommunity(ctx context.Context, req *threadpb.GetAllCommunitiesRequest) (*threadpb.GetAllCommunitiesResponse, error) {
 	modelCommunities, err := h.threadRepo.GetAllCommunity()
 	if err != nil {
@@ -672,6 +683,8 @@ func (h *ThreadHandler) communityToProto(community *model.Community) *threadpb.C
 		CategoryId: 	community.CategoryID.String(),
 		Banner: 		community.Banner,
 		Rule: 			community.Rule,
+		CreatorId: 		community.CreatorID.String(),
+		CreatedAt: 		community.CreatedAt.Format(time.RFC3339),
 	}
 }
 

@@ -77,7 +77,7 @@
   }
 
   function navigateToCommunity(communityId: string) {
-    navigate(`/community/${communityId}`);
+    navigate(`/community-detail/${communityId}`);
   }
 
   function navigateToCreateCommunity() {

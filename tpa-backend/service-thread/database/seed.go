@@ -34,12 +34,13 @@ func generateRandomCommunities() []model.Community {
     communities := []model.Community{}
     for i := 0; i < 30; i++ {
         community := model.Community{
-            Name:        "Community " + strconv.Itoa(i+1), // Convert i+1 to string
-            Description: "Description for community " + strconv.Itoa(i+1),
-            Logo:        logos[rand.Intn(len(logos))],
-            Banner:      banners[rand.Intn(len(banners))],
-            CategoryID:  categoryIDs[rand.Intn(len(categoryIDs))],
-            Rule:        "Random rule for community",
+            Name:        	"Community " + strconv.Itoa(i+1), // Convert i+1 to string
+            Description: 	"Description for community " + strconv.Itoa(i+1),
+            Logo:        	logos[rand.Intn(len(logos))],
+            Banner:      	banners[rand.Intn(len(banners))],
+            CategoryID:  	categoryIDs[rand.Intn(len(categoryIDs))],
+            Rule:        	"Random rule for community",
+			CreatorID: 		uuid.New(),
         }
         communities = append(communities, community)
     }
@@ -428,41 +429,43 @@ func Seed(db *gorm.DB) {
 	// 	db.Create(&element)
 	// }
 
-	var communityCategories = []model.CommunityCategory{
-		{
-			Name: "VTuber",
-		},
-		{
-			Name: "Game",
-		},
-	}
-	for _, element := range communityCategories {
-		db.Create(&element)
-	}
-
-	// var communities = []model.Community{
+	// var communityCategories = []model.CommunityCategory{
 	// 	{
-	// 		Name: "Hololive",
-	// 		Description: "A very special place for everyone",
-	// 		Logo: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//hoshimachi-suisei-hololive.gif",
-	// 		CategoryID: uuid.MustParse("928c8cc1-a75c-4fd2-a080-f2e4e090e698"),
-	// 		Banner: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(125).png",
-	// 		Rule: "Please support your oshis wholeheartedly",
+	// 		Name: "VTuber",
 	// 	},
 	// 	{
-	// 		Name: "Hoyoverse",
-	// 		Description: "A place that talks about the best game creator",
-	// 		Logo: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(2).png",
-	// 		CategoryID: uuid.MustParse("b49f4771-6207-46a2-84ef-8208775ae922"),
-	// 		Banner: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(3).png",
-	// 		Rule: "Enjoy hoyoverse games",
+	// 		Name: "Game",
 	// 	},
 	// }
-	// for _, element := range communities {
+	// for _, element := range communityCategories {
 	// 	db.Create(&element)
 	// }
+
+	var communities = []model.Community{
+		{
+			Name: "Hololive",
+			Description: "A very special place for everyone",
+			Logo: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//hoshimachi-suisei-hololive.gif",
+			CategoryID: uuid.MustParse("928c8cc1-a75c-4fd2-a080-f2e4e090e698"),
+			Banner: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(125).png",
+			Rule: "Please support your oshis wholeheartedly",
+			CreatorID: uuid.MustParse("ae2cf219-a6e3-46d7-aee0-6f05eb23f602"),
+		},
+		{
+			Name: "Hoyoverse",
+			Description: "A place that talks about the best game creator",
+			Logo: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(2).png",
+			CategoryID: uuid.MustParse("b49f4771-6207-46a2-84ef-8208775ae922"),
+			Banner: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//Screenshot%20(3).png",
+			Rule: "Enjoy hoyoverse games",
+			CreatorID: uuid.MustParse("f3122b31-7b92-400d-b94d-28ef100ca23b"),
+		},
+	}
+	for _, element := range communities {
+		db.Create(&element)
+	}
 	
-	communities := generateRandomCommunities()
+	communities = generateRandomCommunities()
 	for _, element := range communities {
 		db.Create(&element)
 	}

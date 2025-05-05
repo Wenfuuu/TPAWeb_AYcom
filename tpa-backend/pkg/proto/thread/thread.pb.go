@@ -1345,6 +1345,94 @@ func (x *GetAllCommunityCategoriesResponse) GetCommunityCategories() []*Communit
 	return nil
 }
 
+type GetCommunityByIdRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CommunityId   string                 `protobuf:"bytes,1,opt,name=community_id,json=communityId,proto3" json:"community_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCommunityByIdRequest) Reset() {
+	*x = GetCommunityByIdRequest{}
+	mi := &file_thread_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCommunityByIdRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCommunityByIdRequest) ProtoMessage() {}
+
+func (x *GetCommunityByIdRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCommunityByIdRequest.ProtoReflect.Descriptor instead.
+func (*GetCommunityByIdRequest) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *GetCommunityByIdRequest) GetCommunityId() string {
+	if x != nil {
+		return x.CommunityId
+	}
+	return ""
+}
+
+type GetCommunityResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Community     *Community             `protobuf:"bytes,1,opt,name=community,proto3" json:"community,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCommunityResponse) Reset() {
+	*x = GetCommunityResponse{}
+	mi := &file_thread_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCommunityResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCommunityResponse) ProtoMessage() {}
+
+func (x *GetCommunityResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_thread_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCommunityResponse.ProtoReflect.Descriptor instead.
+func (*GetCommunityResponse) Descriptor() ([]byte, []int) {
+	return file_thread_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *GetCommunityResponse) GetCommunity() *Community {
+	if x != nil {
+		return x.Community
+	}
+	return nil
+}
+
 type GetAllCommunitiesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -1353,7 +1441,7 @@ type GetAllCommunitiesRequest struct {
 
 func (x *GetAllCommunitiesRequest) Reset() {
 	*x = GetAllCommunitiesRequest{}
-	mi := &file_thread_proto_msgTypes[27]
+	mi := &file_thread_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1365,7 +1453,7 @@ func (x *GetAllCommunitiesRequest) String() string {
 func (*GetAllCommunitiesRequest) ProtoMessage() {}
 
 func (x *GetAllCommunitiesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[27]
+	mi := &file_thread_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1378,7 +1466,7 @@ func (x *GetAllCommunitiesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAllCommunitiesRequest.ProtoReflect.Descriptor instead.
 func (*GetAllCommunitiesRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{27}
+	return file_thread_proto_rawDescGZIP(), []int{29}
 }
 
 type GetAllCommunitiesResponse struct {
@@ -1390,7 +1478,7 @@ type GetAllCommunitiesResponse struct {
 
 func (x *GetAllCommunitiesResponse) Reset() {
 	*x = GetAllCommunitiesResponse{}
-	mi := &file_thread_proto_msgTypes[28]
+	mi := &file_thread_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1402,7 +1490,7 @@ func (x *GetAllCommunitiesResponse) String() string {
 func (*GetAllCommunitiesResponse) ProtoMessage() {}
 
 func (x *GetAllCommunitiesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[28]
+	mi := &file_thread_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1415,7 +1503,7 @@ func (x *GetAllCommunitiesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAllCommunitiesResponse.ProtoReflect.Descriptor instead.
 func (*GetAllCommunitiesResponse) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{28}
+	return file_thread_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *GetAllCommunitiesResponse) GetCommunities() []*Community {
@@ -1437,7 +1525,7 @@ type GetCommunityPaginationRequest struct {
 
 func (x *GetCommunityPaginationRequest) Reset() {
 	*x = GetCommunityPaginationRequest{}
-	mi := &file_thread_proto_msgTypes[29]
+	mi := &file_thread_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1449,7 +1537,7 @@ func (x *GetCommunityPaginationRequest) String() string {
 func (*GetCommunityPaginationRequest) ProtoMessage() {}
 
 func (x *GetCommunityPaginationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[29]
+	mi := &file_thread_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1462,7 +1550,7 @@ func (x *GetCommunityPaginationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCommunityPaginationRequest.ProtoReflect.Descriptor instead.
 func (*GetCommunityPaginationRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{29}
+	return file_thread_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *GetCommunityPaginationRequest) GetPage() int32 {
@@ -1506,7 +1594,7 @@ type GetPendingCommunityRequest struct {
 
 func (x *GetPendingCommunityRequest) Reset() {
 	*x = GetPendingCommunityRequest{}
-	mi := &file_thread_proto_msgTypes[30]
+	mi := &file_thread_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1518,7 +1606,7 @@ func (x *GetPendingCommunityRequest) String() string {
 func (*GetPendingCommunityRequest) ProtoMessage() {}
 
 func (x *GetPendingCommunityRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[30]
+	mi := &file_thread_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1531,7 +1619,7 @@ func (x *GetPendingCommunityRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPendingCommunityRequest.ProtoReflect.Descriptor instead.
 func (*GetPendingCommunityRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{30}
+	return file_thread_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GetPendingCommunityRequest) GetUserId() string {
@@ -1582,7 +1670,7 @@ type GetJoinedCommunityRequest struct {
 
 func (x *GetJoinedCommunityRequest) Reset() {
 	*x = GetJoinedCommunityRequest{}
-	mi := &file_thread_proto_msgTypes[31]
+	mi := &file_thread_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1594,7 +1682,7 @@ func (x *GetJoinedCommunityRequest) String() string {
 func (*GetJoinedCommunityRequest) ProtoMessage() {}
 
 func (x *GetJoinedCommunityRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[31]
+	mi := &file_thread_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1607,7 +1695,7 @@ func (x *GetJoinedCommunityRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetJoinedCommunityRequest.ProtoReflect.Descriptor instead.
 func (*GetJoinedCommunityRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{31}
+	return file_thread_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *GetJoinedCommunityRequest) GetUserId() string {
@@ -1653,7 +1741,7 @@ type GetAllThreadFileRequest struct {
 
 func (x *GetAllThreadFileRequest) Reset() {
 	*x = GetAllThreadFileRequest{}
-	mi := &file_thread_proto_msgTypes[32]
+	mi := &file_thread_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1665,7 +1753,7 @@ func (x *GetAllThreadFileRequest) String() string {
 func (*GetAllThreadFileRequest) ProtoMessage() {}
 
 func (x *GetAllThreadFileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[32]
+	mi := &file_thread_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1678,7 +1766,7 @@ func (x *GetAllThreadFileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAllThreadFileRequest.ProtoReflect.Descriptor instead.
 func (*GetAllThreadFileRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{32}
+	return file_thread_proto_rawDescGZIP(), []int{34}
 }
 
 type GetAllThreadFileResponse struct {
@@ -1690,7 +1778,7 @@ type GetAllThreadFileResponse struct {
 
 func (x *GetAllThreadFileResponse) Reset() {
 	*x = GetAllThreadFileResponse{}
-	mi := &file_thread_proto_msgTypes[33]
+	mi := &file_thread_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1702,7 +1790,7 @@ func (x *GetAllThreadFileResponse) String() string {
 func (*GetAllThreadFileResponse) ProtoMessage() {}
 
 func (x *GetAllThreadFileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[33]
+	mi := &file_thread_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1715,7 +1803,7 @@ func (x *GetAllThreadFileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAllThreadFileResponse.ProtoReflect.Descriptor instead.
 func (*GetAllThreadFileResponse) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{33}
+	return file_thread_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *GetAllThreadFileResponse) GetThreadFiles() []*ThreadFile {
@@ -1741,7 +1829,7 @@ type PostThreadRequest struct {
 
 func (x *PostThreadRequest) Reset() {
 	*x = PostThreadRequest{}
-	mi := &file_thread_proto_msgTypes[34]
+	mi := &file_thread_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1753,7 +1841,7 @@ func (x *PostThreadRequest) String() string {
 func (*PostThreadRequest) ProtoMessage() {}
 
 func (x *PostThreadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[34]
+	mi := &file_thread_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1766,7 +1854,7 @@ func (x *PostThreadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PostThreadRequest.ProtoReflect.Descriptor instead.
 func (*PostThreadRequest) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{34}
+	return file_thread_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *PostThreadRequest) GetUserId() string {
@@ -1845,7 +1933,7 @@ type Thread struct {
 
 func (x *Thread) Reset() {
 	*x = Thread{}
-	mi := &file_thread_proto_msgTypes[35]
+	mi := &file_thread_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1857,7 +1945,7 @@ func (x *Thread) String() string {
 func (*Thread) ProtoMessage() {}
 
 func (x *Thread) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[35]
+	mi := &file_thread_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1870,7 +1958,7 @@ func (x *Thread) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Thread.ProtoReflect.Descriptor instead.
 func (*Thread) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{35}
+	return file_thread_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *Thread) GetId() string {
@@ -1967,7 +2055,7 @@ type ThreadCategory struct {
 
 func (x *ThreadCategory) Reset() {
 	*x = ThreadCategory{}
-	mi := &file_thread_proto_msgTypes[36]
+	mi := &file_thread_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1979,7 +2067,7 @@ func (x *ThreadCategory) String() string {
 func (*ThreadCategory) ProtoMessage() {}
 
 func (x *ThreadCategory) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[36]
+	mi := &file_thread_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1992,7 +2080,7 @@ func (x *ThreadCategory) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ThreadCategory.ProtoReflect.Descriptor instead.
 func (*ThreadCategory) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{36}
+	return file_thread_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ThreadCategory) GetId() string {
@@ -2018,13 +2106,15 @@ type Community struct {
 	CategoryId    string                 `protobuf:"bytes,5,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	Banner        string                 `protobuf:"bytes,6,opt,name=banner,proto3" json:"banner,omitempty"`
 	Rule          string                 `protobuf:"bytes,7,opt,name=rule,proto3" json:"rule,omitempty"`
+	CreatorId     string                 `protobuf:"bytes,8,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatedAt     string                 `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Community) Reset() {
 	*x = Community{}
-	mi := &file_thread_proto_msgTypes[37]
+	mi := &file_thread_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2036,7 +2126,7 @@ func (x *Community) String() string {
 func (*Community) ProtoMessage() {}
 
 func (x *Community) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[37]
+	mi := &file_thread_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2049,7 +2139,7 @@ func (x *Community) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Community.ProtoReflect.Descriptor instead.
 func (*Community) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{37}
+	return file_thread_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *Community) GetId() string {
@@ -2101,6 +2191,20 @@ func (x *Community) GetRule() string {
 	return ""
 }
 
+func (x *Community) GetCreatorId() string {
+	if x != nil {
+		return x.CreatorId
+	}
+	return ""
+}
+
+func (x *Community) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
 type CommunityCategory struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -2111,7 +2215,7 @@ type CommunityCategory struct {
 
 func (x *CommunityCategory) Reset() {
 	*x = CommunityCategory{}
-	mi := &file_thread_proto_msgTypes[38]
+	mi := &file_thread_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2123,7 +2227,7 @@ func (x *CommunityCategory) String() string {
 func (*CommunityCategory) ProtoMessage() {}
 
 func (x *CommunityCategory) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[38]
+	mi := &file_thread_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2136,7 +2240,7 @@ func (x *CommunityCategory) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommunityCategory.ProtoReflect.Descriptor instead.
 func (*CommunityCategory) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{38}
+	return file_thread_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *CommunityCategory) GetId() string {
@@ -2164,7 +2268,7 @@ type ThreadFile struct {
 
 func (x *ThreadFile) Reset() {
 	*x = ThreadFile{}
-	mi := &file_thread_proto_msgTypes[39]
+	mi := &file_thread_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2176,7 +2280,7 @@ func (x *ThreadFile) String() string {
 func (*ThreadFile) ProtoMessage() {}
 
 func (x *ThreadFile) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[39]
+	mi := &file_thread_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2189,7 +2293,7 @@ func (x *ThreadFile) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ThreadFile.ProtoReflect.Descriptor instead.
 func (*ThreadFile) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{39}
+	return file_thread_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ThreadFile) GetId() string {
@@ -2222,7 +2326,7 @@ type ThreadResponse struct {
 
 func (x *ThreadResponse) Reset() {
 	*x = ThreadResponse{}
-	mi := &file_thread_proto_msgTypes[40]
+	mi := &file_thread_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2234,7 +2338,7 @@ func (x *ThreadResponse) String() string {
 func (*ThreadResponse) ProtoMessage() {}
 
 func (x *ThreadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_thread_proto_msgTypes[40]
+	mi := &file_thread_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2247,7 +2351,7 @@ func (x *ThreadResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ThreadResponse.ProtoReflect.Descriptor instead.
 func (*ThreadResponse) Descriptor() ([]byte, []int) {
-	return file_thread_proto_rawDescGZIP(), []int{40}
+	return file_thread_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *ThreadResponse) GetThread() *Thread {
@@ -2333,7 +2437,11 @@ const file_thread_proto_rawDesc = "" +
 	"\x11thread_categories\x18\x01 \x03(\v2\x16.thread.ThreadCategoryR\x10threadCategories\"\"\n" +
 	" GetAllCommunityCategoriesRequest\"q\n" +
 	"!GetAllCommunityCategoriesResponse\x12L\n" +
-	"\x14community_categories\x18\x01 \x03(\v2\x19.thread.CommunityCategoryR\x13communityCategories\"\x1a\n" +
+	"\x14community_categories\x18\x01 \x03(\v2\x19.thread.CommunityCategoryR\x13communityCategories\"<\n" +
+	"\x17GetCommunityByIdRequest\x12!\n" +
+	"\fcommunity_id\x18\x01 \x01(\tR\vcommunityId\"G\n" +
+	"\x14GetCommunityResponse\x12/\n" +
+	"\tcommunity\x18\x01 \x01(\v2\x11.thread.CommunityR\tcommunity\"\x1a\n" +
 	"\x18GetAllCommunitiesRequest\"P\n" +
 	"\x19GetAllCommunitiesResponse\x123\n" +
 	"\vcommunities\x18\x01 \x03(\v2\x11.thread.CommunityR\vcommunities\"\x82\x01\n" +
@@ -2390,7 +2498,7 @@ const file_thread_proto_rawDesc = "" +
 	"created_at\x18\f \x01(\tR\tcreatedAt\"4\n" +
 	"\x0eThreadCategory\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\xb2\x01\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\xf0\x01\n" +
 	"\tCommunity\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -2399,7 +2507,11 @@ const file_thread_proto_rawDesc = "" +
 	"\vcategory_id\x18\x05 \x01(\tR\n" +
 	"categoryId\x12\x16\n" +
 	"\x06banner\x18\x06 \x01(\tR\x06banner\x12\x12\n" +
-	"\x04rule\x18\a \x01(\tR\x04rule\"7\n" +
+	"\x04rule\x18\a \x01(\tR\x04rule\x12\x1d\n" +
+	"\n" +
+	"creator_id\x18\b \x01(\tR\tcreatorId\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\t \x01(\tR\tcreatedAt\"7\n" +
 	"\x11CommunityCategory\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"M\n" +
@@ -2409,7 +2521,7 @@ const file_thread_proto_rawDesc = "" +
 	"\tthread_id\x18\x02 \x01(\tR\bthreadId\x12\x12\n" +
 	"\x04file\x18\x03 \x01(\tR\x04file\"8\n" +
 	"\x0eThreadResponse\x12&\n" +
-	"\x06thread\x18\x01 \x01(\v2\x0e.thread.ThreadR\x06thread2\xd2\x10\n" +
+	"\x06thread\x18\x01 \x01(\v2\x0e.thread.ThreadR\x06thread2\xa5\x11\n" +
 	"\rThreadService\x12F\n" +
 	"\n" +
 	"GetReplies\x12\x19.thread.GetRepliesRequest\x1a\x1d.thread.GetAllThreadsResponse\x12H\n" +
@@ -2425,7 +2537,8 @@ const file_thread_proto_rawDesc = "" +
 	"\vReplyThread\x12\x1a.thread.ReplyThreadRequest\x1a\x16.thread.ThreadResponse\x12C\n" +
 	"\fRepostThread\x12\x1b.thread.RepostThreadRequest\x1a\x16.thread.ThreadResponse\x12G\n" +
 	"\x0eUnrepostThread\x12\x1d.thread.UnrepostThreadRequest\x1a\x16.thread.ActionResponse\x12g\n" +
-	"\x16GetAllThreadCategories\x12%.thread.GetAllThreadCategoriesRequest\x1a&.thread.GetAllThreadCategoriesResponse\x12V\n" +
+	"\x16GetAllThreadCategories\x12%.thread.GetAllThreadCategoriesRequest\x1a&.thread.GetAllThreadCategoriesResponse\x12Q\n" +
+	"\x10GetCommunityById\x12\x1f.thread.GetCommunityByIdRequest\x1a\x1c.thread.GetCommunityResponse\x12V\n" +
 	"\x0fGetAllCommunity\x12 .thread.GetAllCommunitiesRequest\x1a!.thread.GetAllCommunitiesResponse\x12p\n" +
 	"\x19GetAllCommunityCategories\x12(.thread.GetAllCommunityCategoriesRequest\x1a).thread.GetAllCommunityCategoriesResponse\x12U\n" +
 	"\x10GetAllThreadFile\x12\x1f.thread.GetAllThreadFileRequest\x1a .thread.GetAllThreadFileResponse\x12?\n" +
@@ -2453,7 +2566,7 @@ func file_thread_proto_rawDescGZIP() []byte {
 	return file_thread_proto_rawDescData
 }
 
-var file_thread_proto_msgTypes = make([]protoimpl.MessageInfo, 41)
+var file_thread_proto_msgTypes = make([]protoimpl.MessageInfo, 43)
 var file_thread_proto_goTypes = []any{
 	(*JoinCommunityRequest)(nil),              // 0: thread.JoinCommunityRequest
 	(*RequestJoinCommunityRequest)(nil),       // 1: thread.RequestJoinCommunityRequest
@@ -2482,87 +2595,92 @@ var file_thread_proto_goTypes = []any{
 	(*GetAllThreadCategoriesResponse)(nil),    // 24: thread.GetAllThreadCategoriesResponse
 	(*GetAllCommunityCategoriesRequest)(nil),  // 25: thread.GetAllCommunityCategoriesRequest
 	(*GetAllCommunityCategoriesResponse)(nil), // 26: thread.GetAllCommunityCategoriesResponse
-	(*GetAllCommunitiesRequest)(nil),          // 27: thread.GetAllCommunitiesRequest
-	(*GetAllCommunitiesResponse)(nil),         // 28: thread.GetAllCommunitiesResponse
-	(*GetCommunityPaginationRequest)(nil),     // 29: thread.GetCommunityPaginationRequest
-	(*GetPendingCommunityRequest)(nil),        // 30: thread.GetPendingCommunityRequest
-	(*GetJoinedCommunityRequest)(nil),         // 31: thread.GetJoinedCommunityRequest
-	(*GetAllThreadFileRequest)(nil),           // 32: thread.GetAllThreadFileRequest
-	(*GetAllThreadFileResponse)(nil),          // 33: thread.GetAllThreadFileResponse
-	(*PostThreadRequest)(nil),                 // 34: thread.PostThreadRequest
-	(*Thread)(nil),                            // 35: thread.Thread
-	(*ThreadCategory)(nil),                    // 36: thread.ThreadCategory
-	(*Community)(nil),                         // 37: thread.Community
-	(*CommunityCategory)(nil),                 // 38: thread.CommunityCategory
-	(*ThreadFile)(nil),                        // 39: thread.ThreadFile
-	(*ThreadResponse)(nil),                    // 40: thread.ThreadResponse
+	(*GetCommunityByIdRequest)(nil),           // 27: thread.GetCommunityByIdRequest
+	(*GetCommunityResponse)(nil),              // 28: thread.GetCommunityResponse
+	(*GetAllCommunitiesRequest)(nil),          // 29: thread.GetAllCommunitiesRequest
+	(*GetAllCommunitiesResponse)(nil),         // 30: thread.GetAllCommunitiesResponse
+	(*GetCommunityPaginationRequest)(nil),     // 31: thread.GetCommunityPaginationRequest
+	(*GetPendingCommunityRequest)(nil),        // 32: thread.GetPendingCommunityRequest
+	(*GetJoinedCommunityRequest)(nil),         // 33: thread.GetJoinedCommunityRequest
+	(*GetAllThreadFileRequest)(nil),           // 34: thread.GetAllThreadFileRequest
+	(*GetAllThreadFileResponse)(nil),          // 35: thread.GetAllThreadFileResponse
+	(*PostThreadRequest)(nil),                 // 36: thread.PostThreadRequest
+	(*Thread)(nil),                            // 37: thread.Thread
+	(*ThreadCategory)(nil),                    // 38: thread.ThreadCategory
+	(*Community)(nil),                         // 39: thread.Community
+	(*CommunityCategory)(nil),                 // 40: thread.CommunityCategory
+	(*ThreadFile)(nil),                        // 41: thread.ThreadFile
+	(*ThreadResponse)(nil),                    // 42: thread.ThreadResponse
 }
 var file_thread_proto_depIdxs = []int32{
 	4,  // 0: thread.HashtagCountResponse.hashtagCount:type_name -> thread.HashtagCount
-	35, // 1: thread.GetThreadResponse.thread:type_name -> thread.Thread
-	35, // 2: thread.GetAllThreadsResponse.threads:type_name -> thread.Thread
-	36, // 3: thread.GetAllThreadCategoriesResponse.thread_categories:type_name -> thread.ThreadCategory
-	38, // 4: thread.GetAllCommunityCategoriesResponse.community_categories:type_name -> thread.CommunityCategory
-	37, // 5: thread.GetAllCommunitiesResponse.communities:type_name -> thread.Community
-	39, // 6: thread.GetAllThreadFileResponse.thread_files:type_name -> thread.ThreadFile
-	35, // 7: thread.ThreadResponse.thread:type_name -> thread.Thread
-	13, // 8: thread.ThreadService.GetReplies:input_type -> thread.GetRepliesRequest
-	14, // 9: thread.ThreadService.GetThreadById:input_type -> thread.GetThreadByIdRequest
-	16, // 10: thread.ThreadService.GetAllThreads:input_type -> thread.GetAllThreadsRequest
-	18, // 11: thread.ThreadService.GetFollowingThreads:input_type -> thread.GetFollowingThreadsRequest
-	19, // 12: thread.ThreadService.GetBookmark:input_type -> thread.GetBookmarkRequest
-	20, // 13: thread.ThreadService.GetRepostThreads:input_type -> thread.GetRepostThreadsRequest
-	21, // 14: thread.ThreadService.GetLikedThreads:input_type -> thread.GetLikedThreadsRequest
-	22, // 15: thread.ThreadService.GetBookmarkThreads:input_type -> thread.GetBookmarkThreadsRequest
-	34, // 16: thread.ThreadService.PostThread:input_type -> thread.PostThreadRequest
-	5,  // 17: thread.ThreadService.ReplyThread:input_type -> thread.ReplyThreadRequest
-	6,  // 18: thread.ThreadService.RepostThread:input_type -> thread.RepostThreadRequest
-	7,  // 19: thread.ThreadService.UnrepostThread:input_type -> thread.UnrepostThreadRequest
-	23, // 20: thread.ThreadService.GetAllThreadCategories:input_type -> thread.GetAllThreadCategoriesRequest
-	27, // 21: thread.ThreadService.GetAllCommunity:input_type -> thread.GetAllCommunitiesRequest
-	25, // 22: thread.ThreadService.GetAllCommunityCategories:input_type -> thread.GetAllCommunityCategoriesRequest
-	32, // 23: thread.ThreadService.GetAllThreadFile:input_type -> thread.GetAllThreadFileRequest
-	8,  // 24: thread.ThreadService.LikeThread:input_type -> thread.LikeThreadRequest
-	9,  // 25: thread.ThreadService.UnlikeThread:input_type -> thread.UnlikeThreadRequest
-	10, // 26: thread.ThreadService.BookmarkThread:input_type -> thread.BookmarkThreadRequest
-	11, // 27: thread.ThreadService.UnbookmarkThread:input_type -> thread.UnbookmarkThreadRequest
-	2,  // 28: thread.ThreadService.GetTopHashtags:input_type -> thread.GetTopHashtagsRequest
-	29, // 29: thread.ThreadService.GetCommunityPagination:input_type -> thread.GetCommunityPaginationRequest
-	1,  // 30: thread.ThreadService.RequestJoinCommunity:input_type -> thread.RequestJoinCommunityRequest
-	30, // 31: thread.ThreadService.GetPendingCommunity:input_type -> thread.GetPendingCommunityRequest
-	0,  // 32: thread.ThreadService.JoinCommunity:input_type -> thread.JoinCommunityRequest
-	31, // 33: thread.ThreadService.GetJoinedCommunity:input_type -> thread.GetJoinedCommunityRequest
-	17, // 34: thread.ThreadService.GetReplies:output_type -> thread.GetAllThreadsResponse
-	15, // 35: thread.ThreadService.GetThreadById:output_type -> thread.GetThreadResponse
-	17, // 36: thread.ThreadService.GetAllThreads:output_type -> thread.GetAllThreadsResponse
-	17, // 37: thread.ThreadService.GetFollowingThreads:output_type -> thread.GetAllThreadsResponse
-	17, // 38: thread.ThreadService.GetBookmark:output_type -> thread.GetAllThreadsResponse
-	17, // 39: thread.ThreadService.GetRepostThreads:output_type -> thread.GetAllThreadsResponse
-	17, // 40: thread.ThreadService.GetLikedThreads:output_type -> thread.GetAllThreadsResponse
-	17, // 41: thread.ThreadService.GetBookmarkThreads:output_type -> thread.GetAllThreadsResponse
-	40, // 42: thread.ThreadService.PostThread:output_type -> thread.ThreadResponse
-	40, // 43: thread.ThreadService.ReplyThread:output_type -> thread.ThreadResponse
-	40, // 44: thread.ThreadService.RepostThread:output_type -> thread.ThreadResponse
-	12, // 45: thread.ThreadService.UnrepostThread:output_type -> thread.ActionResponse
-	24, // 46: thread.ThreadService.GetAllThreadCategories:output_type -> thread.GetAllThreadCategoriesResponse
-	28, // 47: thread.ThreadService.GetAllCommunity:output_type -> thread.GetAllCommunitiesResponse
-	26, // 48: thread.ThreadService.GetAllCommunityCategories:output_type -> thread.GetAllCommunityCategoriesResponse
-	33, // 49: thread.ThreadService.GetAllThreadFile:output_type -> thread.GetAllThreadFileResponse
-	12, // 50: thread.ThreadService.LikeThread:output_type -> thread.ActionResponse
-	12, // 51: thread.ThreadService.UnlikeThread:output_type -> thread.ActionResponse
-	12, // 52: thread.ThreadService.BookmarkThread:output_type -> thread.ActionResponse
-	12, // 53: thread.ThreadService.UnbookmarkThread:output_type -> thread.ActionResponse
-	3,  // 54: thread.ThreadService.GetTopHashtags:output_type -> thread.HashtagCountResponse
-	28, // 55: thread.ThreadService.GetCommunityPagination:output_type -> thread.GetAllCommunitiesResponse
-	12, // 56: thread.ThreadService.RequestJoinCommunity:output_type -> thread.ActionResponse
-	28, // 57: thread.ThreadService.GetPendingCommunity:output_type -> thread.GetAllCommunitiesResponse
-	12, // 58: thread.ThreadService.JoinCommunity:output_type -> thread.ActionResponse
-	28, // 59: thread.ThreadService.GetJoinedCommunity:output_type -> thread.GetAllCommunitiesResponse
-	34, // [34:60] is the sub-list for method output_type
-	8,  // [8:34] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	37, // 1: thread.GetThreadResponse.thread:type_name -> thread.Thread
+	37, // 2: thread.GetAllThreadsResponse.threads:type_name -> thread.Thread
+	38, // 3: thread.GetAllThreadCategoriesResponse.thread_categories:type_name -> thread.ThreadCategory
+	40, // 4: thread.GetAllCommunityCategoriesResponse.community_categories:type_name -> thread.CommunityCategory
+	39, // 5: thread.GetCommunityResponse.community:type_name -> thread.Community
+	39, // 6: thread.GetAllCommunitiesResponse.communities:type_name -> thread.Community
+	41, // 7: thread.GetAllThreadFileResponse.thread_files:type_name -> thread.ThreadFile
+	37, // 8: thread.ThreadResponse.thread:type_name -> thread.Thread
+	13, // 9: thread.ThreadService.GetReplies:input_type -> thread.GetRepliesRequest
+	14, // 10: thread.ThreadService.GetThreadById:input_type -> thread.GetThreadByIdRequest
+	16, // 11: thread.ThreadService.GetAllThreads:input_type -> thread.GetAllThreadsRequest
+	18, // 12: thread.ThreadService.GetFollowingThreads:input_type -> thread.GetFollowingThreadsRequest
+	19, // 13: thread.ThreadService.GetBookmark:input_type -> thread.GetBookmarkRequest
+	20, // 14: thread.ThreadService.GetRepostThreads:input_type -> thread.GetRepostThreadsRequest
+	21, // 15: thread.ThreadService.GetLikedThreads:input_type -> thread.GetLikedThreadsRequest
+	22, // 16: thread.ThreadService.GetBookmarkThreads:input_type -> thread.GetBookmarkThreadsRequest
+	36, // 17: thread.ThreadService.PostThread:input_type -> thread.PostThreadRequest
+	5,  // 18: thread.ThreadService.ReplyThread:input_type -> thread.ReplyThreadRequest
+	6,  // 19: thread.ThreadService.RepostThread:input_type -> thread.RepostThreadRequest
+	7,  // 20: thread.ThreadService.UnrepostThread:input_type -> thread.UnrepostThreadRequest
+	23, // 21: thread.ThreadService.GetAllThreadCategories:input_type -> thread.GetAllThreadCategoriesRequest
+	27, // 22: thread.ThreadService.GetCommunityById:input_type -> thread.GetCommunityByIdRequest
+	29, // 23: thread.ThreadService.GetAllCommunity:input_type -> thread.GetAllCommunitiesRequest
+	25, // 24: thread.ThreadService.GetAllCommunityCategories:input_type -> thread.GetAllCommunityCategoriesRequest
+	34, // 25: thread.ThreadService.GetAllThreadFile:input_type -> thread.GetAllThreadFileRequest
+	8,  // 26: thread.ThreadService.LikeThread:input_type -> thread.LikeThreadRequest
+	9,  // 27: thread.ThreadService.UnlikeThread:input_type -> thread.UnlikeThreadRequest
+	10, // 28: thread.ThreadService.BookmarkThread:input_type -> thread.BookmarkThreadRequest
+	11, // 29: thread.ThreadService.UnbookmarkThread:input_type -> thread.UnbookmarkThreadRequest
+	2,  // 30: thread.ThreadService.GetTopHashtags:input_type -> thread.GetTopHashtagsRequest
+	31, // 31: thread.ThreadService.GetCommunityPagination:input_type -> thread.GetCommunityPaginationRequest
+	1,  // 32: thread.ThreadService.RequestJoinCommunity:input_type -> thread.RequestJoinCommunityRequest
+	32, // 33: thread.ThreadService.GetPendingCommunity:input_type -> thread.GetPendingCommunityRequest
+	0,  // 34: thread.ThreadService.JoinCommunity:input_type -> thread.JoinCommunityRequest
+	33, // 35: thread.ThreadService.GetJoinedCommunity:input_type -> thread.GetJoinedCommunityRequest
+	17, // 36: thread.ThreadService.GetReplies:output_type -> thread.GetAllThreadsResponse
+	15, // 37: thread.ThreadService.GetThreadById:output_type -> thread.GetThreadResponse
+	17, // 38: thread.ThreadService.GetAllThreads:output_type -> thread.GetAllThreadsResponse
+	17, // 39: thread.ThreadService.GetFollowingThreads:output_type -> thread.GetAllThreadsResponse
+	17, // 40: thread.ThreadService.GetBookmark:output_type -> thread.GetAllThreadsResponse
+	17, // 41: thread.ThreadService.GetRepostThreads:output_type -> thread.GetAllThreadsResponse
+	17, // 42: thread.ThreadService.GetLikedThreads:output_type -> thread.GetAllThreadsResponse
+	17, // 43: thread.ThreadService.GetBookmarkThreads:output_type -> thread.GetAllThreadsResponse
+	42, // 44: thread.ThreadService.PostThread:output_type -> thread.ThreadResponse
+	42, // 45: thread.ThreadService.ReplyThread:output_type -> thread.ThreadResponse
+	42, // 46: thread.ThreadService.RepostThread:output_type -> thread.ThreadResponse
+	12, // 47: thread.ThreadService.UnrepostThread:output_type -> thread.ActionResponse
+	24, // 48: thread.ThreadService.GetAllThreadCategories:output_type -> thread.GetAllThreadCategoriesResponse
+	28, // 49: thread.ThreadService.GetCommunityById:output_type -> thread.GetCommunityResponse
+	30, // 50: thread.ThreadService.GetAllCommunity:output_type -> thread.GetAllCommunitiesResponse
+	26, // 51: thread.ThreadService.GetAllCommunityCategories:output_type -> thread.GetAllCommunityCategoriesResponse
+	35, // 52: thread.ThreadService.GetAllThreadFile:output_type -> thread.GetAllThreadFileResponse
+	12, // 53: thread.ThreadService.LikeThread:output_type -> thread.ActionResponse
+	12, // 54: thread.ThreadService.UnlikeThread:output_type -> thread.ActionResponse
+	12, // 55: thread.ThreadService.BookmarkThread:output_type -> thread.ActionResponse
+	12, // 56: thread.ThreadService.UnbookmarkThread:output_type -> thread.ActionResponse
+	3,  // 57: thread.ThreadService.GetTopHashtags:output_type -> thread.HashtagCountResponse
+	30, // 58: thread.ThreadService.GetCommunityPagination:output_type -> thread.GetAllCommunitiesResponse
+	12, // 59: thread.ThreadService.RequestJoinCommunity:output_type -> thread.ActionResponse
+	30, // 60: thread.ThreadService.GetPendingCommunity:output_type -> thread.GetAllCommunitiesResponse
+	12, // 61: thread.ThreadService.JoinCommunity:output_type -> thread.ActionResponse
+	30, // 62: thread.ThreadService.GetJoinedCommunity:output_type -> thread.GetAllCommunitiesResponse
+	36, // [36:63] is the sub-list for method output_type
+	9,  // [9:36] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_thread_proto_init() }
@@ -2576,7 +2694,7 @@ func file_thread_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_thread_proto_rawDesc), len(file_thread_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   41,
+			NumMessages:   43,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

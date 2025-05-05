@@ -14,6 +14,8 @@ export type Community = {
   banner: string;
   rule: string;
   category: string;
+  creator_id: string;
+  created_at: string;
 };
 
 const BASE_API_URL = "http://localhost:8080/api/threads";

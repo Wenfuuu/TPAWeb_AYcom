@@ -183,6 +183,15 @@ func (r *ThreadRepository) GetAllThreadCategories() ([]model.ThreadCategory, err
 	return categories, result.Error
 }
 
+func (r *ThreadRepository) GetCommunityById(id string) (*model.Community, error) {
+	var community model.Community
+	result := r.DB.First(&community, "id = ?", id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &community, nil
+}
+
 func (r *ThreadRepository) GetAllCommunity() ([]model.Community, error) {
 	var communities []model.Community
 	result := r.DB.Find(&communities)

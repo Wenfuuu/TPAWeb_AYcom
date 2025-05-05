@@ -419,6 +419,21 @@ func (h *ThreadHandler) GetAllThreadCategories(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.ThreadCategories)
 }
 
+func (h *ThreadHandler) GetCommunityById(c *gin.Context) {
+	communityId := c.Query("community_id")
+
+	resp, err := h.Client.GetCommunityById(context.Background(), &threadpb.GetCommunityByIdRequest{
+		CommunityId: communityId,
+	})
+		
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	
+	c.JSON(http.StatusOK, resp.Community)
+}
+
 func (h *ThreadHandler) GetAllCommunity(c *gin.Context) {
 	resp, err := h.Client.GetAllCommunity(context.Background(), &threadpb.GetAllCommunitiesRequest{})
 		

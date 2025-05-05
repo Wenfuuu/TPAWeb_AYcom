@@ -28,7 +28,7 @@
     { name: "Communities", icon: "users" },
     { name: "Premium", icon: "star" },
     { name: "Profile", icon: "user" },
-    { name: "More", icon: "more-horizontal" }
+    { name: "Settings", icon: "more-horizontal" }
   ];
 
   // Close dropdown when clicking outside
