@@ -27,11 +27,16 @@ func main() {
 	threadServiceAddr := utils.GetDotEnv("THREAD_SERVICE_ADDR")
 	threadClient, threadConn := client.NewThreadClient(threadServiceAddr)
 	defer threadConn.Close()
+
+	// chat service
+	chatServiceAddr := utils.GetDotEnv("CHAT_SERVICE_ADDR")
+	chatClient, chatConn := client.NewChatClient(chatServiceAddr)
+	defer chatConn.Close()
 	
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"}, // Vite default port
+		AllowOrigins:     []string{"http://localhost:5173"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "Refresh-token"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -40,7 +45,7 @@ func main() {
 	}))
 
 	//setup route
-	route.InitRoutes(r, userClient, authClient, threadClient)
+	route.InitRoutes(r, userClient, authClient, threadClient, chatClient)
 
 	port := utils.GetDotEnv("PORT")
 	log.Printf("API Gateway listening on port %s", port)

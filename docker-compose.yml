@@ -82,9 +82,20 @@ services:
       - redis
       - db-user
 
-  # Notification Service
+  # Chat Service -> grpc 50055, websocket 50056
+  service-chat:
+    build:
+      context: ./tpa-backend/
+      dockerfile: service-chat/Dockerfile
+    volumes:
+      - ./tpa-backend/service-chat:/app
+    ports:
+      - "50055:50055"
+      - "50056:50056"
+    depends_on:
+      - db-chat
 
-  # Chat Service
+  # Notification Service
 
   # AI
 
@@ -100,6 +111,19 @@ services:
     volumes:
       - user-data:/var/lib/postgresql/data
       - ./database/db-user/init:/docker-entrypoint-initdb.d
+
+  # Chat Database
+  db-chat:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: chat-service-db
+    ports:
+      - "5433:5432"
+    volumes:
+      - chat-data:/var/lib/postgresql/data
+      - ./database/db-chat/init:/docker-entrypoint-initdb.d
 
   # Message Broker
   rabbitmq:
@@ -128,5 +152,6 @@ services:
 
 volumes:
   user-data:
+  chat-data:
   rabbitmq-data:
   redis-data:

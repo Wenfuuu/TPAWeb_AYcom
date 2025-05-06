@@ -8,12 +8,11 @@ import (
 	"github.com/Wenfuuu/tpa-web/api-gateway/internal/handler"
 	"github.com/Wenfuuu/tpa-web/api-gateway/internal/middleware"
 
-	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
 	authpb "github.com/Wenfuuu/tpa-web/pkg/proto/auth"
 	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 	threadpb "github.com/Wenfuuu/tpa-web/pkg/proto/thread"
+	chatpb "github.com/Wenfuuu/tpa-web/pkg/proto/chat"
 	"github.com/gin-gonic/gin"
-	// "github.com/mojocn/base64Captcha"
 )
 
 const recaptchaSecret = "6Le5ySYrAAAAAKMMRBku5GFQxZnzfSjftwKO9yQS"
@@ -63,17 +62,27 @@ func InitRoutes(
 	userClient userpb.UserServiceClient,
 	authClient authpb.AuthServiceClient,
 	threadClient threadpb.ThreadServiceClient,
+	chatClient chatpb.ChatServiceClient,
 ) {
 
 	userHandler := handler.NewUserHandler(userClient)
 	authHandler := handler.NewAuthHandler(authClient)
 	authMiddleware := middleware.NewAuthMiddleware(authClient)
 	threadHandler := handler.NewThreadHandler(threadClient)
+	chatHandler := handler.NewChatHandler(chatClient)
 
 	r.POST("/verify-recaptcha", verifyRecaptcha)
 
 	api := r.Group("/api")
 	{
+		chat := api.Group("/chat")
+		{
+			// chat.GET("/conversations", chatHandler.GetConversations)
+			// chat.GET("/conversation", chatHandler.GetConversationById)
+			chat.POST("/conversation", chatHandler.CreateConversation)
+			// chat.GET("/messages", chatHandler.GetMessages)
+			// chat.POST("/send", chatHandler.SendMessage)
+		}
 		users := api.Group("/users")
 		{
 			// users.GET("/me", authMiddleware(), getProfile)

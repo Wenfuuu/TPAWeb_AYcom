@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package chat;
+
+option go_package = "github.com/Wenfuuu/tpa-web/pkg/proto/chat";
+
+service ChatService {
+  // Conversation methods
+  rpc GetConversations(GetConversationsRequest) returns (GetConversationsResponse) {}
+  rpc GetConversationById(GetConversationByIdRequest) returns (Conversation) {}
+  rpc CreateConversation(CreateConversationRequest) returns (Conversation) {}
+  
+  // Message methods
+  rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse) {}
+  rpc SendMessage(SendMessageRequest) returns (Message) {}
+}
+
+message GetConversationsRequest {
+  string user_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetConversationsResponse {
+  repeated Conversation conversations = 1;
+  int32 total_count = 2;
+}
+
+message GetConversationByIdRequest {
+  string conversation_id = 1;
+  string user_id = 2;
+}
+
+message CreateConversationRequest {
+  string name = 1;
+  repeated string user_ids = 2;
+  string creator_id = 3;
+}
+
+message GetMessagesRequest {
+  string conversation_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetMessagesResponse {
+  repeated Message messages = 1;
+  int32 total_count = 2;
+}
+
+message SendMessageRequest {
+  string conversation_id = 1;
+  string sender_id = 2;
+  string content = 3;
+  string media_type = 4;
+  string media_url = 5;
+}
+
+message Conversation {
+  string id = 1;
+  string name = 2;
+  repeated ConversationParticipant participants = 3;
+  Message last_message = 4;
+  string created_at = 5;
+  string updated_at = 6;
+  int32 unread_count = 7; // Number of unread messages for the requesting user
+  bool is_deleted = 8;
+}
+
+message ConversationParticipant {
+  string id = 1;
+  string conversation_id = 2;
+  string user_id = 3;
+  string joined_at = 4;
+  string last_read_at = 5;
+  bool is_active = 6;
+}
+
+message Message {
+  string id = 1;
+  string conversation_id = 2;
+  string sender_id = 3;
+  string content = 4;
+  string media_type = 5;
+  string media_url = 6;
+  string created_at = 7;
+  string updated_at = 8;
+  bool is_deleted = 9;
+  bool is_unsent = 10;
+}
