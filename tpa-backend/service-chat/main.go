@@ -108,29 +108,18 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		
 		// Create a new message
 		newMsg := model.Message{
-			SenderID:      client.UserID,
+			SenderID:      	client.UserID,
 			ConversationID: client.ConversationID,
-			Content:       msg.Content,
-			MediaType:     msg.MediaType,
+			Content:       	msg.Content,
+			MediaType:     	msg.MediaType,
+			MediaURL: 		msg.MediaURL,
 		}
 		
 		// Handle media if present
-		if msg.MediaType != "text" && msg.MediaURL != "" {
-			// In production, you would:
-			// 1. Decode base64 data
-			// 2. Validate media type
-			// 3. Store in blob storage (S3, etc.)
-			// 4. Store the URL in the database
-			
-			// For now, just store a placeholder URL or the base64 data
-			// if strings.HasPrefix(msg.MediaURL, "data:") {
-			// 	newMsg.MediaURL = msg.MediaURL // Already formatted as data URL
-			// } else {
-			// 	// Create a data URL
-			// 	mediaPrefix := "data:" + msg.MediaType + ";base64,"
-			// 	newMsg.MediaURL = mediaPrefix + msg.MediaURL
-			// }
-		}
+		// if msg.MediaType != "text" && msg.MediaURL != "" {
+			// newMsg.MediaType = msg.MediaType
+			// newMsg.MediaURL = msg.MediaURL;
+		// }
 		
 		// Save message to database
 		if err := db.Create(&newMsg).Error; err != nil {
@@ -321,7 +310,7 @@ func (s *ChatServer) GetMessages(ctx context.Context, req *chatpb.GetMessagesReq
 	
 	query := db.Where("conversation_id = ? AND is_deleted = ?", req.ConversationId, false)
 	
-	result := query.Order("created_at desc").Find(&messages)
+	result := query.Order("created_at asc").Find(&messages)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -394,6 +383,8 @@ func convertMessageToProto(msg model.Message) *chatpb.Message {
 		ConversationId: msg.ConversationID.String(),
 		SenderId:      	msg.SenderID.String(),
 		Content:       	msg.Content,
+		MediaType: 		msg.MediaType,	
+		MediaUrl: 		msg.MediaURL,	
 		CreatedAt:     	msg.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:     	msg.UpdatedAt.Format(time.RFC3339),
 		IsDeleted:     	msg.IsDeleted,
