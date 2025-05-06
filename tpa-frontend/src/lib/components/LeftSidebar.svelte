@@ -5,6 +5,7 @@
   import { navigate } from "svelte-routing";
   import ComposePost from "./ComposePost.svelte";
   import Modal from "./Modal.svelte";
+  import { toastStore } from "../stores/toast";
 
   export let toggleTheme: () => void;
   export let isDarkMode: boolean;
@@ -129,7 +130,10 @@
       {/each}
     </nav>
 
-    <button type="button" class="post-button" on:click={openComposeModal}>Post</button>
+    <button type="button" class="post-button" on:click={() => {
+      openComposeModal();
+      // toastStore.success("clicking on post button");
+    }}>Post</button>
 
     {#if user}
       <div class="user-profile-container" bind:this={dropdownRef}>

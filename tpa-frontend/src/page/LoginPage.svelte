@@ -10,6 +10,7 @@
   import { navigate } from "svelte-routing";
   import { checkGuest, login } from "../lib/utils/auth";
   import { onMount } from "svelte";
+  import { toastStore } from "../lib/stores/toast";
 
   let username = "";
   let password = "";
@@ -22,6 +23,13 @@
 
     try {
       await login(username, password, navigate);
+      toastStore.success("Login success!");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toastStore.error(error.message);
+      } else {
+        toastStore.error("An unexpected error occurred!");
+      }
     } finally {
       loading = false;
     }

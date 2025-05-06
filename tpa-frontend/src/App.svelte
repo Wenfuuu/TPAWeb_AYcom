@@ -10,11 +10,13 @@
   import CommunityPage from "./page/CommunityPage.svelte";
   import CommunityDetailPage from "./page/CommunityDetailPage.svelte";
   import ProfilePage from "./page/ProfilePage.svelte";
+  import CreateCommunityPage from "./page/CreateCommunityPage.svelte";
+  import ToastContainer from "./lib/components/ToastContainer.svelte";
 
-  // You need to export the URL prop to make router work
   export let url = "";
 </script>
 
+<ToastContainer />
 <Router {url}>
   <Route path="/">
     <LandingPage />
@@ -50,6 +52,10 @@
 
   <Route path="/community-detail/:id">
     <CommunityDetailPage />
+  </Route>
+
+   <Route path="/create-community">
+    <CreateCommunityPage />
   </Route>
 
   <Route path="/profile/:id">
