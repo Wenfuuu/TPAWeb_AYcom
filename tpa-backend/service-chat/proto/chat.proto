@@ -17,8 +17,6 @@ service ChatService {
 
 message GetConversationsRequest {
   string user_id = 1;
-  int32 limit = 2;
-  int32 offset = 3;
 }
 
 message GetConversationsResponse {
@@ -39,8 +37,6 @@ message CreateConversationRequest {
 
 message GetMessagesRequest {
   string conversation_id = 1;
-  int32 limit = 2;
-  int32 offset = 3;
 }
 
 message GetMessagesResponse {

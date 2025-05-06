@@ -12,6 +12,7 @@
   import ProfilePage from "./page/ProfilePage.svelte";
   import CreateCommunityPage from "./page/CreateCommunityPage.svelte";
   import ToastContainer from "./lib/components/ToastContainer.svelte";
+  import MessagePage from "./page/MessagePage.svelte";
 
   export let url = "";
 </script>
@@ -60,6 +61,10 @@
 
   <Route path="/profile/:id">
     <ProfilePage />
+  </Route>
+
+  <Route path="/messages">
+    <MessagePage />
   </Route>
 
 </Router>

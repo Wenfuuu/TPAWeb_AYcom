@@ -77,11 +77,11 @@ func InitRoutes(
 	{
 		chat := api.Group("/chat")
 		{
-			// chat.GET("/conversations", chatHandler.GetConversations)
+			chat.GET("/conversations", chatHandler.GetConversations)
 			// chat.GET("/conversation", chatHandler.GetConversationById)
 			chat.POST("/conversation", chatHandler.CreateConversation)
-			// chat.GET("/messages", chatHandler.GetMessages)
-			// chat.POST("/send", chatHandler.SendMessage)
+			chat.GET("/messages", chatHandler.GetMessages)
+			chat.POST("/send", chatHandler.SendMessage)
 		}
 		users := api.Group("/users")
 		{

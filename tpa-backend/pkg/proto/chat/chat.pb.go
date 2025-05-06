@@ -24,8 +24,6 @@ const (
 type GetConversationsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset        int32                  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -65,20 +63,6 @@ func (x *GetConversationsRequest) GetUserId() string {
 		return x.UserId
 	}
 	return ""
-}
-
-func (x *GetConversationsRequest) GetLimit() int32 {
-	if x != nil {
-		return x.Limit
-	}
-	return 0
-}
-
-func (x *GetConversationsRequest) GetOffset() int32 {
-	if x != nil {
-		return x.Offset
-	}
-	return 0
 }
 
 type GetConversationsResponse struct {
@@ -248,8 +232,6 @@ func (x *CreateConversationRequest) GetCreatorId() string {
 type GetMessagesRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	ConversationId string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
-	Limit          int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset         int32                  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -289,20 +271,6 @@ func (x *GetMessagesRequest) GetConversationId() string {
 		return x.ConversationId
 	}
 	return ""
-}
-
-func (x *GetMessagesRequest) GetLimit() int32 {
-	if x != nil {
-		return x.Limit
-	}
-	return 0
-}
-
-func (x *GetMessagesRequest) GetOffset() int32 {
-	if x != nil {
-		return x.Offset
-	}
-	return 0
 }
 
 type GetMessagesResponse struct {
@@ -362,6 +330,8 @@ type SendMessageRequest struct {
 	ConversationId string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
 	SenderId       string                 `protobuf:"bytes,2,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
 	Content        string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
+	MediaType      string                 `protobuf:"bytes,4,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
+	MediaUrl       string                 `protobuf:"bytes,5,opt,name=media_url,json=mediaUrl,proto3" json:"media_url,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -417,6 +387,20 @@ func (x *SendMessageRequest) GetContent() string {
 	return ""
 }
 
+func (x *SendMessageRequest) GetMediaType() string {
+	if x != nil {
+		return x.MediaType
+	}
+	return ""
+}
+
+func (x *SendMessageRequest) GetMediaUrl() string {
+	if x != nil {
+		return x.MediaUrl
+	}
+	return ""
+}
+
 type Conversation struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
 	Id            string                     `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -426,6 +410,7 @@ type Conversation struct {
 	CreatedAt     string                     `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     string                     `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	UnreadCount   int32                      `protobuf:"varint,7,opt,name=unread_count,json=unreadCount,proto3" json:"unread_count,omitempty"` // Number of unread messages for the requesting user
+	IsDeleted     bool                       `protobuf:"varint,8,opt,name=is_deleted,json=isDeleted,proto3" json:"is_deleted,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -509,6 +494,13 @@ func (x *Conversation) GetUnreadCount() int32 {
 	return 0
 }
 
+func (x *Conversation) GetIsDeleted() bool {
+	if x != nil {
+		return x.IsDeleted
+	}
+	return false
+}
+
 type ConversationParticipant struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -516,6 +508,7 @@ type ConversationParticipant struct {
 	UserId         string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	JoinedAt       string                 `protobuf:"bytes,4,opt,name=joined_at,json=joinedAt,proto3" json:"joined_at,omitempty"`
 	LastReadAt     string                 `protobuf:"bytes,5,opt,name=last_read_at,json=lastReadAt,proto3" json:"last_read_at,omitempty"`
+	IsActive       bool                   `protobuf:"varint,6,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -585,15 +578,25 @@ func (x *ConversationParticipant) GetLastReadAt() string {
 	return ""
 }
 
+func (x *ConversationParticipant) GetIsActive() bool {
+	if x != nil {
+		return x.IsActive
+	}
+	return false
+}
+
 type Message struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	ConversationId string                 `protobuf:"bytes,2,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
 	SenderId       string                 `protobuf:"bytes,3,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
 	Content        string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`
-	CreatedAt      string                 `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt      string                 `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	IsDeleted      bool                   `protobuf:"varint,7,opt,name=is_deleted,json=isDeleted,proto3" json:"is_deleted,omitempty"`
+	MediaType      string                 `protobuf:"bytes,5,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
+	MediaUrl       string                 `protobuf:"bytes,6,opt,name=media_url,json=mediaUrl,proto3" json:"media_url,omitempty"`
+	CreatedAt      string                 `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt      string                 `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	IsDeleted      bool                   `protobuf:"varint,9,opt,name=is_deleted,json=isDeleted,proto3" json:"is_deleted,omitempty"`
+	IsUnsent       bool                   `protobuf:"varint,10,opt,name=is_unsent,json=isUnsent,proto3" json:"is_unsent,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -656,6 +659,20 @@ func (x *Message) GetContent() string {
 	return ""
 }
 
+func (x *Message) GetMediaType() string {
+	if x != nil {
+		return x.MediaType
+	}
+	return ""
+}
+
+func (x *Message) GetMediaUrl() string {
+	if x != nil {
+		return x.MediaUrl
+	}
+	return ""
+}
+
 func (x *Message) GetCreatedAt() string {
 	if x != nil {
 		return x.CreatedAt
@@ -677,16 +694,21 @@ func (x *Message) GetIsDeleted() bool {
 	return false
 }
 
+func (x *Message) GetIsUnsent() bool {
+	if x != nil {
+		return x.IsUnsent
+	}
+	return false
+}
+
 var File_chat_proto protoreflect.FileDescriptor
 
 const file_chat_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"chat.proto\x12\x04chat\"`\n" +
+	"chat.proto\x12\x04chat\"2\n" +
 	"\x17GetConversationsRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x14\n" +
-	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x03 \x01(\x05R\x06offset\"u\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"u\n" +
 	"\x18GetConversationsResponse\x128\n" +
 	"\rconversations\x18\x01 \x03(\v2\x12.chat.ConversationR\rconversations\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x05R\n" +
@@ -698,19 +720,20 @@ const file_chat_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x19\n" +
 	"\buser_ids\x18\x02 \x03(\tR\auserIds\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x03 \x01(\tR\tcreatorId\"k\n" +
+	"creator_id\x18\x03 \x01(\tR\tcreatorId\"=\n" +
 	"\x12GetMessagesRequest\x12'\n" +
-	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12\x14\n" +
-	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x03 \x01(\x05R\x06offset\"a\n" +
+	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\"a\n" +
 	"\x13GetMessagesResponse\x12)\n" +
 	"\bmessages\x18\x01 \x03(\v2\r.chat.MessageR\bmessages\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x05R\n" +
-	"totalCount\"t\n" +
+	"totalCount\"\xb0\x01\n" +
 	"\x12SendMessageRequest\x12'\n" +
 	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12\x1b\n" +
 	"\tsender_id\x18\x02 \x01(\tR\bsenderId\x12\x18\n" +
-	"\acontent\x18\x03 \x01(\tR\acontent\"\x88\x02\n" +
+	"\acontent\x18\x03 \x01(\tR\acontent\x12\x1d\n" +
+	"\n" +
+	"media_type\x18\x04 \x01(\tR\tmediaType\x12\x1b\n" +
+	"\tmedia_url\x18\x05 \x01(\tR\bmediaUrl\"\xa7\x02\n" +
 	"\fConversation\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12A\n" +
@@ -720,25 +743,33 @@ const file_chat_proto_rawDesc = "" +
 	"created_at\x18\x05 \x01(\tR\tcreatedAt\x12\x1d\n" +
 	"\n" +
 	"updated_at\x18\x06 \x01(\tR\tupdatedAt\x12!\n" +
-	"\funread_count\x18\a \x01(\x05R\vunreadCount\"\xaa\x01\n" +
+	"\funread_count\x18\a \x01(\x05R\vunreadCount\x12\x1d\n" +
+	"\n" +
+	"is_deleted\x18\b \x01(\bR\tisDeleted\"\xc7\x01\n" +
 	"\x17ConversationParticipant\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12'\n" +
 	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\x12\x17\n" +
 	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tjoined_at\x18\x04 \x01(\tR\bjoinedAt\x12 \n" +
 	"\flast_read_at\x18\x05 \x01(\tR\n" +
-	"lastReadAt\"\xd6\x01\n" +
+	"lastReadAt\x12\x1b\n" +
+	"\tis_active\x18\x06 \x01(\bR\bisActive\"\xaf\x02\n" +
 	"\aMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12'\n" +
 	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\x12\x1b\n" +
 	"\tsender_id\x18\x03 \x01(\tR\bsenderId\x12\x18\n" +
 	"\acontent\x18\x04 \x01(\tR\acontent\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\x05 \x01(\tR\tcreatedAt\x12\x1d\n" +
+	"media_type\x18\x05 \x01(\tR\tmediaType\x12\x1b\n" +
+	"\tmedia_url\x18\x06 \x01(\tR\bmediaUrl\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\x06 \x01(\tR\tupdatedAt\x12\x1d\n" +
+	"created_at\x18\a \x01(\tR\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"is_deleted\x18\a \x01(\bR\tisDeleted2\xfe\x02\n" +
+	"updated_at\x18\b \x01(\tR\tupdatedAt\x12\x1d\n" +
+	"\n" +
+	"is_deleted\x18\t \x01(\bR\tisDeleted\x12\x1b\n" +
+	"\tis_unsent\x18\n" +
+	" \x01(\bR\bisUnsent2\xfe\x02\n" +
 	"\vChatService\x12S\n" +
 	"\x10GetConversations\x12\x1d.chat.GetConversationsRequest\x1a\x1e.chat.GetConversationsResponse\"\x00\x12M\n" +
 	"\x13GetConversationById\x12 .chat.GetConversationByIdRequest\x1a\x12.chat.Conversation\"\x00\x12K\n" +

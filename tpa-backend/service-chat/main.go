@@ -45,14 +45,14 @@ func handleMessages() {
 		msg := <-broadcast
 		// Send it to all clients in the same conversation
 		for client := range clients {
-			if client.ConversationID == msg.ConversationID {
+			// if client.ConversationID == msg.ConversationID {
 				err := client.Conn.WriteJSON(msg)
 				if err != nil {
 					log.Printf("Error sending message: %v", err)
 					client.Conn.Close()
 					delete(clients, client)
 				}
-			}
+			// }
 		}
 	}
 }
@@ -209,13 +209,6 @@ func (s *ChatServer) GetConversations(ctx context.Context, req *chatpb.GetConver
 		Joins("JOIN conversation_participants ON conversations.id = conversation_participants.conversation_id").
 		Where("conversation_participants.user_id = ?", req.UserId)
 	
-	if req.Limit > 0 {
-		query = query.Limit(int(req.Limit))
-	}
-	if req.Offset > 0 {
-		query = query.Offset(int(req.Offset))
-	}
-	
 	result := query.Order("conversations.updated_at desc").Find(&conversations)
 	if result.Error != nil {
 		return nil, result.Error
@@ -328,13 +321,6 @@ func (s *ChatServer) GetMessages(ctx context.Context, req *chatpb.GetMessagesReq
 	
 	query := db.Where("conversation_id = ? AND is_deleted = ?", req.ConversationId, false)
 	
-	if req.Limit > 0 {
-		query = query.Limit(int(req.Limit))
-	}
-	if req.Offset > 0 {
-		query = query.Offset(int(req.Offset))
-	}
-	
 	result := query.Order("created_at desc").Find(&messages)
 	if result.Error != nil {
 		return nil, result.Error
@@ -359,6 +345,7 @@ func (s *ChatServer) GetMessages(ctx context.Context, req *chatpb.GetMessagesReq
 }
 
 func (s *ChatServer) SendMessage(ctx context.Context, req *chatpb.SendMessageRequest) (*chatpb.Message, error) {
+	fmt.Printf(req.ConversationId)
 	msg := model.Message{
 		ConversationID: uuid.MustParse(req.ConversationId),
 		SenderID:       uuid.MustParse(req.SenderId),

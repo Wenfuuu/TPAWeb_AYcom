@@ -5,7 +5,6 @@
   import { navigate } from "svelte-routing";
   import ComposePost from "./ComposePost.svelte";
   import Modal from "./Modal.svelte";
-  import { toastStore } from "../stores/toast";
 
   export let toggleTheme: () => void;
   export let isDarkMode: boolean;
