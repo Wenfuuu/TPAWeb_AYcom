@@ -8,6 +8,8 @@ service ThreadService {
     rpc GetReplies(GetRepliesRequest) returns (GetAllThreadsResponse);
     rpc GetThreadById(GetThreadByIdRequest) returns (GetThreadResponse);
     rpc GetAllThreads(GetAllThreadsRequest) returns (GetAllThreadsResponse);
+    rpc GetUserThreads(GetUserThreadsRequest) returns (GetAllThreadsResponse);
+    rpc GetUserReplies(GetUserRepliesRequest) returns (GetAllThreadsResponse);
     rpc GetCommunityThreads(GetCommunityThreadsRequest) returns (GetAllThreadsResponse);
     rpc GetTopCommunityThreads(GetTopCommunityThreadsRequest) returns (GetAllThreadsResponse);
     rpc GetFollowingThreads(GetFollowingThreadsRequest) returns (GetAllThreadsResponse);
@@ -39,6 +41,19 @@ service ThreadService {
     rpc GetCommunityMembers(GetCommunityMembersRequest) returns (CommunityMembersResponse);
     rpc GetTopCommunityMembers(GetTopCommunityMembersRequest) returns (CommunityMembersResponse);
     rpc GetCommunityMedia(GetCommunityMediaRequest) returns (GetAllThreadFileResponse);
+    rpc GetThreadMedia(GetThreadMediaRequest) returns (GetAllThreadFileResponse);
+}
+
+message GetUserRepliesRequest {
+    string user_id = 1;
+}
+
+message GetUserThreadsRequest {
+    string user_id = 1;
+}
+
+message GetThreadMediaRequest {
+    string user_id = 1;
 }
 
 message GetCommunityMediaRequest {

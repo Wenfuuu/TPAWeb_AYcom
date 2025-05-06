@@ -35,6 +35,14 @@ func (s *ThreadServer) GetAllThreads(ctx context.Context, req *threadpb.GetAllTh
 	return s.threadHandler.GetAllThreads(ctx, req)
 }
 
+func (s *ThreadServer) GetUserThreads(ctx context.Context, req *threadpb.GetUserThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
+	return s.threadHandler.GetUserThreads(ctx, req)
+}
+
+func (s *ThreadServer) GetUserReplies(ctx context.Context, req *threadpb.GetUserRepliesRequest) (*threadpb.GetAllThreadsResponse, error) {
+	return s.threadHandler.GetUserReplies(ctx, req)
+}
+
 func (s *ThreadServer) GetTopCommunityThreads(ctx context.Context, req *threadpb.GetTopCommunityThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
 	return s.threadHandler.GetTopCommunityThreads(ctx, req)
 }
@@ -145,6 +153,10 @@ func (s *ThreadServer) GetCommunityPagination(ctx context.Context, req *threadpb
 
 func (s *ThreadServer) GetAllCommunityCategories(ctx context.Context, req *threadpb.GetAllCommunityCategoriesRequest) (*threadpb.GetAllCommunityCategoriesResponse, error) {
 	return s.threadHandler.GetAllCommunityCategories(ctx, req)
+}
+
+func (s *ThreadServer) GetThreadMedia(ctx context.Context, req *threadpb.GetThreadMediaRequest) (*threadpb.GetAllThreadFileResponse, error) {
+	return s.threadHandler.GetThreadMedia(ctx, req)
 }
 
 func (s *ThreadServer) GetCommunityMedia(ctx context.Context, req *threadpb.GetCommunityMediaRequest) (*threadpb.GetAllThreadFileResponse, error) {

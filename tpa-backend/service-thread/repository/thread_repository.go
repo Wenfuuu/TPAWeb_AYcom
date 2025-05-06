@@ -102,6 +102,20 @@ func (r *ThreadRepository) GetAllThreads(page int) ([]model.Thread, error) {
 	return threads, result.Error
 }
 
+func (r *ThreadRepository) GetUserThreads(userId string) ([]model.Thread, error) {
+	var threads []model.Thread
+
+	result := r.DB.Where("reply_to_id IS NULL").Where("user_id = ?", userId).Order("created_at DESC").Find(&threads)
+	return threads, result.Error
+}
+
+func (r *ThreadRepository) GetUserReplies(userId string) ([]model.Thread, error) {
+	var threads []model.Thread
+
+	result := r.DB.Where("reply_to_id IS NOT NULL").Where("user_id = ?", userId).Order("created_at DESC").Find(&threads)
+	return threads, result.Error
+}
+
 func (r *ThreadRepository) GetTopCommunityThreads(page int, communityId string) ([]model.Thread, error) {
 	var threads []model.Thread
 
@@ -342,6 +356,17 @@ func (r *ThreadRepository) GetAllCommunityCategories() ([]model.CommunityCategor
 	var categories []model.CommunityCategory
 	result := r.DB.Find(&categories)
 	return categories, result.Error
+}
+
+func (r *ThreadRepository) GetThreadMedia(user_id string) ([]model.ThreadFiles, error) {
+	var files []model.ThreadFiles
+
+	result := r.DB.
+		Joins("JOIN threads ON threads.id = thread_files.thread_id").
+		Where("threads.user_id = ?", user_id).
+		Find(&files)
+
+	return files, result.Error
 }
 
 func (r *ThreadRepository) GetCommunityMedia(page int, community_id string) ([]model.ThreadFiles, error) {

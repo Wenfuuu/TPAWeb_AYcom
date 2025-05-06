@@ -96,6 +96,38 @@ func (h *ThreadHandler) GetAllThreads(ctx context.Context, req *threadpb.GetAllT
 	}, nil
 }
 
+func (h *ThreadHandler) GetUserThreads(ctx context.Context, req *threadpb.GetUserThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
+	modelThreads, err := h.threadRepo.GetUserThreads(req.UserId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbThreads []*threadpb.Thread
+	for _, t := range modelThreads {
+		pbThreads = append(pbThreads, h.threadToProto(&t))
+	}
+
+	return &threadpb.GetAllThreadsResponse{
+		Threads: pbThreads,
+	}, nil
+}
+
+func (h *ThreadHandler) GetUserReplies(ctx context.Context, req *threadpb.GetUserRepliesRequest) (*threadpb.GetAllThreadsResponse, error) {
+	modelThreads, err := h.threadRepo.GetUserReplies(req.UserId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbThreads []*threadpb.Thread
+	for _, t := range modelThreads {
+		pbThreads = append(pbThreads, h.threadToProto(&t))
+	}
+
+	return &threadpb.GetAllThreadsResponse{
+		Threads: pbThreads,
+	}, nil
+}
+
 func (h *ThreadHandler) GetTopCommunityThreads(ctx context.Context, req *threadpb.GetTopCommunityThreadsRequest) (*threadpb.GetAllThreadsResponse, error) {
 	page := int(req.Page)
 	communityId := req.CommunityId
@@ -743,6 +775,22 @@ func (h *ThreadHandler) GetAllCommunityCategories(ctx context.Context, req *thre
 
 	return &threadpb.GetAllCommunityCategoriesResponse{
 		CommunityCategories: pbThreads,
+	}, nil
+}
+
+func (h *ThreadHandler) GetThreadMedia(ctx context.Context, req *threadpb.GetThreadMediaRequest) (*threadpb.GetAllThreadFileResponse, error) {
+	modelFiles, err := h.threadRepo.GetThreadMedia(req.UserId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbThreads []*threadpb.ThreadFile
+	for _, t := range modelFiles {
+		pbThreads = append(pbThreads, h.fileToProto(&t))
+	}
+
+	return &threadpb.GetAllThreadFileResponse{
+		ThreadFiles: pbThreads,
 	}, nil
 }
 

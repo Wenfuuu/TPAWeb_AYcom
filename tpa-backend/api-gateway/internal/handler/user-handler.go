@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 
@@ -61,6 +60,21 @@ func (h *UserHandler) GetAllUsers(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resp.Users)
+}
+
+func (h *UserHandler) GetUser(c *gin.Context) {
+	userId := c.Query("id")
+
+	resp, err := h.Client.GetUser(context.Background(), &userpb.GetUserRequest{
+		Id: userId,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.User)
 }
 
 func (h *UserHandler) GetWhoToFollow(c *gin.Context) {
@@ -167,7 +181,6 @@ func (h *UserHandler) UploadVideo(c *gin.Context) {
 		return
 	}
 
-	// log.Printf("aaaaaaaaaaa")
 	// Open the file
 	f, err := file.Open()
 	if err != nil {
@@ -183,19 +196,16 @@ func (h *UserHandler) UploadVideo(c *gin.Context) {
 		return
 	}
 
-	log.Printf("aaaaaaaaaaa")
 	resp, err := h.Client.UploadVideo(context.Background(), &userpb.UploadVideoRequest{
 		VideoData: fileBytes,
 		Filename:  file.Filename,
 	})
 
-	log.Printf("bbbbbbbbb")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	log.Printf("cccccccc")
 	c.JSON(http.StatusOK, gin.H{
 		"url": resp.VideoUrl,
 	})

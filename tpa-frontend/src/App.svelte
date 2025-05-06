@@ -9,6 +9,7 @@
   import PremiumPage from "./page/PremiumPage.svelte";
   import CommunityPage from "./page/CommunityPage.svelte";
   import CommunityDetailPage from "./page/CommunityDetailPage.svelte";
+  import ProfilePage from "./page/ProfilePage.svelte";
 
   // You need to export the URL prop to make router work
   export let url = "";
@@ -49,6 +50,10 @@
 
   <Route path="/community-detail/:id">
     <CommunityDetailPage />
+  </Route>
+
+  <Route path="/profile/:id">
+    <ProfilePage />
   </Route>
 
 </Router>

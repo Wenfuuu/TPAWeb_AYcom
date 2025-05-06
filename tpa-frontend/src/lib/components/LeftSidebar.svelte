@@ -98,7 +98,10 @@
         <button
           type="button"
           class="nav-item"
-          on:click={() => navigate(`/${item.name.toLowerCase()}`)}
+          on:click={() => {
+            if(item.name === "Profile") navigate(`/${item.name.toLowerCase()}/${user?.id}`);
+            else navigate(`/${item.name.toLowerCase()}`);
+          }}
         >
           <span class="icon">
             {#if item.icon === "home"}

@@ -9,7 +9,7 @@
   import RightSidebar from "../lib/components/RightSidebar.svelte";
   import CommunityDetailContent from "../lib/components/CommunityDetailContent.svelte";
 
-  let isDarkMode = true; // Default to dark mode
+  let isDarkMode = true;
   let user: User | null = null;
   let community: Community;
   let threads: (Thread & { userData: UserThread })[] = [];
@@ -28,7 +28,7 @@
             const urlParts = currentUrl.split("/");
             const communityId = urlParts[urlParts.length - 1];
 
-            if(user) community = await fetchCommunityDetailWithCreator(user.id, communityId);
+            community = await fetchCommunityDetailWithCreator(user.id, communityId);
 
             topMembers = await fetchTopMember(community.id);
             // console.log(topMembers);

@@ -22,6 +22,8 @@ const (
 	ThreadService_GetReplies_FullMethodName                = "/thread.ThreadService/GetReplies"
 	ThreadService_GetThreadById_FullMethodName             = "/thread.ThreadService/GetThreadById"
 	ThreadService_GetAllThreads_FullMethodName             = "/thread.ThreadService/GetAllThreads"
+	ThreadService_GetUserThreads_FullMethodName            = "/thread.ThreadService/GetUserThreads"
+	ThreadService_GetUserReplies_FullMethodName            = "/thread.ThreadService/GetUserReplies"
 	ThreadService_GetCommunityThreads_FullMethodName       = "/thread.ThreadService/GetCommunityThreads"
 	ThreadService_GetTopCommunityThreads_FullMethodName    = "/thread.ThreadService/GetTopCommunityThreads"
 	ThreadService_GetFollowingThreads_FullMethodName       = "/thread.ThreadService/GetFollowingThreads"
@@ -53,6 +55,7 @@ const (
 	ThreadService_GetCommunityMembers_FullMethodName       = "/thread.ThreadService/GetCommunityMembers"
 	ThreadService_GetTopCommunityMembers_FullMethodName    = "/thread.ThreadService/GetTopCommunityMembers"
 	ThreadService_GetCommunityMedia_FullMethodName         = "/thread.ThreadService/GetCommunityMedia"
+	ThreadService_GetThreadMedia_FullMethodName            = "/thread.ThreadService/GetThreadMedia"
 )
 
 // ThreadServiceClient is the client API for ThreadService service.
@@ -62,6 +65,8 @@ type ThreadServiceClient interface {
 	GetReplies(ctx context.Context, in *GetRepliesRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetThreadById(ctx context.Context, in *GetThreadByIdRequest, opts ...grpc.CallOption) (*GetThreadResponse, error)
 	GetAllThreads(ctx context.Context, in *GetAllThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
+	GetUserThreads(ctx context.Context, in *GetUserThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
+	GetUserReplies(ctx context.Context, in *GetUserRepliesRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetCommunityThreads(ctx context.Context, in *GetCommunityThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetTopCommunityThreads(ctx context.Context, in *GetTopCommunityThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
 	GetFollowingThreads(ctx context.Context, in *GetFollowingThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error)
@@ -93,6 +98,7 @@ type ThreadServiceClient interface {
 	GetCommunityMembers(ctx context.Context, in *GetCommunityMembersRequest, opts ...grpc.CallOption) (*CommunityMembersResponse, error)
 	GetTopCommunityMembers(ctx context.Context, in *GetTopCommunityMembersRequest, opts ...grpc.CallOption) (*CommunityMembersResponse, error)
 	GetCommunityMedia(ctx context.Context, in *GetCommunityMediaRequest, opts ...grpc.CallOption) (*GetAllThreadFileResponse, error)
+	GetThreadMedia(ctx context.Context, in *GetThreadMediaRequest, opts ...grpc.CallOption) (*GetAllThreadFileResponse, error)
 }
 
 type threadServiceClient struct {
@@ -127,6 +133,26 @@ func (c *threadServiceClient) GetAllThreads(ctx context.Context, in *GetAllThrea
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetAllThreadsResponse)
 	err := c.cc.Invoke(ctx, ThreadService_GetAllThreads_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) GetUserThreads(ctx context.Context, in *GetUserThreadsRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllThreadsResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetUserThreads_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) GetUserReplies(ctx context.Context, in *GetUserRepliesRequest, opts ...grpc.CallOption) (*GetAllThreadsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllThreadsResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetUserReplies_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -443,6 +469,16 @@ func (c *threadServiceClient) GetCommunityMedia(ctx context.Context, in *GetComm
 	return out, nil
 }
 
+func (c *threadServiceClient) GetThreadMedia(ctx context.Context, in *GetThreadMediaRequest, opts ...grpc.CallOption) (*GetAllThreadFileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllThreadFileResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetThreadMedia_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ThreadServiceServer is the server API for ThreadService service.
 // All implementations must embed UnimplementedThreadServiceServer
 // for forward compatibility.
@@ -450,6 +486,8 @@ type ThreadServiceServer interface {
 	GetReplies(context.Context, *GetRepliesRequest) (*GetAllThreadsResponse, error)
 	GetThreadById(context.Context, *GetThreadByIdRequest) (*GetThreadResponse, error)
 	GetAllThreads(context.Context, *GetAllThreadsRequest) (*GetAllThreadsResponse, error)
+	GetUserThreads(context.Context, *GetUserThreadsRequest) (*GetAllThreadsResponse, error)
+	GetUserReplies(context.Context, *GetUserRepliesRequest) (*GetAllThreadsResponse, error)
 	GetCommunityThreads(context.Context, *GetCommunityThreadsRequest) (*GetAllThreadsResponse, error)
 	GetTopCommunityThreads(context.Context, *GetTopCommunityThreadsRequest) (*GetAllThreadsResponse, error)
 	GetFollowingThreads(context.Context, *GetFollowingThreadsRequest) (*GetAllThreadsResponse, error)
@@ -481,6 +519,7 @@ type ThreadServiceServer interface {
 	GetCommunityMembers(context.Context, *GetCommunityMembersRequest) (*CommunityMembersResponse, error)
 	GetTopCommunityMembers(context.Context, *GetTopCommunityMembersRequest) (*CommunityMembersResponse, error)
 	GetCommunityMedia(context.Context, *GetCommunityMediaRequest) (*GetAllThreadFileResponse, error)
+	GetThreadMedia(context.Context, *GetThreadMediaRequest) (*GetAllThreadFileResponse, error)
 	mustEmbedUnimplementedThreadServiceServer()
 }
 
@@ -499,6 +538,12 @@ func (UnimplementedThreadServiceServer) GetThreadById(context.Context, *GetThrea
 }
 func (UnimplementedThreadServiceServer) GetAllThreads(context.Context, *GetAllThreadsRequest) (*GetAllThreadsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllThreads not implemented")
+}
+func (UnimplementedThreadServiceServer) GetUserThreads(context.Context, *GetUserThreadsRequest) (*GetAllThreadsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserThreads not implemented")
+}
+func (UnimplementedThreadServiceServer) GetUserReplies(context.Context, *GetUserRepliesRequest) (*GetAllThreadsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserReplies not implemented")
 }
 func (UnimplementedThreadServiceServer) GetCommunityThreads(context.Context, *GetCommunityThreadsRequest) (*GetAllThreadsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCommunityThreads not implemented")
@@ -593,6 +638,9 @@ func (UnimplementedThreadServiceServer) GetTopCommunityMembers(context.Context, 
 func (UnimplementedThreadServiceServer) GetCommunityMedia(context.Context, *GetCommunityMediaRequest) (*GetAllThreadFileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCommunityMedia not implemented")
 }
+func (UnimplementedThreadServiceServer) GetThreadMedia(context.Context, *GetThreadMediaRequest) (*GetAllThreadFileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetThreadMedia not implemented")
+}
 func (UnimplementedThreadServiceServer) mustEmbedUnimplementedThreadServiceServer() {}
 func (UnimplementedThreadServiceServer) testEmbeddedByValue()                       {}
 
@@ -664,6 +712,42 @@ func _ThreadService_GetAllThreads_Handler(srv interface{}, ctx context.Context, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ThreadServiceServer).GetAllThreads(ctx, req.(*GetAllThreadsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_GetUserThreads_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserThreadsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetUserThreads(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetUserThreads_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetUserThreads(ctx, req.(*GetUserThreadsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_GetUserReplies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserRepliesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetUserReplies(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetUserReplies_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetUserReplies(ctx, req.(*GetUserRepliesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1226,6 +1310,24 @@ func _ThreadService_GetCommunityMedia_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_GetThreadMedia_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetThreadMediaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetThreadMedia(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetThreadMedia_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetThreadMedia(ctx, req.(*GetThreadMediaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ThreadService_ServiceDesc is the grpc.ServiceDesc for ThreadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1244,6 +1346,14 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllThreads",
 			Handler:    _ThreadService_GetAllThreads_Handler,
+		},
+		{
+			MethodName: "GetUserThreads",
+			Handler:    _ThreadService_GetUserThreads_Handler,
+		},
+		{
+			MethodName: "GetUserReplies",
+			Handler:    _ThreadService_GetUserReplies_Handler,
 		},
 		{
 			MethodName: "GetCommunityThreads",
@@ -1368,6 +1478,10 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCommunityMedia",
 			Handler:    _ThreadService_GetCommunityMedia_Handler,
+		},
+		{
+			MethodName: "GetThreadMedia",
+			Handler:    _ThreadService_GetThreadMedia_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

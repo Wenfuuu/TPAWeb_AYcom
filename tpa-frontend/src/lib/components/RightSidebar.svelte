@@ -225,7 +225,9 @@
       Subscribe to unlock new features and if eligible, receive a share of
       revenue.
     </p>
-    <button type="button" class="subscribe-button">Subscribe</button>
+    <button type="button" class="subscribe-button"
+    on:click={() => navigate("/premium")}
+    >Subscribe</button>
   </div>
 
   <div class="sidebar-section trending-section">

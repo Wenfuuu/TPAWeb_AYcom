@@ -87,6 +87,36 @@ func (h *ThreadHandler) GetAllThreads(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Threads)
 }
 
+func (h *ThreadHandler) GetUserThreads(c *gin.Context) {
+	userId := c.Query("user_id")
+
+	resp, err := h.Client.GetUserThreads(context.Background(), &threadpb.GetUserThreadsRequest{
+		UserId: userId,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.Threads)
+}
+
+func (h *ThreadHandler) GetUserReplies(c *gin.Context) {
+	userId := c.Query("user_id")
+
+	resp, err := h.Client.GetUserReplies(context.Background(), &threadpb.GetUserRepliesRequest{
+		UserId: userId,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.Threads)
+}
+
 func (h *ThreadHandler) GetTopCommunityThreads(c *gin.Context) {
 	pageStr := c.Query("page")
 	communityId := c.Query("community_id")
@@ -107,6 +137,21 @@ func (h *ThreadHandler) GetTopCommunityThreads(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resp.Threads)
+}
+
+func (h *ThreadHandler) GetThreadMedia(c *gin.Context) {
+	userId := c.Query("user_id")
+
+	resp, err := h.Client.GetThreadMedia(context.Background(), &threadpb.GetThreadMediaRequest{
+		UserId: userId,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.ThreadFiles)
 }
 
 func (h *ThreadHandler) GetCommunityMedia(c *gin.Context) {

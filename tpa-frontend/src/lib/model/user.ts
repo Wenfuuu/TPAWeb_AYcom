@@ -16,7 +16,7 @@ export type User = {
     is_subscribed: boolean
     is_premium: boolean
     bio: string
-    createdAt: string
+    created_at: string
 }
 
 export type UserThread = {
@@ -31,6 +31,16 @@ export async function fetchUser() {
     const response = await axios.get<User[]>(BASE_API_URL + "/user");
     const users = response.data;
     return users;
+}
+
+export async function fetchProfileUser(id: string) {
+  const response = await axios.get<User>(BASE_API_URL + "/user-profile", {
+    params: {
+      id,
+    },
+  });
+  const user = response.data;
+  return user;
 }
 
 export async function fetchWhoToFolllow(user_id: string) {

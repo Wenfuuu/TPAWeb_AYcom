@@ -177,7 +177,6 @@
 {/if}
 
 <style>
-  /* Styles for HomeContent - Keep only styles relevant to this component's structure */
   .content-area {
     flex: 1;
     border-right: 1px solid var(--border-color);

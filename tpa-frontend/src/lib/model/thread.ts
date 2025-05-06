@@ -19,6 +19,12 @@ type ThreadInsights = {
     likes: number;
 };
 
+export type ThreadMedia = {
+  id: string;
+  thread_id: string;
+  file: string;
+};
+
 export type Thread = {
   id: string;
   user_id: string;
@@ -481,6 +487,63 @@ export async function fetchRepostThread(user_id: string) {
     return threads;
 }
 
+export async function fetchDetailedLikedThread(userid: string) {
+    const allThreads = await fetchLikedThread(userid);
+    const allUsers = await fetchUser();
+    const fileURLS = await fetchFiles();
+    const likedThreads = (await fetchLikedThread(userid)) || [];
+    const bookmarkThreads = (await fetchBookmarkThread(userid)) || [];
+    const repostThreads = (await fetchRepostThread(userid)) || [];
+
+    if(!allThreads) return null;
+
+    const likedThreadIds = new Set(likedThreads.map(t => t.id));
+    const bookmarkThreadIds = new Set(bookmarkThreads.map(t => t.id));
+    const repostThreadIds = new Set(repostThreads.map(t => t.id));
+
+    threads = allThreads.map(thread => {
+        const user = allUsers.find(u => u.id === thread.user_id);
+        const userData: UserThread = user
+        ? {
+            name: user.name,
+            username: user.username,
+            isPremium: user.is_premium ? true : false,
+            profile: user.profile_picture,
+          }
+        : {
+            name: "Unknown",
+            username: "unknown",
+            isPremium: false,
+            profile: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//kagari.jpg"
+        };
+
+        let images: string[] = [];
+        if(fileURLS) {
+            images = fileURLS
+            .filter(file => file.thread_id === thread.id)
+            .map(file => file.file);
+        }
+
+        const insights: ThreadInsights = {
+            replies: 0,
+            reposts: 0,
+            likes: 0,
+        };
+        return {
+            ...thread,
+            created_at: formatTweetDate(new Date(thread.created_at)),
+            images,
+            insights,
+            userData,
+            isLiked: likedThreadIds.has(thread.id),
+            isReposted: repostThreadIds.has(thread.id),
+            isBookmarked: bookmarkThreadIds.has(thread.id)
+        };
+    });
+
+    return threads;
+}
+
 export async function fetchLikedThread(user_id: string) {
     const response = await axios.get<Thread[]>(BASE_API_URL + "/like", {
         params: {
@@ -505,6 +568,73 @@ export async function fetchFollowThread(page: number, user_id: string) {
     const response = await axios.get<Thread[]>(BASE_API_URL + "/thread-following", {
         params: {
             page,
+            user_id
+        }
+    });
+    const threads = response.data;
+    return threads;
+}
+
+export async function fetchDetailedUserReply(userid: string) {
+    const allThreads = await fetchUserReplies(userid);
+    const allUsers = await fetchUser();
+    const fileURLS = await fetchFiles();
+    const likedThreads = (await fetchLikedThread(userid)) || [];
+    const bookmarkThreads = (await fetchBookmarkThread(userid)) || [];
+    const repostThreads = (await fetchRepostThread(userid)) || [];
+
+    if(!allThreads) return null;
+
+    const likedThreadIds = new Set(likedThreads.map(t => t.id));
+    const bookmarkThreadIds = new Set(bookmarkThreads.map(t => t.id));
+    const repostThreadIds = new Set(repostThreads.map(t => t.id));
+
+    threads = allThreads.map(thread => {
+        const user = allUsers.find(u => u.id === thread.user_id);
+        const userData: UserThread = user
+        ? {
+            name: user.name,
+            username: user.username,
+            isPremium: user.is_premium ? true : false,
+            profile: user.profile_picture,
+          }
+        : {
+            name: "Unknown",
+            username: "unknown",
+            isPremium: false,
+            profile: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//kagari.jpg"
+        };
+
+        let images: string[] = [];
+        if(fileURLS) {
+            images = fileURLS
+            .filter(file => file.thread_id === thread.id)
+            .map(file => file.file);
+        }
+
+        const insights: ThreadInsights = {
+            replies: 0,
+            reposts: 0,
+            likes: 0,
+        };
+        return {
+            ...thread,
+            created_at: formatTweetDate(new Date(thread.created_at)),
+            images,
+            insights,
+            userData,
+            isLiked: likedThreadIds.has(thread.id),
+            isReposted: repostThreadIds.has(thread.id),
+            isBookmarked: bookmarkThreadIds.has(thread.id)
+        };
+    });
+
+    return threads;
+}
+
+async function fetchUserReplies(user_id: string) {
+    const response = await axios.get<Thread[]>(BASE_API_URL + "/thread-user-reply", {
+        params: {
             user_id
         }
     });
@@ -577,6 +707,73 @@ export async function fetchThread(page: number) {
     return threads;
 }
 
+export async function fetchDetailedUserThread(userid: string): Promise<(Thread & { userData: UserThread })[] | null> {
+    const allThreads = await fetchUserThread(userid);
+    const allUsers = await fetchUser();
+    const fileURLS = await fetchFiles();
+    const likedThreads = (await fetchLikedThread(userid)) || [];
+    const bookmarkThreads = (await fetchBookmarkThread(userid)) || [];
+    const repostThreads = (await fetchRepostThread(userid)) || [];
+
+    if(!allThreads) return null;
+
+    const likedThreadIds = new Set(likedThreads.map(t => t.id));
+    const bookmarkThreadIds = new Set(bookmarkThreads.map(t => t.id));
+    const repostThreadIds = new Set(repostThreads.map(t => t.id));
+
+    threads = allThreads.map(thread => {
+        const user = allUsers.find(u => u.id === thread.user_id);
+        const userData: UserThread = user
+        ? {
+            name: user.name,
+            username: user.username,
+            isPremium: user.is_premium ? true : false,
+            profile: user.profile_picture,
+          }
+        : {
+            name: "Unknown",
+            username: "unknown",
+            isPremium: false,
+            profile: "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//kagari.jpg"
+        };
+
+        let images: string[] = [];
+        if(fileURLS) {
+            images = fileURLS
+            .filter(file => file.thread_id === thread.id)
+            .map(file => file.file);
+        }
+
+        const insights: ThreadInsights = {
+            replies: 0,
+            reposts: 0,
+            likes: 0,
+        };
+        return {
+            ...thread,
+            created_at: formatTweetDate(new Date(thread.created_at)),
+            images,
+            insights,
+            userData,
+            isLiked: likedThreadIds.has(thread.id),
+            isReposted: repostThreadIds.has(thread.id),
+            isBookmarked: bookmarkThreadIds.has(thread.id)
+        };
+    });
+
+    return threads;
+}
+
+async function fetchUserThread(user_id: string) {
+    const response = await axios.get<Thread[]>(BASE_API_URL + "/thread-user", {
+        params: {
+            user_id
+        }
+    });
+    const threads = response.data;
+    return threads;
+}
+
 export async function fetchThreadCategory() {
     const response = await axios.get<ThreadCategory[]>(BASE_API_URL + "/thread-category");
     const categories = response.data;
@@ -629,4 +826,16 @@ export async function unrepostThread(userId: string, threadId: string) {
         userId,
         threadId
     });
+}
+
+export async function fetchThreadMedia(user_id: string) {
+  const response = await axios.get<ThreadMedia[]>(
+    BASE_API_URL + "/thread-media", {
+      params: {
+        user_id
+      }
+    }
+  );
+  const media = response.data;
+  return media;
 }
