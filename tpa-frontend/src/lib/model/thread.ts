@@ -51,7 +51,7 @@ const BASE_API_URL = "http://localhost:8080/api/threads";
 
 let threads: (Thread & { userData: UserThread })[] = [];
 
-function formatTweetDate(date: Date): string {
+export function formatTweetDate(date: Date): string {
   const now = new Date();
   const diffInMinutes = differenceInMinutes(now, date);
   const diffInHours = differenceInHours(now, date);

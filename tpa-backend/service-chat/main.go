@@ -103,24 +103,36 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	userIDStr := r.URL.Query().Get("user_id")
 	convIDStr := r.URL.Query().Get("conversation_id")
 
-	// Parse user ID and conversation ID
-	userID := uuid.MustParse(userIDStr)
-	convID := uuid.MustParse(convIDStr)
+	// Parse user ID - this is always required
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		log.Printf("Invalid user ID: %v", err)
+		return
+	}
 
-	// Create a new client
+	// Create a new client with required user ID
 	client := &model.Client{
-		Conn:           ws,
-		UserID:         userID,
-		ConversationID: convID,
+		Conn:   ws,
+		UserID: userID,
+	}
+
+	// Parse conversation ID only if provided
+	if convIDStr != "" {
+		convID, err := uuid.Parse(convIDStr)
+		if err != nil {
+			log.Printf("Invalid conversation ID: %v", err)
+			return
+		}
+		client.ConversationID = convID
+
+		// Update participant's last read timestamp only if we have a conversation
+		db.Model(&model.ConversationParticipant{}).
+			Where("conversation_id = ? AND user_id = ?", convID, userID).
+			Updates(map[string]interface{}{"last_read_at": time.Now()})
 	}
 
 	// Register client
 	clients[client] = true
-
-	// Update participant's last read timestamp
-	db.Model(&model.ConversationParticipant{}).
-		Where("conversation_id = ? AND user_id = ?", convID, userID).
-		Updates(map[string]interface{}{"last_read_at": time.Now()})
 
 	// Handle incoming messages
 	for {
@@ -524,9 +536,16 @@ func (s *ChatServer) GetAllNotifications(ctx context.Context, req *chatpb.GetAll
 	// Convert to protobuf format
 	pbNotifications := make([]*chatpb.Notification, len(notifications))
 	for i, notif := range notifications {
+		threadID := ""
+		if notif.ThreadID != nil {
+			threadID = notif.ThreadID.String()
+		}
+
 		pbNotifications[i] = &chatpb.Notification{
 			Id:        notif.ID.String(),
 			UserId:    notif.UserID.String(),
+			SenderId:  notif.SenderID.String(),
+			ThreadId:  threadID,
 			Content:   notif.Content,
 			Category:  notif.Category,
 			CreatedAt: notif.CreatedAt.Format(time.RFC3339),
@@ -555,9 +574,16 @@ func (s *ChatServer) GetMentionNotifications(ctx context.Context, req *chatpb.Ge
 	// Convert to protobuf format
 	pbNotifications := make([]*chatpb.Notification, len(notifications))
 	for i, notif := range notifications {
+		threadID := ""
+		if notif.ThreadID != nil {
+			threadID = notif.ThreadID.String()
+		}
+		
 		pbNotifications[i] = &chatpb.Notification{
 			Id:        notif.ID.String(),
 			UserId:    notif.UserID.String(),
+			SenderId:  notif.SenderID.String(),
+			ThreadId:  threadID,
 			Content:   notif.Content,
 			Category:  notif.Category,
 			CreatedAt: notif.CreatedAt.Format(time.RFC3339),
