@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
@@ -28,12 +29,18 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+type WebSocketMessage struct {
+    Type    string      `json:"type"`    // "chat" or "notification"
+    Payload interface{} `json:"payload"` // The actual message data
+}
+
 var db *gorm.DB
 // Global map of active clients
 var clients = make(map[*model.Client]bool)
-
 // Channel to broadcast messages
 var broadcast = make(chan model.Message)
+// Channel for notifications
+var notifyChannel = make(chan model.Notification)
 
 type ChatServer struct {
 	chatpb.UnimplementedChatServiceServer
@@ -41,19 +48,39 @@ type ChatServer struct {
 
 func handleMessages() {
 	for {
-		// Grab the next message from the broadcast channel
-		msg := <-broadcast
-		// Send it to all clients in the same conversation
-		for client := range clients {
-			// if client.ConversationID == msg.ConversationID {
-				err := client.Conn.WriteJSON(msg)
-				if err != nil {
-					log.Printf("Error sending message: %v", err)
-					client.Conn.Close()
-					delete(clients, client)
-				}
-			// }
-		}
+		select {
+        case msg := <-broadcast:
+            // Handle chat messages as before
+            for client := range clients {
+                wsMessage := WebSocketMessage{
+                    Type:    "chat",
+                    Payload: msg,
+                }
+                err := client.Conn.WriteJSON(wsMessage)
+                if err != nil {
+                    log.Printf("Error sending message: %v", err)
+                    client.Conn.Close()
+                    delete(clients, client)
+                }
+            }
+            
+        case notification := <-notifyChannel:
+            // Send notification to the specific user
+            for client := range clients {
+                // if client.UserID == notification.UserID {
+                    wsMessage := WebSocketMessage{
+                        Type:    "notification",
+                        Payload: notification,
+                    }
+                    err := client.Conn.WriteJSON(wsMessage)
+                    if err != nil {
+                        log.Printf("Error sending notification: %v", err)
+                        client.Conn.Close()
+                        delete(clients, client)
+                    }
+                // }
+            }
+        }
 	}
 }
 
@@ -74,8 +101,6 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	userID := uuid.MustParse(userIDStr)
 	convID := uuid.MustParse(convIDStr)
 	
-	// In production, validate and parse these values properly
-	
 	// Create a new client
 	client := &model.Client{
 		Conn:           ws,
@@ -93,45 +118,85 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 
 	// Handle incoming messages
 	for {
-		var msg struct {
-			Content   string `json:"content"`
-			MediaType string `json:"media_type"`
-			MediaURL string `json:"media_url"` // url for images/videos
+		var wsMsg WebSocketMessage
+        
+        err := ws.ReadJSON(&wsMsg)
+        if err != nil {
+            log.Printf("Error reading message: %v", err)
+            delete(clients, client)
+            break
+        }
+
+		switch wsMsg.Type {
+			case "chat":
+				var msg struct {
+					Content   string `json:"content"`
+					MediaType string `json:"media_type"`
+					MediaURL string `json:"media_url"`
+				}
+
+				payloadBytes, _ := json.Marshal(wsMsg.Payload)
+            	json.Unmarshal(payloadBytes, &msg)
+				
+				// Create a new message
+				newMsg := model.Message{
+					SenderID:      	client.UserID,
+					ConversationID: client.ConversationID,
+					Content:       	msg.Content,
+					MediaType:     	msg.MediaType,
+					MediaURL: 		msg.MediaURL,
+				}
+				
+				// Save message to database
+				if err := db.Create(&newMsg).Error; err != nil {
+					log.Printf("Error saving message: %v", err)
+					continue
+				}
+				
+				// Update conversation's updated_at timestamp
+				db.Model(&model.Conversation{}).Where("id = ?", client.ConversationID).
+					Updates(map[string]interface{}{"updated_at": time.Now()})
+				
+				// Update sender's last read timestamp
+				db.Model(&model.ConversationParticipant{}).
+					Where("conversation_id = ? AND user_id = ?", client.ConversationID, client.UserID).
+					Updates(map[string]interface{}{"last_read_at": time.Now()})
+				
+				// Broadcast message to all clients in the same conversation
+				broadcast <- newMsg
+
+			case "notification":
+				var notifData struct {
+                    RecipientID string `json:"recipient_id"`
+                    Content     string `json:"content"`
+                    Category    string `json:"category"`
+                }
+
+                payloadBytes, _ := json.Marshal(wsMsg.Payload)
+                json.Unmarshal(payloadBytes, &notifData)
+                
+                recipientID, err := uuid.Parse(notifData.RecipientID)
+                if err != nil {
+                    log.Printf("Invalid recipient ID: %v", err)
+                    continue
+                }
+                
+                // Create notification
+                notification := model.Notification{
+                    UserID:   recipientID,
+                    Content:  notifData.Content,
+                    Category: notifData.Category,
+                }
+                
+                // Save to database
+                if err := db.Create(&notification).Error; err != nil {
+                    log.Printf("Error saving notification: %v", err)
+                    continue
+                }
+                
+                // Send to notification channel
+                notifyChannel <- notification
 		}
-		
-		err := ws.ReadJSON(&msg)
-		if err != nil {
-			log.Printf("Error reading message: %v", err)
-			delete(clients, client)
-			break
-		}
-		
-		// Create a new message
-		newMsg := model.Message{
-			SenderID:      	client.UserID,
-			ConversationID: client.ConversationID,
-			Content:       	msg.Content,
-			MediaType:     	msg.MediaType,
-			MediaURL: 		msg.MediaURL,
-		}
-		
-		// Save message to database
-		if err := db.Create(&newMsg).Error; err != nil {
-			log.Printf("Error saving message: %v", err)
-			continue
-		}
-		
-		// Update conversation's updated_at timestamp
-		db.Model(&model.Conversation{}).Where("id = ?", client.ConversationID).
-			Updates(map[string]interface{}{"updated_at": time.Now()})
-		
-		// Update sender's last read timestamp
-		db.Model(&model.ConversationParticipant{}).
-			Where("conversation_id = ? AND user_id = ?", client.ConversationID, client.UserID).
-			Updates(map[string]interface{}{"last_read_at": time.Now()})
-		
-		// Broadcast message to all clients in the same conversation
-		broadcast <- newMsg
 	}
 }
 
@@ -396,6 +461,37 @@ func (s *ChatServer) UpdateParticipant(ctx context.Context, req *chatpb.UpdatePa
 	}
 
 	return convertConversationToProto(conversation), nil
+}
+
+func (s *ChatServer) GetNotifications(ctx context.Context, req *chatpb.GetNotificationsRequest) (*chatpb.GetNotificationsResponse, error) {
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID: %w", err)
+	}
+	
+	var notifications []model.Notification
+	query := db.Where("user_id = ?", userID)
+	
+	// Fetch notifications
+	if err := query.Order("created_at desc").Find(&notifications).Error; err != nil {
+		return nil, err
+	}
+	
+	// Convert to protobuf format
+	pbNotifications := make([]*chatpb.Notification, len(notifications))
+	for i, notif := range notifications {
+		pbNotifications[i] = &chatpb.Notification{
+			Id:        notif.ID.String(),
+			UserId:    notif.UserID.String(),
+			Content:   notif.Content,
+			Category:  notif.Category,
+			CreatedAt: notif.CreatedAt.Format(time.RFC3339),
+		}
+	}
+	
+	return &chatpb.GetNotificationsResponse{
+		Notifications: pbNotifications,
+	}, nil
 }
 
 // Helper functions for converting between database models and protobuf messages

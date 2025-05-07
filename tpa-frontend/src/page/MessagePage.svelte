@@ -51,9 +51,33 @@
     );
 
     socket.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
-      console.log(msg);
-      messages = [...messages, msg]; // refresh the UI
+    //   const msg = JSON.parse(event.data);
+    //   console.log(msg);
+    //   messages = [...messages, msg];
+
+        const wsMessage = JSON.parse(event.data);
+        // console.log("received wsmssage: " + wsMessage);
+        switch (wsMessage.type) {
+            case "chat": {
+                console.log("received a message");
+                // Handle chat message
+                const chatMessage = wsMessage.payload;
+                messages = [...messages, chatMessage];
+                // Your existing chat message handling code
+                break;
+            }
+
+            case "notification": {
+                console.log("received notification");
+                // Handle notification
+                const notification = wsMessage.payload;
+                toastStore.info(notification.content);
+                break;
+            }
+
+            default:
+                console.log("Unknown message type:", wsMessage.type);
+        }
     };
 
     socket.onopen = () => {
@@ -208,10 +232,26 @@
       };
     }
 
-    // console.log(supabaseURL);
-    // console.log(videoSupabaseURL);
+    const socketMessage = {
+        type: "chat",
+        payload: message
+    };
 
-    socket.send(JSON.stringify(message));
+    // test notificatoin
+    const notif = {
+        recipient_id: currentConversation.participants?.find(p => p.id !== user.id)?.id, // Get the other user's ID
+        content: "You have a new message from " + user.name,
+        category: "message"
+    };
+
+    const notifMessage = {
+        type: "notification",
+        payload: notif
+    };
+    // Send notification message over socket
+    socket.send(JSON.stringify(notifMessage));
+
+    socket.send(JSON.stringify(socketMessage));
     newMessage = "";
     uploadedImage = "";
     imageFile = null;

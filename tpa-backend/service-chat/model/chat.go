@@ -52,3 +52,11 @@ type Message struct {
 	IsDeleted      bool      		`json:"is_deleted" gorm:"default:false"`
 	IsUnsent       bool      		`json:"is_unsent" gorm:"default:false"` // For message unsend feature
 }
+
+type Notification struct {
+    ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+    UserID    uuid.UUID `json:"user_id"`
+    Content   string	`json:"content"`
+    Category  string	`json:"category"`
+    CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
+}

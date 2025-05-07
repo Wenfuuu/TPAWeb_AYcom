@@ -25,6 +25,7 @@ const (
 	ChatService_GetMessages_FullMethodName         = "/chat.ChatService/GetMessages"
 	ChatService_SendMessage_FullMethodName         = "/chat.ChatService/SendMessage"
 	ChatService_UpdateParticipant_FullMethodName   = "/chat.ChatService/UpdateParticipant"
+	ChatService_GetNotifications_FullMethodName    = "/chat.ChatService/GetNotifications"
 )
 
 // ChatServiceClient is the client API for ChatService service.
@@ -39,6 +40,8 @@ type ChatServiceClient interface {
 	GetMessages(ctx context.Context, in *GetMessagesRequest, opts ...grpc.CallOption) (*GetMessagesResponse, error)
 	SendMessage(ctx context.Context, in *SendMessageRequest, opts ...grpc.CallOption) (*Message, error)
 	UpdateParticipant(ctx context.Context, in *UpdateParticipantRequest, opts ...grpc.CallOption) (*Conversation, error)
+	// Notification
+	GetNotifications(ctx context.Context, in *GetNotificationsRequest, opts ...grpc.CallOption) (*GetNotificationsResponse, error)
 }
 
 type chatServiceClient struct {
@@ -109,6 +112,16 @@ func (c *chatServiceClient) UpdateParticipant(ctx context.Context, in *UpdatePar
 	return out, nil
 }
 
+func (c *chatServiceClient) GetNotifications(ctx context.Context, in *GetNotificationsRequest, opts ...grpc.CallOption) (*GetNotificationsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetNotificationsResponse)
+	err := c.cc.Invoke(ctx, ChatService_GetNotifications_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ChatServiceServer is the server API for ChatService service.
 // All implementations must embed UnimplementedChatServiceServer
 // for forward compatibility.
@@ -121,6 +134,8 @@ type ChatServiceServer interface {
 	GetMessages(context.Context, *GetMessagesRequest) (*GetMessagesResponse, error)
 	SendMessage(context.Context, *SendMessageRequest) (*Message, error)
 	UpdateParticipant(context.Context, *UpdateParticipantRequest) (*Conversation, error)
+	// Notification
+	GetNotifications(context.Context, *GetNotificationsRequest) (*GetNotificationsResponse, error)
 	mustEmbedUnimplementedChatServiceServer()
 }
 
@@ -148,6 +163,9 @@ func (UnimplementedChatServiceServer) SendMessage(context.Context, *SendMessageR
 }
 func (UnimplementedChatServiceServer) UpdateParticipant(context.Context, *UpdateParticipantRequest) (*Conversation, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateParticipant not implemented")
+}
+func (UnimplementedChatServiceServer) GetNotifications(context.Context, *GetNotificationsRequest) (*GetNotificationsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNotifications not implemented")
 }
 func (UnimplementedChatServiceServer) mustEmbedUnimplementedChatServiceServer() {}
 func (UnimplementedChatServiceServer) testEmbeddedByValue()                     {}
@@ -278,6 +296,24 @@ func _ChatService_UpdateParticipant_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ChatService_GetNotifications_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNotificationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).GetNotifications(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChatService_GetNotifications_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).GetNotifications(ctx, req.(*GetNotificationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ChatService_ServiceDesc is the grpc.ServiceDesc for ChatService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -308,6 +344,10 @@ var ChatService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateParticipant",
 			Handler:    _ChatService_UpdateParticipant_Handler,
+		},
+		{
+			MethodName: "GetNotifications",
+			Handler:    _ChatService_GetNotifications_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

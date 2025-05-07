@@ -15,6 +15,25 @@ service ChatService {
   rpc SendMessage(SendMessageRequest) returns (Message) {}
 
   rpc UpdateParticipant(UpdateParticipantRequest) returns (Conversation) {}
+
+  // Notification
+  rpc GetNotifications(GetNotificationsRequest) returns (GetNotificationsResponse);
+}
+
+message Notification {
+    string id = 1;
+    string user_id = 2;
+    string content = 3;
+    string category = 4;
+    string created_at = 5;
+}
+
+message GetNotificationsRequest {
+    string user_id = 1;
+}
+
+message GetNotificationsResponse {
+    repeated Notification notifications = 1;
 }
 
 message UpdateParticipantRequest {

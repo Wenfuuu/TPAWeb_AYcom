@@ -11,4 +11,5 @@ func Migrate(db *gorm.DB) {
 	db.AutoMigrate(&model.Conversation{})
 	db.AutoMigrate(&model.ConversationParticipant{})
 	db.AutoMigrate(&model.Message{})
+	db.AutoMigrate(&model.Notification{})
 }
