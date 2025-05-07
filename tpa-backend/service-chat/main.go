@@ -115,12 +115,6 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 			MediaURL: 		msg.MediaURL,
 		}
 		
-		// Handle media if present
-		// if msg.MediaType != "text" && msg.MediaURL != "" {
-			// newMsg.MediaType = msg.MediaType
-			// newMsg.MediaURL = msg.MediaURL;
-		// }
-		
 		// Save message to database
 		if err := db.Create(&newMsg).Error; err != nil {
 			log.Printf("Error saving message: %v", err)
@@ -220,23 +214,6 @@ func (s *ChatServer) GetConversations(ctx context.Context, req *chatpb.GetConver
 		Conversations: pbConversations,
 		TotalCount:    int32(totalCount),
 	}, nil
-}
-
-func (s *ChatServer) GetConversationById(ctx context.Context, req *chatpb.GetConversationByIdRequest) (*chatpb.Conversation, error) {
-	var conversation model.Conversation
-	
-	if err := db.Preload("Participants").First(&conversation, req.ConversationId).Error; err != nil {
-		return nil, err
-	}
-	
-	// Check if the user is a participant
-	var participant model.ConversationParticipant
-	if err := db.Where("conversation_id = ? AND user_id = ?", req.ConversationId, req.UserId).
-		First(&participant).Error; err != nil {
-		return nil, err
-	}
-	
-	return convertConversationToProto(conversation), nil
 }
 
 func (s *ChatServer) CreateConversation(ctx context.Context, req *chatpb.CreateConversationRequest) (*chatpb.Conversation, error) {
@@ -353,6 +330,72 @@ func (s *ChatServer) SendMessage(ctx context.Context, req *chatpb.SendMessageReq
 	broadcast <- msg
 	
 	return convertMessageToProto(msg), nil
+}
+
+func (s *ChatServer) UpdateParticipant(ctx context.Context, req *chatpb.UpdateParticipantRequest) (*chatpb.Conversation, error) {
+	conversationID, err := uuid.Parse(req.ConversationId)
+	if err != nil {
+		return nil, fmt.Errorf("invalid conversation ID: %w", err)
+	}
+
+	tx := db.Begin()
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	// Step 1: Delete all existing participants
+	if err := tx.Where("conversation_id = ?", conversationID).
+		Delete(&model.ConversationParticipant{}).Error; err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("failed to remove old participants: %w", err)
+	}
+
+	// Step 2: Add new participants
+	now := time.Now()
+	for _, userIDStr := range req.UserIds {
+		userID, err := uuid.Parse(userIDStr)
+		if err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("invalid user ID %s: %w", userIDStr, err)
+		}
+
+		participant := model.ConversationParticipant{
+			ConversationID: conversationID,
+			UserID:         userID,
+			JoinedAt:       now,
+			LastReadAt:     now,
+			IsActive:       true,
+		}
+
+		if err := tx.Create(&participant).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("failed to add participant %s: %w", userIDStr, err)
+		}
+	}
+
+	// Step 3: Update conversation name if provided
+	if req.NewName != "" {
+		if err := tx.Model(&model.Conversation{}).
+			Where("id = ?", conversationID).
+			Update("name", req.NewName).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("failed to update conversation name: %w", err)
+		}
+	}
+
+	// Step 4: Commit the transaction
+	if err := tx.Commit().Error; err != nil {
+		return nil, fmt.Errorf("transaction commit failed: %w", err)
+	}
+
+	// Step 5: Fetch updated conversation with participants
+	var conversation model.Conversation
+	if err := db.Preload("Participants").
+		First(&conversation, "id = ?", conversationID).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch updated conversation: %w", err)
+	}
+
+	return convertConversationToProto(conversation), nil
 }
 
 // Helper functions for converting between database models and protobuf messages

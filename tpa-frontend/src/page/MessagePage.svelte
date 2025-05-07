@@ -3,6 +3,7 @@
   import {
     fetchMessageWithUser,
     fetchUserConversation,
+    updateConversationParticipants,
     type Conversation,
     type Message,
   } from "../lib/model/chat";
@@ -10,11 +11,12 @@
   import { navigate } from "svelte-routing";
   import { toastStore } from "../lib/stores/toast";
   import LeftSidebar from "../lib/components/LeftSidebar.svelte";
-  import type { User } from "../lib/model/user";
+  import { fetchUser, type User } from "../lib/model/user";
   import { uploadImage, uploadVideo } from "../lib/utils/supabaseStorage";
 
   let isDarkMode = true;
   let user: User;
+  let allUsers: User[] = [];
 
   let conversations: Conversation[] = [];
   let currentConversation: Conversation | null = null;
@@ -31,9 +33,9 @@
   let videoSupabaseURL = "";
   let hasVideo = false;
 
-  // const userId = "ae2cf219-a6e3-46d7-aee0-6f05eb23f602";
-  // const conversationId = "034ff50e-d68a-4ba9-9991-4bd7992ff407";
   let socket: WebSocket;
+  let showParticipantsDropdown = false;
+  let selectedParticipants: string[] = [];
 
   function setupWebSocket(userId: string, conversationId: string) {
     if (socket) {
@@ -63,8 +65,25 @@
     };
   }
 
+  async function updateParticipants() {
+    if(!currentConversation) return;
+    console.log(selectedParticipants);
+    await updateConversationParticipants(currentConversation.id, selectedParticipants);
+    showParticipantsDropdown = false;
+    toastStore.success("Success update participants!");
+    await refreshData();
+  }
+
   async function selectConversation(conversation: Conversation) {
     currentConversation = conversation;
+    console.log(currentConversation.participants);
+
+    if (currentConversation && currentConversation.participants) {
+      selectedParticipants = currentConversation.participants.map(p => p.user_id);
+    } else {
+      selectedParticipants = [];
+    }
+
     await refreshData();
   }
 
@@ -117,6 +136,8 @@
   }
 
   async function refreshData() {
+    conversations = await fetchUserConversation(user.id);
+
     if (!currentConversation) return;
 
     // establish websocket
@@ -173,8 +194,8 @@
       };
     }
 
-    console.log(supabaseURL);
-    console.log(videoSupabaseURL);
+    // console.log(supabaseURL);
+    // console.log(videoSupabaseURL);
 
     socket.send(JSON.stringify(message));
     newMessage = "";
@@ -272,8 +293,10 @@
     const usr = await getAuthUser();
     if (usr) user = usr;
 
-    conversations = await fetchUserConversation(user.id);
-    console.log(conversations);
+    allUsers = await fetchUser();
+    // console.log(allUsers);
+    // conversations = await fetchUserConversation(user.id);
+    // console.log(conversations);
 
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) {
@@ -303,13 +326,6 @@
         <div class="conversations-header">
           <h2>Messages</h2>
           <div class="header-actions">
-            <!-- <button class="icon-button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="1"></circle>
-                                <circle cx="19" cy="12" r="1"></circle>
-                                <circle cx="5" cy="12" r="1"></circle>
-                            </svg>
-                        </button> -->
             <button type="button" aria-label="icon button" class="icon-button">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -372,13 +388,6 @@
                   }
                 }}
               >
-                <!-- <div class="avatar">
-                  <img
-                    src={getOtherUserProfilePicture(conversation.id) ||
-                      "/placeholder.svg"}
-                    alt={conversation.name}
-                  />
-                </div> -->
                 <div class="conversation-details">
                   <div class="conversation-header">
                     <span class="conversation-name">{conversation.name}</span>
@@ -401,17 +410,70 @@
           <div class="chat-header">
             <div class="chat-header-info">
               <span class="chat-name">{currentConversation.name}</span>
+              <button
+              aria-label="icon button"
+              type="button"
+              class="icon-button"
+              on:click={() =>
+                (showParticipantsDropdown = !showParticipantsDropdown)}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 16v-4"></path>
+                <path d="M12 8h.01"></path>
+              </svg>
+            </button>
             </div>
           </div>
 
+          <div class="dropdown-container">
+            {#if showParticipantsDropdown}
+              <div class="dropdown-menu">
+                <div class="dropdown-header">Participants</div>
+                {#each allUsers as user (user.id)}
+                <label class="dropdown-item">
+                    <input
+                    type="checkbox"
+                    bind:group={selectedParticipants}
+                    value={user.id}
+                    checked={currentConversation?.participants?.some(p => p.user_id === user.id)}
+                    />
+                    <div class="participant-avatar">
+                    <img
+                        src={user.profile_picture || "/placeholder.svg?height=24&width=24"}
+                        alt={user.name}
+                    />
+                    </div>
+                    <span>{user.username}</span>
+                </label>
+                {/each}
+
+                {#if selectedParticipants.length > 0}
+                <button
+                    type="button"
+                    class="add-participants-btn"
+                    on:click={async() => {
+                        await updateParticipants();
+                    }}
+                >
+                    Update Participants
+                </button>
+                {/if}
+              </div>
+            {/if}
+          </div>
+
           <div class="chat-profile">
-            <!-- <div class="profile-avatar">
-              <img
-                src={getOtherUserProfilePicture(currentConversation.id) ||
-                  "/placeholder.svg"}
-                alt={currentConversation.name}
-              />
-            </div> -->
             <div class="profile-name">{currentConversation.name}</div>
             <div class="profile-meta">
               Conversation started {new Date(
@@ -761,22 +823,6 @@
     background-color: var(--hover-background);
   }
 
-  .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    overflow: hidden;
-    margin-right: 12px;
-    position: relative;
-    flex-shrink: 0;
-  }
-
-  .avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
   .conversation-details {
     flex: 1;
     min-width: 0;
@@ -840,6 +886,8 @@
   .chat-header-info {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    width: 100%;
   }
 
   .chat-name {
@@ -854,20 +902,6 @@
     align-items: center;
     padding: 24px 16px;
     border-bottom: 1px solid var(--border-color);
-  }
-
-  .profile-avatar {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    overflow: hidden;
-    margin-bottom: 12px;
-  }
-
-  .profile-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
   }
 
   .profile-name {
@@ -1154,6 +1188,90 @@
     display: none;
   }
 
+  .dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: var(--background, #fff);
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  padding: 8px 0;
+  min-width: 220px;
+  z-index: 100;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.dropdown-header {
+  font-weight: 600;
+  font-size: 13px;
+  color: #555;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-color, #eee);
+  background-color: var(--header-background, #f9f9f9);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: var(--hover-background, #f0f0f0);
+}
+
+.participant-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ddd;
+}
+
+.participant-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dropdown-item input[type="checkbox"] {
+  accent-color: var(--accent-color, #007bff);
+  margin: 0;
+}
+
+.add-participants-btn {
+  width: calc(100% - 32px);
+  margin: 12px 16px 8px;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--accent-color, #007bff);
+  color: #fff;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-participants-btn:hover {
+  background-color: var(--accent-hover, #005fcc);
+}
+
   @media (max-width: 768px) {
     .conversations-list {
       width: 100%;
@@ -1162,14 +1280,6 @@
 
     .chat-detail {
       width: 100%;
-    }
-
-    .messages-container.show-conversations .conversations-list {
-      display: flex;
-    }
-
-    .messages-container.show-conversations .chat-detail {
-      display: none;
     }
   }
 </style>

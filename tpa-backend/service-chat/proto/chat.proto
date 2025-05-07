@@ -13,6 +13,14 @@ service ChatService {
   // Message methods
   rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse) {}
   rpc SendMessage(SendMessageRequest) returns (Message) {}
+
+  rpc UpdateParticipant(UpdateParticipantRequest) returns (Conversation) {}
+}
+
+message UpdateParticipantRequest {
+  string conversation_id = 1;
+  repeated string user_ids = 2;
+  string new_name = 3;
 }
 
 message GetConversationsRequest {

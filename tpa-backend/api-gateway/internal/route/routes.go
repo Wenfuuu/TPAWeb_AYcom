@@ -69,7 +69,7 @@ func InitRoutes(
 	authHandler := handler.NewAuthHandler(authClient)
 	authMiddleware := middleware.NewAuthMiddleware(authClient)
 	threadHandler := handler.NewThreadHandler(threadClient)
-	chatHandler := handler.NewChatHandler(chatClient)
+	chatHandler := handler.NewChatHandler(chatClient, userClient)
 
 	r.POST("/verify-recaptcha", verifyRecaptcha)
 
@@ -82,6 +82,7 @@ func InitRoutes(
 			chat.POST("/conversation", chatHandler.CreateConversation)
 			chat.GET("/messages", chatHandler.GetMessages)
 			chat.POST("/send", chatHandler.SendMessage)
+			chat.PUT("/conversation/participants", chatHandler.UpdateParticipant)
 		}
 		users := api.Group("/users")
 		{

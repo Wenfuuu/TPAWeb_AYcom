@@ -1,5 +1,5 @@
 import axios from "axios";
-import { fetchUser } from "./user";
+import { fetchUser, type User } from "./user";
 
 export type Conversation = {
   id: string;
@@ -7,6 +7,15 @@ export type Conversation = {
   created_at: string;
   updated_at: string;
   is_deleted: boolean;
+  participants?: ConversationParticipant[];
+};
+
+export type ConversationParticipant = {
+    conversation_id: string;
+    id: string;
+    joined_at: string;
+    last_read_at: string;
+    user_id: string;
 }
 
 export type Message = {
@@ -27,15 +36,22 @@ const BASE_API_URL = "http://localhost:8080/api/chat";
 
 let messages: Message[] = [];
 
-export async function fetchUserConversation(user_id: string) {
-    const response = await axios.get(BASE_API_URL + "/conversations", {
-        params: {
-            user_id
-        }
+export async function updateConversationParticipants(conversation_id: string, user_ids: string[]) {
+    await axios.put(BASE_API_URL + "/conversation/participants", {
+      conversation_id,
+      user_ids
     });
+}
 
-    const conversations = response.data.conversations;
-    return conversations;
+export async function fetchUserConversation(user_id: string) {
+  const response = await axios.get(BASE_API_URL + "/conversations", {
+    params: {
+      user_id,
+    },
+  });
+
+  const conversations = response.data.conversations;
+  return conversations;
 }
 
 export async function fetchMessageWithUser(conversation_id: string) {
