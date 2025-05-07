@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte"; // Import onDestroy
-  import { fetchWhoToFollow, followUser, type User } from "../model/user";
+  import { fetchWhoToFollow, followUser, unfollowUser, type User } from "../model/user";
   import { checkAuth, getAuthUser } from "../utils/auth";
   import { navigate } from "svelte-routing";
   import { fetchTopHashtags, type Hashtag } from "../model/thread";
@@ -280,13 +280,18 @@
             </div>
             <div class="follow-username">@{users.username}</div>
           </div>
-          <button type="button" class="follow-button" disabled={users.is_followed}
+          <button type="button" class="follow-button"
           on:click={async() => {
             if(!user) return;
-            await followUser(user.id, users.id);
-            toastStore.success("Success follow user!");
+            if(!users.is_followed) {
+              await followUser(user.id, users.id);
+              toastStore.success("Success follow user!");
+            }else{
+              await unfollowUser(user.id, users.id);
+              toastStore.success("Success unfollow user!");
+            }
             refreshData();
-          }}>{users.is_followed ? "Followed" : "Follow"}</button>
+          }}>{users.is_followed ? "Unfollow" : "Follow"}</button>
         </div>
       {/each}
     </div>

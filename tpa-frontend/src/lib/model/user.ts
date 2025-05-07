@@ -40,12 +40,18 @@ export async function fetchUser() {
 }
 
 export async function followUser(follower_id: string, following_id: string) {
-  console.log(follower_id);
-  console.log(following_id);
-
   await axios.post(BASE_API_URL + "/follow", {
     follower_id,
     following_id
+  });
+}
+
+export async function unfollowUser(follower_id: string, following_id: string) {
+  await axios.delete(BASE_API_URL + "/unfollow", {
+    params: {
+      follower_id,
+      following_id
+    }
   });
 }
 
@@ -77,7 +83,9 @@ export async function fetchWhoToFollow(user_id: string) {
     });
     const toFollows = response.data;
     const followings = await fetchFollowing(user_id);
-    const followingIds = new Set(followings.map((user) => user.following_id));
+    const followingIds = new Set(
+      followings?.map((user) => user.following_id) || []
+    );
     console.log(followingIds);
 
     const users = toFollows.map((user) => {

@@ -46,19 +46,12 @@ func (h *UserHandler) FollowUser(c *gin.Context) {
 }
 
 func (h *UserHandler) UnfollowUser(c *gin.Context) {
-	var requestBody struct {
-		FollowerID         	string `json:"follower_id" binding:"required"`
-		FollowingID 		string `json:"following_id" binding:"required"`
-	}
-
-	if err := c.ShouldBindJSON(&requestBody); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	followerId := c.Query("follower_id")
+	followingId := c.Query("following_id")
 
 	resp, err := h.Client.UnfollowUser(context.Background(), &userpb.UnfollowUserRequest{
-		FollowerId: requestBody.FollowerID,
-		FollowingId: requestBody.FollowingID,
+		FollowerId: followerId,
+		FollowingId: followingId,
 	})
 
 	if err != nil {
