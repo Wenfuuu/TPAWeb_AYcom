@@ -6,7 +6,7 @@ import (
 )
 
 func Migrate(db *gorm.DB) {
-	// db.Migrator().DropTable(&model.Conversation{})
+	// db.Migrator().DropTable(&model.Notification{})
 
 	db.AutoMigrate(&model.Conversation{})
 	db.AutoMigrate(&model.ConversationParticipant{})

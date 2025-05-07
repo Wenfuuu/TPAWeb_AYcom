@@ -16,6 +16,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"github.com/rabbitmq/amqp091-go"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
 )
@@ -42,6 +43,8 @@ var broadcast = make(chan model.Message)
 // Channel for notifications
 var notifyChannel = make(chan model.Notification)
 
+var rabbitChannel *amqp091.Channel
+
 type ChatServer struct {
 	chatpb.UnimplementedChatServiceServer
 }
@@ -67,7 +70,7 @@ func handleMessages() {
         case notification := <-notifyChannel:
             // Send notification to the specific user
             for client := range clients {
-                // if client.UserID == notification.UserID {
+                if client.UserID == notification.UserID {
                     wsMessage := WebSocketMessage{
                         Type:    "notification",
                         Payload: notification,
@@ -78,7 +81,7 @@ func handleMessages() {
                         client.Conn.Close()
                         delete(clients, client)
                     }
-                // }
+                }
             }
         }
 	}
@@ -193,6 +196,9 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
                     log.Printf("Error saving notification: %v", err)
                     continue
                 }
+
+				// Send email
+
                 
                 // Send to notification channel
                 notifyChannel <- notification
@@ -201,6 +207,22 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+
+	ch, err := utils.GetRabbitMQChannel()
+    if err != nil {
+        log.Fatalf("Failed to get RabbitMQ channel for AuthHandler: %v", err)
+    }
+	exchangeName := "email_exchange"
+    err = ch.ExchangeDeclare(
+        exchangeName,     // name
+        "direct",         // type
+        true,             // durable
+        false,            // auto-deleted
+        false,            // internal
+        false,            // no-wait
+        nil,              // arguments
+    )
+	rabbitChannel = ch
 
 	db = database.InitDB()
 	database.Migrate(db)
@@ -220,7 +242,7 @@ func main() {
 		}
 
 		grpcServer := grpc.NewServer()
-		chatpb.RegisterChatServiceServer(grpcServer, &ChatServer{}) // Implement ChatServer
+		chatpb.RegisterChatServiceServer(grpcServer, &ChatServer{})
 
 		log.Printf("Chat service listening on port %s", grpcPort)
 		if err := grpcServer.Serve(lis); err != nil {
@@ -242,7 +264,7 @@ func main() {
 		httpPort = "50056"
 	}
 	log.Printf("Chat service HTTP server starting on port %s", httpPort)
-	err := router.Run(":" + httpPort)
+	err = router.Run(":" + httpPort)
 	if err != nil {
 		log.Fatal("Error starting HTTP server: ", err)
 	}

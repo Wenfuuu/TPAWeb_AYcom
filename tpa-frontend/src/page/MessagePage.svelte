@@ -237,9 +237,9 @@
         payload: message
     };
 
-    // test notificatoin
+    // test notification
     const notif = {
-        recipient_id: currentConversation.participants?.find(p => p.id !== user.id)?.id, // Get the other user's ID
+        recipient_id: currentConversation.participants?.find(p => p.user_id !== user.id)?.user_id, // Get the other user's ID
         content: "You have a new message from " + user.name,
         category: "message"
     };
