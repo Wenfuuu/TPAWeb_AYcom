@@ -85,6 +85,11 @@ func (r *UserRepository) FollowUser(follow *model.Follow) (error) {
 	return r.DB.Create(follow).Error
 }
 
+func (r *UserRepository) UnfollowUser(followerid string, followingid string) (error) {
+	result := r.DB.Where("follower_id = ? AND following_id = ?", followerid, followingid).Delete(&model.Follow{})
+	return result.Error
+}
+
 func (r *UserRepository) Create(user *model.User) error {
 	return r.DB.Create(user).Error
 }

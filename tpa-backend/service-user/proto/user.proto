@@ -19,6 +19,16 @@ service UserService {
   rpc UploadVideo(UploadVideoRequest) returns (UploadVideoResponse);
 
   rpc FollowUser(FollowUserRequest) returns (Follow);
+  rpc UnfollowUser(UnfollowUserRequest) returns (UnfollowUserResponse);
+}
+
+message UnfollowUserRequest {
+  string following_id = 1;
+  string follower_id = 2;
+}
+
+message UnfollowUserResponse {
+  string message = 1;
 }
 
 message FollowUserRequest {

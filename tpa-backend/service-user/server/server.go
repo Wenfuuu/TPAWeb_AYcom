@@ -24,6 +24,10 @@ func (s *UserServer) FollowUser(ctx context.Context, req *userpb.FollowUserReque
 	return s.userHandler.FollowUser(ctx, req)
 }
 
+func (s *UserServer) UnfollowUser(ctx context.Context, req *userpb.UnfollowUserRequest) (*userpb.UnfollowUserResponse, error) {
+	return s.userHandler.UnfollowUser(ctx, req)
+}
+
 func (s *UserServer) GetFollower(ctx context.Context, req *userpb.GetFollowerRequest) (*userpb.FollowResponse, error) {
 	return s.userHandler.GetFollower(ctx, req)
 }

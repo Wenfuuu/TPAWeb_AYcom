@@ -95,6 +95,7 @@ func InitRoutes(
 			users.POST("/upload/:type", userHandler.UploadImage)
 			users.POST("/upload-video/:type", userHandler.UploadVideo)
 			users.POST("/follow", userHandler.FollowUser)
+			users.DELETE("/unfollow", userHandler.UnfollowUser)
 			users.GET("/follower", userHandler.GetFollower)
 			users.GET("/following", userHandler.GetFollowing)
 			users.GET("/who-to-follow", userHandler.GetWhoToFollow)

@@ -59,6 +59,18 @@ func (h *UserHandler) FollowUser(ctx context.Context, req *userpb.FollowUserRequ
 	return h.followToProto(&follow), nil
 }
 
+func (h *UserHandler) UnfollowUser(ctx context.Context, req *userpb.UnfollowUserRequest) (*userpb.UnfollowUserResponse, error) {
+	err := h.userRepo.UnfollowUser(req.FollowerId, req.FollowingId)
+
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	return &userpb.UnfollowUserResponse{
+		Message: "Success unfollow user!",
+	}, nil
+}
+
 func (h *UserHandler) GetFollower(ctx context.Context, req *userpb.GetFollowerRequest) (*userpb.FollowResponse, error) {
 	if req.UserId == "" {
 		return nil, status.Error(codes.InvalidArgument, "User ID is required")
