@@ -17,6 +17,13 @@ service UserService {
   rpc GetFollowing(GetFollowingRequest) returns (FollowResponse);
   rpc RegisterPremium(RegisterPremiumRequest) returns (RegisterPremiumResponse);
   rpc UploadVideo(UploadVideoRequest) returns (UploadVideoResponse);
+
+  rpc FollowUser(FollowUserRequest) returns (Follow);
+}
+
+message FollowUserRequest {
+  string following_id = 1;
+  string follower_id = 2;
 }
 
 message RegisterPremiumRequest {

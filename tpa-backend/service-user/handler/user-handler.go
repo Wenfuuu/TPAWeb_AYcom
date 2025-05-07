@@ -36,6 +36,29 @@ func NewUserHandler() *UserHandler {
 	}
 }
 
+func (h *UserHandler) FollowUser(ctx context.Context, req *userpb.FollowUserRequest) (*userpb.Follow, error) {
+	followerID, err := uuid.Parse(req.FollowerId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid user ID: %v", err)
+    }
+
+    followingID, err := uuid.Parse(req.FollowingId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid user ID: %v", err)
+    }
+
+	follow := model.Follow{
+		FollowerID: followerID,
+		FollowingID: followingID,
+	}
+
+	if err := h.userRepo.FollowUser(&follow); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to follow user")
+	}
+
+	return h.followToProto(&follow), nil
+}
+
 func (h *UserHandler) GetFollower(ctx context.Context, req *userpb.GetFollowerRequest) (*userpb.FollowResponse, error) {
 	if req.UserId == "" {
 		return nil, status.Error(codes.InvalidArgument, "User ID is required")

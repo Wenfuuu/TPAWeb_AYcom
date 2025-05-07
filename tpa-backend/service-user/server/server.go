@@ -20,6 +20,10 @@ func NewUserServer() *UserServer {
 	}
 }
 
+func (s *UserServer) FollowUser(ctx context.Context, req *userpb.FollowUserRequest) (*userpb.Follow, error) {
+	return s.userHandler.FollowUser(ctx, req)
+}
+
 func (s *UserServer) GetFollower(ctx context.Context, req *userpb.GetFollowerRequest) (*userpb.FollowResponse, error) {
 	return s.userHandler.GetFollower(ctx, req)
 }

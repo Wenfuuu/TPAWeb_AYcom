@@ -1,9 +1,10 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte"; // Import onDestroy
-  import { fetchWhoToFolllow, type User } from "../model/user";
+  import { fetchWhoToFollow, followUser, type User } from "../model/user";
   import { checkAuth, getAuthUser } from "../utils/auth";
   import { navigate } from "svelte-routing";
   import { fetchTopHashtags, type Hashtag } from "../model/thread";
+  import { toastStore } from "../stores/toast";
 
   let user: User | null;
   let toFollow: User[] = [];
@@ -57,6 +58,14 @@
     }
   }
 
+  async function refreshData() {
+    if(!user) return;
+    toFollow = await fetchWhoToFollow(user.id);
+    topHashtags = await fetchTopHashtags();
+
+    console.log(toFollow);
+  }
+
   onMount(async () => {
     // localStorage.setItem("recent-search", JSON.stringify(recentSearches));
     const recent = localStorage.getItem("recent-search");
@@ -71,9 +80,7 @@
     const usr = await getAuthUser();
     if (usr) {
       user = usr;
-      toFollow = await fetchWhoToFolllow(user.id);
-      topHashtags = await fetchTopHashtags();
-      // console.log(topHashtags);
+      refreshData();
     }
   });
 
@@ -245,17 +252,17 @@
   <div class="sidebar-section follow-section">
     <h2>Who to follow</h2>
     <div class="follow-suggestions">
-      {#each toFollow as user (user.id)}
+      {#each toFollow as users (users.id)}
         <div class="follow-item">
           <img
-            src={user.profile_picture || "/placeholder.svg"}
-            alt={user.name}
+            src={users.profile_picture || "/placeholder.svg"}
+            alt={users.name}
             class="follow-avatar"
           />
           <div class="follow-info">
             <div class="follow-name">
-              {user.name}
-              {#if user.is_premium}
+              {users.name}
+              {#if users.is_premium}
                 <span class="verified-badge" aria-label="Verified account">
                   <svg
                     viewBox="0 0 24 24"
@@ -271,9 +278,15 @@
                 </span>
               {/if}
             </div>
-            <div class="follow-username">@{user.username}</div>
+            <div class="follow-username">@{users.username}</div>
           </div>
-          <button type="button" class="follow-button">Follow</button>
+          <button type="button" class="follow-button" disabled={users.is_followed}
+          on:click={async() => {
+            if(!user) return;
+            await followUser(user.id, users.id);
+            toastStore.success("Success follow user!");
+            refreshData();
+          }}>{users.is_followed ? "Followed" : "Follow"}</button>
         </div>
       {/each}
     </div>

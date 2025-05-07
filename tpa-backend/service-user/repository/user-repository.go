@@ -81,6 +81,10 @@ func (r *UserRepository) CreateSecurityQuestion(securityQuestion *model.Security
 	return r.DB.Create(securityQuestion).Error
 }
 
+func (r *UserRepository) FollowUser(follow *model.Follow) (error) {
+	return r.DB.Create(follow).Error
+}
+
 func (r *UserRepository) Create(user *model.User) error {
 	return r.DB.Create(user).Error
 }
