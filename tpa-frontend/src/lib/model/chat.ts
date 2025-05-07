@@ -1,5 +1,5 @@
 import axios from "axios";
-import { fetchUser, type User } from "./user";
+import { fetchUser } from "./user";
 
 export type Conversation = {
   id: string;
@@ -35,6 +35,13 @@ export type Message = {
 const BASE_API_URL = "http://localhost:8080/api/chat";
 
 let messages: Message[] = [];
+
+export async function createNewConversation(user_ids: string[], creator_id: string) {
+    await axios.post(BASE_API_URL + "/conversation", {
+      user_ids,
+      creator_id,
+    });
+}
 
 export async function updateConversationParticipants(conversation_id: string, user_ids: string[]) {
     await axios.put(BASE_API_URL + "/conversation/participants", {

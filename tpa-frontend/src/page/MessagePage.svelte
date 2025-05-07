@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import {
+  createNewConversation,
     fetchMessageWithUser,
     fetchUserConversation,
     updateConversationParticipants,
@@ -37,6 +38,9 @@
   let showParticipantsDropdown = false;
   let selectedParticipants: string[] = [];
 
+  let showUserDropdown = false;
+  let selectedUsers: string[] = [];
+
   function setupWebSocket(userId: string, conversationId: string) {
     if (socket) {
       socket.close();
@@ -63,6 +67,16 @@
         toastStore.error("An unexpected error occurred!");
       }
     };
+  }
+
+  async function createConversation() {
+    console.log("creating new conversation");
+    console.log(selectedUsers);
+
+    await createNewConversation(selectedUsers, user.id);
+    showUserDropdown = false;
+    toastStore.success("Success creating a new conversation!");
+    await refreshData();
   }
 
   async function updateParticipants() {
@@ -326,7 +340,8 @@
         <div class="conversations-header">
           <h2>Messages</h2>
           <div class="header-actions">
-            <button type="button" aria-label="icon button" class="icon-button">
+            <button type="button" aria-label="icon button" class="icon-button"
+            on:click={() => showUserDropdown = !showUserDropdown}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -343,6 +358,28 @@
                 ></path>
               </svg>
             </button>
+
+            {#if showUserDropdown}
+            <div class="create-dropdown-menu">
+                <div class="create-dropdown-header">Start New Conversation</div>
+                {#each allUsers as user (user.id)}
+                <label class="create-dropdown-item">
+                    <input type="checkbox" bind:group={selectedUsers} value={user.id} />
+                    <div class="participant-avatar">
+                    <img src={user.profile_picture || "/placeholder.svg"} alt={user.name} />
+                    </div>
+                    <span>{user.name}</span>
+                </label>
+                {/each}
+                {#if selectedUsers.length > 0}
+                <button type="button" class="create-convo-btn" on:click={async() => {
+                    await createConversation();
+                }}>
+                    Create Conversation
+                </button>
+                {/if}
+            </div>
+            {/if}
           </div>
         </div>
 
@@ -754,7 +791,49 @@
   .header-actions {
     display: flex;
     gap: 8px;
+    position: relative;
   }
+
+  .create-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: var(--background, #fff);
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  padding: 12px;
+  min-width: 240px;
+  z-index: 100;
+  margin-top: 10px;
+}
+
+.create-dropdown-header {
+  font-weight: bold;
+  font-size: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color, #eee);
+  margin-bottom: 8px;
+}
+
+.create-dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 14px;
+}
+
+.create-dropdown-item:hover {
+  background-color: var(--hover-background, #f6f6f6);
+  border-radius: 4px;
+}
+
+.create-dropdown-item input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.1);
+}
 
   .icon-button {
     background: none;
@@ -1254,7 +1333,8 @@
   margin: 0;
 }
 
-.add-participants-btn {
+.add-participants-btn,
+.create-convo-btn {
   width: calc(100% - 32px);
   margin: 12px 16px 8px;
   padding: 8px;
