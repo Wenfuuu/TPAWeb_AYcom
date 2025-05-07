@@ -83,6 +83,7 @@ func InitRoutes(
 			chat.GET("/messages", chatHandler.GetMessages)
 			chat.POST("/send", chatHandler.SendMessage)
 			chat.PUT("/conversation/participants", chatHandler.UpdateParticipant)
+			chat.GET("/notifications", chatHandler.GetNotifications)
 		}
 		users := api.Group("/users")
 		{

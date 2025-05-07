@@ -103,6 +103,23 @@ func (h *ChatHandler) GetMessages(c *gin.Context) {
 	})
 }
 
+func (h *ChatHandler) GetNotifications(c *gin.Context) {
+	userID := c.Query("user_id")
+
+	resp, err := h.Client.GetNotifications(context.Background(), &chatpb.GetNotificationsRequest{
+		UserId: userID,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"notifications": resp.Notifications,
+	})
+}
+
 func (h *ChatHandler) SendMessage(c *gin.Context) {
 	var requestBody struct {
 		ConversationID      string   	`json:"conversation_id" binding:"required"`
