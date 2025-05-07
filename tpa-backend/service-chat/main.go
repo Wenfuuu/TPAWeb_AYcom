@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Wenfuuu/tpa-web/pkg/messaging"
 	chatpb "github.com/Wenfuuu/tpa-web/pkg/proto/chat"
 	"github.com/Wenfuuu/tpa-web/service-chat/database"
 	"github.com/Wenfuuu/tpa-web/service-chat/model"
@@ -26,7 +27,7 @@ var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
-		return true // Allow all connections for now, should restrict in production
+		return true
 	},
 }
 
@@ -190,6 +191,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 				ThreadID    string `json:"thread_id,omitempty"`
 				Content     string `json:"content"`
 				Category    string `json:"category"`
+				Email 		string `json:"email"`
 			}
 
 			payloadBytes, _ := json.Marshal(wsMsg.Payload)
@@ -233,6 +235,34 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 			}
 
 			// Send email
+			payload := messaging.EmailPayload{
+				Email: notifData.Email,
+				Word: notifData.Content,
+			}
+			body, err := json.Marshal(payload)
+			if err != nil {
+				log.Printf("Failed to marshal email payload: %v", err)
+				continue
+			}
+			exchangeName := "email_exchange"
+			routingKey := "email"
+			err = rabbitChannel.PublishWithContext(
+				context.Background(),
+				exchangeName,
+				routingKey,
+				false,
+				false,
+				amqp091.Publishing{
+					ContentType: "application/json",
+					Body:        body,
+					DeliveryMode: amqp091.Transient,
+				},
+			)
+			if err != nil {
+				log.Printf("Failed to publish email message: %v", err)
+				continue
+			}
+			log.Printf("Successfully published email request for %s", notifData.Email)
 
 			// Send to notification channel
 			notifyChannel <- notification

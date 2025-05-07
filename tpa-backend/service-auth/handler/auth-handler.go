@@ -99,7 +99,7 @@ func (h *AuthHandler) Register(ctx context.Context, req *authpb.AuthRegisterRequ
 
 	body, err := json.Marshal(payload)
     if err != nil {
-        log.Printf("Failed to marshal verification email payload: %v", err)
+        log.Printf("Failed to marshal email payload: %v", err)
         return nil, status.Error(codes.Internal, "Failed to process request (marshal)")
     }
 
@@ -114,7 +114,7 @@ func (h *AuthHandler) Register(ctx context.Context, req *authpb.AuthRegisterRequ
 		amqp091.Publishing{
             ContentType: "application/json",
             Body:        body,
-            DeliveryMode: amqp091.Persistent, // Make message persistent (survive broker restart)
+            DeliveryMode: amqp091.Transient,
         },
 	)
 	if err != nil {

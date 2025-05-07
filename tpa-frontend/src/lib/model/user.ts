@@ -65,6 +65,11 @@ export async function fetchFollowing(user_id: string) {
   return users;
 }
 
+export async function fetchUserEmailById(userId: string) {
+  const user = await fetchProfileUser(userId);
+  return user.email;
+}
+
 export async function fetchProfileUser(id: string) {
   const response = await axios.get<User>(BASE_API_URL + "/user-profile", {
     params: {

@@ -12,7 +12,7 @@
   import { navigate } from "svelte-routing";
   import { toastStore } from "../lib/stores/toast";
   import LeftSidebar from "../lib/components/LeftSidebar.svelte";
-  import { fetchUser, type User } from "../lib/model/user";
+  import { fetchUser, fetchUserEmailById, type User } from "../lib/model/user";
   import { uploadImage, uploadVideo } from "../lib/utils/supabaseStorage";
 
   let isDarkMode = true;
@@ -242,12 +242,16 @@
     // test notification
     const otherParticipants = currentConversation.participants?.filter(p => p.user_id !== user.id) || [];
     // For each participant, send a notification
-    otherParticipants.forEach(participant => {
+    for (const participant of otherParticipants) {
+        const email = await fetchUserEmailById(participant.user_id);
+        console.log(email);
+
         const notif = {
             recipient_id: participant.user_id,
             sender_id: user.id,
             content: `New message from ${user.name} in ${currentConversation?.name}`,
-            category: "message"
+            category: "message",
+            email: email
         };
 
         const notifMessage = {
@@ -256,7 +260,7 @@
         };
 
         socket.send(JSON.stringify(notifMessage));
-    });
+    }
 
     newMessage = "";
     uploadedImage = "";
