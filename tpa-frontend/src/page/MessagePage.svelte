@@ -237,21 +237,39 @@
         payload: message
     };
 
-    // test notification
-    const notif = {
-        recipient_id: currentConversation.participants?.find(p => p.user_id !== user.id)?.user_id, // Get the other user's ID
-        content: "You have a new message from " + user.name,
-        category: "message"
-    };
+    // const notif = {
+    //     recipient_id: currentConversation.participants?.find(p => p.user_id !== user.id)?.user_id, // Get the other user's ID
+    //     content: "You have a new message from " + user.name,
+    //     category: "message"
+    // };
 
-    const notifMessage = {
-        type: "notification",
-        payload: notif
-    };
-    // Send notification message over socket
-    socket.send(JSON.stringify(notifMessage));
+    // const notifMessage = {
+    //     type: "notification",
+    //     payload: notif
+    // };
+    // // Send notification message over socket
+    // socket.send(JSON.stringify(notifMessage));
 
     socket.send(JSON.stringify(socketMessage));
+
+    // test notification
+    const otherParticipants = currentConversation.participants?.filter(p => p.user_id !== user.id) || [];
+    // For each participant, send a notification
+    otherParticipants.forEach(participant => {
+        const notif = {
+            recipient_id: participant.user_id,
+            content: `New message from ${user.name} in ${currentConversation?.name}`,
+            category: "message"
+        };
+
+        const notifMessage = {
+            type: "notification",
+            payload: notif
+        };
+
+        socket.send(JSON.stringify(notifMessage));
+    });
+
     newMessage = "";
     uploadedImage = "";
     imageFile = null;

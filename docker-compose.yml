@@ -94,6 +94,7 @@ services:
       - "50056:50056"
     depends_on:
       - db-chat
+      - rabbitmq
 
   # Notification Service
 
