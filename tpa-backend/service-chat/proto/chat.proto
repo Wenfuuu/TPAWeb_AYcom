@@ -17,18 +17,25 @@ service ChatService {
   rpc UpdateParticipant(UpdateParticipantRequest) returns (Conversation) {}
 
   // Notification
-  rpc GetNotifications(GetNotificationsRequest) returns (GetNotificationsResponse);
+  rpc GetAllNotifications(GetAllNotificationsRequest) returns (GetNotificationsResponse);
+  rpc GetMentionNotifications(GetMentionNotificationsRequest) returns (GetNotificationsResponse);
 }
 
 message Notification {
     string id = 1;
     string user_id = 2;
-    string content = 3;
-    string category = 4;
-    string created_at = 5;
+    string sender_id = 3;
+    string thread_id = 4;
+    string content = 5;
+    string category = 6;
+    string created_at = 7;
 }
 
-message GetNotificationsRequest {
+message GetAllNotificationsRequest {
+    string user_id = 1;
+}
+
+message GetMentionNotificationsRequest {
     string user_id = 1;
 }
 

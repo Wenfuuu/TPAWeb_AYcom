@@ -78,6 +78,7 @@
             Joined: {new Date(userProfile.created_at).toLocaleDateString()}
           </p>
         </div>
+        {#if !isUser}
         <button
           type="button"
           class="follow-button"
@@ -88,6 +89,7 @@
         >
           Follow
         </button>
+        {/if}
       </div>
     </div>
 

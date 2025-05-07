@@ -63,7 +63,7 @@
     toFollow = await fetchWhoToFollow(user.id);
     topHashtags = await fetchTopHashtags();
 
-    console.log(toFollow);
+    // console.log(toFollow);
   }
 
   onMount(async () => {

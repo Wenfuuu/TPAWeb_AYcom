@@ -103,10 +103,27 @@ func (h *ChatHandler) GetMessages(c *gin.Context) {
 	})
 }
 
-func (h *ChatHandler) GetNotifications(c *gin.Context) {
+func (h *ChatHandler) GetAllNotifications(c *gin.Context) {
 	userID := c.Query("user_id")
 
-	resp, err := h.Client.GetNotifications(context.Background(), &chatpb.GetNotificationsRequest{
+	resp, err := h.Client.GetAllNotifications(context.Background(), &chatpb.GetAllNotificationsRequest{
+		UserId: userID,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"notifications": resp.Notifications,
+	})
+}
+
+func (h *ChatHandler) GetMentionNotifications(c *gin.Context) {
+	userID := c.Query("user_id")
+
+	resp, err := h.Client.GetMentionNotifications(context.Background(), &chatpb.GetMentionNotificationsRequest{
 		UserId: userID,
 	})
 

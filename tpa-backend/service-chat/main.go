@@ -31,15 +31,18 @@ var upgrader = websocket.Upgrader{
 }
 
 type WebSocketMessage struct {
-    Type    string      `json:"type"`    // "chat" or "notification"
-    Payload interface{} `json:"payload"` // The actual message data
+	Type    string      `json:"type"`    // "chat" or "notification"
+	Payload interface{} `json:"payload"` // The actual message data
 }
 
 var db *gorm.DB
+
 // Global map of active clients
 var clients = make(map[*model.Client]bool)
+
 // Channel to broadcast messages
 var broadcast = make(chan model.Message)
+
 // Channel for notifications
 var notifyChannel = make(chan model.Notification)
 
@@ -52,38 +55,38 @@ type ChatServer struct {
 func handleMessages() {
 	for {
 		select {
-        case msg := <-broadcast:
-            // Handle chat messages as before
-            for client := range clients {
-                wsMessage := WebSocketMessage{
-                    Type:    "chat",
-                    Payload: msg,
-                }
-                err := client.Conn.WriteJSON(wsMessage)
-                if err != nil {
-                    log.Printf("Error sending message: %v", err)
-                    client.Conn.Close()
-                    delete(clients, client)
-                }
-            }
-            
-        case notification := <-notifyChannel:
-            // Send notification to the specific user
-            for client := range clients {
-                if client.UserID == notification.UserID {
-                    wsMessage := WebSocketMessage{
-                        Type:    "notification",
-                        Payload: notification,
-                    }
-                    err := client.Conn.WriteJSON(wsMessage)
-                    if err != nil {
-                        log.Printf("Error sending notification: %v", err)
-                        client.Conn.Close()
-                        delete(clients, client)
-                    }
-                }
-            }
-        }
+		case msg := <-broadcast:
+			// Handle chat messages as before
+			for client := range clients {
+				wsMessage := WebSocketMessage{
+					Type:    "chat",
+					Payload: msg,
+				}
+				err := client.Conn.WriteJSON(wsMessage)
+				if err != nil {
+					log.Printf("Error sending message: %v", err)
+					client.Conn.Close()
+					delete(clients, client)
+				}
+			}
+
+		case notification := <-notifyChannel:
+			// Send notification to the specific user
+			for client := range clients {
+				if client.UserID == notification.UserID {
+					wsMessage := WebSocketMessage{
+						Type:    "notification",
+						Payload: notification,
+					}
+					err := client.Conn.WriteJSON(wsMessage)
+					if err != nil {
+						log.Printf("Error sending notification: %v", err)
+						client.Conn.Close()
+						delete(clients, client)
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -99,18 +102,18 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	// Extract user ID and conversation ID from query params
 	userIDStr := r.URL.Query().Get("user_id")
 	convIDStr := r.URL.Query().Get("conversation_id")
-	
+
 	// Parse user ID and conversation ID
 	userID := uuid.MustParse(userIDStr)
 	convID := uuid.MustParse(convIDStr)
-	
+
 	// Create a new client
 	client := &model.Client{
 		Conn:           ws,
 		UserID:         userID,
 		ConversationID: convID,
 	}
-	
+
 	// Register client
 	clients[client] = true
 
@@ -122,86 +125,105 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	// Handle incoming messages
 	for {
 		var wsMsg WebSocketMessage
-        
-        err := ws.ReadJSON(&wsMsg)
-        if err != nil {
-            log.Printf("Error reading message: %v", err)
-            delete(clients, client)
-            break
-        }
+
+		err := ws.ReadJSON(&wsMsg)
+		if err != nil {
+			log.Printf("Error reading message: %v", err)
+			delete(clients, client)
+			break
+		}
 
 		switch wsMsg.Type {
-			case "chat":
-				var msg struct {
-					Content   string `json:"content"`
-					MediaType string `json:"media_type"`
-					MediaURL string `json:"media_url"`
-				}
+		case "chat":
+			var msg struct {
+				Content   string `json:"content"`
+				MediaType string `json:"media_type"`
+				MediaURL  string `json:"media_url"`
+			}
 
-				payloadBytes, _ := json.Marshal(wsMsg.Payload)
-            	json.Unmarshal(payloadBytes, &msg)
-				
-				// Create a new message
-				newMsg := model.Message{
-					SenderID:      	client.UserID,
-					ConversationID: client.ConversationID,
-					Content:       	msg.Content,
-					MediaType:     	msg.MediaType,
-					MediaURL: 		msg.MediaURL,
-				}
-				
-				// Save message to database
-				if err := db.Create(&newMsg).Error; err != nil {
-					log.Printf("Error saving message: %v", err)
+			payloadBytes, _ := json.Marshal(wsMsg.Payload)
+			json.Unmarshal(payloadBytes, &msg)
+
+			// Create a new message
+			newMsg := model.Message{
+				SenderID:       client.UserID,
+				ConversationID: client.ConversationID,
+				Content:        msg.Content,
+				MediaType:      msg.MediaType,
+				MediaURL:       msg.MediaURL,
+			}
+
+			// Save message to database
+			if err := db.Create(&newMsg).Error; err != nil {
+				log.Printf("Error saving message: %v", err)
+				continue
+			}
+
+			// Update conversation's updated_at timestamp
+			db.Model(&model.Conversation{}).Where("id = ?", client.ConversationID).
+				Updates(map[string]interface{}{"updated_at": time.Now()})
+
+			// Update sender's last read timestamp
+			db.Model(&model.ConversationParticipant{}).
+				Where("conversation_id = ? AND user_id = ?", client.ConversationID, client.UserID).
+				Updates(map[string]interface{}{"last_read_at": time.Now()})
+
+			// Broadcast message to all clients in the same conversation
+			broadcast <- newMsg
+
+		case "notification":
+			var notifData struct {
+				RecipientID string `json:"recipient_id"`
+				SenderID    string `json:"sender_id"`
+				ThreadID    string `json:"thread_id,omitempty"`
+				Content     string `json:"content"`
+				Category    string `json:"category"`
+			}
+
+			payloadBytes, _ := json.Marshal(wsMsg.Payload)
+			json.Unmarshal(payloadBytes, &notifData)
+
+			recipientID, err := uuid.Parse(notifData.RecipientID)
+			if err != nil {
+				log.Printf("Invalid recipient ID: %v", err)
+				continue
+			}
+
+			senderID, err := uuid.Parse(notifData.SenderID)
+			if err != nil {
+				log.Printf("Invalid sender ID: %v", err)
+				continue
+			}
+
+			var threadID *uuid.UUID
+			if notifData.ThreadID != "" {
+				parsedThreadID, err := uuid.Parse(notifData.ThreadID)
+				if err != nil {
+					log.Printf("Invalid thread ID: %v", err)
 					continue
 				}
-				
-				// Update conversation's updated_at timestamp
-				db.Model(&model.Conversation{}).Where("id = ?", client.ConversationID).
-					Updates(map[string]interface{}{"updated_at": time.Now()})
-				
-				// Update sender's last read timestamp
-				db.Model(&model.ConversationParticipant{}).
-					Where("conversation_id = ? AND user_id = ?", client.ConversationID, client.UserID).
-					Updates(map[string]interface{}{"last_read_at": time.Now()})
-				
-				// Broadcast message to all clients in the same conversation
-				broadcast <- newMsg
+				threadID = &parsedThreadID
+			}
 
-			case "notification":
-				var notifData struct {
-                    RecipientID string `json:"recipient_id"`
-                    Content     string `json:"content"`
-                    Category    string `json:"category"`
-                }
+			// Create notification
+			notification := model.Notification{
+				UserID: recipientID,
+				SenderID: senderID,
+				ThreadID: threadID,
+				Content:  notifData.Content,
+				Category: notifData.Category,
+			}
 
-                payloadBytes, _ := json.Marshal(wsMsg.Payload)
-                json.Unmarshal(payloadBytes, &notifData)
-                
-                recipientID, err := uuid.Parse(notifData.RecipientID)
-                if err != nil {
-                    log.Printf("Invalid recipient ID: %v", err)
-                    continue
-                }
-                
-                // Create notification
-                notification := model.Notification{
-                    UserID:   recipientID,
-                    Content:  notifData.Content,
-                    Category: notifData.Category,
-                }
-                
-                // Save to database
-                if err := db.Create(&notification).Error; err != nil {
-                    log.Printf("Error saving notification: %v", err)
-                    continue
-                }
+			// Save to database
+			if err := db.Create(&notification).Error; err != nil {
+				log.Printf("Error saving notification: %v", err)
+				continue
+			}
 
-				// Send email
+			// Send email
 
-                
-                // Send to notification channel
-                notifyChannel <- notification
+			// Send to notification channel
+			notifyChannel <- notification
 		}
 	}
 }
@@ -209,19 +231,19 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 func main() {
 
 	ch, err := utils.GetRabbitMQChannel()
-    if err != nil {
-        log.Fatalf("Failed to get RabbitMQ channel for AuthHandler: %v", err)
-    }
+	if err != nil {
+		log.Fatalf("Failed to get RabbitMQ channel for AuthHandler: %v", err)
+	}
 	exchangeName := "email_exchange"
-    err = ch.ExchangeDeclare(
-        exchangeName,     // name
-        "direct",         // type
-        true,             // durable
-        false,            // auto-deleted
-        false,            // internal
-        false,            // no-wait
-        nil,              // arguments
-    )
+	err = ch.ExchangeDeclare(
+		exchangeName, // name
+		"direct",     // type
+		true,         // durable
+		false,        // auto-deleted
+		false,        // internal
+		false,        // no-wait
+		nil,          // arguments
+	)
 	rabbitChannel = ch
 
 	db = database.InitDB()
@@ -274,29 +296,29 @@ func main() {
 // gRPC implementations
 func (s *ChatServer) GetConversations(ctx context.Context, req *chatpb.GetConversationsRequest) (*chatpb.GetConversationsResponse, error) {
 	var conversations []model.Conversation
-	
+
 	query := db.Preload("Participants").
 		Joins("JOIN conversation_participants ON conversations.id = conversation_participants.conversation_id").
 		Where("conversation_participants.user_id = ?", req.UserId)
-	
+
 	result := query.Order("conversations.updated_at desc").Find(&conversations)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	
+
 	// Count total
 	var totalCount int64
 	db.Model(&model.Conversation{}).
 		Joins("JOIN conversation_participants ON conversations.id = conversation_participants.conversation_id").
 		Where("conversation_participants.user_id = ?", req.UserId).
 		Count(&totalCount)
-		
+
 	// Convert to protobuf format
 	pbConversations := make([]*chatpb.Conversation, len(conversations))
 	for i, conv := range conversations {
 		pbConversations[i] = convertConversationToProto(conv)
 	}
-	
+
 	return &chatpb.GetConversationsResponse{
 		Conversations: pbConversations,
 		TotalCount:    int32(totalCount),
@@ -307,18 +329,18 @@ func (s *ChatServer) CreateConversation(ctx context.Context, req *chatpb.CreateC
 	conversation := model.Conversation{
 		Name: req.Name,
 	}
-	
+
 	// Start a transaction
 	tx := db.Begin()
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
-	
+
 	if err := tx.Create(&conversation).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
-	
+
 	// Add participants
 	for _, userID := range req.UserIds {
 		participant := model.ConversationParticipant{
@@ -327,13 +349,13 @@ func (s *ChatServer) CreateConversation(ctx context.Context, req *chatpb.CreateC
 			JoinedAt:       time.Now(),
 			LastReadAt:     time.Now(),
 		}
-		
+
 		if err := tx.Create(&participant).Error; err != nil {
 			tx.Rollback()
 			return nil, err
 		}
 	}
-	
+
 	// Add creator if not already in participants
 	creatorInList := false
 	for _, userID := range req.UserIds {
@@ -342,7 +364,7 @@ func (s *ChatServer) CreateConversation(ctx context.Context, req *chatpb.CreateC
 			break
 		}
 	}
-	
+
 	if !creatorInList {
 		participant := model.ConversationParticipant{
 			ConversationID: conversation.ID,
@@ -350,47 +372,47 @@ func (s *ChatServer) CreateConversation(ctx context.Context, req *chatpb.CreateC
 			JoinedAt:       time.Now(),
 			LastReadAt:     time.Now(),
 		}
-		
+
 		if err := tx.Create(&participant).Error; err != nil {
 			tx.Rollback()
 			return nil, err
 		}
 	}
-	
+
 	if err := tx.Commit().Error; err != nil {
 		return nil, err
 	}
-	
+
 	// Fetch the full conversation with participants
 	if err := db.Preload("Participants").First(&conversation, conversation.ID).Error; err != nil {
 		return nil, err
 	}
-	
+
 	return convertConversationToProto(conversation), nil
 }
 
 func (s *ChatServer) GetMessages(ctx context.Context, req *chatpb.GetMessagesRequest) (*chatpb.GetMessagesResponse, error) {
 	var messages []model.Message
-	
+
 	query := db.Where("conversation_id = ? AND is_deleted = ?", req.ConversationId, false)
-	
+
 	result := query.Order("created_at asc").Find(&messages)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	
+
 	// Count total
 	var totalCount int64
 	db.Model(&model.Message{}).
 		Where("conversation_id = ? AND is_deleted = ?", req.ConversationId, false).
 		Count(&totalCount)
-		
+
 	// Convert to protobuf format
 	pbMessages := make([]*chatpb.Message, len(messages))
 	for i, msg := range messages {
 		pbMessages[i] = convertMessageToProto(msg)
 	}
-	
+
 	return &chatpb.GetMessagesResponse{
 		Messages:   pbMessages,
 		TotalCount: int32(totalCount),
@@ -404,18 +426,18 @@ func (s *ChatServer) SendMessage(ctx context.Context, req *chatpb.SendMessageReq
 		SenderID:       uuid.MustParse(req.SenderId),
 		Content:        req.Content,
 	}
-	
+
 	if err := db.Create(&msg).Error; err != nil {
 		return nil, err
 	}
-	
+
 	// Update conversation's updated_at timestamp
 	db.Model(&model.Conversation{}).Where("id = ?", req.ConversationId).
 		Updates(map[string]interface{}{"updated_at": time.Now()})
-	
+
 	// Broadcast the message to connected clients
 	broadcast <- msg
-	
+
 	return convertMessageToProto(msg), nil
 }
 
@@ -485,20 +507,20 @@ func (s *ChatServer) UpdateParticipant(ctx context.Context, req *chatpb.UpdatePa
 	return convertConversationToProto(conversation), nil
 }
 
-func (s *ChatServer) GetNotifications(ctx context.Context, req *chatpb.GetNotificationsRequest) (*chatpb.GetNotificationsResponse, error) {
+func (s *ChatServer) GetAllNotifications(ctx context.Context, req *chatpb.GetAllNotificationsRequest) (*chatpb.GetNotificationsResponse, error) {
 	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
 		return nil, fmt.Errorf("invalid user ID: %w", err)
 	}
-	
+
 	var notifications []model.Notification
-	query := db.Where("user_id = ?", userID)
-	
+	query := db.Where("user_id = ?", userID).Where("category = ?", "message");
+
 	// Fetch notifications
 	if err := query.Order("created_at desc").Find(&notifications).Error; err != nil {
 		return nil, err
 	}
-	
+
 	// Convert to protobuf format
 	pbNotifications := make([]*chatpb.Notification, len(notifications))
 	for i, notif := range notifications {
@@ -510,7 +532,38 @@ func (s *ChatServer) GetNotifications(ctx context.Context, req *chatpb.GetNotifi
 			CreatedAt: notif.CreatedAt.Format(time.RFC3339),
 		}
 	}
-	
+
+	return &chatpb.GetNotificationsResponse{
+		Notifications: pbNotifications,
+	}, nil
+}
+
+func (s *ChatServer) GetMentionNotifications(ctx context.Context, req *chatpb.GetMentionNotificationsRequest) (*chatpb.GetNotificationsResponse, error) {
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID: %w", err)
+	}
+
+	var notifications []model.Notification
+	query := db.Where("user_id = ?", userID).Where("category = ?", "mention");
+
+	// Fetch notifications
+	if err := query.Order("created_at desc").Find(&notifications).Error; err != nil {
+		return nil, err
+	}
+
+	// Convert to protobuf format
+	pbNotifications := make([]*chatpb.Notification, len(notifications))
+	for i, notif := range notifications {
+		pbNotifications[i] = &chatpb.Notification{
+			Id:        notif.ID.String(),
+			UserId:    notif.UserID.String(),
+			Content:   notif.Content,
+			Category:  notif.Category,
+			CreatedAt: notif.CreatedAt.Format(time.RFC3339),
+		}
+	}
+
 	return &chatpb.GetNotificationsResponse{
 		Notifications: pbNotifications,
 	}, nil
@@ -540,14 +593,14 @@ func convertConversationToProto(conv model.Conversation) *chatpb.Conversation {
 
 func convertMessageToProto(msg model.Message) *chatpb.Message {
 	return &chatpb.Message{
-		Id:            	msg.ID.String(),
+		Id:             msg.ID.String(),
 		ConversationId: msg.ConversationID.String(),
-		SenderId:      	msg.SenderID.String(),
-		Content:       	msg.Content,
-		MediaType: 		msg.MediaType,	
-		MediaUrl: 		msg.MediaURL,	
-		CreatedAt:     	msg.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:     	msg.UpdatedAt.Format(time.RFC3339),
-		IsDeleted:     	msg.IsDeleted,
+		SenderId:       msg.SenderID.String(),
+		Content:        msg.Content,
+		MediaType:      msg.MediaType,
+		MediaUrl:       msg.MediaURL,
+		CreatedAt:      msg.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:      msg.UpdatedAt.Format(time.RFC3339),
+		IsDeleted:      msg.IsDeleted,
 	}
 }

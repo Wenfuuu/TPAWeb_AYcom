@@ -13,6 +13,7 @@
   import CreateCommunityPage from "./page/CreateCommunityPage.svelte";
   import ToastContainer from "./lib/components/ToastContainer.svelte";
   import MessagePage from "./page/MessagePage.svelte";
+  import NotificationPage from "./page/NotificationPage.svelte";
 
   export let url = "";
 </script>
@@ -65,6 +66,10 @@
 
   <Route path="/messages">
     <MessagePage />
+  </Route>
+
+  <Route path="/notifications">
+    <NotificationPage />
   </Route>
 
 </Router>

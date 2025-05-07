@@ -19,13 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ChatService_GetConversations_FullMethodName    = "/chat.ChatService/GetConversations"
-	ChatService_GetConversationById_FullMethodName = "/chat.ChatService/GetConversationById"
-	ChatService_CreateConversation_FullMethodName  = "/chat.ChatService/CreateConversation"
-	ChatService_GetMessages_FullMethodName         = "/chat.ChatService/GetMessages"
-	ChatService_SendMessage_FullMethodName         = "/chat.ChatService/SendMessage"
-	ChatService_UpdateParticipant_FullMethodName   = "/chat.ChatService/UpdateParticipant"
-	ChatService_GetNotifications_FullMethodName    = "/chat.ChatService/GetNotifications"
+	ChatService_GetConversations_FullMethodName        = "/chat.ChatService/GetConversations"
+	ChatService_GetConversationById_FullMethodName     = "/chat.ChatService/GetConversationById"
+	ChatService_CreateConversation_FullMethodName      = "/chat.ChatService/CreateConversation"
+	ChatService_GetMessages_FullMethodName             = "/chat.ChatService/GetMessages"
+	ChatService_SendMessage_FullMethodName             = "/chat.ChatService/SendMessage"
+	ChatService_UpdateParticipant_FullMethodName       = "/chat.ChatService/UpdateParticipant"
+	ChatService_GetAllNotifications_FullMethodName     = "/chat.ChatService/GetAllNotifications"
+	ChatService_GetMentionNotifications_FullMethodName = "/chat.ChatService/GetMentionNotifications"
 )
 
 // ChatServiceClient is the client API for ChatService service.
@@ -41,7 +42,8 @@ type ChatServiceClient interface {
 	SendMessage(ctx context.Context, in *SendMessageRequest, opts ...grpc.CallOption) (*Message, error)
 	UpdateParticipant(ctx context.Context, in *UpdateParticipantRequest, opts ...grpc.CallOption) (*Conversation, error)
 	// Notification
-	GetNotifications(ctx context.Context, in *GetNotificationsRequest, opts ...grpc.CallOption) (*GetNotificationsResponse, error)
+	GetAllNotifications(ctx context.Context, in *GetAllNotificationsRequest, opts ...grpc.CallOption) (*GetNotificationsResponse, error)
+	GetMentionNotifications(ctx context.Context, in *GetMentionNotificationsRequest, opts ...grpc.CallOption) (*GetNotificationsResponse, error)
 }
 
 type chatServiceClient struct {
@@ -112,10 +114,20 @@ func (c *chatServiceClient) UpdateParticipant(ctx context.Context, in *UpdatePar
 	return out, nil
 }
 
-func (c *chatServiceClient) GetNotifications(ctx context.Context, in *GetNotificationsRequest, opts ...grpc.CallOption) (*GetNotificationsResponse, error) {
+func (c *chatServiceClient) GetAllNotifications(ctx context.Context, in *GetAllNotificationsRequest, opts ...grpc.CallOption) (*GetNotificationsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetNotificationsResponse)
-	err := c.cc.Invoke(ctx, ChatService_GetNotifications_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ChatService_GetAllNotifications_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *chatServiceClient) GetMentionNotifications(ctx context.Context, in *GetMentionNotificationsRequest, opts ...grpc.CallOption) (*GetNotificationsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetNotificationsResponse)
+	err := c.cc.Invoke(ctx, ChatService_GetMentionNotifications_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +147,8 @@ type ChatServiceServer interface {
 	SendMessage(context.Context, *SendMessageRequest) (*Message, error)
 	UpdateParticipant(context.Context, *UpdateParticipantRequest) (*Conversation, error)
 	// Notification
-	GetNotifications(context.Context, *GetNotificationsRequest) (*GetNotificationsResponse, error)
+	GetAllNotifications(context.Context, *GetAllNotificationsRequest) (*GetNotificationsResponse, error)
+	GetMentionNotifications(context.Context, *GetMentionNotificationsRequest) (*GetNotificationsResponse, error)
 	mustEmbedUnimplementedChatServiceServer()
 }
 
@@ -164,8 +177,11 @@ func (UnimplementedChatServiceServer) SendMessage(context.Context, *SendMessageR
 func (UnimplementedChatServiceServer) UpdateParticipant(context.Context, *UpdateParticipantRequest) (*Conversation, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateParticipant not implemented")
 }
-func (UnimplementedChatServiceServer) GetNotifications(context.Context, *GetNotificationsRequest) (*GetNotificationsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetNotifications not implemented")
+func (UnimplementedChatServiceServer) GetAllNotifications(context.Context, *GetAllNotificationsRequest) (*GetNotificationsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllNotifications not implemented")
+}
+func (UnimplementedChatServiceServer) GetMentionNotifications(context.Context, *GetMentionNotificationsRequest) (*GetNotificationsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMentionNotifications not implemented")
 }
 func (UnimplementedChatServiceServer) mustEmbedUnimplementedChatServiceServer() {}
 func (UnimplementedChatServiceServer) testEmbeddedByValue()                     {}
@@ -296,20 +312,38 @@ func _ChatService_UpdateParticipant_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ChatService_GetNotifications_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetNotificationsRequest)
+func _ChatService_GetAllNotifications_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllNotificationsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ChatServiceServer).GetNotifications(ctx, in)
+		return srv.(ChatServiceServer).GetAllNotifications(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ChatService_GetNotifications_FullMethodName,
+		FullMethod: ChatService_GetAllNotifications_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ChatServiceServer).GetNotifications(ctx, req.(*GetNotificationsRequest))
+		return srv.(ChatServiceServer).GetAllNotifications(ctx, req.(*GetAllNotificationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ChatService_GetMentionNotifications_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMentionNotificationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).GetMentionNotifications(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChatService_GetMentionNotifications_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).GetMentionNotifications(ctx, req.(*GetMentionNotificationsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -346,8 +380,12 @@ var ChatService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ChatService_UpdateParticipant_Handler,
 		},
 		{
-			MethodName: "GetNotifications",
-			Handler:    _ChatService_GetNotifications_Handler,
+			MethodName: "GetAllNotifications",
+			Handler:    _ChatService_GetAllNotifications_Handler,
+		},
+		{
+			MethodName: "GetMentionNotifications",
+			Handler:    _ChatService_GetMentionNotifications_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

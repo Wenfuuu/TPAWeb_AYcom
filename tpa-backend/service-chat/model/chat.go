@@ -56,6 +56,8 @@ type Message struct {
 type Notification struct {
     ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
     UserID    uuid.UUID `json:"user_id"`
+	SenderID  uuid.UUID `json:"sender_id"`
+	ThreadID   *uuid.UUID `json:"thread_id,omitempty"`
     Content   string	`json:"content"`
     Category  string	`json:"category"`
     CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
