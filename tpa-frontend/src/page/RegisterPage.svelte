@@ -37,6 +37,7 @@
     uploadBannerImage,
   } from "../lib/utils/supabaseStorage";
   import { checkGuest } from "../lib/utils/auth";
+  import { toastStore } from "../lib/stores/toast";
 
   // Define the API data structure
   type ApiFormData = {
@@ -338,6 +339,7 @@
       console.log("code verify: " + isVerified);
       if (isVerified) {
         await register();
+        toastStore.success("Register success!");
         navigate("/login");
       } else {
         state.errors.verificationCode = "Invalid verification code";

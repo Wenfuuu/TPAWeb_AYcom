@@ -12,7 +12,7 @@
   import { onMount } from "svelte";
   import { toastStore } from "../lib/stores/toast";
 
-  let username = "";
+  let email = "";
   let password = "";
   let loading = false;
   let recaptchaVerified = false;
@@ -22,7 +22,7 @@
     loading = true;
 
     try {
-      await login(username, password, navigate);
+      await login(email, password, navigate);
       toastStore.success("Login success!");
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -151,8 +151,8 @@
       <div class="input-group">
         <input
           type="text"
-          placeholder="Phone, email, or username"
-          bind:value={username}
+          placeholder="Email"
+          bind:value={email}
         />
       </div>
 
@@ -177,7 +177,7 @@
       <button
         type="button"
         class="sign-in-button"
-        disabled={loading || !username || !password || !recaptchaVerified}
+        disabled={loading || !email || !password || !recaptchaVerified}
         on:click={handleLogin}
       >
         {#if loading}

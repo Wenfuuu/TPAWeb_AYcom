@@ -14,7 +14,8 @@
   import ToastContainer from "./lib/components/ToastContainer.svelte";
   import MessagePage from "./page/MessagePage.svelte";
   import NotificationPage from "./page/NotificationPage.svelte";
-  import ExplorePage from "./page/ExplorePage.svelte";
+  import AdminPage from "./page/AdminPage.svelte";
+  import ForgottenPage from "./page/ForgottenPage.svelte";
 
   export let url = "";
 </script>
@@ -75,6 +76,14 @@
 
   <Route path="/explore">
     <!-- <ExplorePage /> -->
+  </Route>
+
+  <Route path="/admin">
+    <AdminPage />
+  </Route>
+
+  <Route path="/forgotten">
+    <ForgottenPage />
   </Route>
 
 </Router>

@@ -176,6 +176,7 @@ func InitRoutes(
 		thread := api.Group("/threads")
 		{
 			thread.GET("/thread", threadHandler.GetAllThreads)
+			thread.GET("/thread-following", threadHandler.GetFollowingThreads)
 			thread.GET("/thread-user", threadHandler.GetUserThreads)
 			thread.GET("/thread-user-reply", threadHandler.GetUserReplies)
 			thread.GET("/thread-bookmark", threadHandler.GetBookmark)

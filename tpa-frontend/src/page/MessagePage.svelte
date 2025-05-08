@@ -381,7 +381,7 @@
   });
 </script>
 
-{#if conversations}
+{#if conversations || user}
   <div class="home-container">
     <LeftSidebar {toggleTheme} {isDarkMode} {user} {refreshData} />
 
