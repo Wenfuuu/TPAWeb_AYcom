@@ -27,6 +27,12 @@ export type UserThread = {
     profile: string;
 };
 
+export type SecurityQuestion = {
+  user_id: string;
+  security_question: string;
+  security_answer: string;
+}
+
 type Follows = {
   following_id: string;
   follower_id: string;
@@ -68,6 +74,33 @@ export async function fetchFollowing(user_id: string) {
 export async function fetchUserEmailById(userId: string) {
   const user = await fetchProfileUser(userId);
   return user.email;
+}
+
+export async function resetPassword(user_id: string, password: string) {
+  await axios.put(BASE_API_URL + "/reset-password", {
+    user_id,
+    password
+  });
+}
+
+export async function fetchSecurityQuestions(user_id: string) {
+    const response = await axios.get<SecurityQuestion>(BASE_API_URL + "/security-question", {
+      params: {
+        user_id,
+      },
+    });
+    const questions = response.data;
+    return questions;
+}
+
+export async function fetchUserByEmail(email: string) {
+  const response = await axios.get<User>(BASE_API_URL + "/user-email", {
+    params: {
+      email,
+    },
+  });
+  const user = response.data;
+  return user;
 }
 
 export async function fetchProfileUser(id: string) {

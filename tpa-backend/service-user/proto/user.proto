@@ -20,6 +20,28 @@ service UserService {
 
   rpc FollowUser(FollowUserRequest) returns (Follow);
   rpc UnfollowUser(UnfollowUserRequest) returns (UnfollowUserResponse);
+
+  rpc GetSecurityQuestion(GetSecurityQuestionRequest) returns (SecurityQuestionResponse);
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
+}
+
+message ResetPasswordRequest {
+  string user_id = 1;
+  string password = 2; // new password
+}
+
+message ResetPasswordResponse {
+  string message = 1;
+}
+
+message GetSecurityQuestionRequest {
+  string user_id = 1;
+}
+
+message SecurityQuestionResponse {
+  string user_id = 1;
+  string security_question = 2;
+  string security_answer = 3;
 }
 
 message UnfollowUserRequest {

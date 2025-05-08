@@ -128,7 +128,11 @@
     </div>
 
     <div class="logo-container">
-      <div class="logo">AY</div>
+      {#if isDarkMode}
+        <img src="/src/assets/AY-dark.jpg" alt="Logo" class="logo-img">
+      {:else}
+        <img src="/src/assets/AY-light.jpg" alt="Logo" class="logo-img">
+      {/if}
     </div>
 
     <h1>Sign in to AY</h1>
@@ -296,6 +300,10 @@
     text-align: center;
     font-weight: 700;
     color: var(--text-primary);
+  }
+
+  .logo-img {
+    max-width: 50px;
   }
 
   /* Google button */

@@ -233,6 +233,14 @@ func (h *UserHandler) GetUserByEmail(ctx context.Context, req *userpb.GetUserByE
 		return nil, status.Error(codes.Internal, "Database error")
 	}
 
+	if !user.IsActive {
+		return nil, status.Error(codes.PermissionDenied, "User account is inactive")
+	}
+
+	if user.IsBanned {
+		return nil, status.Error(codes.PermissionDenied, "User account is banned")
+	}
+
 	return h.userToResponse(user), nil
 }
 
@@ -292,6 +300,48 @@ func (h *UserHandler) DeleteUser(ctx context.Context, req *userpb.DeleteUserRequ
 
 	return &userpb.DeleteUserResponse{
 		Success: true,
+	}, nil
+}
+
+func (h *UserHandler) ResetPassword(ctx context.Context, req *userpb.ResetPasswordRequest) (*userpb.ResetPasswordResponse, error) {
+	user, err := h.userRepo.FindByID(req.UserId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "User not found")
+		}
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	// Compare new password with old one
+	if utils.ComparePassword(user.Password, req.Password) {
+		return nil, status.Error(codes.InvalidArgument, "New password cannot be the same as the old password")
+	}
+
+	// Hash new password
+	hashedPassword, err := utils.EncryptPassword(req.Password)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to hash password")
+	}
+
+	// Update in DB
+	user.Password = hashedPassword
+	if err := h.userRepo.Update(user); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to update password")
+	}
+
+	return &userpb.ResetPasswordResponse{Message: "Password updated successfully"}, nil
+}
+
+func (h *UserHandler) GetSecurityQuestion(ctx context.Context, req *userpb.GetSecurityQuestionRequest) (*userpb.SecurityQuestionResponse, error) {
+	question, err := h.userRepo.GetSecurityQuestion(req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "security question not found: %v", err)
+	}
+
+	return &userpb.SecurityQuestionResponse{
+		UserId:           question.UserID.String(),
+		SecurityQuestion: question.Question,
+		SecurityAnswer:   question.Answer,
 	}, nil
 }
 

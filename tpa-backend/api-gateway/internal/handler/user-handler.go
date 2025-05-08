@@ -9,6 +9,7 @@ import (
 	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
 	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc/status"
 )
 
 type UserHandler struct {
@@ -164,6 +165,65 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 
 	resp, err := h.Client.GetUser(context.Background(), &userpb.GetUserRequest{
 		Id: userId,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.User)
+}
+
+func (h *UserHandler) ResetPassword(c *gin.Context) {
+	var req userpb.ResetPasswordRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	resp, err := h.Client.ResetPassword(context.Background(), &req)
+	if err != nil {
+		st, ok := status.FromError(err)
+		if ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": st.Message()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
+}
+
+func (h *UserHandler) GetSecurityQuestion(c *gin.Context) {
+	userId := c.Query("user_id")
+
+	resp, err := h.Client.GetSecurityQuestion(context.Background(), &userpb.GetSecurityQuestionRequest{
+		UserId: userId,
+	})
+
+	if err != nil {
+		st, ok := status.FromError(err)
+		if ok {
+			// gRPC error with proper code and message
+			c.JSON(http.StatusBadRequest, gin.H{"error": st.Message()})
+		} else {
+			// Non-gRPC error (unexpected)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *UserHandler) GetUserByEmail(c *gin.Context) {
+	email := c.Query("email")
+
+	resp, err := h.Client.GetUserByEmail(context.Background(), &userpb.GetUserByEmailRequest{
+		Email: email,
 	})
 
 	if err != nil {

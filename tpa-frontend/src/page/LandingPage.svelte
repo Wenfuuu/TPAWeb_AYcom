@@ -20,7 +20,7 @@
 <div class="landing-page">
     <div class="container">
         <div class="logo-section">
-        <div class="logo">AY</div>
+            <img src="/src/assets/AY-dark.jpg" alt="Logo" class="logo-img">
         </div>
         <div class="content-section">
         <h1>Happening now</h1>
@@ -82,6 +82,10 @@
         font-size: 10rem;
         font-weight: 900;
         line-height: 1;
+    }
+
+    .logo-img {
+        max-width: 300px;
     }
 
     .content-section {

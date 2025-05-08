@@ -19,6 +19,15 @@ func NewUserRepository() *UserRepository {
 	}
 }
 
+func (r *UserRepository) GetSecurityQuestion(userID string) (*model.SecurityQuestion, error) {
+	var question model.SecurityQuestion
+	result := r.DB.Where("user_id = ?", userID).First(&question)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &question, nil
+}
+
 func (r *UserRepository) GetFollower(userid string) ([]model.Follow, error) {
 	var followers []model.Follow
 	result := r.DB.Where("following_id = ?", userid).Find(&followers)

@@ -149,11 +149,3 @@ export function validateVerificationCode(formData: FormData): string {
     if (formData.verificationCode.length !== 5) return "Verification code must be 5 digits";
     return "";
 }
-
-// export async function checkUsernameUnique(username: string): Promise<boolean> {
-//     // for showing the error later
-// }
-
-// export async function checkEmailUnique(email: string): Promise<boolean> {
-//     // for showing the error later
-// }
