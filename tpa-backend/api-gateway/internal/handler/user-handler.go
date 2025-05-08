@@ -21,6 +21,17 @@ func NewUserHandler(userClient userpb.UserServiceClient) *UserHandler {
 	}
 }
 
+// FollowUser godoc
+// @Summary Follow a user
+// @Description Create a follow relationship between two users
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param request body FollowUserRequest true "Follow User Request"
+// @Success 200 {object} userpb.FollowUserResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /users/follow [post]
 func (h *UserHandler) FollowUser(c *gin.Context) {
 	var requestBody struct {
 		FollowerID         	string `json:"follower_id" binding:"required"`
@@ -45,6 +56,16 @@ func (h *UserHandler) FollowUser(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// UnfollowUser godoc
+// @Summary Unfollow a user
+// @Description Remove a follow relationship between two users
+// @Tags Users
+// @Produce json
+// @Param follower_id query string true "Follower ID"
+// @Param following_id query string true "Following ID"
+// @Success 200 {string} string
+// @Failure 500 {object} map[string]string
+// @Router /users/unfollow [delete]
 func (h *UserHandler) UnfollowUser(c *gin.Context) {
 	followerId := c.Query("follower_id")
 	followingId := c.Query("following_id")
@@ -62,6 +83,15 @@ func (h *UserHandler) UnfollowUser(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Message)
 }
 
+// GetFollower godoc
+// @Summary Get user's followers
+// @Description Retrieve a list of users who follow the specified user
+// @Tags Users
+// @Produce json
+// @Param user_id query string true "User ID"
+// @Success 200 {array} userpb.Follow
+// @Failure 500 {object} map[string]string
+// @Router /users/follower [get]
 func (h *UserHandler) GetFollower(c *gin.Context) {
 	user_id := c.Query("user_id")
 
@@ -77,6 +107,15 @@ func (h *UserHandler) GetFollower(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Follows)
 }
 
+// GetFollowing godoc
+// @Summary Get users followed by a user
+// @Description Retrieve a list of users who are followed by the specified user
+// @Tags Users
+// @Produce json
+// @Param user_id query string true "User ID"
+// @Success 200 {array} userpb.Follow
+// @Failure 500 {object} map[string]string
+// @Router /users/following [get]
 func (h *UserHandler) GetFollowing(c *gin.Context) {
 	userId := c.Query("user_id")
 
@@ -92,6 +131,14 @@ func (h *UserHandler) GetFollowing(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Follows)
 }
 
+// GetAllUsers godoc
+// @Summary Get all users
+// @Description Retrieve a list of all registered users
+// @Tags Users
+// @Produce json
+// @Success 200 {array} userpb.User
+// @Failure 500 {object} map[string]string
+// @Router /users/user [get]
 func (h *UserHandler) GetAllUsers(c *gin.Context) {
 	resp, err := h.Client.GetAllUsers(context.Background(), &userpb.GetAllUsersRequest{})
 
@@ -103,6 +150,15 @@ func (h *UserHandler) GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Users)
 }
 
+// GetUser godoc
+// @Summary Get user by ID
+// @Description Retrieve a specific user by their ID
+// @Tags Users
+// @Produce json
+// @Param id query string true "User ID"
+// @Success 200 {object} userpb.User
+// @Failure 500 {object} map[string]string
+// @Router /users/user-profile [get]
 func (h *UserHandler) GetUser(c *gin.Context) {
 	userId := c.Query("id")
 
@@ -118,6 +174,15 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.User)
 }
 
+// GetWhoToFollow godoc
+// @Summary Get users to follow recommendations
+// @Description Retrieve a list of users recommended to follow for the specified user
+// @Tags Users
+// @Produce json
+// @Param user_id query string true "User ID"
+// @Success 200 {array} userpb.User
+// @Failure 500 {object} map[string]string
+// @Router /users/who-to-follow [get]
 func (h *UserHandler) GetWhoToFollow(c *gin.Context) {
 	userId := c.Query("user_id")
 
@@ -134,6 +199,17 @@ func (h *UserHandler) GetWhoToFollow(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Users)
 }
 
+// RegisterPremium godoc
+// @Summary Register for premium account
+// @Description Register a user for premium account status
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param request body RegisterPremiumRequest true "Premium Registration Request"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /users/register-premium [post]
 func (h *UserHandler) RegisterPremium(c *gin.Context) {
 	var requestBody struct {
 		UserID         string `json:"userId" binding:"required"`

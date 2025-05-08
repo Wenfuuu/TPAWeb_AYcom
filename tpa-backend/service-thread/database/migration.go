@@ -22,6 +22,7 @@ func Migrate(db *gorm.DB) {
 	db.AutoMigrate(&model.Community{})
 	db.AutoMigrate(&model.CommunityCategory{})
 	db.AutoMigrate(&model.JoinCommunityRequest{})
+	db.AutoMigrate(&model.CreateCommunityRequest{})
 	db.AutoMigrate(&model.CommunityMembers{})
 	db.AutoMigrate(&model.Like{})
 	db.AutoMigrate(&model.Bookmark{})

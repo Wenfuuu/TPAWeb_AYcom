@@ -489,6 +489,22 @@ func (h *ThreadHandler) AcceptJoinCommunity(ctx context.Context, req *threadpb.A
 	}, nil
 }
 
+func (h *ThreadHandler) GetCreateCommunity(ctx context.Context, req *threadpb.GetCreateCommunityRequest) (*threadpb.GetCreateCommunityResponse, error) {
+	modelRequests, err := h.threadRepo.GetCreateCommunity()
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbRequests []*threadpb.CreateRequests
+	for _, t := range modelRequests {
+		pbRequests = append(pbRequests, h.createRequestToProto(&t))
+	}
+
+	return &threadpb.GetCreateCommunityResponse{
+		CreateRequests: pbRequests,
+	}, nil
+}
+
 func (h *ThreadHandler) GetJoinCommunity(ctx context.Context, req *threadpb.GetJoinCommunityRequest) (*threadpb.GetJoinCommunityResponse, error) {
 	modelRequests, err := h.threadRepo.GetJoinCommunity(req.CommunityId)
 	if err != nil {
@@ -502,6 +518,36 @@ func (h *ThreadHandler) GetJoinCommunity(ctx context.Context, req *threadpb.GetJ
 
 	return &threadpb.GetJoinCommunityResponse{
 		JoinRequests: pbRequests,
+	}, nil
+}
+
+func (h *ThreadHandler) RequestCreateCommunity(ctx context.Context, req *threadpb.RequestCreateCommunityRequest) (*threadpb.ActionResponse, error) {
+	userID, err := uuid.Parse(req.UserId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid user ID: %v", err)
+    }
+
+    categoryID, err := uuid.Parse(req.CategoryId)
+    if err != nil {
+        return nil, fmt.Errorf("invalid category ID: %v", err)
+    }
+
+	request := model.CreateCommunityRequest{
+		UserID: userID,
+		Name: req.Name,
+		Description: req.Description,
+		IconURL: req.IconUrl,
+		BannerURL: req.BannerUrl,
+		CategoryID: categoryID,
+		Rule: req.Rule,
+	}
+
+	if err := h.threadRepo.RequestCreateCommunity(&request); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to request create community!")
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Success request create a community!",
 	}, nil
 }
 
@@ -850,11 +896,26 @@ func (h *ThreadHandler) communityToProto(community *model.Community) *threadpb.C
 	}
 }
 
+func (h *ThreadHandler) createRequestToProto(request *model.CreateCommunityRequest) *threadpb.CreateRequests {
+	return &threadpb.CreateRequests{
+		Id: 			request.ID.String(),
+		UserId: 		request.UserID.String(),
+		Name: 			request.Name,	
+		Description: 	request.Description,
+		IconUrl: 		request.IconURL,
+		BannerUrl: 		request.BannerURL,
+		CategoryId: 	request.CategoryID.String(),
+		Rule: 			request.Rule,
+		CreatedAt: 		request.CreatedAt.Format(time.RFC3339),
+	}
+}
+
 func (h *ThreadHandler) joinRequestToProto(request *model.JoinCommunityRequest) *threadpb.JoinRequests {
 	return &threadpb.JoinRequests{
 		Id: 			request.ID.String(),
 		UserId: 		request.UserID.String(),
 		CommunityId: 	request.CommunityID.String(),
+		CreatedAt: 		request.CreatedAt.Format(time.RFC3339),
 	}
 }
 

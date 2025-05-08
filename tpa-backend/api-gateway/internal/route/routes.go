@@ -1,7 +1,9 @@
 package route
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -9,9 +11,9 @@ import (
 	"github.com/Wenfuuu/tpa-web/api-gateway/internal/middleware"
 
 	authpb "github.com/Wenfuuu/tpa-web/pkg/proto/auth"
-	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
-	threadpb "github.com/Wenfuuu/tpa-web/pkg/proto/thread"
 	chatpb "github.com/Wenfuuu/tpa-web/pkg/proto/chat"
+	threadpb "github.com/Wenfuuu/tpa-web/pkg/proto/thread"
+	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
 	"github.com/gin-gonic/gin"
 )
 
@@ -57,6 +59,59 @@ func verifyRecaptcha(c *gin.Context) {
     c.JSON(http.StatusOK, recaptchaResp)
 }
 
+// transcribeAudio forwards audio data to AI service for transcription
+func transcribeAudio(c *gin.Context) {
+	// Get the request body
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Error reading request body",
+		})
+		return
+	}
+
+	// Create a new request to the AI service
+	req, err := http.NewRequest("POST", "http://service-ai:5000/transcribe", bytes.NewBuffer(body))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Error creating request to AI service",
+		})
+		return
+	}
+
+	// Copy headers
+	req.Header = c.Request.Header
+
+	// Send the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"success": false,
+			"error":   "AI service not available",
+		})
+		return
+	}
+	defer resp.Body.Close()
+
+	// Read the response body
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Error reading response from AI service",
+		})
+		return
+	}
+
+	// Set the content type
+	c.Header("Content-Type", "application/json")
+	c.Status(resp.StatusCode)
+	c.Writer.Write(respBody)
+}
+
 func InitRoutes(
 	r *gin.Engine, 
 	userClient userpb.UserServiceClient,
@@ -75,6 +130,10 @@ func InitRoutes(
 
 	api := r.Group("/api")
 	{
+		ai := api.Group("/ai")
+		{
+			ai.POST("/transcribe", transcribeAudio)
+		}
 		chat := api.Group("/chat")
 		{
 			chat.GET("/conversations", chatHandler.GetConversations)
@@ -132,6 +191,8 @@ func InitRoutes(
 			thread.GET("/community-category", threadHandler.GetAllCommunityCategories)
 			thread.GET("/request-join-community", threadHandler.GetJoinCommunity)
 			thread.POST("/request-join-community", threadHandler.RequestJoinCommunity)
+			thread.GET("/request-create-community", threadHandler.GetCreateCommunity)
+			thread.POST("/request-create-community", threadHandler.RequestCreateCommunity)
 			thread.POST("/accept-join-community", threadHandler.AcceptJoinCommunity)
 			thread.POST("/reject-join-community", threadHandler.RejectJoinCommunity)
 			thread.GET("/pending-community", threadHandler.GetPendingCommunity)

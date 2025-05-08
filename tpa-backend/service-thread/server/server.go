@@ -87,8 +87,16 @@ func (s *ThreadServer) UnrepostThread(ctx context.Context, req *threadpb.Unrepos
 	return s.threadHandler.UnrepostThread(ctx, req)
 }
 
+func (s *ThreadServer) GetCreateCommunity(ctx context.Context, req *threadpb.GetCreateCommunityRequest) (*threadpb.GetCreateCommunityResponse, error) {
+	return s.threadHandler.GetCreateCommunity(ctx, req)
+}
+
 func (s *ThreadServer) GetJoinCommunity(ctx context.Context, req *threadpb.GetJoinCommunityRequest) (*threadpb.GetJoinCommunityResponse, error) {
 	return s.threadHandler.GetJoinCommunity(ctx, req)
+}
+
+func (s *ThreadServer) RequestCreateCommunity(ctx context.Context, req *threadpb.RequestCreateCommunityRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.RequestCreateCommunity(ctx, req)
 }
 
 func (s *ThreadServer) RequestJoinCommunity(ctx context.Context, req *threadpb.RequestJoinCommunityRequest) (*threadpb.ActionResponse, error) {

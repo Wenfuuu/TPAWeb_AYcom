@@ -33,10 +33,12 @@ service ThreadService {
     rpc GetTopHashtags(GetTopHashtagsRequest) returns (HashtagCountResponse);
     rpc GetCommunityPagination(GetCommunityPaginationRequest) returns (GetAllCommunitiesResponse);
     rpc RequestJoinCommunity(RequestJoinCommunityRequest) returns (ActionResponse);
+    rpc RequestCreateCommunity(RequestCreateCommunityRequest) returns (ActionResponse);
     rpc GetPendingCommunity(GetPendingCommunityRequest) returns (GetAllCommunitiesResponse);
     rpc AcceptJoinCommunity(AcceptJoinCommunityRequest) returns (ActionResponse);
     rpc RejectJoinCommunity(RejectJoinCommunityRequest) returns (ActionResponse);
     rpc GetJoinCommunity(GetJoinCommunityRequest) returns (GetJoinCommunityResponse);
+    rpc GetCreateCommunity(GetCreateCommunityRequest) returns (GetCreateCommunityResponse);
     rpc GetJoinedCommunity(GetJoinedCommunityRequest) returns (GetAllCommunitiesResponse);
     rpc GetCommunityMembers(GetCommunityMembersRequest) returns (CommunityMembersResponse);
     rpc GetTopCommunityMembers(GetTopCommunityMembersRequest) returns (CommunityMembersResponse);
@@ -73,6 +75,25 @@ message JoinRequests {
     string id = 1;
     string user_id = 2;
     string community_id = 3;
+    string created_at = 4;
+}
+
+message GetCreateCommunityRequest {}
+
+message GetCreateCommunityResponse {
+    repeated CreateRequests createRequests = 1;
+}
+
+message CreateRequests {
+  string id = 1;
+  string user_id = 2;
+  string name = 3;
+  string description = 4;
+  string icon_url = 5;
+  string banner_url = 6;
+  string category_id = 7;
+  string rule = 8;
+  string created_at = 9;
 }
 
 message GetCommunityMembersRequest {
@@ -107,6 +128,16 @@ message RejectJoinCommunityRequest {
 message RequestJoinCommunityRequest {
     string user_id = 1;
     string community_id = 2;
+}
+
+message RequestCreateCommunityRequest {
+    string user_id = 1;
+    string name = 2;
+    string description = 3;
+    string icon_url = 4;
+    string banner_url = 5;
+    string category_id = 6;
+    string rule = 7;
 }
 
 message GetTopHashtagsRequest {}

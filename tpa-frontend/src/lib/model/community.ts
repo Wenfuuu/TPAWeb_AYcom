@@ -21,8 +21,21 @@ export type JoinCommunityRequest = {
   id: string;
   user_id: string;
   community_id: string;
+  created_at: string;
   name: string;
   username: string;
+};
+
+export type CreateCommunityRequest = {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string;
+  icon_url: string;
+  banner_url: string;
+  category_id: string;
+  rule: string;
+  created_at: string;
 };
 
 export type CommunityMedia = {
@@ -55,6 +68,20 @@ export async function requestJoinCommunity(userId: string, communityId: string) 
   await axios.post(BASE_API_URL + "/request-join-community", {
     userId,
     communityId,
+  });
+}
+
+export async function requestCreateCommunity(userId: string, name: string, description: string,
+  iconUrl: string, bannerUrl: string, categoryId: string, rule: string
+) {
+  await axios.post(BASE_API_URL + "/request-create-community", {
+    userId,
+    name,
+    description,
+    iconUrl,
+    bannerUrl,
+    categoryId,
+    rule
   });
 }
 

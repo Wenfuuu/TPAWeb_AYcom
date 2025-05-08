@@ -732,6 +732,18 @@ func (h *ThreadHandler) AcceptJoinCommunity(c *gin.Context) {
 	})
 }
 
+func (h *ThreadHandler) GetCreateCommunity(c *gin.Context) {
+	resp, err := h.Client.GetCreateCommunity(context.Background(), &threadpb.GetCreateCommunityRequest{
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.CreateRequests)
+}
+
 func (h *ThreadHandler) GetJoinCommunity(c *gin.Context) {
 	community_id := c.Query("community_id")
 
@@ -745,6 +757,42 @@ func (h *ThreadHandler) GetJoinCommunity(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resp.JoinRequests)
+}
+
+func (h *ThreadHandler) RequestCreateCommunity(c *gin.Context) {
+	var requestBody struct {
+		UserID          string   	`json:"userId" binding:"required"`
+		Name     		string   	`json:"name" binding:"required"`
+		Description 	string 		`json:"description" binding:"required"`
+		IconURL     	string   	`json:"iconUrl" binding:"required"`
+		BannerURL 		string 		`json:"bannerUrl" binding:"required"`
+		CategoryID      string   	`json:"categoryId" binding:"required"`
+		Rule     		string   	`json:"rule" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := h.Client.RequestCreateCommunity(context.Background(), &threadpb.RequestCreateCommunityRequest{
+		UserId: requestBody.UserID,
+		Name: requestBody.Name,
+		Description: requestBody.Description,
+		IconUrl: requestBody.IconURL,
+		BannerUrl: requestBody.BannerURL,
+		CategoryId: requestBody.CategoryID,
+		Rule: requestBody.Rule,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": resp.Message,
+	})
 }
 
 func (h *ThreadHandler) RequestJoinCommunity(c *gin.Context) {

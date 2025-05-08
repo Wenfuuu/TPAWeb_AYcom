@@ -43,12 +43,22 @@ func (r *ThreadRepository) RejectJoinCommunity(userid string, communityid string
     return nil
 }
 
+func (r *ThreadRepository) GetCreateCommunity() ([]model.CreateCommunityRequest, error) {
+	var requests []model.CreateCommunityRequest
+	result := r.DB.Find(&requests)
+	return requests, result.Error
+}
+
 func (r *ThreadRepository) GetJoinCommunity(community_id string) ([]model.JoinCommunityRequest, error) {
 	var requests []model.JoinCommunityRequest
 
 	result := r.DB.Where("community_id = ?", community_id).Find(&requests)
 
 	return requests, result.Error
+}
+
+func (r *ThreadRepository) RequestCreateCommunity(req *model.CreateCommunityRequest) error {
+	return r.DB.Create(req).Error
 }
 
 func (r *ThreadRepository) RequestJoinCommunity(req *model.JoinCommunityRequest) error {

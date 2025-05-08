@@ -9,9 +9,30 @@ import (
 	"github.com/Wenfuuu/tpa-web/api-gateway/utils"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	// Swagger
+	// docs "github.com/Wenfuuu/tpa-web/api-gateway/cmd/docs"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+// @title TPA Web API Gateway
+// @version 1.0
+// @description This is the API Gateway for the TPA Web microservices project.
+// @termsOfService http://swagger.io/terms/
 
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /
+
+// @schemes http
 func main() {
+	// Initialize Swagger docs
+	// docs.SwaggerInfo.BasePath = "/api"
 
 	// user service
 	userServiceAddr := utils.GetDotEnv("USER_SERVICE_ADDR")
@@ -43,6 +64,9 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+
+	// Swagger route
+    r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	//setup route
 	route.InitRoutes(r, userClient, authClient, threadClient, chatClient)

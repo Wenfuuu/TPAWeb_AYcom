@@ -37,10 +37,23 @@ type CommunityMembers struct {
 	Role            	string  `json:"role" gorm:"default:'member'"`
 }
 
+type CreateCommunityRequest struct {
+	ID 				uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	UserID      	uuid.UUID   `gorm:"type:uuid;not null" json:"userId"`
+	Name        	string    	`json:"name"`
+	Description 	string    	`json:"description"`
+	IconURL     	string    	`json:"iconUrl"`
+	BannerURL   	string    	`json:"bannerUrl"`
+	CategoryID  	uuid.UUID   `gorm:"type:uuid;not null" json:"categoryId"`
+	Rule        	string    	`json:"rule"`
+	CreatedAt   	time.Time 	`gorm:"autoCreateTime" json:"createdAt"`
+}
+
 type JoinCommunityRequest struct {
 	ID 				uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	UserID			uuid.UUID 	`gorm:"type:uuid;uniqueIndex:idx_join" json:"userId"`
 	CommunityID  	uuid.UUID 	`gorm:"type:uuid;uniqueIndex:idx_join" json:"communityId"`
+	CreatedAt   	time.Time 	`gorm:"autoCreateTime" json:"createdAt"`
 }
 
 type CommunityCategory struct {

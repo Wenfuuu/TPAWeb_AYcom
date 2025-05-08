@@ -47,10 +47,12 @@ const (
 	ThreadService_GetTopHashtags_FullMethodName            = "/thread.ThreadService/GetTopHashtags"
 	ThreadService_GetCommunityPagination_FullMethodName    = "/thread.ThreadService/GetCommunityPagination"
 	ThreadService_RequestJoinCommunity_FullMethodName      = "/thread.ThreadService/RequestJoinCommunity"
+	ThreadService_RequestCreateCommunity_FullMethodName    = "/thread.ThreadService/RequestCreateCommunity"
 	ThreadService_GetPendingCommunity_FullMethodName       = "/thread.ThreadService/GetPendingCommunity"
 	ThreadService_AcceptJoinCommunity_FullMethodName       = "/thread.ThreadService/AcceptJoinCommunity"
 	ThreadService_RejectJoinCommunity_FullMethodName       = "/thread.ThreadService/RejectJoinCommunity"
 	ThreadService_GetJoinCommunity_FullMethodName          = "/thread.ThreadService/GetJoinCommunity"
+	ThreadService_GetCreateCommunity_FullMethodName        = "/thread.ThreadService/GetCreateCommunity"
 	ThreadService_GetJoinedCommunity_FullMethodName        = "/thread.ThreadService/GetJoinedCommunity"
 	ThreadService_GetCommunityMembers_FullMethodName       = "/thread.ThreadService/GetCommunityMembers"
 	ThreadService_GetTopCommunityMembers_FullMethodName    = "/thread.ThreadService/GetTopCommunityMembers"
@@ -90,10 +92,12 @@ type ThreadServiceClient interface {
 	GetTopHashtags(ctx context.Context, in *GetTopHashtagsRequest, opts ...grpc.CallOption) (*HashtagCountResponse, error)
 	GetCommunityPagination(ctx context.Context, in *GetCommunityPaginationRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error)
 	RequestJoinCommunity(ctx context.Context, in *RequestJoinCommunityRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	RequestCreateCommunity(ctx context.Context, in *RequestCreateCommunityRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	GetPendingCommunity(ctx context.Context, in *GetPendingCommunityRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error)
 	AcceptJoinCommunity(ctx context.Context, in *AcceptJoinCommunityRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	RejectJoinCommunity(ctx context.Context, in *RejectJoinCommunityRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	GetJoinCommunity(ctx context.Context, in *GetJoinCommunityRequest, opts ...grpc.CallOption) (*GetJoinCommunityResponse, error)
+	GetCreateCommunity(ctx context.Context, in *GetCreateCommunityRequest, opts ...grpc.CallOption) (*GetCreateCommunityResponse, error)
 	GetJoinedCommunity(ctx context.Context, in *GetJoinedCommunityRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error)
 	GetCommunityMembers(ctx context.Context, in *GetCommunityMembersRequest, opts ...grpc.CallOption) (*CommunityMembersResponse, error)
 	GetTopCommunityMembers(ctx context.Context, in *GetTopCommunityMembersRequest, opts ...grpc.CallOption) (*CommunityMembersResponse, error)
@@ -389,6 +393,16 @@ func (c *threadServiceClient) RequestJoinCommunity(ctx context.Context, in *Requ
 	return out, nil
 }
 
+func (c *threadServiceClient) RequestCreateCommunity(ctx context.Context, in *RequestCreateCommunityRequest, opts ...grpc.CallOption) (*ActionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActionResponse)
+	err := c.cc.Invoke(ctx, ThreadService_RequestCreateCommunity_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *threadServiceClient) GetPendingCommunity(ctx context.Context, in *GetPendingCommunityRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetAllCommunitiesResponse)
@@ -423,6 +437,16 @@ func (c *threadServiceClient) GetJoinCommunity(ctx context.Context, in *GetJoinC
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetJoinCommunityResponse)
 	err := c.cc.Invoke(ctx, ThreadService_GetJoinCommunity_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) GetCreateCommunity(ctx context.Context, in *GetCreateCommunityRequest, opts ...grpc.CallOption) (*GetCreateCommunityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetCreateCommunityResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetCreateCommunity_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -511,10 +535,12 @@ type ThreadServiceServer interface {
 	GetTopHashtags(context.Context, *GetTopHashtagsRequest) (*HashtagCountResponse, error)
 	GetCommunityPagination(context.Context, *GetCommunityPaginationRequest) (*GetAllCommunitiesResponse, error)
 	RequestJoinCommunity(context.Context, *RequestJoinCommunityRequest) (*ActionResponse, error)
+	RequestCreateCommunity(context.Context, *RequestCreateCommunityRequest) (*ActionResponse, error)
 	GetPendingCommunity(context.Context, *GetPendingCommunityRequest) (*GetAllCommunitiesResponse, error)
 	AcceptJoinCommunity(context.Context, *AcceptJoinCommunityRequest) (*ActionResponse, error)
 	RejectJoinCommunity(context.Context, *RejectJoinCommunityRequest) (*ActionResponse, error)
 	GetJoinCommunity(context.Context, *GetJoinCommunityRequest) (*GetJoinCommunityResponse, error)
+	GetCreateCommunity(context.Context, *GetCreateCommunityRequest) (*GetCreateCommunityResponse, error)
 	GetJoinedCommunity(context.Context, *GetJoinedCommunityRequest) (*GetAllCommunitiesResponse, error)
 	GetCommunityMembers(context.Context, *GetCommunityMembersRequest) (*CommunityMembersResponse, error)
 	GetTopCommunityMembers(context.Context, *GetTopCommunityMembersRequest) (*CommunityMembersResponse, error)
@@ -614,6 +640,9 @@ func (UnimplementedThreadServiceServer) GetCommunityPagination(context.Context, 
 func (UnimplementedThreadServiceServer) RequestJoinCommunity(context.Context, *RequestJoinCommunityRequest) (*ActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestJoinCommunity not implemented")
 }
+func (UnimplementedThreadServiceServer) RequestCreateCommunity(context.Context, *RequestCreateCommunityRequest) (*ActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RequestCreateCommunity not implemented")
+}
 func (UnimplementedThreadServiceServer) GetPendingCommunity(context.Context, *GetPendingCommunityRequest) (*GetAllCommunitiesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPendingCommunity not implemented")
 }
@@ -625,6 +654,9 @@ func (UnimplementedThreadServiceServer) RejectJoinCommunity(context.Context, *Re
 }
 func (UnimplementedThreadServiceServer) GetJoinCommunity(context.Context, *GetJoinCommunityRequest) (*GetJoinCommunityResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetJoinCommunity not implemented")
+}
+func (UnimplementedThreadServiceServer) GetCreateCommunity(context.Context, *GetCreateCommunityRequest) (*GetCreateCommunityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCreateCommunity not implemented")
 }
 func (UnimplementedThreadServiceServer) GetJoinedCommunity(context.Context, *GetJoinedCommunityRequest) (*GetAllCommunitiesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetJoinedCommunity not implemented")
@@ -1166,6 +1198,24 @@ func _ThreadService_RequestJoinCommunity_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_RequestCreateCommunity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestCreateCommunityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).RequestCreateCommunity(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_RequestCreateCommunity_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).RequestCreateCommunity(ctx, req.(*RequestCreateCommunityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ThreadService_GetPendingCommunity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetPendingCommunityRequest)
 	if err := dec(in); err != nil {
@@ -1234,6 +1284,24 @@ func _ThreadService_GetJoinCommunity_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ThreadServiceServer).GetJoinCommunity(ctx, req.(*GetJoinCommunityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_GetCreateCommunity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCreateCommunityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetCreateCommunity(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetCreateCommunity_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetCreateCommunity(ctx, req.(*GetCreateCommunityRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1448,6 +1516,10 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ThreadService_RequestJoinCommunity_Handler,
 		},
 		{
+			MethodName: "RequestCreateCommunity",
+			Handler:    _ThreadService_RequestCreateCommunity_Handler,
+		},
+		{
 			MethodName: "GetPendingCommunity",
 			Handler:    _ThreadService_GetPendingCommunity_Handler,
 		},
@@ -1462,6 +1534,10 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetJoinCommunity",
 			Handler:    _ThreadService_GetJoinCommunity_Handler,
+		},
+		{
+			MethodName: "GetCreateCommunity",
+			Handler:    _ThreadService_GetCreateCommunity_Handler,
 		},
 		{
 			MethodName: "GetJoinedCommunity",

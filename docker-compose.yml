@@ -97,9 +97,17 @@ services:
       - service-email
       - rabbitmq
 
-  # Notification Service
-
-  # AI
+  # AI Service
+  # service-ai:
+  #   build:
+  #     context: ./tpa-backend/
+  #     dockerfile: service-ai/Dockerfile
+  #   volumes:
+  #     - ./tpa-backend/service-ai:/app
+  #   ports:
+  #     - "5000:5000"    # Flask REST API port
+  #   environment:
+  #     - MODEL_PATH=/app/model
 
   # User Database
   db-user:

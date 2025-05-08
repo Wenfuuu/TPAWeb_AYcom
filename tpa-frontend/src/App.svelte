@@ -14,6 +14,7 @@
   import ToastContainer from "./lib/components/ToastContainer.svelte";
   import MessagePage from "./page/MessagePage.svelte";
   import NotificationPage from "./page/NotificationPage.svelte";
+  import ExplorePage from "./page/ExplorePage.svelte";
 
   export let url = "";
 </script>
@@ -70,6 +71,10 @@
 
   <Route path="/notifications">
     <NotificationPage />
+  </Route>
+
+  <Route path="/explore">
+    <!-- <ExplorePage /> -->
   </Route>
 
 </Router>
