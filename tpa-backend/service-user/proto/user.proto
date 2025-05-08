@@ -23,6 +23,17 @@ service UserService {
 
   rpc GetSecurityQuestion(GetSecurityQuestionRequest) returns (SecurityQuestionResponse);
   rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
+
+  rpc SetUserBanStatus(SetUserBanStatusRequest) returns (SetUserBanStatusResponse);
+}
+
+message SetUserBanStatusRequest {
+  string user_id = 1;
+  bool banned = 2;
+}
+
+message SetUserBanStatusResponse {
+  string message = 1;
 }
 
 message ResetPasswordRequest {

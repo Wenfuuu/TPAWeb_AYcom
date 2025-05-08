@@ -36,7 +36,6 @@
   let questions: SecurityQuestion;
   let securityQuestion = "";
   let securityAnswer = "";
-  let oldPassword = "";
 
   function toggleTheme() {
     isDarkMode = !isDarkMode;
@@ -52,10 +51,10 @@
 
     try {
         user = await fetchUserByEmail(email);
-        console.log(user);
+        // console.log(user);
 
         questions = await fetchSecurityQuestions(user.id);
-        console.log(questions);
+        // console.log(questions);
 
         // get security details
         securityQuestion = questions.security_question;

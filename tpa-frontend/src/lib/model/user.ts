@@ -76,6 +76,13 @@ export async function fetchUserEmailById(userId: string) {
   return user.email;
 }
 
+export async function setUserBanStatus(user_id: string, banned: boolean) {
+  await axios.put(BASE_API_URL + "/ban", {
+    user_id,
+    banned,
+  });
+}
+
 export async function resetPassword(user_id: string, password: string) {
   await axios.put(BASE_API_URL + "/reset-password", {
     user_id,

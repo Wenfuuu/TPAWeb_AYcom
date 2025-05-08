@@ -48,6 +48,10 @@ func(s *UserServer) GetUserByEmail(ctx context.Context, req *userpb.GetUserByEma
 	return s.userHandler.GetUserByEmail(ctx, req)
 }
 
+func (s *UserServer) SetUserBanStatus(ctx context.Context, req *userpb.SetUserBanStatusRequest) (*userpb.SetUserBanStatusResponse, error) {
+	return s.userHandler.SetUserBanStatus(ctx, req)
+}
+
 func (s *UserServer) ResetPassword(ctx context.Context, req *userpb.ResetPasswordRequest) (*userpb.ResetPasswordResponse, error) {
 	return s.userHandler.ResetPassword(ctx, req)
 }

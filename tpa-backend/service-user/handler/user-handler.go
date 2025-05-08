@@ -303,6 +303,26 @@ func (h *UserHandler) DeleteUser(ctx context.Context, req *userpb.DeleteUserRequ
 	}, nil
 }
 
+func (h *UserHandler) SetUserBanStatus(ctx context.Context, req *userpb.SetUserBanStatusRequest) (*userpb.SetUserBanStatusResponse, error) {
+	user, err := h.userRepo.FindByID(req.UserId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "User not found")
+		}
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	user.IsBanned = req.Banned;
+
+	if err := h.userRepo.Update(user); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to update password")
+	}
+
+	return &userpb.SetUserBanStatusResponse{
+		Message: "Success update user ban status",
+	}, nil
+}
+
 func (h *UserHandler) ResetPassword(ctx context.Context, req *userpb.ResetPasswordRequest) (*userpb.ResetPasswordResponse, error) {
 	user, err := h.userRepo.FindByID(req.UserId)
 	if err != nil {

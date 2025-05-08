@@ -155,6 +155,7 @@ func InitRoutes(
 			users.GET("/user-email", userHandler.GetUserByEmail)
 			users.GET("/security-question", userHandler.GetSecurityQuestion)
 			users.PUT("/reset-password", userHandler.ResetPassword)
+			users.PUT("/ban", userHandler.SetUserBanStatus)
 			users.POST("/upload/:type", userHandler.UploadImage)
 			users.POST("/upload-video/:type", userHandler.UploadVideo)
 			users.POST("/follow", userHandler.FollowUser)
