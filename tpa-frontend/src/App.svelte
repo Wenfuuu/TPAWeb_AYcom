@@ -16,6 +16,7 @@
   import NotificationPage from "./page/NotificationPage.svelte";
   import AdminPage from "./page/AdminPage.svelte";
   import ForgottenPage from "./page/ForgottenPage.svelte";
+  import ExplorePage from "./page/ExplorePage.svelte";
 
   export let url = "";
 </script>
@@ -75,7 +76,7 @@
   </Route>
 
   <Route path="/explore">
-    <!-- <ExplorePage /> -->
+    <ExplorePage />
   </Route>
 
   <Route path="/admin">

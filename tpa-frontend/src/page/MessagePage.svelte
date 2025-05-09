@@ -239,7 +239,7 @@
     const otherParticipants = currentConversation.participants?.filter(p => p.user_id !== user.id) || [];
     // For each participant, send a notification
     for (const participant of otherParticipants) {
-        const email = await fetchUserEmailById(participant.user_id);
+        const email = await fetchUserEmailById(participant.user_id, user.id);
         console.log(email);
 
         const notif = {

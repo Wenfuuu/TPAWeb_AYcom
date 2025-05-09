@@ -57,7 +57,7 @@
 
     socket.onmessage = (event) => {
       const wsMessage = JSON.parse(event.data);
-      console.log(wsMessage.type);
+      // console.log(wsMessage.type);
       switch (wsMessage.type) {
         case "notification": {
           const notification = wsMessage.payload;
@@ -66,12 +66,12 @@
         }
 
         default:
-          console.log("Unknown message type:", wsMessage.type);
+          // console.log("Unknown message type:", wsMessage.type);
       }
     };
 
     socket.onopen = () => {
-      console.log("WebSocket connection established");
+      // console.log("WebSocket connection established");
     };
 
     socket.onerror = (err) => {
@@ -428,8 +428,12 @@
       newThreadCategory = "";
       toastStore.success("Thread category added successfully");
     } catch (error) {
-      console.error("Error adding thread category:", error);
-      toastStore.error("Failed to add thread category");
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.error || error.message;
+        toastStore.error(message);
+      } else if (error instanceof Error) {
+        toastStore.error(error.message);
+      }
     } finally {
       isLoading = false;
     }
@@ -486,8 +490,12 @@
       editingThreadCategory = null;
       toastStore.success("Thread category updated successfully");
     } catch (error) {
-      console.error("Error updating thread category:", error);
-      toastStore.error("Failed to update thread category");
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.error || error.message;
+        toastStore.error(message);
+      } else if (error instanceof Error) {
+        toastStore.error(error.message);
+      }
     } finally {
       isLoading = false;
     }
@@ -509,8 +517,12 @@
       editingCommunityCategory = null;
       toastStore.success("Community category updated successfully");
     } catch (error) {
-      console.error("Error updating community category:", error);
-      toastStore.error("Failed to update community category");
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.error || error.message;
+        toastStore.error(message);
+      } else if (error instanceof Error) {
+        toastStore.error(error.message);
+      }
     } finally {
       isLoading = false;
     }
@@ -529,8 +541,12 @@
 
           toastStore.success("Thread category deleted successfully");
         } catch (error) {
-          console.error("Error deleting thread category:", error);
-          toastStore.error("Failed to delete thread category");
+          if (axios.isAxiosError(error)) {
+            const message = error.response?.data?.error || error.message;
+            toastStore.error(message);
+          } else if (error instanceof Error) {
+            toastStore.error(error.message);
+          }
         } finally {
           isLoading = false;
           closeModal();
@@ -552,8 +568,12 @@
 
           toastStore.success("Community category deleted successfully");
         } catch (error) {
-          console.error("Error deleting community category:", error);
-          toastStore.error("Failed to delete community category");
+          if (axios.isAxiosError(error)) {
+            const message = error.response?.data?.error || error.message;
+            toastStore.error(message);
+          } else if (error instanceof Error) {
+            toastStore.error(error.message);
+          }
         } finally {
           isLoading = false;
           closeModal();
@@ -1381,21 +1401,6 @@
     color: #8e8e93;
   }
 
-  .status-badge.pending {
-    background-color: rgba(255, 204, 0, 0.1);
-    color: #ffcc00;
-  }
-
-  .status-badge.accepted {
-    background-color: rgba(52, 199, 89, 0.1);
-    color: #34c759;
-  }
-
-  .status-badge.rejected {
-    background-color: rgba(255, 69, 58, 0.1);
-    color: #ff453a;
-  }
-
   .action-button {
     padding: 6px 12px;
     border-radius: 9999px;
@@ -1481,11 +1486,6 @@
   .action-buttons {
     display: flex;
     gap: 8px;
-  }
-
-  .processed-text {
-    color: var(--text-tertiary);
-    font-size: 12px;
   }
 
   .form-group {

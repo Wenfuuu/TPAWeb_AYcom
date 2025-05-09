@@ -25,7 +25,7 @@
     recentSearches = [searchQuery, ...recentSearches];
 
     localStorage.setItem("recent-search", JSON.stringify(recentSearches));
-    console.log("Searching for:", searchQuery);
+    // console.log("Searching for:", searchQuery);
 
     //navigate to explore page
 

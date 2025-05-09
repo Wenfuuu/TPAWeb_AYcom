@@ -88,8 +88,8 @@ export async function fetchFollowing(user_id: string) {
   return users;
 }
 
-export async function fetchUserEmailById(userId: string) {
-  const user = await fetchProfileUser(userId);
+export async function fetchUserEmailById(userId: string, login_id: string) {
+  const user = await fetchProfileUser(userId, login_id);
   return user.email;
 }
 
@@ -167,13 +167,22 @@ export async function fetchUserByEmail(email: string) {
   return user;
 }
 
-export async function fetchProfileUser(id: string) {
+export async function fetchProfileUser(id: string, login_id: string) {
   const response = await axios.get<User>(BASE_API_URL + "/user-profile", {
     params: {
       id,
     },
   });
   const user = response.data;
+
+  const followings = await fetchFollowing(login_id);
+  const followingIds = new Set(
+    followings?.map((user) => user.following_id) || []
+  );
+
+  if(followingIds.has(id)) user.is_followed = true;
+  else user.is_followed = false;
+
   return user;
 }
 

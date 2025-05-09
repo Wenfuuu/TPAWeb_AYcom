@@ -1,10 +1,11 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { Thread, ThreadMedia } from "../model/thread";
-  import type { UserThread } from "../model/user";
+  import { followUser, unfollowUser, type UserThread } from "../model/user";
   import type { User } from "../model/user";
   import { navigate } from "svelte-routing";
   import ThreadFeed from "./ThreadFeed.svelte";
+  import { toastStore } from "../stores/toast";
 
   export let user: User | null;
   export let userProfile: User | null;
@@ -82,12 +83,21 @@
         <button
           type="button"
           class="follow-button"
-          on:click={() => {
-            refreshData(page, activeTab);
+          on:click={async() => {
+            if(!user) return;
+            if(!userProfile.is_followed){
+              await followUser(user.id, userProfile.id);
+              toastStore.success("Success follow user!");
+            }else{
+              await unfollowUser(user.id, userProfile.id);
+              toastStore.success("Success unfollow user!");
+            }
+
+            await refreshData(page, activeTab);
           }}
           disabled={false}
         >
-          Follow
+          {userProfile.is_followed ? "Unfollow" : "Follow"}
         </button>
         {/if}
       </div>

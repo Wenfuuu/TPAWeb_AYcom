@@ -25,7 +25,8 @@
             const urlParts = currentUrl.split("/");
             const profileId = urlParts[urlParts.length - 1];
 
-            userProfile = await fetchProfileUser(profileId);
+            userProfile = await fetchProfileUser(profileId, user.id);
+            console.log(userProfile);
             if(user.id === userProfile.id) isUser = true;
             else isUser = false;
 
