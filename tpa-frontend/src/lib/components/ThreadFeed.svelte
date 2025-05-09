@@ -1,15 +1,17 @@
 <script lang="ts">
   import { navigate } from "svelte-routing";
   import { bookmarkThread, fetchThreadCategory, likeThread, repostThread, unbookmarkThread, unlikeThread, unrepostThread, type Thread, type ThreadCategory } from "../model/thread";
-  import type { User, UserThread } from "../model/user";
+  import { fetchUserEmailById, type User, type UserThread } from "../model/user";
   import { onMount } from "svelte";
   import { fetchCommunity, type Community } from "../model/community";
+  import { sendMessageNotif, setupWS } from "../model/websocket";
 
   export let threads: (Thread & { userData: UserThread })[] = [];
   export let user: User | null;
 
   let categories: ThreadCategory[] = [];
   let communities: Community[] = [];
+  let socket: WebSocket;
 
   function toggleLike(thread: Thread) {
     thread.isLiked = !thread.isLiked;
@@ -21,6 +23,9 @@
       if(user){
         await likeThread(user.id, thread.id);
         toggleLike(thread);
+
+        const email = await fetchUserEmailById(thread.user_id, user.id);
+        sendMessageNotif(socket, thread.user_id, user.id, `You received a like from ${user.name}`, email);
       }
     }else{
       //unlike thread
@@ -43,6 +48,9 @@
       if(user){
         await repostThread(user.id, thread.id);
         toggleRepost(thread);
+
+        const email = await fetchUserEmailById(thread.user_id, user.id);
+        sendMessageNotif(socket, thread.user_id, user.id, `You received a repost from ${user.name}`, email);
       }
     }else{
       //unrepost thread
@@ -65,6 +73,9 @@
       if(user){
         await bookmarkThread(user.id, thread.id);
         toggleBookmark(thread);
+
+        const email = await fetchUserEmailById(thread.user_id, user.id);
+        sendMessageNotif(socket, thread.user_id, user.id, `You received a bookmark from ${user.name}`, email);
       }
     }else{
       //unbookmark thread
@@ -80,6 +91,8 @@
   onMount(async() => {
     categories = await fetchThreadCategory();
     communities = await fetchCommunity();
+    if(!user) return;
+    socket = setupWS(socket, user.id);
   });
 </script>
 
@@ -293,7 +306,7 @@
     padding: 12px 16px;
     border-bottom: 1px solid var(--border-color);
     transition: background-color 0.2s;
-    cursor: pointer; /* Indicate posts are clickable */
+    cursor: pointer;
   }
 
   .post:hover {
@@ -302,56 +315,56 @@
 
   .post-avatar {
     margin-right: 12px;
-    flex-shrink: 0; /* Prevent avatar shrinking */
+    flex-shrink: 0;
   }
 
   .post-avatar img {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    object-fit: cover; /* Ensure image covers the area */
+    object-fit: cover;
   }
 
   .post-content {
     flex: 1;
-    min-width: 0; /* Prevent content overflow issues */
+    min-width: 0;
   }
 
   .post-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start; /* Align items to top */
+    align-items: flex-start;
     margin-bottom: 4px;
   }
 
   .post-user-info {
     display: flex;
     align-items: center;
-    flex-wrap: wrap; /* Allow wrapping on small screens */
-    gap: 4px; /* Space between elements */
+    flex-wrap: wrap;
+    gap: 4px;
     min-width: 0;
-    line-height: 1.3; /* Adjust line height */
+    line-height: 1.3;
   }
 
   .post-user-name {
     font-weight: 700;
     color: var(--text-primary);
     white-space: nowrap;
-    overflow: hidden; /* Prevent long names breaking layout */
+    overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .verified-badge {
-    display: flex; /* Use flex for alignment */
+    display: flex;
     align-items: center;
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0;
   }
 
   .post-username,
   .post-date {
     color: var(--text-tertiary);
     white-space: nowrap;
-    font-size: 14px; /* Slightly smaller */
+    font-size: 14px;
   }
 
   .post-username {
@@ -364,8 +377,8 @@
     border: none;
     color: var(--text-tertiary);
     cursor: pointer;
-    padding: 4px; /* Easier clicking */
-    margin-left: 8px; /* Space from user info */
+    padding: 4px;
+    margin-left: 8px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -373,7 +386,7 @@
     transition:
       background-color 0.2s,
       color 0.2s;
-    width: 30px; /* Explicit size */
+    width: 30px;
     height: 30px;
     flex-shrink: 0;
   }
@@ -385,7 +398,7 @@
 
   .post-community {
     color: var(--button-primary);
-    font-size: 13px; /* Smaller font size */
+    font-size: 13px;
     margin-bottom: 8px;
     font-weight: 500;
   }
@@ -393,22 +406,21 @@
   .post-text {
     color: var(--text-primary);
     margin-bottom: 12px;
-    word-wrap: break-word; /* Ensure text wraps */
-    line-height: 1.5; /* Improve readability */
+    word-wrap: break-word;
+    line-height: 1.5;
     font-size: 15px;
   }
 
   .post-images {
     border-radius: 16px;
     overflow: hidden;
-    margin-top: 8px; /* Space between text and images */
+    margin-top: 8px;
     margin-bottom: 12px;
     display: grid;
     gap: 2px;
-    border: 1px solid var(--border-color); /* Subtle border */
+    border: 1px solid var(--border-color);
   }
 
-  /* Grid layouts for different image counts */
   .post-images.grid-2 {
     grid-template-columns: repeat(2, 1fr);
     aspect-ratio: 16 / 9;
@@ -437,23 +449,23 @@
   }
 
   .image-container {
-    position: relative; /* For potential future overlays */
+    position: relative;
     overflow: hidden;
-    background-color: var(--hover-background); /* Placeholder background */
+    background-color: var(--hover-background);
   }
 
   .image-container img {
-    display: block; /* Remove bottom space */
+    display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Cover the area */
-    transition: opacity 0.3s ease; /* Smooth loading */
+    object-fit: cover;
+    transition: opacity 0.3s ease;
   }
 
   .post-actions {
     display: flex;
     justify-content: space-between;
-    max-width: 425px; /* Limit width of actions row */
+    max-width: 425px;
     margin-top: 12px;
   }
 
@@ -463,12 +475,12 @@
     color: var(--text-tertiary);
     display: flex;
     align-items: center;
-    gap: 6px; /* Increased gap */
+    gap: 6px;
     cursor: pointer;
     transition: color 0.2s;
     font-size: 13px;
-    padding: 6px; /* Make touch target larger */
-    border-radius: 4px; /* Slight rounding on hover */
+    padding: 6px;
+    border-radius: 4px;
   }
 
   .post-action.reply:hover {
@@ -526,13 +538,13 @@
 
   @media (max-width: 768px) {
     .post-actions {
-      max-width: 100%; /* Allow actions to take full width */
+      max-width: 100%;
     }
   }
 
   @media (max-width: 500px) {
     .post-user-info {
-      font-size: 14px; /* Slightly smaller text on very small screens */
+      font-size: 14px;
     }
     .post-text {
       font-size: 14px;

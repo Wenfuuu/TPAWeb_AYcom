@@ -36,7 +36,6 @@
     }
 
     if (!contentAreaElement) {
-      // Retry after the current event loop tick, allowing bind:this to complete
       requestAnimationFrame(observeScroll);
       return;
     }
@@ -114,9 +113,8 @@
 
         <div bind:this={sentinel} class="loading-sentinel">
         {#if isLoading}
-            <!-- Skeleton Loading UI -->
             <div class="skeleton-loading">
-            <!-- Repeat skeleton post structure multiple times for better UX -->
+            <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
             {#each Array(3) as _, i (i)}
                 <div class="skeleton-post">
                 <div class="skeleton-avatar pulse"></div>
@@ -156,11 +154,10 @@
         border-right: 1px solid var(--border-color);
         width: 50%;
         height: 100vh;
-        margin: 0 auto; /* Center if using max-width */
+        margin: 0 auto;
         overflow-y: auto;
     }
 
-    /* Header styles */
     .header {
         position: sticky;
         top: 0;
@@ -242,7 +239,6 @@
         color: var(--text-secondary);
     }
 
-    /* Skeleton loading styles */
     .skeleton-loading {
         width: 90%;
         padding: 0 16px;
@@ -353,7 +349,7 @@
 
     @media (max-width: 768px) {
         .content-area {
-            border-right: none; /* Remove border on mobile */
+            border-right: none;
             width: 100%;
         }
     }

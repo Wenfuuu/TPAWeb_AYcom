@@ -298,6 +298,7 @@
       <div bind:this={sentinel} class="loading-sentinel">
         {#if isLoading}
           <div class="skeleton-loading">
+            <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
             {#each Array(3) as _, i (i)}
               <div class="skeleton-post">
                 <div class="skeleton-avatar pulse"></div>
@@ -366,6 +367,7 @@
       <div bind:this={sentinel} class="loading-sentinel">
         {#if isLoading}
           <div class="skeleton-loading">
+            <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
             {#each Array(3) as _, i (i)}
               <div class="skeleton-post">
                 <div class="skeleton-avatar pulse"></div>

@@ -39,15 +39,14 @@
   import { checkGuest } from "../lib/utils/auth";
   import { toastStore } from "../lib/stores/toast";
 
-  // Define the API data structure
   type ApiFormData = {
     name: string;
     username: string;
     email: string;
     password: string;
     gender: string;
-    profilePicture: string; // URL to Supabase image
-    banner: string; // URL to Supabase image
+    profilePicture: string;
+    banner: string;
     dateOfBirth: string;
     isSubscribed: boolean;
     securityQuestion: string;
@@ -90,7 +89,6 @@
       subscribeToNewsletter: false,
       verificationCode: "",
     } as FormData,
-    // Store the Supabase URLs separately
     profilePictureUrl: "",
     bannerUrl: "",
     errors: {
@@ -143,7 +141,6 @@
     captchaAnswer: "",
   });
 
-  // Handle file uploads
   function handleFileUpload(
     event: Event,
     type: "profilePicture" | "banner"
@@ -152,7 +149,6 @@
     const file = target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     const validTypes: string[] = ["image/jpeg", "image/png", "image/gif"];
     if (!validTypes.includes(file.type)) {
       state.errors[type] =
@@ -160,16 +156,13 @@
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       state.errors[type] = "File size should not exceed 5MB";
       return;
     }
 
-    // Clear previous error
     state.errors[type] = "";
 
-    // Set file and create preview
     state.formData[type] = file;
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
@@ -180,12 +173,10 @@
     reader.readAsDataURL(file);
   }
 
-  // Upload images to Supabase and get URLs
   async function uploadImagesToSupabase(): Promise<boolean> {
     state.uploadingImages = true;
 
     try {
-      // Upload profile picture if exists
       if (state.formData.profilePicture) {
         const profileUrl = await uploadProfilePicture(
           state.formData.profilePicture
@@ -200,7 +191,6 @@
         state.profilePictureUrl = profileUrl;
       }
 
-      // Upload banner if exists
       if (state.formData.banner) {
         const bannerUrl = await uploadBannerImage(state.formData.banner);
 
@@ -216,6 +206,9 @@
       state.uploadingImages = false;
       return true;
     } catch (error) {
+      if(error instanceof Error){
+        toastStore.error(error.message);
+      }
       // console.error("Error uploading images:", error);
       state.errors.general = "Error uploading images. Please try again.";
       state.uploadingImages = false;
@@ -223,9 +216,7 @@
     }
   }
 
-  // Prepare data for API submission
   function prepareApiData(): ApiFormData {
-    // Format date of birth
     const dob = `${state.formData.birthYear}-${state.formData.birthMonth}-${state.formData.birthDay}`;
 
     return {
@@ -246,13 +237,11 @@
     };
   }
 
-  // Handle step 1 submission
   async function handleStep1Submit(): Promise<void> {
     // console.log("heading to next step")
     state.isLoading = true;
     state.errors.general = "";
 
-    // Validate using external functions
     state.errors.name = validateName(state.formData);
     state.errors.username = await validateUsername(state.formData);
     state.errors.email = await validateEmail(state.formData);
@@ -282,9 +271,9 @@
       !state.errors.securityAnswer &&
       state.recaptchaVerified;
 
-    console.log(stepValid);
+    // console.log(stepValid);
     if (stepValid) {
-      console.log("heading to next step");
+      // console.log("heading to next step");
 
       await sendVerificationCode();
 
@@ -324,6 +313,9 @@
     try {
       await sendVerificationCode();
     } catch (error) {
+      if(error instanceof Error){
+        toastStore.error(error.message);
+      }
       state.errors.general =
         "Failed to resend verification code. Please try again.";
     } finally {
@@ -336,7 +328,7 @@
     state.errors.verificationCode = validateVerificationCode(state.formData);
     if (!state.errors.verificationCode) {
       const isVerified = await verifyCode();
-      console.log("code verify: " + isVerified);
+      // console.log("code verify: " + isVerified);
       if (isVerified) {
         await register();
         toastStore.success("Register success!");
@@ -362,16 +354,16 @@
       const data = await res.json();
       return data.verified;
     } catch (error) {
-      console.error("Error verifying code:", error);
+      if(error instanceof Error){
+        toastStore.error(error.message);
+      }
+      // console.error("Error verifying code:", error);
       return false;
     };
   }
 
-  // async function completeRegistration(): Promise<void> {
-  // }
-
   function handleGoogleAuth(): void {
-    console.log("Google authentication initiated");
+    // console.log("Google authentication initiated");
   }
 
   function onRecaptchaCallback(token: string): void {
@@ -383,7 +375,7 @@
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          console.log("success recaptcha");
+          // console.log("success recaptcha");
           state.recaptchaVerified = true;
         } else {
           state.errors.general = "reCAPTCHA verification failed";
@@ -395,10 +387,8 @@
   }
 
   onMount(async() => {
-    console.log("Component mounted, reCAPTCHA would be initialized here");
-    // Assign the global callback used by reCAPTCHA v2
+    // console.log("Component mounted, reCAPTCHA would be initialized here");
     window.recaptchaCallback = onRecaptchaCallback;
-    // Dynamically load the reCAPTCHA script if not already on the page
     if (!document.querySelector("script[src=\"https://www.google.com/recaptcha/api.js\"]")) {
       const script = document.createElement("script");
       script.src = "https://www.google.com/recaptcha/api.js";
@@ -425,10 +415,10 @@
 
     // Then prepare the API data
     const apiData = prepareApiData();
-    console.log(JSON.stringify(apiData));
+    // console.log(JSON.stringify(apiData));
 
     // Send the request
-    const res = await fetch("http://localhost:8080/api/auth/register", {
+    await fetch("http://localhost:8080/api/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -436,8 +426,8 @@
       body: JSON.stringify(apiData),
     });
 
-    const data = await res.json();
-    console.log(data);
+    // const data = await res.json();
+    // console.log(data);
   }
 </script>
 

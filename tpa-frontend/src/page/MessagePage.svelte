@@ -55,7 +55,7 @@
         // console.log("received wsmssage: " + wsMessage);
         switch (wsMessage.type) {
             case "chat": {
-                console.log("received a message");
+                // console.log("received a message");
                 // Handle chat message
                 const chatMessage = wsMessage.payload;
                 messages = [...messages, chatMessage];
@@ -64,7 +64,7 @@
             }
 
             case "notification": {
-                console.log("received notification");
+                // console.log("received notification");
                 // Handle notification
                 const notification = wsMessage.payload;
                 toastStore.info(notification.content);
@@ -72,12 +72,12 @@
             }
 
             default:
-                console.log("Unknown message type:", wsMessage.type);
+                // console.log("Unknown message type:", wsMessage.type);
         }
     };
 
     socket.onopen = () => {
-      console.log("WebSocket connection established");
+      // console.log("WebSocket connection established");
     };
 
     socket.onerror = (err) => {
@@ -90,8 +90,8 @@
   }
 
   async function createConversation() {
-    console.log("creating new conversation");
-    console.log(selectedUsers);
+    // console.log("creating new conversation");
+    // console.log(selectedUsers);
 
     await createNewConversation(selectedUsers, user.id);
     showUserDropdown = false;
@@ -101,7 +101,7 @@
 
   async function updateParticipants() {
     if(!currentConversation) return;
-    console.log(selectedParticipants);
+    // console.log(selectedParticipants);
     await updateConversationParticipants(currentConversation.id, selectedParticipants);
     showParticipantsDropdown = false;
     toastStore.success("Success update participants!");
@@ -110,7 +110,7 @@
 
   async function selectConversation(conversation: Conversation) {
     currentConversation = conversation;
-    console.log(currentConversation.participants);
+    // console.log(currentConversation.participants);
 
     if (currentConversation && currentConversation.participants) {
       selectedParticipants = currentConversation.participants.map(p => p.user_id);
@@ -237,10 +237,10 @@
 
     // test notification
     const otherParticipants = currentConversation.participants?.filter(p => p.user_id !== user.id) || [];
-    // For each participant, send a notification
+    // each participant, send a notification
     for (const participant of otherParticipants) {
         const email = await fetchUserEmailById(participant.user_id, user.id);
-        console.log(email);
+        // console.log(email);
 
         const notif = {
             recipient_id: participant.user_id,

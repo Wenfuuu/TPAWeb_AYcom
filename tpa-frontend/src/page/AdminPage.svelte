@@ -46,7 +46,7 @@
   let modalTitle = "";
   let modalContent = "";
   let modalAction: (() => void) | null = null;
-  const modalType = "confirm";
+  // const modalType = "confirm";
 
   function setupWebSocket(userId: string) {
     if (socket) {
@@ -317,7 +317,7 @@
 
           // In a real app, this would trigger an email notification
           if (action === "accept") {
-            console.log("Email notification would be sent for community request acceptance");
+            // console.log("Email notification would be sent for community request acceptance");
 
           }
         } catch (error) {
@@ -356,7 +356,7 @@
 
           // In a real app, this would trigger an email notification
           if (action === "accept") {
-            console.log("Email notification would be sent for premium request acceptance");
+            // console.log("Email notification would be sent for premium request acceptance");
 
           }
         } catch (error) {
@@ -395,7 +395,7 @@
 
           // In a real app, this would trigger an email notification
           if (action === "accept") {
-            console.log("Email notification would be sent for premium request acceptance");
+            // console.log("Email notification would be sent for premium request acceptance");
 
           }
         } catch (error) {
@@ -1140,11 +1140,12 @@
 
   <!-- Confirmation Modal -->
   {#if showModal}
+  <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
     <div class="modal-overlay" on:click={closeModal}>
       <div class="modal" on:click|stopPropagation>
         <div class="modal-header">
           <h3>{modalTitle}</h3>
-          <button type="button" class="close-button" on:click={closeModal}>
+          <button type="button" class="close-button" aria-label="close button" on:click={closeModal}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"

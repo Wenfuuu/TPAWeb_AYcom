@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { User } from "../model/user";
+import { toastStore } from "../stores/toast";
 
 const BASE_API_URL = "http://localhost:8080/api/auth";
 
@@ -37,7 +38,10 @@ export async function getAuthUser(): Promise<User | null> {
             return user;
         }
     } catch (error) {
-        console.error("Failed to get user:", error);
+        // console.error("Failed to get user:", error);
+        if (error instanceof Error) {
+          toastStore.error(error.message);
+        }
     }
 
     return null;

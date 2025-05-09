@@ -16,7 +16,7 @@
     async function refreshData(page: number, search: string = ""): Promise<void> {
         let data;
         if(user) {
-            console.log(search);
+            // console.log(search);
             data = await fetchBookmarkWithUser(page, user.id, search);
 
             if(data) threads = data;

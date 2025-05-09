@@ -78,12 +78,6 @@
         justify-content: center;
     }
 
-    .logo {
-        font-size: 10rem;
-        font-weight: 900;
-        line-height: 1;
-    }
-
     .logo-img {
         max-width: 300px;
     }
@@ -175,23 +169,18 @@
         background-color: rgba(29, 155, 240, 0.1);
     }
 
-    /* Responsive styles */
     @media (max-width: 768px) {
         .container {
-        flex-direction: column;
-        padding: 1rem;
-        }
-
-        .logo {
-        font-size: 5rem;
+            flex-direction: column;
+            padding: 1rem;
         }
 
         h1 {
-        font-size: 2.5rem;
+            font-size: 2.5rem;
         }
 
         h2 {
-        font-size: 1.5rem;
+            font-size: 1.5rem;
         }
     }
 </style>

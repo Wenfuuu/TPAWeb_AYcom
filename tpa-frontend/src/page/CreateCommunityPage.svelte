@@ -90,23 +90,17 @@
   }
 
   function validateForm(): boolean {
-    // Validate community name
     nameValid = communityName.trim().length >= 3 && communityName.length <= 50;
 
-    // Validate description
     descriptionValid =
       description.trim().length >= 10 && description.length <= 500;
 
-    // Validate icon
     iconValid = iconFile !== null;
 
-    // Validate banner
     bannerValid = bannerFile !== null;
 
-    // Validate category
     categoryValid = selectedCategoryID !== "";
 
-    // Validate rules
     rulesValid = rule.trim().length >= 10;
 
     return (
@@ -127,7 +121,6 @@
     isSubmitting = true;
 
     try {
-      // Upload images
       let iconURL = null;
       let bannerURL = null;
 

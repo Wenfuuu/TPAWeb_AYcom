@@ -17,6 +17,7 @@
   import AdminPage from "./page/AdminPage.svelte";
   import ForgottenPage from "./page/ForgottenPage.svelte";
   import ExplorePage from "./page/ExplorePage.svelte";
+  import SettingsPage from "./page/SettingsPage.svelte";
 
   export let url = "";
 </script>
@@ -85,6 +86,10 @@
 
   <Route path="/forgotten">
     <ForgottenPage />
+  </Route>
+
+  <Route path="/settings">
+    <SettingsPage />
   </Route>
 
 </Router>

@@ -22,7 +22,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// WebSocket upgrader
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
@@ -33,18 +32,15 @@ var upgrader = websocket.Upgrader{
 
 type WebSocketMessage struct {
 	Type    string      `json:"type"`    // "chat" or "notification"
-	Payload interface{} `json:"payload"` // The actual message data
+	Payload interface{} `json:"payload"`
 }
 
 var db *gorm.DB
 
-// Global map of active clients
 var clients = make(map[*model.Client]bool)
 
-// Channel to broadcast messages
 var broadcast = make(chan model.Message)
 
-// Channel for notifications
 var notifyChannel = make(chan model.Notification)
 
 var rabbitChannel *amqp091.Channel
@@ -57,7 +53,6 @@ func handleMessages() {
 	for {
 		select {
 		case msg := <-broadcast:
-			// Handle chat messages as before
 			for client := range clients {
 				wsMessage := WebSocketMessage{
 					Type:    "chat",
@@ -72,7 +67,6 @@ func handleMessages() {
 			}
 
 		case notification := <-notifyChannel:
-			// Send notification to the specific user
 			for client := range clients {
 				if client.UserID == notification.UserID {
 					wsMessage := WebSocketMessage{
@@ -92,7 +86,7 @@ func handleMessages() {
 }
 
 func handleConnections(w http.ResponseWriter, r *http.Request) {
-	// Upgrade initial GET request to a websocket
+	// Upgrade to a websocket
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Printf("Error upgrading to websocket: %v", err)
@@ -100,24 +94,20 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.Close()
 
-	// Extract user ID and conversation ID from query params
 	userIDStr := r.URL.Query().Get("user_id")
 	convIDStr := r.URL.Query().Get("conversation_id")
 
-	// Parse user ID - this is always required
 	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
 		log.Printf("Invalid user ID: %v", err)
 		return
 	}
 
-	// Create a new client with required user ID
 	client := &model.Client{
 		Conn:   ws,
 		UserID: userID,
 	}
 
-	// Parse conversation ID only if provided
 	if convIDStr != "" {
 		convID, err := uuid.Parse(convIDStr)
 		if err != nil {
@@ -126,16 +116,13 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		}
 		client.ConversationID = convID
 
-		// Update participant's last read timestamp only if we have a conversation
 		db.Model(&model.ConversationParticipant{}).
 			Where("conversation_id = ? AND user_id = ?", convID, userID).
 			Updates(map[string]interface{}{"last_read_at": time.Now()})
 	}
 
-	// Register client
 	clients[client] = true
 
-	// Handle incoming messages
 	for {
 		var wsMsg WebSocketMessage
 
@@ -157,7 +144,6 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 			payloadBytes, _ := json.Marshal(wsMsg.Payload)
 			json.Unmarshal(payloadBytes, &msg)
 
-			// Create a new message
 			newMsg := model.Message{
 				SenderID:       client.UserID,
 				ConversationID: client.ConversationID,
@@ -166,17 +152,14 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 				MediaURL:       msg.MediaURL,
 			}
 
-			// Save message to database
 			if err := db.Create(&newMsg).Error; err != nil {
 				log.Printf("Error saving message: %v", err)
 				continue
 			}
 
-			// Update conversation's updated_at timestamp
 			db.Model(&model.Conversation{}).Where("id = ?", client.ConversationID).
 				Updates(map[string]interface{}{"updated_at": time.Now()})
 
-			// Update sender's last read timestamp
 			db.Model(&model.ConversationParticipant{}).
 				Where("conversation_id = ? AND user_id = ?", client.ConversationID, client.UserID).
 				Updates(map[string]interface{}{"last_read_at": time.Now()})
@@ -219,7 +202,6 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 				threadID = &parsedThreadID
 			}
 
-			// Create notification
 			notification := model.Notification{
 				UserID: recipientID,
 				SenderID: senderID,
@@ -228,13 +210,11 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 				Category: notifData.Category,
 			}
 
-			// Save to database
 			if err := db.Create(&notification).Error; err != nil {
 				log.Printf("Error saving notification: %v", err)
 				continue
 			}
 
-			// Send email
 			payload := messaging.EmailPayload{
 				Email: notifData.Email,
 				Word: notifData.Content,
@@ -293,7 +273,6 @@ func main() {
 
 	go handleMessages()
 
-	// Start gRPC server in background
 	go func() {
 		grpcPort := utils.GetDotEnv("GRPC_PORT")
 		if grpcPort == "" {
@@ -314,7 +293,6 @@ func main() {
 		}
 	}()
 
-	// Create Gin router for WebSocket and HTTP endpoints
 	router := gin.Default()
 
 	// WebSocket endpoint
@@ -322,7 +300,6 @@ func main() {
 		handleConnections(c.Writer, c.Request)
 	})
 
-	// Start HTTP server
 	httpPort := utils.GetDotEnv("HTTP_PORT")
 	if httpPort == "" {
 		httpPort = "50056"
@@ -335,7 +312,6 @@ func main() {
 
 }
 
-// gRPC implementations
 func (s *ChatServer) GetConversations(ctx context.Context, req *chatpb.GetConversationsRequest) (*chatpb.GetConversationsResponse, error) {
 	var conversations []model.Conversation
 
@@ -348,14 +324,12 @@ func (s *ChatServer) GetConversations(ctx context.Context, req *chatpb.GetConver
 		return nil, result.Error
 	}
 
-	// Count total
 	var totalCount int64
 	db.Model(&model.Conversation{}).
 		Joins("JOIN conversation_participants ON conversations.id = conversation_participants.conversation_id").
 		Where("conversation_participants.user_id = ?", req.UserId).
 		Count(&totalCount)
 
-	// Convert to protobuf format
 	pbConversations := make([]*chatpb.Conversation, len(conversations))
 	for i, conv := range conversations {
 		pbConversations[i] = convertConversationToProto(conv)
@@ -372,7 +346,6 @@ func (s *ChatServer) CreateConversation(ctx context.Context, req *chatpb.CreateC
 		Name: req.Name,
 	}
 
-	// Start a transaction
 	tx := db.Begin()
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -383,7 +356,6 @@ func (s *ChatServer) CreateConversation(ctx context.Context, req *chatpb.CreateC
 		return nil, err
 	}
 
-	// Add participants
 	for _, userID := range req.UserIds {
 		participant := model.ConversationParticipant{
 			ConversationID: conversation.ID,
@@ -398,7 +370,6 @@ func (s *ChatServer) CreateConversation(ctx context.Context, req *chatpb.CreateC
 		}
 	}
 
-	// Add creator if not already in participants
 	creatorInList := false
 	for _, userID := range req.UserIds {
 		if userID == req.CreatorId {
@@ -425,7 +396,6 @@ func (s *ChatServer) CreateConversation(ctx context.Context, req *chatpb.CreateC
 		return nil, err
 	}
 
-	// Fetch the full conversation with participants
 	if err := db.Preload("Participants").First(&conversation, conversation.ID).Error; err != nil {
 		return nil, err
 	}
@@ -443,13 +413,11 @@ func (s *ChatServer) GetMessages(ctx context.Context, req *chatpb.GetMessagesReq
 		return nil, result.Error
 	}
 
-	// Count total
 	var totalCount int64
 	db.Model(&model.Message{}).
 		Where("conversation_id = ? AND is_deleted = ?", req.ConversationId, false).
 		Count(&totalCount)
 
-	// Convert to protobuf format
 	pbMessages := make([]*chatpb.Message, len(messages))
 	for i, msg := range messages {
 		pbMessages[i] = convertMessageToProto(msg)
@@ -473,7 +441,6 @@ func (s *ChatServer) SendMessage(ctx context.Context, req *chatpb.SendMessageReq
 		return nil, err
 	}
 
-	// Update conversation's updated_at timestamp
 	db.Model(&model.Conversation{}).Where("id = ?", req.ConversationId).
 		Updates(map[string]interface{}{"updated_at": time.Now()})
 
@@ -494,14 +461,12 @@ func (s *ChatServer) UpdateParticipant(ctx context.Context, req *chatpb.UpdatePa
 		return nil, tx.Error
 	}
 
-	// Step 1: Delete all existing participants
 	if err := tx.Where("conversation_id = ?", conversationID).
 		Delete(&model.ConversationParticipant{}).Error; err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("failed to remove old participants: %w", err)
 	}
 
-	// Step 2: Add new participants
 	now := time.Now()
 	for _, userIDStr := range req.UserIds {
 		userID, err := uuid.Parse(userIDStr)
@@ -524,7 +489,6 @@ func (s *ChatServer) UpdateParticipant(ctx context.Context, req *chatpb.UpdatePa
 		}
 	}
 
-	// Step 3: Update conversation name if provided
 	if req.NewName != "" {
 		if err := tx.Model(&model.Conversation{}).
 			Where("id = ?", conversationID).
@@ -534,12 +498,10 @@ func (s *ChatServer) UpdateParticipant(ctx context.Context, req *chatpb.UpdatePa
 		}
 	}
 
-	// Step 4: Commit the transaction
 	if err := tx.Commit().Error; err != nil {
 		return nil, fmt.Errorf("transaction commit failed: %w", err)
 	}
 
-	// Step 5: Fetch updated conversation with participants
 	var conversation model.Conversation
 	if err := db.Preload("Participants").
 		First(&conversation, "id = ?", conversationID).Error; err != nil {
@@ -558,12 +520,10 @@ func (s *ChatServer) GetAllNotifications(ctx context.Context, req *chatpb.GetAll
 	var notifications []model.Notification
 	query := db.Where("user_id = ?", userID).Where("category = ?", "message");
 
-	// Fetch notifications
 	if err := query.Order("created_at desc").Find(&notifications).Error; err != nil {
 		return nil, err
 	}
 
-	// Convert to protobuf format
 	pbNotifications := make([]*chatpb.Notification, len(notifications))
 	for i, notif := range notifications {
 		threadID := ""
@@ -596,12 +556,10 @@ func (s *ChatServer) GetMentionNotifications(ctx context.Context, req *chatpb.Ge
 	var notifications []model.Notification
 	query := db.Where("user_id = ?", userID).Where("category = ?", "mention");
 
-	// Fetch notifications
 	if err := query.Order("created_at desc").Find(&notifications).Error; err != nil {
 		return nil, err
 	}
 
-	// Convert to protobuf format
 	pbNotifications := make([]*chatpb.Notification, len(notifications))
 	for i, notif := range notifications {
 		threadID := ""
@@ -625,7 +583,6 @@ func (s *ChatServer) GetMentionNotifications(ctx context.Context, req *chatpb.Ge
 	}, nil
 }
 
-// Helper functions for converting between database models and protobuf messages
 func convertConversationToProto(conv model.Conversation) *chatpb.Conversation {
 	participants := make([]*chatpb.ConversationParticipant, len(conv.Participants))
 	for i, p := range conv.Participants {

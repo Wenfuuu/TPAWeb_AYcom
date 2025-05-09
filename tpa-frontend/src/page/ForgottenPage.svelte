@@ -5,27 +5,22 @@
   import { toastStore } from "../lib/stores/toast";
   import { fetchSecurityQuestions, fetchUserByEmail, resetPassword, type SecurityQuestion, type User } from "../lib/model/user";
   import axios from "axios";
-//   import { verifyEmail, getSecurityQuestion, verifySecurityAnswer, resetPassword } from "../lib/api/auth";
 
-  // Recovery flow steps as string constants instead of enum
   const STEP_EMAIL_ENTRY = "email_entry";
   const STEP_SECURITY_QUESTION = "security_question";
   const STEP_NEW_PASSWORD = "new_password";
   const STEP_SUCCESS = "success";
 
-  // Form data
   let email = "";
 //   let securityAnswer = "";
   let newPassword = "";
   let confirmPassword = "";
 
-  // UI state
   let currentStep = STEP_EMAIL_ENTRY;
   let isLoading = false;
 //   let securityQuestion = "";
   let isDarkMode = true;
 
-  // Validation state
   let emailError = "";
   let answerError = "";
   let passwordError = "";
@@ -59,7 +54,6 @@
         // get security details
         securityQuestion = questions.security_question;
 
-        // Move to security question step
         currentStep = STEP_SECURITY_QUESTION;
     } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -82,7 +76,6 @@
       const isCorrect = securityAnswer.toLowerCase() === questions.security_answer.toLowerCase();
 
       if (isCorrect) {
-        // Answer is correct, move to password reset
         currentStep = STEP_NEW_PASSWORD;
       } else {
         answerError = "Incorrect answer. Please try again.";
@@ -107,7 +100,6 @@
 
     try {
       await resetPassword(user.id, newPassword);
-      // Password reset successful
       currentStep = STEP_SUCCESS;
     } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -192,7 +184,6 @@
       isDarkMode = savedTheme === "dark";
       document.documentElement.setAttribute("data-theme", savedTheme);
     } else {
-      // Check user's system preference if no saved theme
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       isDarkMode = prefersDark;
       document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");

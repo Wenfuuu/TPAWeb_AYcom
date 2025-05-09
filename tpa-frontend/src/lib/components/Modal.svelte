@@ -1,9 +1,8 @@
-<!-- src/components/Modal.svelte -->
 <script lang="ts">
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
   import { fade, fly } from "svelte/transition";
 
-  export let show: boolean = false; // Controls visibility
+  export let show: boolean = false;
 
   const dispatch = createEventDispatcher();
 
@@ -18,9 +17,8 @@
   }
 
   function handleOuterClick(event: MouseEvent) {
-    // Close if clicking directly on the overlay, not its children
     if (event.target === event.currentTarget) {
-        close();
+      close();
     }
   }
 
@@ -47,7 +45,6 @@
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       </button>
-      <!-- Content goes here -->
       <slot />
     </div>
   </div>
@@ -60,34 +57,31 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+    background-color: rgba(0, 0, 0, 0.6);
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Align to top to allow scrolling */
+    align-items: flex-start;
     z-index: 1000;
-    padding-top: 5vh; /* Add some top padding */
-    overflow-y: auto; /* Allow overlay to scroll if content is too tall */
+    padding-top: 5vh;
+    overflow-y: auto;
   }
 
   .modal-content {
     background-color: var(--card-background);
-    padding: 0; /* Remove padding, ComposePost has its own */
+    padding: 0;
     border-radius: 16px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     position: relative;
     width: 90%;
-    max-width: 600px; /* Max width for the compose modal */
+    max-width: 600px;
     z-index: 1001;
-    /* Remove fixed height, let content dictate */
-    /* max-height: 90vh; */ /* Set max height */
-    /* overflow-y: auto; */ /* Allow content itself to scroll if needed */
     border: 1px solid var(--border-color);
   }
 
   .modal-close-button {
     position: absolute;
     top: 10px;
-    left: 10px; /* Position top-left */
+    left: 10px;
     background: none;
     border: none;
     font-size: 24px;
@@ -109,7 +103,7 @@
      .modal-content {
          width: 95%;
          max-width: none;
-         margin-top: 2vh; /* Smaller top margin */
+         margin-top: 2vh;
      }
      .modal-overlay {
          padding-top: 2vh;

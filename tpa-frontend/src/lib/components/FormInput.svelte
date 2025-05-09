@@ -9,7 +9,6 @@
   export let pattern: string | undefined = undefined;
   export let showCharCount: boolean = false;
 
-  // Events
   export let onInput: (event: Event) => void = () => {};
   export let onBlur: (event: Event) => void = () => {};
 </script>

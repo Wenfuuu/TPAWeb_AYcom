@@ -23,12 +23,10 @@
 {#if user}
     <main class="content-area">
 
-        <!-- Header -->
         <div class="header">
             <h2>Notifications</h2>
         </div>
 
-        <!-- Tabs -->
         <div class="tabs">
             <button
                 type="button"
@@ -54,7 +52,6 @@
             </button>
         </div>
 
-        <!-- Notifications list -->
         <div class="notifications-list">
             {#if notifications.length === 0}
                 <div class="empty-notifications">

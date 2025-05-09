@@ -361,7 +361,6 @@
     justify-content: center;
   }
 
-  /* Recent searches dropdown */
   .recent-searches {
     position: absolute;
     top: calc(100% - 6px);

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { fetchThreadDetailWithUser, type Thread } from "../model/thread";
-  import { type User, type UserThread } from "../model/user";
+  import { fetchUserEmailById, type User, type UserThread } from "../model/user";
+  import { sendMessageNotif, setupWS } from "../model/websocket";
   import { uploadImage } from "../utils/supabaseStorage";
   import axios from "axios";
   import { onMount } from "svelte";
@@ -14,6 +15,7 @@
   let imageFiles: File[] = [];
   let supabaseURLS: string[] = [];
   let currentImageIndex = 0;
+  let socket: WebSocket;
 
   type ReplySettingType = "everyone" | "following" | "verified";
   const replySettings: ReplySettingType = "everyone";
@@ -24,6 +26,7 @@
     const threadId = urlParts[urlParts.length - 1];
 
     if (user) {
+      socket = setupWS(socket, user.id);
       const data = await fetchThreadDetailWithUser(threadId, user.id);
       if (data) thread = data;
     }
@@ -31,7 +34,7 @@
 
   async function handlePost(): Promise<void> {
     if (newPostText.trim()) {
-      console.log("Posting:", newPostText, uploadedImages);
+      // console.log("Posting:", newPostText, uploadedImages);
 
       // upload images to supabase
       if (imageFiles.length > 0) {
@@ -53,6 +56,10 @@
         scheduledAt: "",
         imageUrls: supabaseURLS,
       });
+
+      if(!user) return;
+      const email = await fetchUserEmailById(thread.user_id, user.id);
+      sendMessageNotif(socket, thread.user_id, user.id, `You received a reply from ${user.name}`, email);
 
       newPostText = "";
       uploadedImages = [];
@@ -219,6 +226,7 @@
               </div>
 
               <div class="carousel-indicators">
+                <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
                 {#each uploadedImages as _, i (i)}
                   <span class="indicator" class:active={i === currentImageIndex}
                   ></span>

@@ -2,20 +2,15 @@
   import { createEventDispatcher } from "svelte";
   import MicrophoneInput from "./MicrophoneInput.svelte";
 
-  // Props
   export let placeholder = "Search...";
   export let value = "";
-  export let autofocus = false;
 
-  // Event dispatcher
   const dispatch = createEventDispatcher();
 
-  // Handle form submission
   function handleSubmit() {
     dispatch("search", { query: value });
   }
 
-  // Handle input change
   function handleInput(event: Event) {
     const inputEvent = event as InputEvent;
     const target = inputEvent.target as HTMLInputElement;
@@ -23,12 +18,10 @@
     dispatch("input", { value });
   }
 
-  // Handle voice input
   function handleVoiceInput(event: CustomEvent<{ text: string }>) {
     value = event.detail.text;
     dispatch("input", { value });
 
-    // Optionally auto-submit after voice input
     if (value.trim()) {
       handleSubmit();
     }
@@ -43,7 +36,6 @@
       {placeholder}
       bind:value
       on:input={handleInput}
-      {autofocus}
     />
 
     <div class="search-actions">

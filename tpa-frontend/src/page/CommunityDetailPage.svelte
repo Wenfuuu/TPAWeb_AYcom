@@ -35,19 +35,19 @@
             moderators = await fetchModerator(community.id);
             // console.log(moderators);
             joinRequests = await fetchJoinRequest(community.id);
-            console.log(joinRequests);
+            // console.log(joinRequests);
 
             let data;
-            console.log(currTab);
+            // console.log(currTab);
             if(currTab === "latest") data = await fetchCommunityThreadWithUser(page, user.id, community.id);
             else if(currTab === "top") {
-                console.log("fetching top");
+                // console.log("fetching top");
                 data = await fetchTopCommunityThreadWithUser(page, user.id, community.id);
             }
             else data = await fetchCommunityThreadWithUser(page, user.id, community.id);
 
             if(data) threads = data;
-            console.log(threads);
+            // console.log(threads);
 
             topMembers = await fetchTopMember(community.id);
             moderators = await fetchModerator(community.id);

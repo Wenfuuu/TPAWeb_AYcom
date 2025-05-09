@@ -8,9 +8,10 @@
     unlikeThread,
     type Thread,
   } from "../model/thread";
-  import type { User, UserThread } from "../model/user";
+  import { fetchUserEmailById, type User, type UserThread } from "../model/user";
   import { navigate } from "svelte-routing";
   import ComposeReply from "./ComposeReply.svelte";
+  import { sendMessageNotif, setupWS } from "../model/websocket";
 
   export let thread: Thread & { userData: UserThread };
   export let replies: (Thread & { userData: UserThread })[] = [];
@@ -22,6 +23,7 @@
 
   export let user: User | null;
 
+  let socket: WebSocket;
   let page = 1;
   let isLoading = false;
   let hasMore = true;
@@ -37,17 +39,16 @@
     }
 
     if (!contentAreaElement) {
-      // Retry after the current event loop tick, allowing bind:this to complete
       requestAnimationFrame(observeScroll);
       return;
     }
 
     observer = new IntersectionObserver(
       async (entries) => {
-        console.log(hasMore);
+        // console.log(hasMore);
         if (entries[0].isIntersecting && !isLoading && hasMore) {
           isLoading = true;
-          console.log("Loading more content, page:", page + 1);
+          // console.log("Loading more content, page:", page + 1);
 
           await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -65,7 +66,7 @@
             isLoading = false;
             return;
           }
-          console.log("Fetched new replies:", newReplies.length);
+          // console.log("Fetched new replies:", newReplies.length);
           replies = [...replies, ...newReplies];
           page += 1;
 
@@ -81,13 +82,13 @@
 
     if (sentinel) {
       observer.observe(sentinel);
-      console.log(
-        "Observer attached to sentinel element with content area root."
-      );
+      // console.log(
+      //   "Observer attached to sentinel element with content area root."
+      // );
     } else {
-      console.warn(
-        "Sentinel element not found - scroll observation not active"
-      );
+      // console.warn(
+      //   "Sentinel element not found - scroll observation not active"
+      // );
     }
   }
 
@@ -105,12 +106,15 @@
 
     if (!thread.isLiked) {
       await likeThread(user.id, thread.id);
+
+      const email = await fetchUserEmailById(thread.user_id, user.id);
+      sendMessageNotif(socket, thread.user_id, user.id, `You received a like from ${user.name}`, email);
     } else {
       await unlikeThread(user.id, thread.id);
     }
 
     toggleLike(thread);
-    thread = { ...thread }; // Force UI update
+    thread = { ...thread };
   }
 
   async function handleLikeReplies(replyThread: Thread): Promise<void> {
@@ -118,12 +122,15 @@
 
     if (!replyThread.isLiked) {
       await likeThread(user.id, replyThread.id);
+
+      const email = await fetchUserEmailById(thread.user_id, user.id);
+      sendMessageNotif(socket, thread.user_id, user.id, `You received a like from ${user.name}`, email);
     } else {
       await unlikeThread(user.id, replyThread.id);
     }
 
     toggleLike(replyThread);
-    replies = [...replies]; // Force UI update
+    replies = [...replies];
   }
 
   function toggleBookmark(targetThread: Thread) {
@@ -135,12 +142,15 @@
 
     if (!thread.isBookmarked) {
       await bookmarkThread(user.id, thread.id);
+
+      const email = await fetchUserEmailById(thread.user_id, user.id);
+      sendMessageNotif(socket, thread.user_id, user.id, `You received a bookmark from ${user.name}`, email);
     } else {
       await unbookmarkThread(user.id, thread.id);
     }
 
     toggleBookmark(thread);
-    thread = { ...thread }; // Force UI update
+    thread = { ...thread };
   }
 
   async function handleBookmarkReplies(replyThread: Thread): Promise<void> {
@@ -148,23 +158,27 @@
 
     if (!replyThread.isBookmarked) {
       await bookmarkThread(user.id, replyThread.id);
+
+      const email = await fetchUserEmailById(thread.user_id, user.id);
+      sendMessageNotif(socket, thread.user_id, user.id, `You received a bookmark from ${user.name}`, email);
     } else {
       await unbookmarkThread(user.id, replyThread.id);
     }
 
     toggleBookmark(replyThread);
-    replies = [...replies]; // Force UI update
+    replies = [...replies];
   }
 
   onMount(async () => {
     observeScroll();
     if(thread) loadThreadData(thread.id, 1);
+    if(!user) return;
+    socket = setupWS(socket, user.id);
   });
 </script>
 
 {#if user && thread}
   <main class="content-area" bind:this={contentAreaElement}>
-    <!-- Header -->
     <div class="header">
       <button type="button" class="back-button" aria-label="Back button" on:click={() => {
         handleBackNavigation();
@@ -176,7 +190,6 @@
       <h1>Post</h1>
     </div>
 
-    <!-- Main Thread -->
     <div class="thread-post">
       <div class="post-avatar">
         <img src={thread.userData?.profile || "/placeholder.svg"} alt={thread.userData?.name || "User"} />
@@ -213,7 +226,6 @@
           <div class="post-images" class:grid-2={thread.images.length === 2} class:grid-3={thread.images.length === 3} class:grid-4={thread.images.length === 4}>
             {#each thread.images as image, i (i)}
               <div class="image-container">
-                <!-- <img src={image || "/placeholder.svg"} alt="Post image {i + 1}" /> -->
                  {#if image.endsWith(".png") || image.endsWith(".jpg")
                  || image.endsWith(".jpeg") || image.endsWith(".gif")}
                   <img
@@ -263,7 +275,6 @@
       </div>
     </div>
 
-    <!-- Reply Composer -->
     <ComposeReply {thread} {user} refreshData={handleReplyCreated} />
 
     <div class="posts">
@@ -452,9 +463,8 @@
 
     <div bind:this={sentinel} class="loading-sentinel">
       {#if isLoading}
-        <!-- Skeleton Loading UI -->
         <div class="skeleton-loading">
-          <!-- Repeat skeleton post structure multiple times for better UX -->
+          <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
           {#each Array(3) as _, i (i)}
             <div class="skeleton-post">
               <div class="skeleton-avatar pulse"></div>
@@ -465,7 +475,6 @@
                 </div>
                 <div class="skeleton-text pulse"></div>
                 <div class="skeleton-text-short pulse"></div>
-                <!-- Random image placeholder in some posts -->
                 {#if i % 2 === 0}
                   <div class="skeleton-image pulse"></div>
                 {/if}
@@ -500,7 +509,6 @@
     overflow-y: auto;
   }
 
-  /* Header styles */
   .header {
     position: sticky;
     top: 0;
@@ -539,47 +547,6 @@
     margin: 0;
   }
 
-  .header-actions {
-    margin-left: auto;
-    display: flex;
-    gap: 8px;
-  }
-
-  .reply-button {
-    background-color: var(--button-primary);
-    color: var(--button-primary-text);
-    border: none;
-    border-radius: 9999px;
-    padding: 8px 16px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-
-  .reply-button:hover {
-    background-color: var(--button-primary-hover);
-  }
-
-  .options-button {
-    background: none;
-    border: none;
-    color: var(--text-primary);
-    cursor: pointer;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s;
-  }
-
-  .options-button:hover {
-    background-color: var(--hover-background);
-  }
-
-  /* Main thread post styles */
   .thread-post {
     display: flex;
     padding: 16px;
@@ -722,7 +689,6 @@
     border: 1px solid var(--border-color);
   }
 
-  /* Grid layouts for different image counts */
   .post-images.grid-2 {
     grid-template-columns: repeat(2, 1fr);
     aspect-ratio: 16 / 9;
@@ -820,7 +786,6 @@
     height: 18px;
   }
 
-  /* Replies section */
   .reply-to {
     color: var(--text-tertiary);
     font-size: 14px;
@@ -861,7 +826,6 @@
     color: var(--text-secondary);
   }
 
-  /* Skeleton loading styles */
   .skeleton-loading {
     width: 90%;
     padding: 0 16px;

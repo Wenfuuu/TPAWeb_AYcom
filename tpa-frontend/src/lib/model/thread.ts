@@ -73,6 +73,64 @@ export async function fetchTopHashtags(){
     return hashtags;
 }
 
+export async function fetchLatestThread(page: number, userid: string, search: string): Promise<(Thread & { userData: UserThread })[] | null> {
+    const allThreads = await fetchUserBookmark(page, userid, search);
+    const allUsers = await fetchUser();
+    const fileURLS = await fetchFiles();
+    const likedThreads = (await fetchLikedThread(userid)) || [];
+    const bookmarkThreads = (await fetchBookmarkThread(userid)) || [];
+    const repostThreads = (await fetchRepostThread(userid)) || [];
+
+    if (!allThreads) return null;
+
+    const likedThreadIds = new Set(likedThreads.map((t) => t.id));
+    const bookmarkThreadIds = new Set(bookmarkThreads.map((t) => t.id));
+    const repostThreadIds = new Set(repostThreads.map((t) => t.id));
+
+    threads = allThreads.map((thread) => {
+      const user = allUsers.find((u) => u.id === thread.user_id);
+      const userData: UserThread = user
+        ? {
+            name: user.name,
+            username: user.username,
+            isPremium: user.is_premium ? true : false,
+            profile: user.profile_picture,
+          }
+        : {
+            name: "Unknown",
+            username: "unknown",
+            isPremium: false,
+            profile:
+              "https://nyijguoyjemxmdyzzdry.supabase.co/storage/v1/object/public/registration-uploads//kagari.jpg",
+          };
+
+      let images: string[] = [];
+      if (fileURLS) {
+        images = fileURLS
+          .filter((file) => file.thread_id === thread.id)
+          .map((file) => file.file);
+      }
+
+      const insights: ThreadInsights = {
+        replies: 0,
+        reposts: 0,
+        likes: 0,
+      };
+      return {
+        ...thread,
+        created_at: formatTweetDate(new Date(thread.created_at)),
+        images,
+        insights,
+        userData,
+        isLiked: likedThreadIds.has(thread.id),
+        isReposted: repostThreadIds.has(thread.id),
+        isBookmarked: bookmarkThreadIds.has(thread.id),
+      };
+    });
+
+    return threads;
+}
+
 export async function fetchBookmarkWithUser(page: number, userid: string, search: string): Promise<(Thread & { userData: UserThread })[] | null> {
     const allThreads = await fetchUserBookmark(page, userid, search);
     const allUsers = await fetchUser();

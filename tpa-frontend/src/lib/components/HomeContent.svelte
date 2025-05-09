@@ -35,7 +35,7 @@
       threads = [];
       hasMore = true;
 
-      console.log(currentActiveTab);
+      // console.log(currentActiveTab);
       if(currentActiveTab === "for-you") refreshData(page);
       else refreshFollowingData(page);
     }
@@ -47,17 +47,16 @@
     }
 
     if (!contentAreaElement) {
-      // Retry after the current event loop tick, allowing bind:this to complete
       requestAnimationFrame(observeScroll);
       return;
     }
 
     observer = new IntersectionObserver(
       async (entries) => {
-        console.log(hasMore);
+        // console.log(hasMore);
         if (entries[0].isIntersecting && !isLoading && hasMore) {
           isLoading = true;
-          console.log("Loading more content, page:", page + 1);
+          // console.log("Loading more content, page:", page + 1);
 
           await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -75,7 +74,7 @@
             isLoading = false;
             return;
           }
-          console.log("Fetched new threads:", newThreads.length);
+          // console.log("Fetched new threads:", newThreads.length);
           threads = [...threads, ...newThreads];
           page += 1;
 
@@ -91,13 +90,13 @@
 
     if (sentinel) {
       observer.observe(sentinel);
-      console.log(
-        "Observer attached to sentinel element with content area root."
-      );
+      // console.log(
+      //   "Observer attached to sentinel element with content area root."
+      // );
     } else {
-      console.warn(
-        "Sentinel element not found - scroll observation not active"
-      );
+      // console.warn(
+      //   "Sentinel element not found - scroll observation not active"
+      // );
     }
   }
 
@@ -142,9 +141,8 @@
 
     <div bind:this={sentinel} class="loading-sentinel">
       {#if isLoading}
-        <!-- Skeleton Loading UI -->
         <div class="skeleton-loading">
-          <!-- Repeat skeleton post structure multiple times for better UX -->
+          <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
           {#each Array(3) as _, i (i)}
             <div class="skeleton-post">
               <div class="skeleton-avatar pulse"></div>
@@ -155,7 +153,6 @@
                 </div>
                 <div class="skeleton-text pulse"></div>
                 <div class="skeleton-text-short pulse"></div>
-                <!-- Random image placeholder in some posts -->
                 {#if i % 2 === 0}
                   <div class="skeleton-image pulse"></div>
                 {/if}
@@ -182,7 +179,7 @@
     border-right: 1px solid var(--border-color);
     width: 50%;
     height: 100vh;
-    margin: 0 auto; /* Center if using max-width */
+    margin: 0 auto;
     overflow-y: auto;
   }
 
@@ -204,7 +201,7 @@
     flex: 1;
     background: none;
     border: none;
-    color: var(--text-secondary); /* Default color */
+    color: var(--text-secondary);
     font-size: 15px;
     font-weight: 500;
     padding: 16px;
@@ -244,7 +241,6 @@
     color: var(--text-secondary);
   }
 
-  /* Skeleton loading styles */
   .skeleton-loading {
     width: 90%;
     padding: 0 16px;
@@ -330,7 +326,7 @@
 
   @media (max-width: 768px) {
     .content-area {
-      border-right: none; /* Remove border on mobile */
+      border-right: none;
     }
   }
 </style>

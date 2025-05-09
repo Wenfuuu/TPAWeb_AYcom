@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import { nanoid } from "nanoid"; // You'll need to install this: npm install nanoid
+import { nanoid } from "nanoid";
 
 export type ToastType = "success" | "error" | "warning" | "info";
 export type ToastPosition =

@@ -301,18 +301,6 @@
     height: 30px;
   }
 
-  .follow-button.followed {
-    background-color: transparent;
-    border: 1px solid var(--button-primary);
-    color: var(--button-primary);
-  }
-
-  .follow-button.requested {
-    background-color: var(--hover-background);
-    color: var(--text-secondary);
-    cursor: not-allowed;
-  }
-
   .tabs {
     display: flex;
     border-bottom: 1px solid var(--border-color);

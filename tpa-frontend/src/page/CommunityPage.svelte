@@ -27,7 +27,7 @@
             if(data) communities = data;
             else communities = [];
         }
-        console.log(communities);
+        // console.log(communities);
     }
 
     function changeLimit(count: 25 | 30 | 35) {

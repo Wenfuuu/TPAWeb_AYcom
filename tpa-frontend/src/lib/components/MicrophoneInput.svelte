@@ -2,15 +2,12 @@
   import { onDestroy } from "svelte";
   import { createEventDispatcher } from "svelte";
 
-  // Props
   export let listening = false;
   export let buttonClass = "";
   export let iconClass = "";
 
-  // Event dispatcher
   const dispatch = createEventDispatcher();
 
-  // Variables
   let mediaRecorder: MediaRecorder;
   let audioChunks: Blob[] = [];
   let stream: MediaStream;
@@ -89,18 +86,18 @@
         // Dispatch the transcribed text
         dispatch("transcribed", { text: result.text });
       } else {
-        console.error("Transcription failed:", result.error);
+        // console.error("Transcription failed:", result.error);
         dispatch("error", { message: result.error || "Transcription failed" });
       }
     } catch (err) {
-      console.error("Error sending audio to server:", err);
+      // console.error("Error sending audio to server:", err);
       dispatch("error", {
         message: "Error sending audio: " + (err as Error).message,
       });
     }
   }
 
-  // Clean up on component destroy
+  // clean up
   onDestroy(() => {
     if (listening) {
       stopListening();

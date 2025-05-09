@@ -22,7 +22,6 @@ func failOnError(err error, msg string) {
 	}
 }
 
-// setupVerificationEmailQueue declares and binds the verification email queue
 func setupVerificationEmailQueue(ch *amqp091.Channel, exchangeName string) amqp091.Queue {
 	queueName := "verification_email_queue"
 	q, err := ch.QueueDeclare(
@@ -48,7 +47,6 @@ func setupVerificationEmailQueue(ch *amqp091.Channel, exchangeName string) amqp0
 	return q
 }
 
-// setupEmailQueue declares and binds the normal email queue
 func setupEmailQueue(ch *amqp091.Channel, exchangeName string) amqp091.Queue {
 	queueName := "email_queue"
 	q, err := ch.QueueDeclare(
@@ -74,7 +72,6 @@ func setupEmailQueue(ch *amqp091.Channel, exchangeName string) amqp091.Queue {
 	return q
 }
 
-// setupDeadLetterQueue declares and sets up a dead letter queue for failed messages
 func setupDeadLetterQueue(ch *amqp091.Channel, exchangeName string) amqp091.Queue {
 	deadLetterQueueName := "failed_emails_queue"
 	q, err := ch.QueueDeclare(
@@ -100,7 +97,6 @@ func setupDeadLetterQueue(ch *amqp091.Channel, exchangeName string) amqp091.Queu
 	return q
 }
 
-// Message with retry information
 type RetryMessage struct {
 	OriginalMessage []byte `json:"original_message"`
 	RetryCount      int    `json:"retry_count"`
@@ -114,7 +110,6 @@ func main() {
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
-	// Declare the same exchange as the publisher (idempotent)
 	exchangeName := "email_exchange"
 	err = ch.ExchangeDeclare(
 		exchangeName, "direct", true, false, false, false, nil,
@@ -125,7 +120,6 @@ func main() {
 	emailQueue := setupEmailQueue(ch, exchangeName)
 	deadLetterQueue := setupDeadLetterQueue(ch, exchangeName)
 
-	// Set up retry queue
 	retryQueueName := "email_retry_queue"
 	retryQueue, err := ch.QueueDeclare(
 		retryQueueName, // name
@@ -146,7 +140,6 @@ func main() {
 	)
 	failOnError(err, "Failed to bind retry queue")
 
-	// Configure QoS: Process only one message at a time until acknowledged
 	err = ch.Qos(
 		1,     // prefetchCount
 		0,     // prefetchSize
@@ -154,7 +147,6 @@ func main() {
 	)
 	failOnError(err, "Failed to set QoS")
 
-	// Start consuming messages
 	verificationMsgs, err := ch.Consume(
 		verifQueue.Name, // queue
 		"",              // consumer tag (empty means auto-generate)
@@ -188,7 +180,6 @@ func main() {
 	)
 	failOnError(err, "Failed to register retry consumer")
 	
-	// Consume from dead letter queue to process failed messages
 	deadLetterMsgs, err := ch.Consume(
 		deadLetterQueue.Name,
 		"",
@@ -200,27 +191,23 @@ func main() {
 	)
 	failOnError(err, "Failed to register dead letter queue consumer")
 
-	// Maximum number of retries before sending to dead letter queue
 	const maxRetries = 3
 
-	// Goroutine to handle verification emails
 	go func() {
 		for d := range verificationMsgs {
 			log.Printf("Received a verification message: %s", d.Body)
 			var payload messaging.VerificationEmailPayload
 			if err := json.Unmarshal(d.Body, &payload); err != nil {
 				log.Printf("ERROR: Failed to unmarshal message: %v", err)
-				// Bad format - send to dead letter queue
+				// send to dead letter queue
 				publishToDeadLetterQueue(ch, exchangeName, d.Body, "verification", "Format error")
-				d.Ack(false) // Acknowledge to remove from queue
+				d.Ack(false) 
 				continue
 			}
 
-			// Process the message (send email)
 			if err := sendVerificationEmail(payload.Email, payload.Code); err != nil {
 				log.Printf("ERROR: Failed to send email to %s: %v", payload.Email, err)
 				
-				// Publish to retry queue with retry count of 0
 				retryMsg := RetryMessage{
 					OriginalMessage: d.Body,
 					RetryCount:      0,
@@ -228,31 +215,29 @@ func main() {
 				}
 				
 				publishToRetryQueue(ch, exchangeName, retryMsg)
-				d.Ack(false) // Acknowledge the original message
+				d.Ack(false)
 			} else {
 				log.Printf("Successfully sent verification email to %s", payload.Email)
-				d.Ack(false) // Acknowledge message successfully processed
+				d.Ack(false)
 			}
 		}
 	}()
 
-	// Goroutine to handle normal emails
 	go func() {
 		for d := range normalMsgs {
 			log.Printf("Received an email message: %s", d.Body)
 			var payload messaging.EmailPayload
 			if err := json.Unmarshal(d.Body, &payload); err != nil {
 				log.Printf("ERROR: Failed to unmarshal message: %v", err)
-				// Bad format - send to dead letter queue
+				// send to dead letter queue
 				publishToDeadLetterQueue(ch, exchangeName, d.Body, "normal", "Format error")
-				d.Ack(false) // Acknowledge to remove from queue
+				d.Ack(false)
 				continue
 			}
 
 			if err := sendEmail(payload.Email, payload.Word); err != nil {
 				log.Printf("ERROR: Failed to send email to %s: %v", payload.Email, err)
 				
-				// Publish to retry queue with retry count of 0
 				retryMsg := RetryMessage{
 					OriginalMessage: d.Body,
 					RetryCount:      0,
@@ -260,15 +245,14 @@ func main() {
 				}
 				
 				publishToRetryQueue(ch, exchangeName, retryMsg)
-				d.Ack(false) // Acknowledge the original message
+				d.Ack(false)
 			} else {
 				log.Printf("Successfully sent email to %s", payload.Email)
-				d.Ack(false) // Acknowledge message successfully processed
+				d.Ack(false)
 			}
 		}
 	}()
 
-	// Goroutine to handle retries
 	go func() {
 		for d := range retryMsgs {
 			log.Printf("Processing retry message: %s", d.Body)
@@ -280,7 +264,6 @@ func main() {
 				continue
 			}
 
-			// Check retry count
 			if retryMsg.RetryCount >= maxRetries {
 				log.Printf("Max retries reached for message, sending to dead letter queue")
 				publishToDeadLetterQueue(ch, exchangeName, retryMsg.OriginalMessage, retryMsg.MessageType, "Max retries exceeded")
@@ -288,10 +271,8 @@ func main() {
 				continue
 			}
 
-			// Increase retry count
 			retryMsg.RetryCount++
 
-			// Process based on message type
 			var err error
 			if retryMsg.MessageType == "verification" {
 				var payload messaging.VerificationEmailPayload
@@ -316,11 +297,9 @@ func main() {
 			if err != nil {
 				log.Printf("Retry %d failed, will retry again: %v", retryMsg.RetryCount, err)
 				
-				// Implement exponential backoff with delay
 				delay := time.Duration(retryMsg.RetryCount * retryMsg.RetryCount) * time.Second
 				time.Sleep(delay)
 				
-				// Republish with incremented retry count
 				publishToRetryQueue(ch, exchangeName, retryMsg)
 				d.Ack(false)
 			} else {
@@ -330,12 +309,10 @@ func main() {
 		}
 	}()
 
-	// Goroutine to handle dead letter messages
 	go func() {
 		for d := range deadLetterMsgs {
 			log.Printf("Processing dead letter message: %s", d.Body)
 			
-			// Parse the dead letter message
 			var deadLetterMsg struct {
 				OriginalMessage []byte    `json:"original_message"`
 				MessageType     string    `json:"message_type"`
@@ -345,38 +322,29 @@ func main() {
 			
 			if err := json.Unmarshal(d.Body, &deadLetterMsg); err != nil {
 				log.Printf("ERROR: Failed to unmarshal dead letter message: %v", err)
-				// This is a serious error, but we can't do much about it
 				d.Ack(false)
 				continue
 			}
 			
-			// Log the failed message details for monitoring/alerting
 			log.Printf("DEAD LETTER: Type: %s, Reason: %s, Failed at: %s", 
 				deadLetterMsg.MessageType, 
 				deadLetterMsg.FailureReason,
 				deadLetterMsg.FailedAt)
 				
-			// You could implement additional logic here:
-			// 1. Send alerts to admins
-			// 2. Store in a database for later analysis
-			// 3. Attempt special recovery procedures
 			
-			// For now, we're just acknowledging it
 			d.Ack(false)
 		}
 	}()
 
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 
-	// Graceful shutdown
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	<-c // Block until shutdown signal
+	<-c
 
 	log.Println("Shutting down Email Service...")
 }
 
-// Publish a message to the retry queue
 func publishToRetryQueue(ch *amqp091.Channel, exchangeName string, retryMsg RetryMessage) {
 	retryMsgBytes, err := json.Marshal(retryMsg)
 	if err != nil {
@@ -400,9 +368,7 @@ func publishToRetryQueue(ch *amqp091.Channel, exchangeName string, retryMsg Retr
 	}
 }
 
-// Publish a message to the dead letter queue
 func publishToDeadLetterQueue(ch *amqp091.Channel, exchangeName string, originalMsg []byte, msgType string, reason string) {
-	// You might want to wrap the original message with some metadata
 	failedMsg := struct {
 		OriginalMessage []byte    `json:"original_message"`
 		MessageType     string    `json:"message_type"`
@@ -440,7 +406,6 @@ func publishToDeadLetterQueue(ch *amqp091.Channel, exchangeName string, original
 }
 
 func sendVerificationEmail(toEmail, code string) error {
-	// Use gomail to send the email
 	m := gomail.NewMessage()
 	m.SetHeader("From", utils.GetDotEnv("EMAIL_USER"))
 	m.SetHeader("To", toEmail)

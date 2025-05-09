@@ -74,8 +74,6 @@ export function validateName(formData: FormData): string {
 export async function validateUsername(formData: FormData): Promise<string> {
     if (!formData.username) return "Username is required";
     if (formData.username.length < 4) return "Username must be at least 4 characters";
-    // const isUnique = await checkUsernameUnique(formData.username);
-    // return isUnique ? "" : "Username is already taken";
     return "";
 }
 
@@ -84,8 +82,6 @@ export async function validateEmail(formData: FormData): Promise<string> {
     if (!formData.email) return "Email is required";
     if (!emailRegex.test(formData.email))
         return "Please enter a valid email address";
-    // const isUnique = await checkEmailUnique(formData.email);
-    // return isUnique ? "" : "Email is already registered";
     return "";
 }
 

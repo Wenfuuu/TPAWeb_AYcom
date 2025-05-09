@@ -31,7 +31,6 @@
     { name: "Settings", icon: "more-horizontal" }
   ];
 
-  // Close dropdown when clicking outside
   function handleClickOutside(event: MouseEvent) {
     if (dropdownRef && !dropdownRef.contains(event.target as Node)) {
       showProfileDropdown = false;
@@ -65,9 +64,7 @@
     showComposeModal = false;
   }
 
-  // Function called when ComposePost inside the modal finishes posting
   async function handleModalPostCreated() {
-    console.log("Post created via modal. Closing modal.");
     if(currentActiveTab === "for-you") await refreshData(1);
     else refreshFollowingData(1);
 
@@ -199,7 +196,7 @@
 </div>
 
 <Modal show={showComposeModal} on:close={closeComposeModal}>
-  {#if user} <!-- Only render ComposePost if user is available -->
+  {#if user}
     <ComposePost
       {user}
       refreshData={handleModalPostCreated}
@@ -322,7 +319,6 @@
     margin-bottom: 16px;
   }
 
-  /* Updated styles for user-profile as a button */
   .user-profile {
     position: relative;
     display: flex;

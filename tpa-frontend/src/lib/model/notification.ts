@@ -50,7 +50,5 @@ export async function fetchMentionNotifications(user_id: string) {
     const notifications: Notif[] = response.data.notifications;
     if (!notifications) return [];
 
-
-
     return notifications;
 }

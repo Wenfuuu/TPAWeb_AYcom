@@ -16,7 +16,6 @@
   let isSubmitted = false;
   let isDarkMode = true;
 
-  // Form validation
   let idNumberValid = true;
   let imageValid = true;
   let reasonValid = true;
@@ -75,7 +74,7 @@
     }catch(error){
       if (axios.isAxiosError(error)) {
         const message = error.response?.data?.error || error.message;
-        console.log(message);
+        // console.log(message);
         toastStore.error(message);
       } else if (error instanceof Error) {
         toastStore.error(error.message);
@@ -83,16 +82,6 @@
     }finally{
       isSubmitting = false;
     }
-
-    // const result = await registerPremium(user.id, idNumber, supaURL, verifyReason);
-
-    // if (typeof result === "string") {
-    //   isSubmitting = false;
-    //   return;
-    // }
-
-    // isSubmitted = true;
-    // isSubmitting = false;
   }
 
   onMount(async () => {
@@ -100,7 +89,6 @@
     const usr = await getAuthUser();
     if (usr) user = usr;
 
-    // Check for saved theme preference
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) {
       isDarkMode = savedTheme === "dark";
@@ -683,15 +671,6 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-  }
-
-  .error-alert {
-    background-color: rgba(255, 77, 79, 0.1);
-    color: #ff4d4f;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    font-size: 14px;
   }
 
   .form-actions {

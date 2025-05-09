@@ -16,7 +16,7 @@
   let password = "";
   let loading = false;
   let recaptchaVerified = false;
-  let isDarkMode = true; // Default to dark mode
+  let isDarkMode = true;
 
   async function handleLogin() {
     loading = true;
@@ -36,7 +36,6 @@
   }
 
   function handleGoogleLogin() {
-    console.log("Google login clicked");
     // Implement Google OAuth login
   }
 
@@ -53,13 +52,12 @@
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          console.log("success recaptcha");
+          // console.log("success recaptcha");
           recaptchaVerified = true;
         }
       });
   }
 
-  // Toggle theme function
   function toggleTheme() {
     isDarkMode = !isDarkMode;
     const newTheme = isDarkMode ? "dark" : "light";
@@ -68,7 +66,7 @@
   }
 
   onMount(async () => {
-    console.log("Component mounted, reCAPTCHA would be initialized here");
+    // console.log("Component mounted, reCAPTCHA would be initialized here");
     // Assign the global callback used by reCAPTCHA v2
     window.recaptchaCallback = onRecaptchaCallback;
     // Dynamically load the reCAPTCHA script if not already on the page
@@ -80,13 +78,11 @@
       document.body.appendChild(script);
     }
 
-    // Initialize theme from localStorage
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) {
       isDarkMode = savedTheme === "dark";
       document.documentElement.setAttribute("data-theme", savedTheme);
     } else {
-      // Check user's system preference if no saved theme
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       isDarkMode = prefersDark;
       document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
@@ -205,13 +201,11 @@
 </div>
 
 <style>
-  /* Apply dark theme by default */
   :global(body) {
     background-color: var(--background);
     color: var(--text-primary);
   }
 
-  /* Login page wrapper */
   .login-page {
     display: flex;
     justify-content: center;
@@ -222,7 +216,6 @@
     box-sizing: border-box;
   }
 
-  /* Login container */
   .login-container {
     width: 100%;
     max-width: 300px;
@@ -238,7 +231,6 @@
     transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
   }
 
-  /* Close button */
   .close-button {
     position: absolute;
     top: 15px;
@@ -257,7 +249,6 @@
     justify-content: center;
   }
 
-  /* Theme toggle button */
   .theme-toggle {
     position: absolute;
     top: 15px;
@@ -281,19 +272,11 @@
     background-color: var(--button-secondary-hover);
   }
 
-  /* Logo */
   .logo-container {
     margin-top: 20px;
     margin-bottom: 10px;
   }
 
-  .logo {
-    font-size: 28px;
-    font-weight: bold;
-    color: var(--text-primary);
-  }
-
-  /* Heading */
   h1 {
     font-size: 22px;
     margin-bottom: 24px;
@@ -306,7 +289,6 @@
     max-width: 50px;
   }
 
-  /* Google button */
   .google-button {
     display: flex;
     align-items: center;
@@ -332,7 +314,6 @@
     margin-right: 8px;
   }
 
-  /* Divider */
   .divider {
     width: 100%;
     text-align: center;
@@ -349,7 +330,6 @@
     transition: background-color 0.3s ease;
   }
 
-  /* Form */
   form {
     width: 100%;
   }
@@ -384,7 +364,6 @@
     margin-bottom: 24px;
   }
 
-  /* Sign in button */
   .sign-in-button {
     width: 100%;
     padding: 12px;
@@ -410,7 +389,6 @@
     cursor: not-allowed;
   }
 
-  /* Forgot password button */
   .forgot-password {
     width: 100%;
     padding: 12px;
@@ -429,7 +407,6 @@
     background-color: var(--button-secondary-hover);
   }
 
-  /* Sign up prompt */
   .signup-prompt {
     font-size: 14px;
     color: var(--text-tertiary);
@@ -445,7 +422,6 @@
     text-decoration: underline;
   }
 
-  /* Loading spinner */
   .spinner {
     display: inline-block;
     width: 16px;
@@ -463,7 +439,6 @@
     to { transform: rotate(360deg); }
   }
 
-  /* Responsive adjustments */
   @media (max-width: 400px) {
     .login-container {
       padding: 25px 15px;

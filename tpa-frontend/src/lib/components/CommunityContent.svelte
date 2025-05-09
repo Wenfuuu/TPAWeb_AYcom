@@ -40,9 +40,9 @@
     } else {
       // Filter communities by the selected category
       await refreshData(currentPage, searchQuery, activeTab, selectedCategory);
-      console.log(selectedCategory);
+      // console.log(selectedCategory);
       // communities = communities.filter((community) => community.category === selectedCategory);
-      console.log(communities);
+      // console.log(communities);
     }
 
     isLoading = false;

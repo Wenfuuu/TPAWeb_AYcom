@@ -28,7 +28,7 @@
 
     socket.onmessage = (event) => {
       const wsMessage = JSON.parse(event.data);
-      console.log(wsMessage.type);
+      // console.log(wsMessage.type);
       switch (wsMessage.type) {
         case "notification": {
           const notification = wsMessage.payload;
@@ -37,12 +37,12 @@
         }
 
         default:
-          console.log("Unknown message type:", wsMessage.type);
+          // console.log("Unknown message type:", wsMessage.type);
       }
     };
 
     socket.onopen = () => {
-      console.log("WebSocket connection established");
+      // console.log("WebSocket connection established");
     };
 
     socket.onerror = (err) => {
@@ -69,7 +69,7 @@
     else if (currTab === "mentions")
       notifications = await fetchMentionNotifications(user.id);
 
-    console.log(notifications);
+    // console.log(notifications);
   }
 
   function toggleTheme() {

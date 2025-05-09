@@ -50,23 +50,23 @@
         return;
       }
 
-      console.log("Posting:", newPostText, uploadedImages);
+      // console.log("Posting:", newPostText, uploadedImages);
 
       // upload images to supabase
       if (imageFiles.length > 0) {
         await uploadImagesToSupabase();
       }
 
-      // Upload video to supabase if exists
+      // upload video to supabase if exists
       if (videoFile) {
         const videoUrl = await uploadVideo(videoFile);
         if (videoUrl) {
           videoSupabaseURL = videoUrl;
-          supabaseURLS.push(videoUrl);
+          supabaseURLS.push(videoSupabaseURL);
         }
       }
 
-      console.log(videoSupabaseURL);
+      // console.log(videoSupabaseURL);
 
       // call api to create thread
       let isAdvertisement;
@@ -126,9 +126,7 @@
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
-      // Check if the file is a video
       if (file.type.startsWith("video/")) {
-        // Only allow one video
         if (hasVideo) {
           alert("Only one video allowed. Please remove the existing video first.");
           continue;
@@ -138,7 +136,6 @@
         videoPreviewUrl = URL.createObjectURL(file);
         hasVideo = true;
       } else if (file.type.startsWith("image/")) {
-        // Handle image files
         imageFiles = [...imageFiles, file];
         const reader = new FileReader();
 
@@ -166,7 +163,7 @@
     videoFile = null;
     videoPreviewUrl = "";
     hasVideo = false;
-    URL.revokeObjectURL(videoPreviewUrl); // Clean up the URL object
+    URL.revokeObjectURL(videoPreviewUrl);
   }
 
   function toggleReplyOptions(): void {
@@ -178,10 +175,8 @@
     showReplyOptions = false;
   }
 
-  // Functions for category and community selection
   function toggleCategoryDropdown(): void {
     showCategoryDropdown = !showCategoryDropdown;
-    // Close other dropdowns
     showReplyOptions = false;
     showCommunityDropdown = false;
   }
@@ -193,7 +188,6 @@
 
   function toggleCommunityDropdown(): void {
     showCommunityDropdown = !showCommunityDropdown;
-    // Close other dropdowns
     showReplyOptions = false;
     showCategoryDropdown = false;
   }
@@ -313,6 +307,7 @@
             </div>
 
             <div class="carousel-indicators">
+              <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
               {#each uploadedImages as _, i (i)}
                 <span class="indicator" class:active={i === currentImageIndex}
                 ></span>
@@ -354,9 +349,7 @@
       </div>
     {/if}
 
-    <!-- Post options section -->
     <div class="post-options">
-      <!-- Category selection -->
       <div class="option-dropdown">
         <button
           type="button"
@@ -416,7 +409,6 @@
         {/if}
       </div>
 
-      <!-- Post type toggle -->
       <div class="post-type-toggle">
         <button
           type="button"
@@ -443,7 +435,6 @@
         </button>
       </div>
 
-      <!-- Community selection (only shown when posting to community) -->
       {#if isPostingToCommunity}
         <div class="option-dropdown">
           <button
@@ -632,7 +623,6 @@
 
     <div class="compose-actions">
       <div class="compose-tools">
-        <!-- Image upload button -->
         <label class="tool-button" for="image-upload">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -659,7 +649,6 @@
           />
         </label>
 
-        <!-- Poll button -->
         <button type="button" class="tool-button" aria-label="Create poll">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -679,7 +668,6 @@
           </svg>
         </button>
 
-        <!-- Schedule button -->
         <button type="button" class="tool-button" aria-label="Schedule post">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -749,12 +737,10 @@
     color: var(--text-tertiary);
   }
 
-  /* Hide file input but keep it accessible */
   .hidden-input {
     display: none;
   }
 
-  /* Post options */
   .post-options {
     display: flex;
     flex-wrap: wrap;
@@ -784,8 +770,8 @@
     top: 100%;
     left: 0;
     width: 100%;
-    max-height: 200px; /* Set a fixed height for the dropdown */
-    overflow-y: auto; /* Enable vertical scrolling */
+    max-height: 200px;
+    overflow-y: auto;
     background-color: var(--card-background);
     border-radius: 16px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
@@ -827,7 +813,6 @@
     color: var(--text-tertiary);
   }
 
-  /* Image carousel styles */
   .image-carousel {
     margin: 12px 0;
     border-radius: 16px;
@@ -959,7 +944,6 @@
     background-color: white;
   }
 
-  /* Reply settings styles */
   .reply-settings {
     position: relative;
     margin: 12px 0;
