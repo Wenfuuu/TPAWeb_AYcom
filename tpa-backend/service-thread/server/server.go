@@ -167,6 +167,18 @@ func (s *ThreadServer) GetCommunityPagination(ctx context.Context, req *threadpb
 	return s.threadHandler.GetCommunityPagination(ctx, req)
 }
 
+func(s *ThreadServer) UpdateCommunityCategory(ctx context.Context, req *threadpb.UpdateCommunityCategoryRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.UpdateCommunityCategory(ctx, req)
+}
+
+func(s *ThreadServer) DeleteCommunityCategory(ctx context.Context, req *threadpb.DeleteCommunityCategoryRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.DeleteCommunityCategory(ctx, req)
+}
+
+func (s *ThreadServer) CreateCommunityCategory(ctx context.Context, req *threadpb.CreateCommunityCategoryRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.CreateCommunityCategory(ctx, req)
+}
+
 func (s *ThreadServer) GetAllCommunityCategories(ctx context.Context, req *threadpb.GetAllCommunityCategoriesRequest) (*threadpb.GetAllCommunityCategoriesResponse, error) {
 	return s.threadHandler.GetAllCommunityCategories(ctx, req)
 }

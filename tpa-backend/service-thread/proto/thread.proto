@@ -47,6 +47,23 @@ service ThreadService {
     rpc GetCreateCommunity(GetCreateCommunityRequest) returns (GetCreateCommunityResponse);
     rpc AcceptCreateCommunity(AcceptCreateCommunityRequest) returns (ActionResponse);
     rpc RejectCreateCommunity(RejectCreateCommunityRequest) returns (ActionResponse);
+
+    rpc CreateCommunityCategory(CreateCommunityCategoryRequest) returns (ActionResponse);
+    rpc UpdateCommunityCategory(UpdateCommunityCategoryRequest) returns (ActionResponse);
+    rpc DeleteCommunityCategory(DeleteCommunityCategoryRequest) returns (ActionResponse);
+}
+
+message CreateCommunityCategoryRequest {
+  string name = 1;
+}
+
+message UpdateCommunityCategoryRequest {
+  string category_id = 1;
+  string name = 2;
+}
+
+message DeleteCommunityCategoryRequest {
+  string category_id = 1;
 }
 
 message AcceptCreateCommunityRequest {

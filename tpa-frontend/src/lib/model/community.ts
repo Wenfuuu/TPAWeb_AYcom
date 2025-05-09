@@ -423,11 +423,33 @@ export async function rejectJoinRequest(userId: string, communityId: string) {
   });
 }
 
+export async function createCommunityCategory(name: string) {
+  await axios.post(BASE_API_URL + "/community-category", {
+    name
+  });
+}
+
+export async function updateCommCategory(category_id: string, name: string) {
+  await axios.put(BASE_API_URL + "/community-category", {
+    category_id,
+    name
+  });
+}
+
+export async function deleteCommCategory(category_id: string) {
+  await axios.delete(BASE_API_URL + "/community-category", {
+    params: {
+      category_id
+    }
+  });
+}
+
 export async function fetchCommunityCategory() {
   const response = await axios.get<CommunityCategory[]>(
     BASE_API_URL + "/community-category"
   );
   const categories = response.data;
+  if(!categories) return [];
   return categories;
 }
 

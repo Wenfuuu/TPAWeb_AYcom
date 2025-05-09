@@ -186,6 +186,11 @@ func InitRoutes(
 			thread.POST("/accept-create-community", threadHandler.AcceptCreateCommunity)
 			thread.POST("/reject-create-community", threadHandler.RejectCreateCommunity)
 
+			thread.GET("/community-category", threadHandler.GetAllCommunityCategories)
+			thread.POST("/community-category", threadHandler.CreateCommunityCategory)
+			thread.PUT("/community-category", threadHandler.UpdateCommunityCategory)
+			thread.DELETE("/community-category", threadHandler.DeleteCommunityCategory)
+
 			thread.GET("/thread", threadHandler.GetAllThreads)
 			thread.GET("/thread-following", threadHandler.GetFollowingThreads)
 			thread.GET("/thread-user", threadHandler.GetUserThreads)
@@ -200,7 +205,6 @@ func InitRoutes(
 			thread.GET("/community-media", threadHandler.GetCommunityMedia)
 			thread.GET("/top-community-member", threadHandler.GetTopCommunityMembers)
 			thread.GET("/community-pagination", threadHandler.GetCommunityPagination)
-			thread.GET("/community-category", threadHandler.GetAllCommunityCategories)
 			thread.GET("/request-join-community", threadHandler.GetJoinCommunity)
 			thread.POST("/request-join-community", threadHandler.RequestJoinCommunity)
 			thread.GET("/request-create-community", threadHandler.GetCreateCommunity)

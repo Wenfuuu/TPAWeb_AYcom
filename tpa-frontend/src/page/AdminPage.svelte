@@ -4,7 +4,7 @@
   import { checkAdmin, getAuthUser } from "../lib/utils/auth";
   import { toastStore } from "../lib/stores/toast";
   import { acceptPremium, fetchPremiumRequests, fetchUser, rejectPremium, setUserBanStatus, type PremiumRequest, type User } from "../lib/model/user";
-  import { acceptCreateCommunity, fetchCreateCommunity, rejectCreateCommunity, type CommunityCategory, type CreateCommunityRequest } from "../lib/model/community";
+  import { acceptCreateCommunity, createCommunityCategory, deleteCommCategory, fetchCommunityCategory, fetchCreateCommunity, rejectCreateCommunity, updateCommCategory, type CommunityCategory, type CreateCommunityRequest } from "../lib/model/community";
   import axios from "axios";
 
   // Tab management
@@ -136,8 +136,12 @@
     //     { id: "2", user: "user4", reason: "I'm a content creator", user_id: "ID67890", status: "pending", created_at: "2023-05-15T11:45:00Z" }
     //   ];
     } catch (error) {
-      console.error("Error loading premium requests:", error);
-      toastStore.error("Failed to load premium requests");
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.error || error.message;
+        toastStore.error(message);
+      } else if (error instanceof Error) {
+        toastStore.error(error.message);
+      }
     } finally {
       isLoading = false;
     }
@@ -181,16 +185,14 @@
   async function loadCommunityCategories() {
     isLoading = true;
     try {
-      // In a real app, this would be an API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      communityCategories = [
-        { id: "1", name: "Gaming" },
-        { id: "2", name: "Technology" },
-        { id: "3", name: "Sports" }
-      ];
+      communityCategories = await fetchCommunityCategory();
     } catch (error) {
-      console.error("Error loading community categories:", error);
-      toastStore.error("Failed to load community categories");
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.error || error.message;
+        toastStore.error(message);
+      } else if (error instanceof Error) {
+        toastStore.error(error.message);
+      }
     } finally {
       isLoading = false;
     }
@@ -468,23 +470,20 @@
 
     try {
       isLoading = true;
-      // In a real app, this would be an API call
-      // const response = await fetch("/api/admin/community-categories", {
-      //   method: "POST",
-      //   body: JSON.stringify({ name: newCommunityCategory })
-      // });
-      // const newCategory = await response.json();
 
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      const newCategory = { id: Date.now().toString(), name: newCommunityCategory };
+      await createCommunityCategory(newCommunityCategory);
 
-      communityCategories = [...communityCategories, newCategory];
+      loadCommunityCategories();
+
       newCommunityCategory = "";
       toastStore.success("Community category added successfully");
     } catch (error) {
-      console.error("Error adding community category:", error);
-      toastStore.error("Failed to add community category");
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.error || error.message;
+        toastStore.error(message);
+      } else if (error instanceof Error) {
+        toastStore.error(error.message);
+      }
     } finally {
       isLoading = false;
     }
@@ -539,18 +538,9 @@
 
     try {
       isLoading = true;
-      // In a real app, this would be an API call
-      // await fetch(`/api/admin/community-categories/${editingCommunityCategory.id}`, {
-      //   method: "PUT",
-      //   body: JSON.stringify({ name: editingCommunityCategory.name })
-      // });
 
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      communityCategories = communityCategories.map(category =>
-        category.id === editingCommunityCategory?.id ? { ...category, name: editingCommunityCategory.name } : category
-      );
+      await updateCommCategory(editingCommunityCategory.id, editingCommunityCategory.name);
+      loadCommunityCategories();
 
       editingCommunityCategory = null;
       toastStore.success("Community category updated successfully");
@@ -595,13 +585,10 @@
       async () => {
         try {
           isLoading = true;
-          // In a real app, this would be an API call
-          // await fetch(`/api/admin/community-categories/${id}`, { method: "DELETE" });
 
-          // Mock API call
-          await new Promise(resolve => setTimeout(resolve, 800));
+          await deleteCommCategory(id);
+          loadCommunityCategories();
 
-          communityCategories = communityCategories.filter(category => category.id !== id);
           toastStore.success("Community category deleted successfully");
         } catch (error) {
           console.error("Error deleting community category:", error);
@@ -1030,7 +1017,7 @@
                   type="text"
                   id="new-thread-category"
                   bind:value={newThreadCategory}
-                  placeholder="Enter category name"
+                  placeholder="Enter thread category name"
                 />
                 <button
                   type="button"
@@ -1110,7 +1097,7 @@
                   type="text"
                   id="new-community-category"
                   bind:value={newCommunityCategory}
-                  placeholder="Enter category name"
+                  placeholder="Enter community category name"
                 />
                 <button
                   type="button"
@@ -1128,7 +1115,7 @@
             <p class="empty-state">No community categories found</p>
           {:else}
             <div class="categories-list">
-              {#each communityCategories as category}
+              {#each communityCategories as category (category.id)}
                 <div class="category-item">
                   {#if editingCommunityCategory && editingCommunityCategory.id === category.id}
                     <div class="category-edit">
@@ -1138,14 +1125,14 @@
                         placeholder="Category name"
                       />
                       <div class="edit-actions">
-                        <button
+                        <button type="button"
                           class="action-button save"
                           on:click={updateCommunityCategory}
                           disabled={isLoading}
                         >
                           Save
                         </button>
-                        <button
+                        <button type="button"
                           class="action-button cancel"
                           on:click={() => editingCommunityCategory = null}
                           disabled={isLoading}
@@ -1157,13 +1144,13 @@
                   {:else}
                     <span class="category-name">{category.name}</span>
                     <div class="category-actions">
-                      <button
+                      <button type="button"
                         class="action-button edit"
                         on:click={() => editCommunityCategory(category)}
                       >
                         Edit
                       </button>
-                      <button
+                      <button type="button"
                         class="action-button delete"
                         on:click={() => deleteCommunityCategory(category.id)}
                       >
@@ -1186,7 +1173,7 @@
       <div class="modal" on:click|stopPropagation>
         <div class="modal-header">
           <h3>{modalTitle}</h3>
-          <button class="close-button" on:click={closeModal}>
+          <button type="button" class="close-button" on:click={closeModal}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"

@@ -828,6 +828,40 @@ func (h *ThreadHandler) GetCommunityPagination(ctx context.Context, req *threadp
 	}, nil
 }
 
+func (h *ThreadHandler) UpdateCommunityCategory(ctx context.Context, req *threadpb.UpdateCommunityCategoryRequest) (*threadpb.ActionResponse, error) {
+	if err := h.threadRepo.UpdateCommunityCategory(req.CategoryId, req.Name); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to update community category")
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Success update community category",
+	}, nil
+}
+
+func (h *ThreadHandler) DeleteCommunityCategory(ctx context.Context, req *threadpb.DeleteCommunityCategoryRequest) (*threadpb.ActionResponse, error) {
+	if err := h.threadRepo.DeleteCommunityCategory(req.CategoryId); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to delete community category")
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Success delete community category",
+	}, nil
+}
+
+func (h *ThreadHandler) CreateCommunityCategory(ctx context.Context, req *threadpb.CreateCommunityCategoryRequest) (*threadpb.ActionResponse, error) {
+	category := model.CommunityCategory {
+		Name: req.Name,
+	}
+
+	if err := h.threadRepo.CreateCommunityCategory(&category); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to create community category")
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Success create community category",
+	}, nil
+}
+
 func (h *ThreadHandler) GetAllCommunityCategories(ctx context.Context, req *threadpb.GetAllCommunityCategoriesRequest) (*threadpb.GetAllCommunityCategoriesResponse, error) {
 	modelCategories, err := h.threadRepo.GetAllCommunityCategories()
 	if err != nil {

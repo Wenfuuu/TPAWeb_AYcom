@@ -394,6 +394,20 @@ func (r *ThreadRepository) GetCommunityPagination(page int, limit int, search st
 	return communities, result.Error
 }
 
+func (r *ThreadRepository) DeleteCommunityCategory(categoryID string) error {
+	return r.DB.Delete(&model.CommunityCategory{}, "id = ?", categoryID).Error
+}
+
+func (r *ThreadRepository) UpdateCommunityCategory(categoryID string, newName string) error {
+	return r.DB.Model(&model.CommunityCategory{}).
+		Where("id = ?", categoryID).
+		Update("name", newName).Error
+}
+
+func (r *ThreadRepository) CreateCommunityCategory(category *model.CommunityCategory) error {
+	return r.DB.Create(category).Error
+}
+
 func (r *ThreadRepository) GetAllCommunityCategories() ([]model.CommunityCategory, error) {
 	var categories []model.CommunityCategory
 	result := r.DB.Find(&categories)
