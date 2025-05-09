@@ -32,8 +32,6 @@
       switch (wsMessage.type) {
         case "notification": {
           const notification = wsMessage.payload;
-        //   console.log(notification);
-        //   notifications = [...notifications, notification];
           toastStore.info(notification.content);
           break;
         }

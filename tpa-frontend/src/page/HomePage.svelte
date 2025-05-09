@@ -7,11 +7,54 @@
   import HomeContent from "../lib/components/HomeContent.svelte";
   import type { User, UserThread } from "../lib/model/user";
   import { fetchFollowingThread, fetchThreadWithUser, type Thread } from "../lib/model/thread";
+  import { toastStore } from "../lib/stores/toast";
 
   let isDarkMode = true;
   let user: User | null = null;
   let threads: (Thread & { userData: UserThread })[] = [];
   const currentActiveTab: "for-you" | "following" = "for-you";
+
+  let socket: WebSocket;
+
+  function setupWebSocket(userId: string) {
+    if (socket) {
+      socket.close();
+    }
+
+    socket = new WebSocket(`ws://localhost:50056/ws?user_id=${userId}`);
+
+    socket.onmessage = (event) => {
+      const wsMessage = JSON.parse(event.data);
+      console.log(wsMessage.type);
+      switch (wsMessage.type) {
+        case "notification": {
+          const notification = wsMessage.payload;
+          toastStore.info(notification.content);
+          break;
+        }
+
+        default:
+          console.log("Unknown message type:", wsMessage.type);
+      }
+    };
+
+    socket.onopen = () => {
+      console.log("WebSocket connection established");
+    };
+
+    socket.onerror = (err) => {
+      if (err instanceof Error) {
+        toastStore.error(err.message);
+      } else {
+        toastStore.error("An unexpected error occurred!");
+      }
+    };
+
+    // socket.onclose = () => {
+    //   console.log("WebSocket connection closed. Reconnecting...");
+    //   setTimeout(() => setupWebSocket(userId), 5000); // Reconnect after 5 seconds
+    // };
+  }
 
   async function refreshData(page: number): Promise<void> {
     if(user) {
@@ -33,7 +76,10 @@
     await checkAuth(navigate);
 
     const usr = await getAuthUser();
-    if(usr) user = usr;
+    if(usr) {
+      user = usr;
+      setupWebSocket(user.id);
+    }
 
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) {

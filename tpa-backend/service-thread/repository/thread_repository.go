@@ -57,6 +57,38 @@ func (r *ThreadRepository) GetJoinCommunity(community_id string) ([]model.JoinCo
 	return requests, result.Error
 }
 
+func (r *ThreadRepository) AcceptCreateCommunity(requestID string) error {
+	var req model.CreateCommunityRequest
+
+	if err := r.DB.First(&req, "id = ?", requestID).Error; err != nil {
+		return err
+	}
+
+	community := model.Community{
+		Name:        	req.Name,
+		Description: 	req.Description,
+		Logo:     		req.IconURL,
+		CategoryID:  	req.CategoryID,
+		Banner:   		req.BannerURL,
+		Rule:        	req.Rule,
+		CreatorID:      req.UserID,
+	}
+
+	if err := r.DB.Create(&community).Error; err != nil {
+		return err
+	}
+
+	if err := r.DB.Delete(&req).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *ThreadRepository) RejectCreateCommunity(requestID string) error {
+	return r.DB.Delete(&model.CreateCommunityRequest{}, "id = ?", requestID).Error
+}
+
 func (r *ThreadRepository) RequestCreateCommunity(req *model.CreateCommunityRequest) error {
 	return r.DB.Create(req).Error
 }

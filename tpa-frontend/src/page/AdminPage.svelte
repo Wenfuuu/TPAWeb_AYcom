@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { navigate } from "svelte-routing";
-  import { checkAdmin } from "../lib/utils/auth";
+  import { checkAdmin, getAuthUser } from "../lib/utils/auth";
   import { toastStore } from "../lib/stores/toast";
   import { fetchUser, setUserBanStatus, type User } from "../lib/model/user";
-  import type { CommunityCategory, CreateCommunityRequest } from "../lib/model/community";
+  import { acceptCreateCommunity, fetchCreateCommunity, rejectCreateCommunity, type CommunityCategory, type CreateCommunityRequest } from "../lib/model/community";
   import axios from "axios";
 
   // Tab management
@@ -18,9 +18,11 @@
     COMMUNITY_CATEGORIES: "community_categories"
   };
 
+  let user: User | null = null;
   let currentTab = TABS.USERS;
   let isDarkMode = true;
   let isLoading = false;
+  let socket: WebSocket;
 
   // Data states
   let users: User[] = [];
@@ -31,7 +33,7 @@
   let communityCategories: CommunityCategory[] = [];
 
   // Form states
-  let newsletterSubject = "";
+//   let newsletterSubject = "";
   let newsletterContent = "";
   let newThreadCategory = "";
   let newCommunityCategory = "";
@@ -43,7 +45,47 @@
   let modalTitle = "";
   let modalContent = "";
   let modalAction: (() => void) | null = null;
-  let modalType = "confirm"; // confirm, form, etc.
+  const modalType = "confirm";
+
+  function setupWebSocket(userId: string) {
+    if (socket) {
+      socket.close();
+    }
+
+    socket = new WebSocket(`ws://localhost:50056/ws?user_id=${userId}`);
+
+    socket.onmessage = (event) => {
+      const wsMessage = JSON.parse(event.data);
+      console.log(wsMessage.type);
+      switch (wsMessage.type) {
+        case "notification": {
+          const notification = wsMessage.payload;
+          toastStore.info(notification.content);
+          break;
+        }
+
+        default:
+          console.log("Unknown message type:", wsMessage.type);
+      }
+    };
+
+    socket.onopen = () => {
+      console.log("WebSocket connection established");
+    };
+
+    socket.onerror = (err) => {
+      if (err instanceof Error) {
+        toastStore.error(err.message);
+      } else {
+        toastStore.error("An unexpected error occurred!");
+      }
+    };
+
+    // socket.onclose = () => {
+    //   console.log("WebSocket connection closed. Reconnecting...");
+    //   setTimeout(() => setupWebSocket(userId), 5000); // Reconnect after 5 seconds
+    // };
+  }
 
   function toggleTheme() {
     isDarkMode = !isDarkMode;
@@ -67,15 +109,14 @@
   async function loadCommunityRequests() {
     isLoading = true;
     try {
-      // In a real app, this would be an API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      communityRequests = [
-        { id: "1", name: "Gaming Community", creator: "user1", description: "A community for gamers", status: "pending", created_at: "2023-05-15T10:30:00Z" },
-        { id: "2", name: "Tech Enthusiasts", creator: "user3", description: "For tech lovers", status: "pending", created_at: "2023-05-16T14:20:00Z" }
-      ];
+      communityRequests = await fetchCreateCommunity();
     } catch (error) {
-      console.error("Error loading community requests:", error);
-      toastStore.error("Failed to load community requests");
+        if (axios.isAxiosError(error)) {
+            const message = error.response?.data?.error || error.message;
+            toastStore.error(message);
+        } else if (error instanceof Error) {
+            toastStore.error(error.message);
+        }
     } finally {
       isLoading = false;
     }
@@ -206,31 +247,87 @@
   }
 
   async function sendNewsletter() {
-    if (!newsletterSubject.trim() || !newsletterContent.trim()) {
-      toastStore.error("Please fill in both subject and content");
+    if(!user) return;
+    if (!newsletterContent.trim()) {
+      toastStore.error("Please fill in content");
       return;
     }
 
     try {
       isLoading = true;
-      // In a real app, this would be an API call
-      // await fetch("/api/admin/newsletter", {
-      //   method: "POST",
-      //   body: JSON.stringify({ subject: newsletterSubject, content: newsletterContent })
-      // });
 
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const subscribedUsers = users.filter(user => user.is_subscribed);
+      for (const subsUser of subscribedUsers) {
+        const email = subsUser.email;
+
+        const notif = {
+            recipient_id: subsUser.id,
+            sender_id: user.id,
+            content: `Newsletter: ${newsletterContent}`,
+            category: "message",
+            email: email
+        };
+
+        const notifMessage = {
+            type: "notification",
+            payload: notif
+        };
+
+        socket.send(JSON.stringify(notifMessage));
+      }
 
       toastStore.success("Newsletter sent successfully");
-      newsletterSubject = "";
+    //   newsletterSubject = "";
       newsletterContent = "";
     } catch (error) {
-      console.error("Error sending newsletter:", error);
-      toastStore.error("Failed to send newsletter");
+        if (axios.isAxiosError(error)) {
+            const message = error.response?.data?.error || error.message;
+            toastStore.error(message);
+        } else if (error instanceof Error) {
+            toastStore.error(error.message);
+        }
     } finally {
       isLoading = false;
     }
+  }
+
+  async function handleCommunityRequest(request_id: string, action: "accept" | "reject") {
+    showConfirmModal(
+      `${action === "accept" ? "Accept" : "Reject"} community Request`,
+      `Are you sure you want to ${action} this community request?`,
+      async () => {
+        try {
+          isLoading = true;
+
+          //update
+          if(action === "accept") {
+            await acceptCreateCommunity(request_id);
+          }else {
+            await rejectCreateCommunity(request_id);
+          }
+
+          loadCommunityRequests();
+
+          toastStore.success(`Community request ${action}ed successfully`);
+
+          // In a real app, this would trigger an email notification
+          if (action === "accept") {
+            console.log("Email notification would be sent for community request acceptance");
+
+          }
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                const message = error.response?.data?.error || error.message;
+                toastStore.error(message);
+            } else if (error instanceof Error) {
+                toastStore.error(error.message);
+            }
+        } finally {
+          isLoading = false;
+          closeModal();
+        }
+      }
+    );
   }
 
   async function handleRequest(type: string, id: string, action: "accept" | "reject") {
@@ -478,7 +575,6 @@
     modalTitle = title;
     modalContent = content;
     modalAction = action;
-    modalType = "confirm";
     showModal = true;
   }
 
@@ -500,6 +596,12 @@
 
   onMount(async () => {
     await checkAdmin(navigate);
+
+    const usr = await getAuthUser();
+    if (usr) {
+      user = usr;
+      setupWebSocket(user.id);
+    }
 
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) {
@@ -566,49 +668,49 @@
   </div>
 
   <div class="tabs">
-    <button
+    <button type="button"
       class="tab-button"
       class:active={currentTab === TABS.USERS}
       on:click={() => changeTab(TABS.USERS)}
     >
       Users
     </button>
-    <button
+    <button type="button"
       class="tab-button"
       class:active={currentTab === TABS.NEWSLETTER}
       on:click={() => changeTab(TABS.NEWSLETTER)}
     >
       Newsletter
     </button>
-    <button
+    <button type="button"
       class="tab-button"
       class:active={currentTab === TABS.COMMUNITY_REQUESTS}
       on:click={() => changeTab(TABS.COMMUNITY_REQUESTS)}
     >
       Community Requests
     </button>
-    <button
+    <button type="button"
       class="tab-button"
       class:active={currentTab === TABS.PREMIUM_REQUESTS}
       on:click={() => changeTab(TABS.PREMIUM_REQUESTS)}
     >
       Premium Requests
     </button>
-    <button
+    <button type="button"
       class="tab-button"
       class:active={currentTab === TABS.REPORTS}
       on:click={() => changeTab(TABS.REPORTS)}
     >
       Reports
     </button>
-    <button
+    <button type="button"
       class="tab-button"
       class:active={currentTab === TABS.THREAD_CATEGORIES}
       on:click={() => changeTab(TABS.THREAD_CATEGORIES)}
     >
       Thread Categories
     </button>
-    <button
+    <button type="button"
       class="tab-button"
       class:active={currentTab === TABS.COMMUNITY_CATEGORIES}
       on:click={() => changeTab(TABS.COMMUNITY_CATEGORIES)}
@@ -684,17 +786,6 @@
 
           <form on:submit|preventDefault={sendNewsletter}>
             <div class="form-group">
-              <label for="newsletter-subject">Subject</label>
-              <input
-                type="text"
-                id="newsletter-subject"
-                bind:value={newsletterSubject}
-                placeholder="Newsletter subject"
-                required
-              />
-            </div>
-
-            <div class="form-group">
               <label for="newsletter-content">Content</label>
               <textarea
                 id="newsletter-content"
@@ -736,41 +827,31 @@
                     <th>Creator</th>
                     <th>Description</th>
                     <th>Date</th>
-                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {#each communityRequests as request}
-                    <tr class:processed={request.status !== "pending"}>
+                  {#each communityRequests as request (request.id)}
+                    <tr>
                       <td>{request.name}</td>
-                      <td>{request.creator}</td>
+                      <td>{request.creator_name}</td>
                       <td class="description-cell">{request.description}</td>
                       <td>{formatDate(request.created_at)}</td>
                       <td>
-                        <span class="status-badge {request.status}">
-                          {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                        </span>
-                      </td>
-                      <td>
-                        {#if request.status === "pending"}
                           <div class="action-buttons">
-                            <button
+                            <button type="button"
                               class="action-button accept"
-                              on:click={() => handleRequest("community", request.id, "accept")}
+                              on:click={() => handleCommunityRequest(request.id, "accept")}
                             >
                               Accept
                             </button>
-                            <button
+                            <button type="button"
                               class="action-button reject"
-                              on:click={() => handleRequest("community", request.id, "reject")}
+                              on:click={() => handleCommunityRequest(request.id, "reject")}
                             >
                               Reject
                             </button>
                           </div>
-                        {:else}
-                          <span class="processed-text">Processed</span>
-                        {/if}
                       </td>
                     </tr>
                   {/each}
@@ -1093,8 +1174,8 @@
         </div>
 
         <div class="modal-actions">
-          <button class="secondary-button" on:click={closeModal}>Cancel</button>
-          <button
+          <button class="secondary-button" type="button" on:click={closeModal}>Cancel</button>
+          <button type="button"
             class="primary-button"
             on:click={modalAction}
             disabled={isLoading}

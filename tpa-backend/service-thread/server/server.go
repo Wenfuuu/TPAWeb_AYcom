@@ -95,6 +95,14 @@ func (s *ThreadServer) GetJoinCommunity(ctx context.Context, req *threadpb.GetJo
 	return s.threadHandler.GetJoinCommunity(ctx, req)
 }
 
+func (s *ThreadServer) AcceptCreateCommunity(ctx context.Context, req *threadpb.AcceptCreateCommunityRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.AcceptCreateCommunity(ctx, req)
+}
+
+func (s *ThreadServer) RejectCreateCommunity(ctx context.Context, req *threadpb.RejectCreateCommunityRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.RejectCreateCommunity(ctx, req)
+}
+
 func (s *ThreadServer) RequestCreateCommunity(ctx context.Context, req *threadpb.RequestCreateCommunityRequest) (*threadpb.ActionResponse, error) {
 	return s.threadHandler.RequestCreateCommunity(ctx, req)
 }

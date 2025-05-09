@@ -521,6 +521,26 @@ func (h *ThreadHandler) GetJoinCommunity(ctx context.Context, req *threadpb.GetJ
 	}, nil
 }
 
+func (h *ThreadHandler) AcceptCreateCommunity(ctx context.Context, req *threadpb.AcceptCreateCommunityRequest) (*threadpb.ActionResponse, error) {
+	if err := h.threadRepo.AcceptCreateCommunity(req.RequestId); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to accept community creation request")
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Community creation request accepted successfully",
+	}, nil
+}
+
+func (h *ThreadHandler) RejectCreateCommunity(ctx context.Context, req *threadpb.RejectCreateCommunityRequest) (*threadpb.ActionResponse, error) {
+	if err := h.threadRepo.RejectCreateCommunity(req.RequestId); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to accept community creation request")
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Community creation request rejected successfully",
+	}, nil
+}
+
 func (h *ThreadHandler) RequestCreateCommunity(ctx context.Context, req *threadpb.RequestCreateCommunityRequest) (*threadpb.ActionResponse, error) {
 	userID, err := uuid.Parse(req.UserId)
     if err != nil {

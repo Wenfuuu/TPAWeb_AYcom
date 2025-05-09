@@ -7,6 +7,7 @@ import (
 
 	threadpb "github.com/Wenfuuu/tpa-web/pkg/proto/thread"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc/status"
 )
 
 type ThreadHandler struct {
@@ -757,6 +758,50 @@ func (h *ThreadHandler) GetJoinCommunity(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resp.JoinRequests)
+}
+
+func (h *ThreadHandler) AcceptCreateCommunity(c *gin.Context) {
+	var req threadpb.AcceptCreateCommunityRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	resp, err := h.Client.AcceptCreateCommunity(context.Background(), &req)
+	if err != nil {
+		st, ok := status.FromError(err)
+		if ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": st.Message()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
+}
+
+func (h *ThreadHandler) RejectCreateCommunity(c *gin.Context) {
+	var req threadpb.RejectCreateCommunityRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	resp, err := h.Client.RejectCreateCommunity(context.Background(), &req)
+	if err != nil {
+		st, ok := status.FromError(err)
+		if ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": st.Message()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
 }
 
 func (h *ThreadHandler) RequestCreateCommunity(c *gin.Context) {

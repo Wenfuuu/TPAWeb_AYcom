@@ -36,6 +36,7 @@ export type CreateCommunityRequest = {
   category_id: string;
   rule: string;
   created_at: string;
+  creator_name: string;
 };
 
 export type CommunityMedia = {
@@ -71,9 +72,42 @@ export async function requestJoinCommunity(userId: string, communityId: string) 
   });
 }
 
+export async function acceptCreateCommunity(request_id: string) {
+  await axios.post(BASE_API_URL + "/accept-create-community", {
+    request_id
+  });
+}
+
+export async function rejectCreateCommunity(request_id: string) {
+  await axios.post(BASE_API_URL + "/reject-create-community", {
+    request_id
+  });
+}
+
+export async function fetchCreateCommunity() {
+  const response = await axios.get(BASE_API_URL + "/request-create-community");
+  // return response.data;
+
+  const allRequests: CreateCommunityRequest[] = response.data;
+  const allUsers = await fetchUser();
+
+  const requests = allRequests.map((request) => {
+    const user = allUsers.find((u) => u.id === request.user_id);
+    const creator_name = user ? user.name : "Unknown";
+
+    return {
+      ...request,
+      creator_name
+    };
+  });
+
+  return requests;
+}
+
 export async function requestCreateCommunity(userId: string, name: string, description: string,
   iconUrl: string, bannerUrl: string, categoryId: string, rule: string
 ) {
+  console.log("requesting community");
   await axios.post(BASE_API_URL + "/request-create-community", {
     userId,
     name,

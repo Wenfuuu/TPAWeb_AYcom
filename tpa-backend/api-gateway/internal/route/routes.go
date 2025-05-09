@@ -179,6 +179,9 @@ func InitRoutes(
 		}
 		thread := api.Group("/threads")
 		{
+			thread.POST("/accept-create-community", threadHandler.AcceptCreateCommunity)
+			thread.POST("/reject-create-community", threadHandler.RejectCreateCommunity)
+
 			thread.GET("/thread", threadHandler.GetAllThreads)
 			thread.GET("/thread-following", threadHandler.GetFollowingThreads)
 			thread.GET("/thread-user", threadHandler.GetUserThreads)

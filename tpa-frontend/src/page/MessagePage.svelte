@@ -51,10 +51,6 @@
     );
 
     socket.onmessage = (event) => {
-    //   const msg = JSON.parse(event.data);
-    //   console.log(msg);
-    //   messages = [...messages, msg];
-
         const wsMessage = JSON.parse(event.data);
         // console.log("received wsmssage: " + wsMessage);
         switch (wsMessage.type) {

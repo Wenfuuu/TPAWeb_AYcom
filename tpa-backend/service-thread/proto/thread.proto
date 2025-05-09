@@ -33,17 +33,28 @@ service ThreadService {
     rpc GetTopHashtags(GetTopHashtagsRequest) returns (HashtagCountResponse);
     rpc GetCommunityPagination(GetCommunityPaginationRequest) returns (GetAllCommunitiesResponse);
     rpc RequestJoinCommunity(RequestJoinCommunityRequest) returns (ActionResponse);
-    rpc RequestCreateCommunity(RequestCreateCommunityRequest) returns (ActionResponse);
     rpc GetPendingCommunity(GetPendingCommunityRequest) returns (GetAllCommunitiesResponse);
     rpc AcceptJoinCommunity(AcceptJoinCommunityRequest) returns (ActionResponse);
     rpc RejectJoinCommunity(RejectJoinCommunityRequest) returns (ActionResponse);
     rpc GetJoinCommunity(GetJoinCommunityRequest) returns (GetJoinCommunityResponse);
-    rpc GetCreateCommunity(GetCreateCommunityRequest) returns (GetCreateCommunityResponse);
     rpc GetJoinedCommunity(GetJoinedCommunityRequest) returns (GetAllCommunitiesResponse);
     rpc GetCommunityMembers(GetCommunityMembersRequest) returns (CommunityMembersResponse);
     rpc GetTopCommunityMembers(GetTopCommunityMembersRequest) returns (CommunityMembersResponse);
     rpc GetCommunityMedia(GetCommunityMediaRequest) returns (GetAllThreadFileResponse);
     rpc GetThreadMedia(GetThreadMediaRequest) returns (GetAllThreadFileResponse);
+
+    rpc RequestCreateCommunity(RequestCreateCommunityRequest) returns (ActionResponse);
+    rpc GetCreateCommunity(GetCreateCommunityRequest) returns (GetCreateCommunityResponse);
+    rpc AcceptCreateCommunity(AcceptCreateCommunityRequest) returns (ActionResponse);
+    rpc RejectCreateCommunity(RejectCreateCommunityRequest) returns (ActionResponse);
+}
+
+message AcceptCreateCommunityRequest {
+  string request_id = 1;
+}
+
+message RejectCreateCommunityRequest {
+  string request_id = 1;
 }
 
 message GetUserRepliesRequest {
