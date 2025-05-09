@@ -35,7 +35,6 @@ const (
 	ThreadService_ReplyThread_FullMethodName               = "/thread.ThreadService/ReplyThread"
 	ThreadService_RepostThread_FullMethodName              = "/thread.ThreadService/RepostThread"
 	ThreadService_UnrepostThread_FullMethodName            = "/thread.ThreadService/UnrepostThread"
-	ThreadService_GetAllThreadCategories_FullMethodName    = "/thread.ThreadService/GetAllThreadCategories"
 	ThreadService_GetCommunityById_FullMethodName          = "/thread.ThreadService/GetCommunityById"
 	ThreadService_GetAllCommunity_FullMethodName           = "/thread.ThreadService/GetAllCommunity"
 	ThreadService_GetAllCommunityCategories_FullMethodName = "/thread.ThreadService/GetAllCommunityCategories"
@@ -63,6 +62,10 @@ const (
 	ThreadService_CreateCommunityCategory_FullMethodName   = "/thread.ThreadService/CreateCommunityCategory"
 	ThreadService_UpdateCommunityCategory_FullMethodName   = "/thread.ThreadService/UpdateCommunityCategory"
 	ThreadService_DeleteCommunityCategory_FullMethodName   = "/thread.ThreadService/DeleteCommunityCategory"
+	ThreadService_GetAllThreadCategories_FullMethodName    = "/thread.ThreadService/GetAllThreadCategories"
+	ThreadService_CreateThreadCategory_FullMethodName      = "/thread.ThreadService/CreateThreadCategory"
+	ThreadService_UpdateThreadCategory_FullMethodName      = "/thread.ThreadService/UpdateThreadCategory"
+	ThreadService_DeleteThreadCategory_FullMethodName      = "/thread.ThreadService/DeleteThreadCategory"
 )
 
 // ThreadServiceClient is the client API for ThreadService service.
@@ -85,7 +88,6 @@ type ThreadServiceClient interface {
 	ReplyThread(ctx context.Context, in *ReplyThreadRequest, opts ...grpc.CallOption) (*ThreadResponse, error)
 	RepostThread(ctx context.Context, in *RepostThreadRequest, opts ...grpc.CallOption) (*ThreadResponse, error)
 	UnrepostThread(ctx context.Context, in *UnrepostThreadRequest, opts ...grpc.CallOption) (*ActionResponse, error)
-	GetAllThreadCategories(ctx context.Context, in *GetAllThreadCategoriesRequest, opts ...grpc.CallOption) (*GetAllThreadCategoriesResponse, error)
 	GetCommunityById(ctx context.Context, in *GetCommunityByIdRequest, opts ...grpc.CallOption) (*GetCommunityResponse, error)
 	GetAllCommunity(ctx context.Context, in *GetAllCommunitiesRequest, opts ...grpc.CallOption) (*GetAllCommunitiesResponse, error)
 	GetAllCommunityCategories(ctx context.Context, in *GetAllCommunityCategoriesRequest, opts ...grpc.CallOption) (*GetAllCommunityCategoriesResponse, error)
@@ -113,6 +115,10 @@ type ThreadServiceClient interface {
 	CreateCommunityCategory(ctx context.Context, in *CreateCommunityCategoryRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	UpdateCommunityCategory(ctx context.Context, in *UpdateCommunityCategoryRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	DeleteCommunityCategory(ctx context.Context, in *DeleteCommunityCategoryRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	GetAllThreadCategories(ctx context.Context, in *GetAllThreadCategoriesRequest, opts ...grpc.CallOption) (*GetAllThreadCategoriesResponse, error)
+	CreateThreadCategory(ctx context.Context, in *CreateThreadCategoryRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	UpdateThreadCategory(ctx context.Context, in *UpdateThreadCategoryRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	DeleteThreadCategory(ctx context.Context, in *DeleteThreadCategoryRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 }
 
 type threadServiceClient struct {
@@ -277,16 +283,6 @@ func (c *threadServiceClient) UnrepostThread(ctx context.Context, in *UnrepostTh
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ActionResponse)
 	err := c.cc.Invoke(ctx, ThreadService_UnrepostThread_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *threadServiceClient) GetAllThreadCategories(ctx context.Context, in *GetAllThreadCategoriesRequest, opts ...grpc.CallOption) (*GetAllThreadCategoriesResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetAllThreadCategoriesResponse)
-	err := c.cc.Invoke(ctx, ThreadService_GetAllThreadCategories_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -563,6 +559,46 @@ func (c *threadServiceClient) DeleteCommunityCategory(ctx context.Context, in *D
 	return out, nil
 }
 
+func (c *threadServiceClient) GetAllThreadCategories(ctx context.Context, in *GetAllThreadCategoriesRequest, opts ...grpc.CallOption) (*GetAllThreadCategoriesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllThreadCategoriesResponse)
+	err := c.cc.Invoke(ctx, ThreadService_GetAllThreadCategories_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) CreateThreadCategory(ctx context.Context, in *CreateThreadCategoryRequest, opts ...grpc.CallOption) (*ActionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActionResponse)
+	err := c.cc.Invoke(ctx, ThreadService_CreateThreadCategory_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) UpdateThreadCategory(ctx context.Context, in *UpdateThreadCategoryRequest, opts ...grpc.CallOption) (*ActionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActionResponse)
+	err := c.cc.Invoke(ctx, ThreadService_UpdateThreadCategory_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) DeleteThreadCategory(ctx context.Context, in *DeleteThreadCategoryRequest, opts ...grpc.CallOption) (*ActionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActionResponse)
+	err := c.cc.Invoke(ctx, ThreadService_DeleteThreadCategory_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ThreadServiceServer is the server API for ThreadService service.
 // All implementations must embed UnimplementedThreadServiceServer
 // for forward compatibility.
@@ -583,7 +619,6 @@ type ThreadServiceServer interface {
 	ReplyThread(context.Context, *ReplyThreadRequest) (*ThreadResponse, error)
 	RepostThread(context.Context, *RepostThreadRequest) (*ThreadResponse, error)
 	UnrepostThread(context.Context, *UnrepostThreadRequest) (*ActionResponse, error)
-	GetAllThreadCategories(context.Context, *GetAllThreadCategoriesRequest) (*GetAllThreadCategoriesResponse, error)
 	GetCommunityById(context.Context, *GetCommunityByIdRequest) (*GetCommunityResponse, error)
 	GetAllCommunity(context.Context, *GetAllCommunitiesRequest) (*GetAllCommunitiesResponse, error)
 	GetAllCommunityCategories(context.Context, *GetAllCommunityCategoriesRequest) (*GetAllCommunityCategoriesResponse, error)
@@ -611,6 +646,10 @@ type ThreadServiceServer interface {
 	CreateCommunityCategory(context.Context, *CreateCommunityCategoryRequest) (*ActionResponse, error)
 	UpdateCommunityCategory(context.Context, *UpdateCommunityCategoryRequest) (*ActionResponse, error)
 	DeleteCommunityCategory(context.Context, *DeleteCommunityCategoryRequest) (*ActionResponse, error)
+	GetAllThreadCategories(context.Context, *GetAllThreadCategoriesRequest) (*GetAllThreadCategoriesResponse, error)
+	CreateThreadCategory(context.Context, *CreateThreadCategoryRequest) (*ActionResponse, error)
+	UpdateThreadCategory(context.Context, *UpdateThreadCategoryRequest) (*ActionResponse, error)
+	DeleteThreadCategory(context.Context, *DeleteThreadCategoryRequest) (*ActionResponse, error)
 	mustEmbedUnimplementedThreadServiceServer()
 }
 
@@ -668,9 +707,6 @@ func (UnimplementedThreadServiceServer) RepostThread(context.Context, *RepostThr
 }
 func (UnimplementedThreadServiceServer) UnrepostThread(context.Context, *UnrepostThreadRequest) (*ActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnrepostThread not implemented")
-}
-func (UnimplementedThreadServiceServer) GetAllThreadCategories(context.Context, *GetAllThreadCategoriesRequest) (*GetAllThreadCategoriesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAllThreadCategories not implemented")
 }
 func (UnimplementedThreadServiceServer) GetCommunityById(context.Context, *GetCommunityByIdRequest) (*GetCommunityResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCommunityById not implemented")
@@ -752,6 +788,18 @@ func (UnimplementedThreadServiceServer) UpdateCommunityCategory(context.Context,
 }
 func (UnimplementedThreadServiceServer) DeleteCommunityCategory(context.Context, *DeleteCommunityCategoryRequest) (*ActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCommunityCategory not implemented")
+}
+func (UnimplementedThreadServiceServer) GetAllThreadCategories(context.Context, *GetAllThreadCategoriesRequest) (*GetAllThreadCategoriesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllThreadCategories not implemented")
+}
+func (UnimplementedThreadServiceServer) CreateThreadCategory(context.Context, *CreateThreadCategoryRequest) (*ActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateThreadCategory not implemented")
+}
+func (UnimplementedThreadServiceServer) UpdateThreadCategory(context.Context, *UpdateThreadCategoryRequest) (*ActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateThreadCategory not implemented")
+}
+func (UnimplementedThreadServiceServer) DeleteThreadCategory(context.Context, *DeleteThreadCategoryRequest) (*ActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteThreadCategory not implemented")
 }
 func (UnimplementedThreadServiceServer) mustEmbedUnimplementedThreadServiceServer() {}
 func (UnimplementedThreadServiceServer) testEmbeddedByValue()                       {}
@@ -1058,24 +1106,6 @@ func _ThreadService_UnrepostThread_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ThreadServiceServer).UnrepostThread(ctx, req.(*UnrepostThreadRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ThreadService_GetAllThreadCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetAllThreadCategoriesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ThreadServiceServer).GetAllThreadCategories(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ThreadService_GetAllThreadCategories_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ThreadServiceServer).GetAllThreadCategories(ctx, req.(*GetAllThreadCategoriesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1566,6 +1596,78 @@ func _ThreadService_DeleteCommunityCategory_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_GetAllThreadCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllThreadCategoriesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetAllThreadCategories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_GetAllThreadCategories_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetAllThreadCategories(ctx, req.(*GetAllThreadCategoriesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_CreateThreadCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateThreadCategoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).CreateThreadCategory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_CreateThreadCategory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).CreateThreadCategory(ctx, req.(*CreateThreadCategoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_UpdateThreadCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateThreadCategoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).UpdateThreadCategory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_UpdateThreadCategory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).UpdateThreadCategory(ctx, req.(*UpdateThreadCategoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_DeleteThreadCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteThreadCategoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).DeleteThreadCategory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ThreadService_DeleteThreadCategory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).DeleteThreadCategory(ctx, req.(*DeleteThreadCategoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ThreadService_ServiceDesc is the grpc.ServiceDesc for ThreadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1636,10 +1738,6 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UnrepostThread",
 			Handler:    _ThreadService_UnrepostThread_Handler,
-		},
-		{
-			MethodName: "GetAllThreadCategories",
-			Handler:    _ThreadService_GetAllThreadCategories_Handler,
 		},
 		{
 			MethodName: "GetCommunityById",
@@ -1748,6 +1846,22 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteCommunityCategory",
 			Handler:    _ThreadService_DeleteCommunityCategory_Handler,
+		},
+		{
+			MethodName: "GetAllThreadCategories",
+			Handler:    _ThreadService_GetAllThreadCategories_Handler,
+		},
+		{
+			MethodName: "CreateThreadCategory",
+			Handler:    _ThreadService_CreateThreadCategory_Handler,
+		},
+		{
+			MethodName: "UpdateThreadCategory",
+			Handler:    _ThreadService_UpdateThreadCategory_Handler,
+		},
+		{
+			MethodName: "DeleteThreadCategory",
+			Handler:    _ThreadService_DeleteThreadCategory_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

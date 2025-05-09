@@ -6,6 +6,7 @@
   import { acceptPremium, fetchPremiumRequests, fetchUser, rejectPremium, setUserBanStatus, type PremiumRequest, type User } from "../lib/model/user";
   import { acceptCreateCommunity, createCommunityCategory, deleteCommCategory, fetchCommunityCategory, fetchCreateCommunity, rejectCreateCommunity, updateCommCategory, type CommunityCategory, type CreateCommunityRequest } from "../lib/model/community";
   import axios from "axios";
+  import { createThreadCategory, deleteThrdCategory, fetchThreadCategory, updateThrdCategory, type ThreadCategory } from "../lib/model/thread";
 
   // Tab management
   const TABS = {
@@ -29,7 +30,7 @@
   let communityRequests: CreateCommunityRequest[] = [];
   let premiumRequests: PremiumRequest[] = [];
   let reportRequests: any[] = [];
-  let threadCategories: any[] = [];
+  let threadCategories: ThreadCategory[] = [];
   let communityCategories: CommunityCategory[] = [];
 
   // Form states
@@ -167,16 +168,14 @@
   async function loadThreadCategories() {
     isLoading = true;
     try {
-      // In a real app, this would be an API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      threadCategories = [
-        { id: "1", name: "General" },
-        { id: "2", name: "Question" },
-        { id: "3", name: "Discussion" }
-      ];
+      threadCategories = await fetchThreadCategory();
     } catch (error) {
-      console.error("Error loading thread categories:", error);
-      toastStore.error("Failed to load thread categories");
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.error || error.message;
+        toastStore.error(message);
+      } else if (error instanceof Error) {
+        toastStore.error(error.message);
+      }
     } finally {
       isLoading = false;
     }
@@ -440,18 +439,10 @@
 
     try {
       isLoading = true;
-      // In a real app, this would be an API call
-      // const response = await fetch("/api/admin/thread-categories", {
-      //   method: "POST",
-      //   body: JSON.stringify({ name: newThreadCategory })
-      // });
-      // const newCategory = await response.json();
 
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      const newCategory = { id: Date.now().toString(), name: newThreadCategory };
+      await createThreadCategory(newThreadCategory);
+      loadThreadCategories();
 
-      threadCategories = [...threadCategories, newCategory];
       newThreadCategory = "";
       toastStore.success("Thread category added successfully");
     } catch (error) {
@@ -506,18 +497,9 @@
 
     try {
       isLoading = true;
-      // In a real app, this would be an API call
-      // await fetch(`/api/admin/thread-categories/${editingThreadCategory.id}`, {
-      //   method: "PUT",
-      //   body: JSON.stringify({ name: editingThreadCategory.name })
-      // });
 
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      threadCategories = threadCategories.map(category =>
-        category.id === editingThreadCategory?.id ? { ...category, name: editingThreadCategory.name } : category
-      );
+      await updateThrdCategory(editingThreadCategory.id, editingThreadCategory.name);
+      loadThreadCategories();
 
       editingThreadCategory = null;
       toastStore.success("Thread category updated successfully");
@@ -559,13 +541,10 @@
       async () => {
         try {
           isLoading = true;
-          // In a real app, this would be an API call
-          // await fetch(`/api/admin/thread-categories/${id}`, { method: "DELETE" });
 
-          // Mock API call
-          await new Promise(resolve => setTimeout(resolve, 800));
+          await deleteThrdCategory(id);
+          loadThreadCategories();
 
-          threadCategories = threadCategories.filter(category => category.id !== id);
           toastStore.success("Thread category deleted successfully");
         } catch (error) {
           console.error("Error deleting thread category:", error);

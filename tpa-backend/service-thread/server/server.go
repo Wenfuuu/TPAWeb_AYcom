@@ -135,6 +135,18 @@ func (s *ThreadServer) UnbookmarkThread(ctx context.Context, req *threadpb.Unboo
 	return s.threadHandler.UnbookmarkThread(ctx, req)
 }
 
+func(s *ThreadServer) UpdateThreadCategory(ctx context.Context, req *threadpb.UpdateThreadCategoryRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.UpdateThreadCategory(ctx, req)
+}
+
+func(s *ThreadServer) DeleteThreadCategory(ctx context.Context, req *threadpb.DeleteThreadCategoryRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.DeleteThreadCategory(ctx, req)
+}
+
+func (s *ThreadServer) CreateThreadCategory(ctx context.Context, req *threadpb.CreateThreadCategoryRequest) (*threadpb.ActionResponse, error) {
+	return s.threadHandler.CreateThreadCategory(ctx, req)
+}
+
 func (s *ThreadServer) GetAllThreadCategories(ctx context.Context, req *threadpb.GetAllThreadCategoriesRequest) (*threadpb.GetAllThreadCategoriesResponse, error) {
 	return s.threadHandler.GetAllThreadCategories(ctx, req)
 }

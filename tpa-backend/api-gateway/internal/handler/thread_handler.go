@@ -866,6 +866,69 @@ func (h *ThreadHandler) RequestJoinCommunity(c *gin.Context) {
 	})
 }
 
+func (h *ThreadHandler) DeleteThreadCategory(c *gin.Context) {
+	var categoryId = c.Query("category_id")
+
+	resp, err := h.Client.DeleteThreadCategory(context.Background(), &threadpb.DeleteThreadCategoryRequest{
+		CategoryId: categoryId,
+	})
+	if err != nil {
+		st, ok := status.FromError(err)
+		if ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": st.Message()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
+}
+
+func (h *ThreadHandler) UpdateThreadCategory(c *gin.Context) {
+	var req threadpb.UpdateThreadCategoryRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	resp, err := h.Client.UpdateThreadCategory(context.Background(), &req)
+	if err != nil {
+		st, ok := status.FromError(err)
+		if ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": st.Message()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
+}
+
+func (h *ThreadHandler) CreateThreadCategory(c *gin.Context) {
+	var req threadpb.CreateThreadCategoryRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	resp, err := h.Client.CreateThreadCategory(context.Background(), &req)
+	if err != nil {
+		st, ok := status.FromError(err)
+		if ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": st.Message()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
+}
+
 func (h *ThreadHandler) DeleteCommunityCategory(c *gin.Context) {
 	var categoryId = c.Query("category_id")
 
@@ -906,8 +969,6 @@ func (h *ThreadHandler) UpdateCommunityCategory(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
 }
-
-
 
 func (h *ThreadHandler) CreateCommunityCategory(c *gin.Context) {
 	var req threadpb.CreateCommunityCategoryRequest

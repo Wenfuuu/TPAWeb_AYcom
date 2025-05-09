@@ -696,6 +696,40 @@ func (h *ThreadHandler) UnbookmarkThread(ctx context.Context, req *threadpb.Unbo
 	}, nil
 }
 
+func (h *ThreadHandler) UpdateThreadCategory(ctx context.Context, req *threadpb.UpdateThreadCategoryRequest) (*threadpb.ActionResponse, error) {
+	if err := h.threadRepo.UpdateThreadCategory(req.CategoryId, req.Name); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to update thread category")
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Success update thread category",
+	}, nil
+}
+
+func (h *ThreadHandler) DeleteThreadCategory(ctx context.Context, req *threadpb.DeleteThreadCategoryRequest) (*threadpb.ActionResponse, error) {
+	if err := h.threadRepo.DeleteThreadCategory(req.CategoryId); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to delete thread category")
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Success delete thread category",
+	}, nil
+}
+
+func (h *ThreadHandler) CreateThreadCategory(ctx context.Context, req *threadpb.CreateThreadCategoryRequest) (*threadpb.ActionResponse, error) {
+	category := model.ThreadCategory {
+		Name: req.Name,
+	}
+
+	if err := h.threadRepo.CreateThreadCategory(&category); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to create thread category")
+	}
+
+	return &threadpb.ActionResponse{
+		Message: "Success create thread category",
+	}, nil
+}
+
 func (h *ThreadHandler) GetAllThreadCategories(ctx context.Context, req *threadpb.GetAllThreadCategoriesRequest) (*threadpb.GetAllThreadCategoriesResponse, error) {
 	modelCategories, err := h.threadRepo.GetAllThreadCategories()
 	if err != nil {

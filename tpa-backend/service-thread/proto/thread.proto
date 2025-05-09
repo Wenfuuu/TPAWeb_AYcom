@@ -21,7 +21,6 @@ service ThreadService {
     rpc ReplyThread(ReplyThreadRequest) returns (ThreadResponse);
     rpc RepostThread(RepostThreadRequest) returns (ThreadResponse);
     rpc UnrepostThread(UnrepostThreadRequest) returns (ActionResponse);
-    rpc GetAllThreadCategories(GetAllThreadCategoriesRequest) returns (GetAllThreadCategoriesResponse);
     rpc GetCommunityById(GetCommunityByIdRequest) returns (GetCommunityResponse);
     rpc GetAllCommunity(GetAllCommunitiesRequest) returns (GetAllCommunitiesResponse);
     rpc GetAllCommunityCategories(GetAllCommunityCategoriesRequest) returns (GetAllCommunityCategoriesResponse);
@@ -51,6 +50,24 @@ service ThreadService {
     rpc CreateCommunityCategory(CreateCommunityCategoryRequest) returns (ActionResponse);
     rpc UpdateCommunityCategory(UpdateCommunityCategoryRequest) returns (ActionResponse);
     rpc DeleteCommunityCategory(DeleteCommunityCategoryRequest) returns (ActionResponse);
+
+    rpc GetAllThreadCategories(GetAllThreadCategoriesRequest) returns (GetAllThreadCategoriesResponse);
+    rpc CreateThreadCategory(CreateThreadCategoryRequest) returns (ActionResponse);
+    rpc UpdateThreadCategory(UpdateThreadCategoryRequest) returns (ActionResponse);
+    rpc DeleteThreadCategory(DeleteThreadCategoryRequest) returns (ActionResponse);
+}
+
+message CreateThreadCategoryRequest {
+    string name = 1;
+}
+
+message UpdateThreadCategoryRequest {
+    string category_id = 1;
+    string name = 2;
+}
+
+message DeleteThreadCategoryRequest {
+    string category_id = 1;
 }
 
 message CreateCommunityCategoryRequest {

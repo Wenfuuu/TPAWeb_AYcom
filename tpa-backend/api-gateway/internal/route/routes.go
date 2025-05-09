@@ -191,12 +191,16 @@ func InitRoutes(
 			thread.PUT("/community-category", threadHandler.UpdateCommunityCategory)
 			thread.DELETE("/community-category", threadHandler.DeleteCommunityCategory)
 
+			thread.GET("/thread-category", threadHandler.GetAllThreadCategories)
+			thread.POST("/thread-category", threadHandler.CreateThreadCategory)
+			thread.PUT("/thread-category", threadHandler.UpdateThreadCategory)
+			thread.DELETE("/thread-category", threadHandler.DeleteThreadCategory)
+
 			thread.GET("/thread", threadHandler.GetAllThreads)
 			thread.GET("/thread-following", threadHandler.GetFollowingThreads)
 			thread.GET("/thread-user", threadHandler.GetUserThreads)
 			thread.GET("/thread-user-reply", threadHandler.GetUserReplies)
 			thread.GET("/thread-bookmark", threadHandler.GetBookmark)
-			thread.GET("/thread-category", threadHandler.GetAllThreadCategories)
 			thread.GET("/thread-community", threadHandler.GetCommunityThreads)
 			thread.GET("/thread-media", threadHandler.GetThreadMedia)
 			thread.GET("/top-thread-community", threadHandler.GetTopCommunityThreads)

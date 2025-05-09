@@ -774,6 +774,27 @@ async function fetchUserThread(user_id: string) {
     return threads;
 }
 
+export async function createThreadCategory(name: string) {
+  await axios.post(BASE_API_URL + "/thread-category", {
+    name,
+  });
+}
+
+export async function updateThrdCategory(category_id: string, name: string) {
+  await axios.put(BASE_API_URL + "/thread-category", {
+    category_id,
+    name,
+  });
+}
+
+export async function deleteThrdCategory(category_id: string) {
+  await axios.delete(BASE_API_URL + "/thread-category", {
+    params: {
+      category_id,
+    },
+  });
+}
+
 export async function fetchThreadCategory() {
     const response = await axios.get<ThreadCategory[]>(BASE_API_URL + "/thread-category");
     const categories = response.data;
