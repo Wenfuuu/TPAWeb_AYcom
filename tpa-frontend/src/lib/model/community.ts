@@ -108,7 +108,7 @@ export async function fetchCreateCommunity() {
 export async function requestCreateCommunity(userId: string, name: string, description: string,
   iconUrl: string, bannerUrl: string, categoryId: string, rule: string
 ) {
-  console.log("requesting community");
+  // console.log("requesting community");
   await axios.post(BASE_API_URL + "/request-create-community", {
     userId,
     name,

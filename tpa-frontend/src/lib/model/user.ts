@@ -1,5 +1,4 @@
 import axios from "axios";
-import { toastStore } from "../stores/toast";
 
 export type User = {
     id: string
@@ -42,6 +41,14 @@ export type PremiumRequest = {
   face_picture: string;
   created_at: string;
 }
+
+export type Reports = {
+  id: string;
+  user_id: string;
+  reported_id: string;
+  reason: string;
+  created_at: string;
+};
 
 type Follows = {
   following_id: string;
@@ -98,6 +105,26 @@ export async function resetPassword(user_id: string, password: string) {
     user_id,
     password
   });
+}
+
+export async function acceptReport(report_id: string) {
+  await axios.post(BASE_API_URL + "/accept-report", {
+    report_id,
+  });
+}
+
+export async function rejectReport(report_id: string) {
+  await axios.post(BASE_API_URL + "/reject-report", {
+    report_id,
+  });
+}
+
+export async function fetchReports() {
+  const response = await axios.get<Reports[]>(BASE_API_URL + "/reports");
+
+  const requests = response.data;
+  if(!requests) return [];
+  return requests;
 }
 
 export async function acceptPremium(request_id: string) {
@@ -161,7 +188,7 @@ export async function fetchWhoToFollow(user_id: string) {
     const followingIds = new Set(
       followings?.map((user) => user.following_id) || []
     );
-    console.log(followingIds);
+    // console.log(followingIds);
 
     const users = toFollows.map((user) => {
       return {

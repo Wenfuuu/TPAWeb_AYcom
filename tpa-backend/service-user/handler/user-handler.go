@@ -154,6 +154,42 @@ func (h *UserHandler) GetPremiumRequests(ctx context.Context, req *userpb.GetPre
 	}, nil
 }
 
+func (h *UserHandler) AcceptReport(ctx context.Context, req *userpb.AcceptReportRequest) (*userpb.ActionResponse, error) {
+	if err := h.userRepo.AcceptReport(req.ReportId); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to accept report")
+	}
+
+	return &userpb.ActionResponse{
+		Message: "Report accepted successfully",
+	}, nil
+}
+
+func (h *UserHandler) RejectReport(ctx context.Context, req *userpb.RejectReportRequest) (*userpb.ActionResponse, error) {
+	if err := h.userRepo.RejectReport(req.ReportId); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to reject report")
+	}
+
+	return &userpb.ActionResponse{
+		Message: "Report rejected successfully",
+	}, nil
+}
+
+func (h *UserHandler) GetReports(ctx context.Context, req *userpb.GetReportsRequest) (*userpb.GetReportsResponse, error) {
+	modelRequests, err := h.userRepo.GetReports()
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbReports []*userpb.Report
+	for _, r := range modelRequests {
+		pbReports = append(pbReports, h.reportToProto(&r))
+	}
+
+	return &userpb.GetReportsResponse{
+		Reports: pbReports,
+	}, nil
+}
+
 func (h *UserHandler) RegisterPremium(ctx context.Context, req *userpb.RegisterPremiumRequest) (*userpb.RegisterPremiumResponse, error) {
 	// hash id
 	hashedId, err := utils.EncryptPassword(req.IdentityNumber)
@@ -535,6 +571,16 @@ func stringPtr(s string) *string {
 }
 
 // Helper functions
+func (h *UserHandler) reportToProto(req *model.Report) *userpb.Report {
+	return &userpb.Report{
+		Id:             req.ID.String(),
+		UserId:         req.UserID.String(),
+		ReportedId: 	req.ReportedID.String(),
+		Reason:         req.Reason,
+		CreatedAt:      req.CreatedAt.Format(time.RFC3339),
+	}
+}
+
 func (h *UserHandler) premiumRequestToProto(req *model.PremiumRequest) *userpb.PremiumRequest {
 	return &userpb.PremiumRequest{
 		Id:             req.ID.String(),

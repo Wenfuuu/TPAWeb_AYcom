@@ -3,7 +3,7 @@
   import { navigate } from "svelte-routing";
   import { checkAdmin, getAuthUser } from "../lib/utils/auth";
   import { toastStore } from "../lib/stores/toast";
-  import { acceptPremium, fetchPremiumRequests, fetchUser, rejectPremium, setUserBanStatus, type PremiumRequest, type User } from "../lib/model/user";
+  import { acceptPremium, acceptReport, fetchPremiumRequests, fetchReports, fetchUser, rejectPremium, rejectReport, setUserBanStatus, type PremiumRequest, type Reports, type User } from "../lib/model/user";
   import { acceptCreateCommunity, createCommunityCategory, deleteCommCategory, fetchCommunityCategory, fetchCreateCommunity, rejectCreateCommunity, updateCommCategory, type CommunityCategory, type CreateCommunityRequest } from "../lib/model/community";
   import axios from "axios";
   import { createThreadCategory, deleteThrdCategory, fetchThreadCategory, updateThrdCategory, type ThreadCategory } from "../lib/model/thread";
@@ -29,7 +29,7 @@
   let users: User[] = [];
   let communityRequests: CreateCommunityRequest[] = [];
   let premiumRequests: PremiumRequest[] = [];
-  let reportRequests: any[] = [];
+  let reportRequests: Reports[] = [];
   let threadCategories: ThreadCategory[] = [];
   let communityCategories: CommunityCategory[] = [];
 
@@ -100,8 +100,12 @@
     try {
       users = await fetchUser();
     } catch (error) {
-      console.error("Error loading users:", error);
-      toastStore.error("Failed to load users");
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.error || error.message;
+        toastStore.error(message);
+      } else if (error instanceof Error) {
+        toastStore.error(error.message);
+      }
     } finally {
       isLoading = false;
     }
@@ -126,16 +130,7 @@
   async function loadPremiumRequests() {
     isLoading = true;
     try {
-      // In a real app, this would be an API call
-        // const test = await fetchPremiumRequests();
-        // console.log(test);
-
-      await new Promise(resolve => setTimeout(resolve, 800));
       premiumRequests = await fetchPremiumRequests();
-    //   premiumRequests = [
-    //     { id: "1", user: "user3", reason: "I want to support the platform", user_id: "ID12345", status: "pending", created_at: "2023-05-14T09:15:00Z" },
-    //     { id: "2", user: "user4", reason: "I'm a content creator", user_id: "ID67890", status: "pending", created_at: "2023-05-15T11:45:00Z" }
-    //   ];
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const message = error.response?.data?.error || error.message;
@@ -151,15 +146,20 @@
   async function loadReportRequests() {
     isLoading = true;
     try {
+      reportRequests = await fetchReports();
       // In a real app, this would be an API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      reportRequests = [
-        { id: "1", reporter: "user1", reported_user: "user2", reason: "Inappropriate content", status: "pending", created_at: "2023-05-13T16:20:00Z" },
-        { id: "2", reporter: "user3", reported_user: "user5", reason: "Harassment", status: "pending", created_at: "2023-05-14T08:30:00Z" }
-      ];
+      // await new Promise(resolve => setTimeout(resolve, 800));
+      // reportRequests = [
+      //   { id: "1", reporter: "user1", reported_user: "user2", reason: "Inappropriate content", status: "pending", created_at: "2023-05-13T16:20:00Z" },
+      //   { id: "2", reporter: "user3", reported_user: "user5", reason: "Harassment", status: "pending", created_at: "2023-05-14T08:30:00Z" }
+      // ];
     } catch (error) {
-      console.error("Error loading report requests:", error);
-      toastStore.error("Failed to load report requests");
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.error || error.message;
+        toastStore.error(message);
+      } else if (error instanceof Error) {
+        toastStore.error(error.message);
+      }
     } finally {
       isLoading = false;
     }
@@ -374,55 +374,37 @@
     );
   }
 
-  async function handleRequest(type: string, id: string, action: "accept" | "reject") {
-    const requestTypes = {
-      community: { collection: communityRequests, loadFunction: loadCommunityRequests },
-      premium: { collection: premiumRequests, loadFunction: loadPremiumRequests },
-      report: { collection: reportRequests, loadFunction: loadReportRequests }
-    };
-
-    const requestType = type as keyof typeof requestTypes;
-    const requestInfo = requestTypes[requestType];
-
-    if (!requestInfo) return;
-
-    const request = requestInfo.collection.find(req => req.id === id);
-    if (!request) return;
-
+  async function handleReport(report_id: string, action: "accept" | "reject") {
     showConfirmModal(
-      `${action === "accept" ? "Accept" : "Reject"} ${type} Request`,
-      `Are you sure you want to ${action} this ${type} request?`,
+      `${action === "accept" ? "Accept" : "Reject"} Report Request`,
+      `Are you sure you want to ${action} this report request?`,
       async () => {
         try {
           isLoading = true;
-          // In a real app, this would be an API call
-          // await fetch(`/api/admin/${type}-requests/${id}/${action}`, { method: "POST" });
 
-          // Mock API call
-          await new Promise(resolve => setTimeout(resolve, 800));
-
-          // If it's a report and we're accepting it, ban the user
-          if (type === "report" && action === "accept") {
-            const reportedUserId = request.reported_user;
-            users = users.map(user =>
-              user.id === reportedUserId ? { ...user, banned: true } : user
-            );
+          //update
+          if(action === "accept") {
+            await acceptReport(report_id);
+          }else {
+            await rejectReport(report_id);
           }
 
-          // Update local state
-          requestInfo.collection = requestInfo.collection.map(req =>
-            req.id === id ? { ...req, status: action === "accept" ? "accepted" : "rejected" } : req
-          );
+          loadReportRequests();
 
-          toastStore.success(`${type} request ${action}ed successfully`);
+          toastStore.success(`Report request ${action}ed successfully`);
 
           // In a real app, this would trigger an email notification
           if (action === "accept") {
-            console.log(`Email notification would be sent for ${type} request acceptance`);
+            console.log("Email notification would be sent for premium request acceptance");
+
           }
         } catch (error) {
-          console.error(`Error ${action}ing ${type} request:`, error);
-          toastStore.error(`Failed to ${action} ${type} request`);
+            if (axios.isAxiosError(error)) {
+                const message = error.response?.data?.error || error.message;
+                toastStore.error(message);
+            } else if (error instanceof Error) {
+                toastStore.error(error.message);
+            }
         } finally {
           isLoading = false;
           closeModal();
@@ -934,46 +916,36 @@
               <table>
                 <thead>
                   <tr>
-                    <th>Reporter</th>
-                    <th>Reported User</th>
+                    <th>Reporter ID</th>
+                    <th>Reported ID</th>
                     <th>Reason</th>
                     <th>Date</th>
-                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {#each reportRequests as request}
-                    <tr class:processed={request.status !== "pending"}>
-                      <td>{request.reporter}</td>
-                      <td>{request.reported_user}</td>
-                      <td class="description-cell">{request.reason}</td>
-                      <td>{formatDate(request.created_at)}</td>
+                  {#each reportRequests as report (report.id)}
+                    <tr>
+                      <td>{report.user_id}</td>
+                      <td>{report.reported_id}</td>
+                      <td class="description-cell">{report.reason}</td>
+                      <td>{formatDate(report.created_at)}</td>
                       <td>
-                        <span class="status-badge {request.status}">
-                          {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                        </span>
-                      </td>
-                      <td>
-                        {#if request.status === "pending"}
                           <div class="action-buttons">
-                            <button
+                            <button type="button"
                               class="action-button accept"
-                              on:click={() => handleRequest("report", request.id, "accept")}
+                              on:click={() => handleReport(report.id, "accept")}
                               title="Accept report and ban user"
                             >
                               Accept
                             </button>
-                            <button
+                            <button type="button"
                               class="action-button reject"
-                              on:click={() => handleRequest("report", request.id, "reject")}
+                              on:click={() => handleReport(report.id, "reject")}
                             >
                               Reject
                             </button>
                           </div>
-                        {:else}
-                          <span class="processed-text">Processed</span>
-                        {/if}
                       </td>
                     </tr>
                   {/each}
@@ -1014,7 +986,7 @@
             <p class="empty-state">No thread categories found</p>
           {:else}
             <div class="categories-list">
-              {#each threadCategories as category}
+              {#each threadCategories as category (category.id)}
                 <div class="category-item">
                   {#if editingThreadCategory && editingThreadCategory.id === category.id}
                     <div class="category-edit">
@@ -1024,14 +996,14 @@
                         placeholder="Category name"
                       />
                       <div class="edit-actions">
-                        <button
+                        <button type="button"
                           class="action-button save"
                           on:click={updateThreadCategory}
                           disabled={isLoading}
                         >
                           Save
                         </button>
-                        <button
+                        <button type="button"
                           class="action-button cancel"
                           on:click={() => editingThreadCategory = null}
                           disabled={isLoading}
@@ -1043,13 +1015,13 @@
                   {:else}
                     <span class="category-name">{category.name}</span>
                     <div class="category-actions">
-                      <button
+                      <button type="button"
                         class="action-button edit"
                         on:click={() => editThreadCategory(category)}
                       >
                         Edit
                       </button>
-                      <button
+                      <button type="button"
                         class="action-button delete"
                         on:click={() => deleteThreadCategory(category.id)}
                       >
@@ -1372,10 +1344,6 @@
 
   tr:last-child td {
     border-bottom: none;
-  }
-
-  tr.processed {
-    opacity: 0.7;
   }
 
   .description-cell {

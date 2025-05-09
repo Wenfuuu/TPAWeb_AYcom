@@ -40,6 +40,18 @@ func (s *UserServer) Register(ctx context.Context, req *userpb.RegisterRequest) 
 	return s.userHandler.Register(ctx, req)
 }
 
+func (s *UserServer) GetReports(ctx context.Context, req *userpb.GetReportsRequest) (*userpb.GetReportsResponse, error) {
+	return s.userHandler.GetReports(ctx, req)
+}
+
+func (s *UserServer) AcceptReport(ctx context.Context, req *userpb.AcceptReportRequest) (*userpb.ActionResponse, error) {
+	return s.userHandler.AcceptReport(ctx, req)
+}
+
+func (s *UserServer) RejectReport(ctx context.Context, req *userpb.RejectReportRequest) (*userpb.ActionResponse, error) {
+	return s.userHandler.RejectReport(ctx, req)
+}
+
 func (s *UserServer) GetPremiumRequests(ctx context.Context, req *userpb.GetPremiumRequestsRequest) (*userpb.GetPremiumRequestsResponse, error) {
 	return s.userHandler.GetPremiumRequests(ctx, req)
 }

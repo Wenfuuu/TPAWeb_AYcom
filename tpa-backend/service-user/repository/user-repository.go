@@ -116,6 +116,39 @@ func (r *UserRepository) GetPremiumRequests() ([]model.PremiumRequest, error) {
 	return requests, result.Error
 }
 
+func (r *UserRepository) AcceptReport(reportID string) error {
+	var req model.Report
+
+	if err := r.DB.First(&req, "id = ?", reportID).Error; err != nil {
+		return err
+	}
+
+	var user model.User
+	if err := r.DB.First(&user, "id = ?", req.ReportedID).Error; err != nil {
+		return err
+	}
+
+	// update user's is_banned
+	user.IsBanned = true
+	r.Update(&user)
+
+	if err := r.DB.Delete(&req).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *UserRepository) RejectReport(reportID string) error {
+	return r.DB.Delete(&model.Report{}, "id = ?", reportID).Error
+}
+
+func (r *UserRepository) GetReports() ([]model.Report, error) {
+	var reports []model.Report
+	result := r.DB.Find(&reports)
+	return reports, result.Error
+}
+
 func (r *UserRepository) RegisterPremium(premium *model.PremiumRequest) error {
 	return r.DB.Create(premium).Error
 }

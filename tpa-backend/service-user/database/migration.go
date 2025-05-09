@@ -10,9 +10,11 @@ func Migrate(db *gorm.DB) {
 	// db.Migrator().DropTable(&model.SecurityQuestion{})
 	db.Migrator().DropTable(&model.Follow{})
 	// db.Migrator().DropTable(&model.PremiumRequest{})
+	db.Migrator().DropTable(&model.Report{})
 
 	db.AutoMigrate(&model.User{})
 	db.AutoMigrate(&model.SecurityQuestion{})
 	db.AutoMigrate(&model.Follow{})
 	db.AutoMigrate(&model.PremiumRequest{})
+	db.AutoMigrate(&model.Report{})
 }

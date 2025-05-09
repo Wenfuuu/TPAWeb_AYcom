@@ -29,6 +29,32 @@ service UserService {
   rpc GetPremiumRequests(GetPremiumRequestsRequest) returns (GetPremiumRequestsResponse);
   rpc AcceptPremiumRequest(PremiumRequestId) returns (ActionResponse);
   rpc RejectPremiumRequest(PremiumRequestId) returns (ActionResponse);
+
+  rpc GetReports(GetReportsRequest) returns (GetReportsResponse);
+  rpc AcceptReport(AcceptReportRequest) returns (ActionResponse);
+  rpc RejectReport(RejectReportRequest) returns (ActionResponse);
+}
+
+message RejectReportRequest {
+  string report_id = 1;
+}
+
+message AcceptReportRequest {
+  string report_id = 1;
+}
+
+message GetReportsRequest {}
+
+message GetReportsResponse {
+  repeated Report reports = 1;
+}
+
+message Report {
+  string id = 1;
+  string user_id = 2;
+  string reported_id = 3;
+  string reason = 4;
+  string created_at = 5;
 }
 
 message PremiumRequestId {

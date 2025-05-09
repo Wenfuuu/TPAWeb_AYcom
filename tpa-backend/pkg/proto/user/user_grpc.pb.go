@@ -39,6 +39,9 @@ const (
 	UserService_GetPremiumRequests_FullMethodName   = "/user.UserService/GetPremiumRequests"
 	UserService_AcceptPremiumRequest_FullMethodName = "/user.UserService/AcceptPremiumRequest"
 	UserService_RejectPremiumRequest_FullMethodName = "/user.UserService/RejectPremiumRequest"
+	UserService_GetReports_FullMethodName           = "/user.UserService/GetReports"
+	UserService_AcceptReport_FullMethodName         = "/user.UserService/AcceptReport"
+	UserService_RejectReport_FullMethodName         = "/user.UserService/RejectReport"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -65,6 +68,9 @@ type UserServiceClient interface {
 	GetPremiumRequests(ctx context.Context, in *GetPremiumRequestsRequest, opts ...grpc.CallOption) (*GetPremiumRequestsResponse, error)
 	AcceptPremiumRequest(ctx context.Context, in *PremiumRequestId, opts ...grpc.CallOption) (*ActionResponse, error)
 	RejectPremiumRequest(ctx context.Context, in *PremiumRequestId, opts ...grpc.CallOption) (*ActionResponse, error)
+	GetReports(ctx context.Context, in *GetReportsRequest, opts ...grpc.CallOption) (*GetReportsResponse, error)
+	AcceptReport(ctx context.Context, in *AcceptReportRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	RejectReport(ctx context.Context, in *RejectReportRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 }
 
 type userServiceClient struct {
@@ -275,6 +281,36 @@ func (c *userServiceClient) RejectPremiumRequest(ctx context.Context, in *Premiu
 	return out, nil
 }
 
+func (c *userServiceClient) GetReports(ctx context.Context, in *GetReportsRequest, opts ...grpc.CallOption) (*GetReportsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetReportsResponse)
+	err := c.cc.Invoke(ctx, UserService_GetReports_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) AcceptReport(ctx context.Context, in *AcceptReportRequest, opts ...grpc.CallOption) (*ActionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActionResponse)
+	err := c.cc.Invoke(ctx, UserService_AcceptReport_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) RejectReport(ctx context.Context, in *RejectReportRequest, opts ...grpc.CallOption) (*ActionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActionResponse)
+	err := c.cc.Invoke(ctx, UserService_RejectReport_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -299,6 +335,9 @@ type UserServiceServer interface {
 	GetPremiumRequests(context.Context, *GetPremiumRequestsRequest) (*GetPremiumRequestsResponse, error)
 	AcceptPremiumRequest(context.Context, *PremiumRequestId) (*ActionResponse, error)
 	RejectPremiumRequest(context.Context, *PremiumRequestId) (*ActionResponse, error)
+	GetReports(context.Context, *GetReportsRequest) (*GetReportsResponse, error)
+	AcceptReport(context.Context, *AcceptReportRequest) (*ActionResponse, error)
+	RejectReport(context.Context, *RejectReportRequest) (*ActionResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -368,6 +407,15 @@ func (UnimplementedUserServiceServer) AcceptPremiumRequest(context.Context, *Pre
 }
 func (UnimplementedUserServiceServer) RejectPremiumRequest(context.Context, *PremiumRequestId) (*ActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RejectPremiumRequest not implemented")
+}
+func (UnimplementedUserServiceServer) GetReports(context.Context, *GetReportsRequest) (*GetReportsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetReports not implemented")
+}
+func (UnimplementedUserServiceServer) AcceptReport(context.Context, *AcceptReportRequest) (*ActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AcceptReport not implemented")
+}
+func (UnimplementedUserServiceServer) RejectReport(context.Context, *RejectReportRequest) (*ActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RejectReport not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -750,6 +798,60 @@ func _UserService_RejectPremiumRequest_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_GetReports_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetReportsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetReports(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetReports_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetReports(ctx, req.(*GetReportsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_AcceptReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AcceptReportRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).AcceptReport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_AcceptReport_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).AcceptReport(ctx, req.(*AcceptReportRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_RejectReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RejectReportRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).RejectReport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_RejectReport_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).RejectReport(ctx, req.(*RejectReportRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -836,6 +938,18 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RejectPremiumRequest",
 			Handler:    _UserService_RejectPremiumRequest_Handler,
+		},
+		{
+			MethodName: "GetReports",
+			Handler:    _UserService_GetReports_Handler,
+		},
+		{
+			MethodName: "AcceptReport",
+			Handler:    _UserService_AcceptReport_Handler,
+		},
+		{
+			MethodName: "RejectReport",
+			Handler:    _UserService_RejectReport_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

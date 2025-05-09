@@ -168,6 +168,10 @@ func InitRoutes(
 			users.GET("/premium-request", userHandler.GetPremiumRequests)
 			users.POST("/accept-premium", userHandler.AcceptPremium)
 			users.POST("/reject-premium", userHandler.RejectPremium)
+
+			users.GET("/reports", userHandler.GetReports)
+			users.POST("/accept-report", userHandler.AcceptReport)
+			users.POST("/reject-report", userHandler.RejectReport)
 		}
 		auth := api.Group("/auth")
 		{

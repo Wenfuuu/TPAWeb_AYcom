@@ -336,6 +336,61 @@ func (h *UserHandler) GetPremiumRequests(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.PremiumRequests)
 }
 
+func (h *UserHandler) AcceptReport(c *gin.Context) {
+	var req userpb.AcceptReportRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	resp, err := h.Client.AcceptReport(context.Background(), &req)
+	if err != nil {
+		st, ok := status.FromError(err)
+		if ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": st.Message()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
+}
+
+func (h *UserHandler) RejectReport(c *gin.Context) {
+	var req userpb.RejectReportRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	resp, err := h.Client.RejectReport(context.Background(), &req)
+	if err != nil {
+		st, ok := status.FromError(err)
+		if ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": st.Message()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
+}
+
+func (h *UserHandler) GetReports(c *gin.Context) {
+	resp, err := h.Client.GetReports(context.Background(), &userpb.GetReportsRequest{})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.Reports)
+}
+
 // RegisterPremium godoc
 // @Summary Register for premium account
 // @Description Register a user for premium account status

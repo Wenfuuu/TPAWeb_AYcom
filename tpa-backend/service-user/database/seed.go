@@ -85,4 +85,13 @@ func Seed(db *gorm.DB) {
 	for _, element := range follows {
 		db.Create(&element)
 	}
+
+	var reports = []model.Report{
+		{UserID: userId1, ReportedID: userId2, Reason: "Racist"},
+		{UserID: userId3, ReportedID: userId4, Reason: "Gay"},
+	}
+
+	for _, element := range reports {
+		db.Create(&element)
+	}
 }

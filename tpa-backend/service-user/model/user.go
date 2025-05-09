@@ -11,6 +11,14 @@ type LoginUser struct {
 	Password string `json:"password"`
 }
 
+type Report struct {
+	ID       		uuid.UUID 	`gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
+	UserID   		uuid.UUID 	`gorm:"type:uuid;not null" json:"userId"`
+	ReportedID   	uuid.UUID 	`gorm:"type:uuid;not null" json:"reportedId"`
+	Reason 			string    	`gorm:"not null;" json:"reason"`
+	CreatedAt       time.Time 	`json:"createdAt" gorm:"autoCreateTime"`
+}
+
 type User struct {
 	ID       			uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
 	Name     			string    `json:"name"`
@@ -56,6 +64,12 @@ func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
 
 func (req *PremiumRequest) BeforeCreate(tx *gorm.DB) (err error) {
 	req.ID = uuid.New()
+
+	return
+}
+
+func (rep *Report) BeforeCreate(tx *gorm.DB) (err error) {
+	rep.ID = uuid.New()
 
 	return
 }
