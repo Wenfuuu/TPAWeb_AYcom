@@ -281,6 +281,61 @@ func (h *UserHandler) GetWhoToFollow(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Users)
 }
 
+func (h *UserHandler) AcceptPremium(c *gin.Context) {
+	var req userpb.PremiumRequestId
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	resp, err := h.Client.AcceptPremiumRequest(context.Background(), &req)
+	if err != nil {
+		st, ok := status.FromError(err)
+		if ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": st.Message()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
+}
+
+func (h *UserHandler) RejectPremium(c *gin.Context) {
+	var req userpb.PremiumRequestId
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	resp, err := h.Client.RejectPremiumRequest(context.Background(), &req)
+	if err != nil {
+		st, ok := status.FromError(err)
+		if ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": st.Message()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
+}
+
+func (h *UserHandler) GetPremiumRequests(c *gin.Context) {
+	resp, err := h.Client.GetPremiumRequests(context.Background(), &userpb.GetPremiumRequestsRequest{})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.PremiumRequests)
+}
+
 // RegisterPremium godoc
 // @Summary Register for premium account
 // @Description Register a user for premium account status
@@ -313,7 +368,12 @@ func (h *UserHandler) RegisterPremium(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		st, ok := status.FromError(err)
+		if ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": st.Message()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
+		}
 		return
 	}
 

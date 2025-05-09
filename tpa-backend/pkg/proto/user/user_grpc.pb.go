@@ -19,23 +19,26 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_GetUserByEmail_FullMethodName      = "/user.UserService/GetUserByEmail"
-	UserService_Register_FullMethodName            = "/user.UserService/Register"
-	UserService_GetUser_FullMethodName             = "/user.UserService/GetUser"
-	UserService_UpdateUser_FullMethodName          = "/user.UserService/UpdateUser"
-	UserService_DeleteUser_FullMethodName          = "/user.UserService/DeleteUser"
-	UserService_GetAllUsers_FullMethodName         = "/user.UserService/GetAllUsers"
-	UserService_GetWhoToFollow_FullMethodName      = "/user.UserService/GetWhoToFollow"
-	UserService_UploadImage_FullMethodName         = "/user.UserService/UploadImage"
-	UserService_GetFollower_FullMethodName         = "/user.UserService/GetFollower"
-	UserService_GetFollowing_FullMethodName        = "/user.UserService/GetFollowing"
-	UserService_RegisterPremium_FullMethodName     = "/user.UserService/RegisterPremium"
-	UserService_UploadVideo_FullMethodName         = "/user.UserService/UploadVideo"
-	UserService_FollowUser_FullMethodName          = "/user.UserService/FollowUser"
-	UserService_UnfollowUser_FullMethodName        = "/user.UserService/UnfollowUser"
-	UserService_GetSecurityQuestion_FullMethodName = "/user.UserService/GetSecurityQuestion"
-	UserService_ResetPassword_FullMethodName       = "/user.UserService/ResetPassword"
-	UserService_SetUserBanStatus_FullMethodName    = "/user.UserService/SetUserBanStatus"
+	UserService_GetUserByEmail_FullMethodName       = "/user.UserService/GetUserByEmail"
+	UserService_Register_FullMethodName             = "/user.UserService/Register"
+	UserService_GetUser_FullMethodName              = "/user.UserService/GetUser"
+	UserService_UpdateUser_FullMethodName           = "/user.UserService/UpdateUser"
+	UserService_DeleteUser_FullMethodName           = "/user.UserService/DeleteUser"
+	UserService_GetAllUsers_FullMethodName          = "/user.UserService/GetAllUsers"
+	UserService_GetWhoToFollow_FullMethodName       = "/user.UserService/GetWhoToFollow"
+	UserService_UploadImage_FullMethodName          = "/user.UserService/UploadImage"
+	UserService_GetFollower_FullMethodName          = "/user.UserService/GetFollower"
+	UserService_GetFollowing_FullMethodName         = "/user.UserService/GetFollowing"
+	UserService_RegisterPremium_FullMethodName      = "/user.UserService/RegisterPremium"
+	UserService_UploadVideo_FullMethodName          = "/user.UserService/UploadVideo"
+	UserService_FollowUser_FullMethodName           = "/user.UserService/FollowUser"
+	UserService_UnfollowUser_FullMethodName         = "/user.UserService/UnfollowUser"
+	UserService_GetSecurityQuestion_FullMethodName  = "/user.UserService/GetSecurityQuestion"
+	UserService_ResetPassword_FullMethodName        = "/user.UserService/ResetPassword"
+	UserService_SetUserBanStatus_FullMethodName     = "/user.UserService/SetUserBanStatus"
+	UserService_GetPremiumRequests_FullMethodName   = "/user.UserService/GetPremiumRequests"
+	UserService_AcceptPremiumRequest_FullMethodName = "/user.UserService/AcceptPremiumRequest"
+	UserService_RejectPremiumRequest_FullMethodName = "/user.UserService/RejectPremiumRequest"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -59,6 +62,9 @@ type UserServiceClient interface {
 	GetSecurityQuestion(ctx context.Context, in *GetSecurityQuestionRequest, opts ...grpc.CallOption) (*SecurityQuestionResponse, error)
 	ResetPassword(ctx context.Context, in *ResetPasswordRequest, opts ...grpc.CallOption) (*ResetPasswordResponse, error)
 	SetUserBanStatus(ctx context.Context, in *SetUserBanStatusRequest, opts ...grpc.CallOption) (*SetUserBanStatusResponse, error)
+	GetPremiumRequests(ctx context.Context, in *GetPremiumRequestsRequest, opts ...grpc.CallOption) (*GetPremiumRequestsResponse, error)
+	AcceptPremiumRequest(ctx context.Context, in *PremiumRequestId, opts ...grpc.CallOption) (*ActionResponse, error)
+	RejectPremiumRequest(ctx context.Context, in *PremiumRequestId, opts ...grpc.CallOption) (*ActionResponse, error)
 }
 
 type userServiceClient struct {
@@ -239,6 +245,36 @@ func (c *userServiceClient) SetUserBanStatus(ctx context.Context, in *SetUserBan
 	return out, nil
 }
 
+func (c *userServiceClient) GetPremiumRequests(ctx context.Context, in *GetPremiumRequestsRequest, opts ...grpc.CallOption) (*GetPremiumRequestsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPremiumRequestsResponse)
+	err := c.cc.Invoke(ctx, UserService_GetPremiumRequests_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) AcceptPremiumRequest(ctx context.Context, in *PremiumRequestId, opts ...grpc.CallOption) (*ActionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActionResponse)
+	err := c.cc.Invoke(ctx, UserService_AcceptPremiumRequest_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) RejectPremiumRequest(ctx context.Context, in *PremiumRequestId, opts ...grpc.CallOption) (*ActionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActionResponse)
+	err := c.cc.Invoke(ctx, UserService_RejectPremiumRequest_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -260,6 +296,9 @@ type UserServiceServer interface {
 	GetSecurityQuestion(context.Context, *GetSecurityQuestionRequest) (*SecurityQuestionResponse, error)
 	ResetPassword(context.Context, *ResetPasswordRequest) (*ResetPasswordResponse, error)
 	SetUserBanStatus(context.Context, *SetUserBanStatusRequest) (*SetUserBanStatusResponse, error)
+	GetPremiumRequests(context.Context, *GetPremiumRequestsRequest) (*GetPremiumRequestsResponse, error)
+	AcceptPremiumRequest(context.Context, *PremiumRequestId) (*ActionResponse, error)
+	RejectPremiumRequest(context.Context, *PremiumRequestId) (*ActionResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -320,6 +359,15 @@ func (UnimplementedUserServiceServer) ResetPassword(context.Context, *ResetPassw
 }
 func (UnimplementedUserServiceServer) SetUserBanStatus(context.Context, *SetUserBanStatusRequest) (*SetUserBanStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetUserBanStatus not implemented")
+}
+func (UnimplementedUserServiceServer) GetPremiumRequests(context.Context, *GetPremiumRequestsRequest) (*GetPremiumRequestsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPremiumRequests not implemented")
+}
+func (UnimplementedUserServiceServer) AcceptPremiumRequest(context.Context, *PremiumRequestId) (*ActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AcceptPremiumRequest not implemented")
+}
+func (UnimplementedUserServiceServer) RejectPremiumRequest(context.Context, *PremiumRequestId) (*ActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RejectPremiumRequest not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -648,6 +696,60 @@ func _UserService_SetUserBanStatus_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_GetPremiumRequests_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPremiumRequestsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetPremiumRequests(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetPremiumRequests_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetPremiumRequests(ctx, req.(*GetPremiumRequestsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_AcceptPremiumRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PremiumRequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).AcceptPremiumRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_AcceptPremiumRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).AcceptPremiumRequest(ctx, req.(*PremiumRequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_RejectPremiumRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PremiumRequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).RejectPremiumRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_RejectPremiumRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).RejectPremiumRequest(ctx, req.(*PremiumRequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -722,6 +824,18 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetUserBanStatus",
 			Handler:    _UserService_SetUserBanStatus_Handler,
+		},
+		{
+			MethodName: "GetPremiumRequests",
+			Handler:    _UserService_GetPremiumRequests_Handler,
+		},
+		{
+			MethodName: "AcceptPremiumRequest",
+			Handler:    _UserService_AcceptPremiumRequest_Handler,
+		},
+		{
+			MethodName: "RejectPremiumRequest",
+			Handler:    _UserService_RejectPremiumRequest_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

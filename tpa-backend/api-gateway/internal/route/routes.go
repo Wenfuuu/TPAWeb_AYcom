@@ -163,7 +163,11 @@ func InitRoutes(
 			users.GET("/follower", userHandler.GetFollower)
 			users.GET("/following", userHandler.GetFollowing)
 			users.GET("/who-to-follow", userHandler.GetWhoToFollow)
+
 			users.POST("/register-premium", userHandler.RegisterPremium)
+			users.GET("/premium-request", userHandler.GetPremiumRequests)
+			users.POST("/accept-premium", userHandler.AcceptPremium)
+			users.POST("/reject-premium", userHandler.RejectPremium)
 		}
 		auth := api.Group("/auth")
 		{

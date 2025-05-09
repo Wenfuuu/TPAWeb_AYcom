@@ -82,6 +82,40 @@ func (r *UserRepository) FindByID(id string) (*model.User, error) {
 	return &user, nil
 }
 
+func (r *UserRepository) AcceptPremium(requestID string) error {
+	var req model.PremiumRequest
+
+	if err := r.DB.First(&req, "id = ?", requestID).Error; err != nil {
+		return err
+	}
+
+	// get user with req.UserID
+	var user model.User
+	if err := r.DB.First(&user, "id = ?", req.UserID).Error; err != nil {
+		return err
+	}
+
+	// update user's is_premium	
+	user.IsPremium = true
+	r.Update(&user)
+
+	if err := r.DB.Delete(&req).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *UserRepository) RejectPremium(requestID string) error {
+	return r.DB.Delete(&model.PremiumRequest{}, "id = ?", requestID).Error
+}
+
+func (r *UserRepository) GetPremiumRequests() ([]model.PremiumRequest, error) {
+	var requests []model.PremiumRequest
+	result := r.DB.Find(&requests)
+	return requests, result.Error
+}
+
 func (r *UserRepository) RegisterPremium(premium *model.PremiumRequest) error {
 	return r.DB.Create(premium).Error
 }

@@ -89,6 +89,7 @@ export async function fetchCreateCommunity() {
   // return response.data;
 
   const allRequests: CreateCommunityRequest[] = response.data;
+  if(!allRequests) return [];
   const allUsers = await fetchUser();
 
   const requests = allRequests.map((request) => {

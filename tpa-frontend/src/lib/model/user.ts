@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toastStore } from "../stores/toast";
 
 export type User = {
     id: string
@@ -31,6 +32,15 @@ export type SecurityQuestion = {
   user_id: string;
   security_question: string;
   security_answer: string;
+}
+
+export type PremiumRequest = {
+  id: string;
+  user_id: string;
+  identitiy_number: string;
+  reason: string;
+  face_picture: string;
+  created_at: string;
 }
 
 type Follows = {
@@ -90,6 +100,26 @@ export async function resetPassword(user_id: string, password: string) {
   });
 }
 
+export async function acceptPremium(request_id: string) {
+  await axios.post(BASE_API_URL + "/accept-premium", {
+    request_id,
+  });
+}
+
+export async function rejectPremium(request_id: string) {
+  await axios.post(BASE_API_URL + "/reject-premium", {
+    request_id,
+  });
+}
+
+export async function fetchPremiumRequests() {
+  const response = await axios.get<PremiumRequest[]>(BASE_API_URL + "/premium-request");
+
+  const requests = response.data;
+  if(!requests) return [];
+  return requests;
+}
+
 export async function fetchSecurityQuestions(user_id: string) {
     const response = await axios.get<SecurityQuestion>(BASE_API_URL + "/security-question", {
       params: {
@@ -143,21 +173,11 @@ export async function fetchWhoToFollow(user_id: string) {
     return users;
 }
 
-export async function registerPremium(userId: string, identityNumber: string, facePicture: string, reason: string): Promise<string | boolean> {
-  try {
-    await axios.post(BASE_API_URL + "/register-premium", {
-      userId,
-      identityNumber,
-      reason,
-      facePicture,
-    });
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      return error.message;
-    }
-
-    return "An unexpected error occurred.";
-  }
-
-  return true;
+export async function registerPremium(userId: string, identityNumber: string, facePicture: string, reason: string) {
+  await axios.post(BASE_API_URL + "/register-premium", {
+    userId,
+    identityNumber,
+    reason,
+    facePicture,
+  });
 }

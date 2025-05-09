@@ -40,6 +40,18 @@ func (s *UserServer) Register(ctx context.Context, req *userpb.RegisterRequest) 
 	return s.userHandler.Register(ctx, req)
 }
 
+func (s *UserServer) GetPremiumRequests(ctx context.Context, req *userpb.GetPremiumRequestsRequest) (*userpb.GetPremiumRequestsResponse, error) {
+	return s.userHandler.GetPremiumRequests(ctx, req)
+}
+
+func (s *UserServer) AcceptPremiumRequest(ctx context.Context, req *userpb.PremiumRequestId) (*userpb.ActionResponse, error) {
+	return s.userHandler.AcceptPremium(ctx, req)
+}
+
+func (s *UserServer) RejectPremiumRequest(ctx context.Context, req *userpb.PremiumRequestId) (*userpb.ActionResponse, error) {
+	return s.userHandler.RejectPremium(ctx, req)
+}
+
 func (s *UserServer) RegisterPremium(ctx context.Context, req *userpb.RegisterPremiumRequest) (*userpb.RegisterPremiumResponse, error) {
 	return s.userHandler.RegisterPremium(ctx, req)
 }

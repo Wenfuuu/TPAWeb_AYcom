@@ -4,6 +4,8 @@
   import { registerPremium, type User } from "../lib/model/user";
   import { checkAuth, getAuthUser } from "../lib/utils/auth";
   import { uploadImage } from "../lib/utils/supabaseStorage";
+  import axios from "axios";
+  import { toastStore } from "../lib/stores/toast";
 
   let user: User | null = null;
   let idNumber = "";
@@ -67,18 +69,30 @@
     const supaURL = await uploadImage(faceImage);
     if(!supaURL) return;
 
-    // We would need to update the registerPremium function to include the reason
-    // For this example, we're assuming it can handle the new parameter
-    const result = await registerPremium(user.id, idNumber, supaURL, verifyReason);
-    // console.log(result);
-
-    if (typeof result === "string") {
+    try{
+      await registerPremium(user.id, idNumber, supaURL, verifyReason);
+      isSubmitted = true;
+    }catch(error){
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.error || error.message;
+        console.log(message);
+        toastStore.error(message);
+      } else if (error instanceof Error) {
+        toastStore.error(error.message);
+      }
+    }finally{
       isSubmitting = false;
-      return;
     }
 
-    isSubmitted = true;
-    isSubmitting = false;
+    // const result = await registerPremium(user.id, idNumber, supaURL, verifyReason);
+
+    // if (typeof result === "string") {
+    //   isSubmitting = false;
+    //   return;
+    // }
+
+    // isSubmitted = true;
+    // isSubmitting = false;
   }
 
   onMount(async () => {

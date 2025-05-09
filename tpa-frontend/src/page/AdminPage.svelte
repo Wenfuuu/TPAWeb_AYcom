@@ -3,7 +3,7 @@
   import { navigate } from "svelte-routing";
   import { checkAdmin, getAuthUser } from "../lib/utils/auth";
   import { toastStore } from "../lib/stores/toast";
-  import { fetchUser, setUserBanStatus, type User } from "../lib/model/user";
+  import { acceptPremium, fetchPremiumRequests, fetchUser, rejectPremium, setUserBanStatus, type PremiumRequest, type User } from "../lib/model/user";
   import { acceptCreateCommunity, fetchCreateCommunity, rejectCreateCommunity, type CommunityCategory, type CreateCommunityRequest } from "../lib/model/community";
   import axios from "axios";
 
@@ -27,7 +27,7 @@
   // Data states
   let users: User[] = [];
   let communityRequests: CreateCommunityRequest[] = [];
-  let premiumRequests: any[] = [];
+  let premiumRequests: PremiumRequest[] = [];
   let reportRequests: any[] = [];
   let threadCategories: any[] = [];
   let communityCategories: CommunityCategory[] = [];
@@ -126,11 +126,15 @@
     isLoading = true;
     try {
       // In a real app, this would be an API call
+        // const test = await fetchPremiumRequests();
+        // console.log(test);
+
       await new Promise(resolve => setTimeout(resolve, 800));
-      premiumRequests = [
-        { id: "1", user: "user3", reason: "I want to support the platform", id_number: "ID12345", status: "pending", created_at: "2023-05-14T09:15:00Z" },
-        { id: "2", user: "user4", reason: "I'm a content creator", id_number: "ID67890", status: "pending", created_at: "2023-05-15T11:45:00Z" }
-      ];
+      premiumRequests = await fetchPremiumRequests();
+    //   premiumRequests = [
+    //     { id: "1", user: "user3", reason: "I want to support the platform", user_id: "ID12345", status: "pending", created_at: "2023-05-14T09:15:00Z" },
+    //     { id: "2", user: "user4", reason: "I'm a content creator", user_id: "ID67890", status: "pending", created_at: "2023-05-15T11:45:00Z" }
+    //   ];
     } catch (error) {
       console.error("Error loading premium requests:", error);
       toastStore.error("Failed to load premium requests");
@@ -293,7 +297,7 @@
 
   async function handleCommunityRequest(request_id: string, action: "accept" | "reject") {
     showConfirmModal(
-      `${action === "accept" ? "Accept" : "Reject"} community Request`,
+      `${action === "accept" ? "Accept" : "Reject"} Community Request`,
       `Are you sure you want to ${action} this community request?`,
       async () => {
         try {
@@ -313,6 +317,45 @@
           // In a real app, this would trigger an email notification
           if (action === "accept") {
             console.log("Email notification would be sent for community request acceptance");
+
+          }
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                const message = error.response?.data?.error || error.message;
+                toastStore.error(message);
+            } else if (error instanceof Error) {
+                toastStore.error(error.message);
+            }
+        } finally {
+          isLoading = false;
+          closeModal();
+        }
+      }
+    );
+  }
+
+  async function handlePremiumRequest(request_id: string, action: "accept" | "reject") {
+    showConfirmModal(
+      `${action === "accept" ? "Accept" : "Reject"} Premium Request`,
+      `Are you sure you want to ${action} this premium request?`,
+      async () => {
+        try {
+          isLoading = true;
+
+          //update
+          if(action === "accept") {
+            await acceptPremium(request_id);
+          }else {
+            await rejectPremium(request_id);
+          }
+
+          loadPremiumRequests();
+
+          toastStore.success(`Premium request ${action}ed successfully`);
+
+          // In a real app, this would trigger an email notification
+          if (action === "accept") {
+            console.log("Email notification would be sent for premium request acceptance");
 
           }
         } catch (error) {
@@ -874,44 +917,36 @@
                 <thead>
                   <tr>
                     <th>User</th>
-                    <th>ID Number</th>
+                    <th>User ID</th>
                     <th>Reason</th>
                     <th>Date</th>
-                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {#each premiumRequests as request}
-                    <tr class:processed={request.status !== "pending"}>
-                      <td>{request.user}</td>
-                      <td>{request.id_number}</td>
+                  {#each premiumRequests as request (request.id)}
+                    <tr>
+                      <td>
+                        <img class="face-pic" src={request.face_picture} alt="">
+                      </td>
+                      <td>{request.user_id}</td>
                       <td class="description-cell">{request.reason}</td>
                       <td>{formatDate(request.created_at)}</td>
                       <td>
-                        <span class="status-badge {request.status}">
-                          {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                        </span>
-                      </td>
-                      <td>
-                        {#if request.status === "pending"}
-                          <div class="action-buttons">
-                            <button
-                              class="action-button accept"
-                              on:click={() => handleRequest("premium", request.id, "accept")}
+                        <div class="action-buttons">
+                            <button type="button"
+                                class="action-button accept"
+                                on:click={() => handlePremiumRequest(request.id, "accept")}
                             >
-                              Accept
+                                Accept
                             </button>
-                            <button
-                              class="action-button reject"
-                              on:click={() => handleRequest("premium", request.id, "reject")}
+                            <button type="button"
+                                class="action-button reject"
+                                on:click={() => handlePremiumRequest(request.id, "reject")}
                             >
-                              Reject
+                                Reject
                             </button>
-                          </div>
-                        {:else}
-                          <span class="processed-text">Processed</span>
-                        {/if}
+                        </div>
                       </td>
                     </tr>
                   {/each}
@@ -1329,6 +1364,10 @@
     border-top-color: white;
     animation: spin 1s ease-in-out infinite;
     margin-right: 8px;
+  }
+
+  .face-pic {
+    max-width: 100px;
   }
 
   @keyframes spin {

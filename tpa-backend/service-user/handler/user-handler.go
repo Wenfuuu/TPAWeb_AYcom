@@ -118,6 +118,42 @@ func (h *UserHandler) followToProto(follow *model.Follow) *userpb.Follow {
 	}
 }
 
+func (h *UserHandler) AcceptPremium(ctx context.Context, req *userpb.PremiumRequestId) (*userpb.ActionResponse, error) {
+	if err := h.userRepo.AcceptPremium(req.RequestId); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to accept community creation request")
+	}
+
+	return &userpb.ActionResponse{
+		Message: "Premium request accepted successfully",
+	}, nil
+}
+
+func (h *UserHandler) RejectPremium(ctx context.Context, req *userpb.PremiumRequestId) (*userpb.ActionResponse, error) {
+	if err := h.userRepo.RejectPremium(req.RequestId); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to reject community creation request")
+	}
+
+	return &userpb.ActionResponse{
+		Message: "Premium request rejected successfully",
+	}, nil
+}
+
+func (h *UserHandler) GetPremiumRequests(ctx context.Context, req *userpb.GetPremiumRequestsRequest) (*userpb.GetPremiumRequestsResponse, error) {
+	modelRequests, err := h.userRepo.GetPremiumRequests()
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Database error")
+	}
+
+	var pbRequests []*userpb.PremiumRequest
+	for _, r := range modelRequests {
+		pbRequests = append(pbRequests, h.premiumRequestToProto(&r))
+	}
+
+	return &userpb.GetPremiumRequestsResponse{
+		PremiumRequests: pbRequests,
+	}, nil
+}
+
 func (h *UserHandler) RegisterPremium(ctx context.Context, req *userpb.RegisterPremiumRequest) (*userpb.RegisterPremiumResponse, error) {
 	// hash id
 	hashedId, err := utils.EncryptPassword(req.IdentityNumber)
@@ -146,6 +182,7 @@ func (h *UserHandler) RegisterPremium(ctx context.Context, req *userpb.RegisterP
 	request := model.PremiumRequest{
 		UserID:         uuid.MustParse(req.UserId),
 		IdentityNumber: hashedId,
+		Reason: 		req.Reason,
 		FacePicture:    req.FacePicture,
 	}
 
@@ -498,6 +535,17 @@ func stringPtr(s string) *string {
 }
 
 // Helper functions
+func (h *UserHandler) premiumRequestToProto(req *model.PremiumRequest) *userpb.PremiumRequest {
+	return &userpb.PremiumRequest{
+		Id:             req.ID.String(),
+		UserId:         req.UserID.String(),
+		IdentityNumber: req.IdentityNumber,
+		Reason:         req.Reason,
+		FacePicture:    req.FacePicture,
+		CreatedAt:      req.CreatedAt.Format(time.RFC3339),
+	}
+}
+
 func (h *UserHandler) userToProto(user *model.User) *userpb.User {
 	return &userpb.User{
 		Id:             user.ID.String(),

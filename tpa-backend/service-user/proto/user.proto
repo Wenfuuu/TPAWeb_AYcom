@@ -25,6 +25,33 @@ service UserService {
   rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
 
   rpc SetUserBanStatus(SetUserBanStatusRequest) returns (SetUserBanStatusResponse);
+
+  rpc GetPremiumRequests(GetPremiumRequestsRequest) returns (GetPremiumRequestsResponse);
+  rpc AcceptPremiumRequest(PremiumRequestId) returns (ActionResponse);
+  rpc RejectPremiumRequest(PremiumRequestId) returns (ActionResponse);
+}
+
+message PremiumRequestId {
+  string request_id = 1;
+}
+
+message GetPremiumRequestsRequest {}
+
+message GetPremiumRequestsResponse {
+  repeated PremiumRequest premium_requests = 1;
+}
+
+message PremiumRequest {
+  string id = 1;
+  string user_id = 2;
+  string identity_number = 3;
+  string reason = 4;
+  string face_picture = 5;
+  string created_at = 6;
+}
+
+message ActionResponse {
+  string message = 1;
 }
 
 message SetUserBanStatusRequest {

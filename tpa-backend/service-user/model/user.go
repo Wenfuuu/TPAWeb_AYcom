@@ -45,6 +45,7 @@ type PremiumRequest struct {
 	IdentityNumber 	string    	`gorm:"not null;" json:"identityNumber"`
 	Reason 			string    	`gorm:"not null;" json:"reason"`
 	FacePicture		string 		`gorm:"not null;" json:"facePicture"`
+	CreatedAt       time.Time `json:"createdAt" gorm:"autoCreateTime"`
 }
 
 func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
