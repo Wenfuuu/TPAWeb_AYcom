@@ -47,6 +47,8 @@
       else isAdvertisement = true;
       // console.log(user);
 
+      console.log("creating reply");
+      console.log(supabaseURLS);
       await axios.post("http://localhost:8080/api/threads/reply", {
         userId: user?.id,
         replyToId: thread.id,

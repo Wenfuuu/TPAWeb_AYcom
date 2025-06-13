@@ -54,15 +54,17 @@ func handleMessages() {
 		select {
 		case msg := <-broadcast:
 			for client := range clients {
-				wsMessage := WebSocketMessage{
-					Type:    "chat",
-					Payload: msg,
-				}
-				err := client.Conn.WriteJSON(wsMessage)
-				if err != nil {
-					log.Printf("Error sending message: %v", err)
-					client.Conn.Close()
-					delete(clients, client)
+				if client.ConversationID == msg.ConversationID {
+					wsMessage := WebSocketMessage{
+						Type:    "chat",
+						Payload: msg,
+					}
+					err := client.Conn.WriteJSON(wsMessage)
+					if err != nil {
+						log.Printf("Error sending message: %v", err)
+						client.Conn.Close()
+						delete(clients, client)
+					}
 				}
 			}
 
