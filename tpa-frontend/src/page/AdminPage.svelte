@@ -3,10 +3,11 @@
   import { navigate } from "svelte-routing";
   import { checkAdmin, getAuthUser } from "../lib/utils/auth";
   import { toastStore } from "../lib/stores/toast";
-  import { acceptPremium, acceptReport, fetchPremiumRequests, fetchReports, fetchUser, rejectPremium, rejectReport, setUserBanStatus, type PremiumRequest, type Reports, type User } from "../lib/model/user";
+  import { acceptPremium, acceptReport, fetchPremiumRequests, fetchReports, fetchUser, fetchUserById, rejectPremium, rejectReport, setUserBanStatus, type PremiumRequest, type Reports, type User } from "../lib/model/user";
   import { acceptCreateCommunity, createCommunityCategory, deleteCommCategory, fetchCommunityCategory, fetchCreateCommunity, rejectCreateCommunity, updateCommCategory, type CommunityCategory, type CreateCommunityRequest } from "../lib/model/community";
   import axios from "axios";
   import { createThreadCategory, deleteThrdCategory, fetchThreadCategory, updateThrdCategory, type ThreadCategory } from "../lib/model/thread";
+  import { sendMessageNotif } from "../lib/model/websocket";
 
   // Tab management
   const TABS = {
@@ -296,7 +297,7 @@
     }
   }
 
-  async function handleCommunityRequest(request_id: string, action: "accept" | "reject") {
+  async function handleCommunityRequest(request: CreateCommunityRequest, action: "accept" | "reject") {
     showConfirmModal(
       `${action === "accept" ? "Accept" : "Reject"} Community Request`,
       `Are you sure you want to ${action} this community request?`,
@@ -306,20 +307,17 @@
 
           //update
           if(action === "accept") {
-            await acceptCreateCommunity(request_id);
+            await acceptCreateCommunity(request.id);
+            if(!user) return;
+            const recipientUser = await fetchUserById(request.user_id);
+            sendMessageNotif(socket, request.user_id, user.id, "Your create community request has been accepteed.", recipientUser.email);
           }else {
-            await rejectCreateCommunity(request_id);
+            await rejectCreateCommunity(request.id);
           }
 
           loadCommunityRequests();
 
           toastStore.success(`Community request ${action}ed successfully`);
-
-          // In a real app, this would trigger an email notification
-          if (action === "accept") {
-            // console.log("Email notification would be sent for community request acceptance");
-
-          }
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 const message = error.response?.data?.error || error.message;
@@ -335,7 +333,7 @@
     );
   }
 
-  async function handlePremiumRequest(request_id: string, action: "accept" | "reject") {
+  async function handlePremiumRequest(request: PremiumRequest, action: "accept" | "reject") {
     showConfirmModal(
       `${action === "accept" ? "Accept" : "Reject"} Premium Request`,
       `Are you sure you want to ${action} this premium request?`,
@@ -345,20 +343,17 @@
 
           //update
           if(action === "accept") {
-            await acceptPremium(request_id);
+            await acceptPremium(request.id);
+            if(!user) return;
+            const recipientUser = await fetchUserById(request.user_id);
+            sendMessageNotif(socket, request.user_id, user.id, "Your premium request has been accepted.", recipientUser.email);
           }else {
-            await rejectPremium(request_id);
+            await rejectPremium(request.id);
           }
 
           loadPremiumRequests();
 
           toastStore.success(`Premium request ${action}ed successfully`);
-
-          // In a real app, this would trigger an email notification
-          if (action === "accept") {
-            // console.log("Email notification would be sent for premium request acceptance");
-
-          }
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 const message = error.response?.data?.error || error.message;
@@ -852,13 +847,13 @@
                           <div class="action-buttons">
                             <button type="button"
                               class="action-button accept"
-                              on:click={() => handleCommunityRequest(request.id, "accept")}
+                              on:click={() => handleCommunityRequest(request, "accept")}
                             >
                               Accept
                             </button>
                             <button type="button"
                               class="action-button reject"
-                              on:click={() => handleCommunityRequest(request.id, "reject")}
+                              on:click={() => handleCommunityRequest(request, "reject")}
                             >
                               Reject
                             </button>
@@ -904,13 +899,13 @@
                         <div class="action-buttons">
                             <button type="button"
                                 class="action-button accept"
-                                on:click={() => handlePremiumRequest(request.id, "accept")}
+                                on:click={() => handlePremiumRequest(request, "accept")}
                             >
                                 Accept
                             </button>
                             <button type="button"
                                 class="action-button reject"
-                                on:click={() => handlePremiumRequest(request.id, "reject")}
+                                on:click={() => handlePremiumRequest(request, "reject")}
                             >
                                 Reject
                             </button>

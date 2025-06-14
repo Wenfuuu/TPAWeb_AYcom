@@ -167,13 +167,18 @@ export async function fetchUserByEmail(email: string) {
   return user;
 }
 
-export async function fetchProfileUser(id: string, login_id: string) {
+export async function fetchUserById(id: string) {
   const response = await axios.get<User>(BASE_API_URL + "/user-profile", {
     params: {
       id,
     },
   });
   const user = response.data;
+  return user;
+}
+
+export async function fetchProfileUser(id: string, login_id: string) {
+  const user = await fetchUserById(id);
 
   const followings = await fetchFollowing(login_id);
   const followingIds = new Set(
