@@ -206,7 +206,7 @@
       state.uploadingImages = false;
       return true;
     } catch (error) {
-      if(error instanceof Error){
+      if (error instanceof Error) {
         toastStore.error(error.message);
       }
       // console.error("Error uploading images:", error);
@@ -284,14 +284,14 @@
 
   async function sendVerificationCode(): Promise<void> {
     const apiData = {
-      email: state.formData.email
+      email: state.formData.email,
     };
 
     const res = await fetch("http://localhost:8080/api/auth/send-code", {
       method: "POST",
-      body: JSON.stringify(apiData)
+      body: JSON.stringify(apiData),
     });
-    if(res.ok) startResendCountdown();
+    if (res.ok) startResendCountdown();
   }
 
   function startResendCountdown(): void {
@@ -313,7 +313,7 @@
     try {
       await sendVerificationCode();
     } catch (error) {
-      if(error instanceof Error){
+      if (error instanceof Error) {
         toastStore.error(error.message);
       }
       state.errors.general =
@@ -342,24 +342,24 @@
   async function verifyCode(): Promise<boolean> {
     const apiData = {
       email: state.formData.email,
-      code: state.formData.verificationCode
+      code: state.formData.verificationCode,
     };
 
     try {
       const res = await fetch("http://localhost:8080/api/auth/verify-code", {
         method: "POST",
-        body: JSON.stringify(apiData)
+        body: JSON.stringify(apiData),
       });
 
       const data = await res.json();
       return data.verified;
     } catch (error) {
-      if(error instanceof Error){
+      if (error instanceof Error) {
         toastStore.error(error.message);
       }
       // console.error("Error verifying code:", error);
       return false;
-    };
+    }
   }
 
   function handleGoogleAuth(): void {
@@ -370,10 +370,10 @@
     fetch("http://localhost:8080/verify-recaptcha", {
       method: "POST",
       // headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token })
+      body: JSON.stringify({ token }),
     })
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.success) {
           // console.log("success recaptcha");
           state.recaptchaVerified = true;
@@ -386,10 +386,14 @@
       });
   }
 
-  onMount(async() => {
+  onMount(async () => {
     // console.log("Component mounted, reCAPTCHA would be initialized here");
     window.recaptchaCallback = onRecaptchaCallback;
-    if (!document.querySelector("script[src=\"https://www.google.com/recaptcha/api.js\"]")) {
+    if (
+      !document.querySelector(
+        "script[src='https://www.google.com/recaptcha/api.js']"
+      )
+    ) {
       const script = document.createElement("script");
       script.src = "https://www.google.com/recaptcha/api.js";
       script.async = true;
@@ -638,7 +642,8 @@
                   >Select a security question</option
                 >
                 {#each securityQuestions as question (question.id)}
-                  <option value={question.id.toString()}>{question.text}</option>
+                  <option value={question.id.toString()}>{question.text}</option
+                  >
                 {/each}
               </select>
             </div>
@@ -674,8 +679,8 @@
               id="recaptcha-container"
               class="g-recaptcha"
               data-sitekey="6Le5ySYrAAAAADAVGZm_Gug20l8ge7D0IQgwg6f3"
-              data-callback="recaptchaCallback">
-            </div>
+              data-callback="recaptchaCallback"
+            ></div>
           </div>
           {#if state.errors.general}
             <p class="error-message general-error">{state.errors.general}</p>
@@ -762,7 +767,6 @@
     height: 100%;
     background-color: #15202b;
   }
-
   .register-page {
     background-color: #15202b;
     color: #fff;
@@ -783,6 +787,8 @@
     max-width: 600px;
     overflow: hidden;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    max-height: 90vh;
+    overflow-y: auto;
   }
 
   .register-header {
@@ -901,7 +907,6 @@
     margin-bottom: 8px;
     color: #e7e9ea;
   }
-
   input[type="password"] {
     width: 100%;
     padding: 12px;
@@ -921,6 +926,7 @@
     color: #f4212e;
     font-size: 13px;
     margin-top: 4px;
+    word-wrap: break-word;
   }
 
   .general-error {
@@ -930,12 +936,14 @@
   .radio-group {
     display: flex;
     gap: 16px;
+    flex-wrap: wrap;
   }
 
   .radio-label {
     display: flex;
     align-items: center;
     cursor: pointer;
+    min-width: 0;
   }
 
   .radio-label input {
@@ -948,15 +956,16 @@
     margin-top: 0;
     margin-bottom: 12px;
   }
-
   .dob-selects {
     display: flex;
     gap: 12px;
+    flex-wrap: wrap;
   }
 
   .select-wrapper {
     position: relative;
     flex: 1;
+    min-width: 100px;
   }
 
   .full-width {
@@ -973,6 +982,7 @@
     font-size: 16px;
     appearance: none;
     cursor: pointer;
+    box-sizing: border-box;
   }
 
   .select-wrapper::after {
@@ -1000,9 +1010,13 @@
   .checkbox-label input {
     margin-right: 8px;
   }
-
   .recaptcha {
     margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .recaptcha .g-recaptcha {
+    transform-origin: 0 0;
   }
 
   .form-actions {
@@ -1074,13 +1088,31 @@
   .resend-code {
     margin-bottom: 24px;
   }
-
   /* Responsive styles */
-  @media (max-width: 480px) {
+  @media (max-width: 768px) {
+    .register-page {
+      padding: 10px;
+      align-items: flex-start;
+      padding-top: 20px;
+    }
+
     .register-container {
       max-width: 100%;
-      height: 100vh;
-      border-radius: 0;
+      border-radius: 12px;
+      max-height: 95vh;
+    }
+
+    .register-content {
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
     }
 
     .dob-selects {
@@ -1088,8 +1120,166 @@
       gap: 8px;
     }
 
+    .select-wrapper {
+      min-width: auto;
+    }
+
     .form-actions {
       flex-direction: column;
+      gap: 8px;
+    }
+
+    .radio-group {
+      flex-direction: column;
+      gap: 8px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .register-page {
+      padding: 5px;
+      align-items: flex-start;
+      padding-top: 10px;
+    }
+
+    .register-container {
+      max-width: 100%;
+      height: 100vh;
+      border-radius: 0;
+      max-height: 100vh;
+    }
+
+    .register-header {
+      padding: 12px 16px;
+    }
+
+    .register-content {
+      padding: 16px;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    input[type="password"],
+    select {
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    .google-auth-button {
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    .primary-button,
+    .secondary-button {
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    .dob-selects {
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-actions {
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .verification-info {
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .close-button {
+      width: 28px;
+      height: 28px;
+      font-size: 20px;
+    }
+
+    .logo {
+      font-size: 24px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .register-content {
+      padding: 12px;
+    }
+
+    h1 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    input[type="password"],
+    select {
+      padding: 8px;
+      font-size: 15px;
+    }
+
+    .google-auth-button {
+      padding: 8px;
+      font-size: 13px;
+    }
+
+    .primary-button,
+    .secondary-button {
+      padding: 8px;
+      font-size: 13px;
+    }
+
+    label,
+    p {
+      font-size: 13px;
+    }
+
+    .verification-info {
+      font-size: 13px;
+    }
+
+    .error-message {
+      font-size: 12px;
+    }
+  }
+
+  /* Additional responsive adjustments for recaptcha */
+  @media (max-width: 480px) {
+    .recaptcha .g-recaptcha {
+      transform: scale(0.85);
+    }
+  }
+
+  @media (max-width: 360px) {
+    .recaptcha .g-recaptcha {
+      transform: scale(0.75);
+    }
+  }
+
+  /* Prevent horizontal overflow on small screens */
+  @media (max-width: 480px) {
+    * {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .register-page {
+      overflow-x: hidden;
+    }
+
+    .register-container {
+      overflow-x: hidden;
     }
   }
 </style>
