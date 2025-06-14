@@ -58,6 +58,10 @@
       });
   }
 
+  function goToLandingPage(): void {
+    navigate("/");
+  }
+
   function toggleTheme() {
     isDarkMode = !isDarkMode;
     const newTheme = isDarkMode ? "dark" : "light";
@@ -96,7 +100,7 @@
 <div class="login-page">
   <div class="login-container">
     <div class="close-button">
-      <button type="button" aria-label="Close">✕</button>
+      <button type="button" aria-label="Close" on:click={goToLandingPage}>✕</button>
     </div>
 
     <div class="theme-toggle">
