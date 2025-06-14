@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import LeftSidebar from "../lib/components/LeftSidebar.svelte";
   import RightSidebar from "../lib/components/RightSidebar.svelte";
-  import type { User } from "../lib/model/user";
+  import { fetchUser, type User } from "../lib/model/user";
   import { checkAuth, getAuthUser } from "../lib/utils/auth";
   import { navigate } from "svelte-routing";
   import {
@@ -12,6 +12,7 @@
   } from "../lib/model/notification";
   import NotificationContent from "../lib/components/NotificationContent.svelte";
   import { toastStore } from "../lib/stores/toast";
+  import axios from "axios";
 
   let isDarkMode = true;
   let user: User | null = null;
@@ -26,13 +27,36 @@
 
     socket = new WebSocket(`ws://localhost:50056/ws?user_id=${userId}`);
 
-    socket.onmessage = (event) => {
+    socket.onmessage = async (event) => {
       const wsMessage = JSON.parse(event.data);
       // console.log(wsMessage.type);
       switch (wsMessage.type) {
         case "notification": {
           const notification = wsMessage.payload;
-          toastStore.info(notification.content);
+          // console.log("Received notification:", notification);
+          try {
+            const allUsers = await fetchUser();
+            const sender = allUsers.find((u) => u.id === notification.sender_id);
+            const profile_picture = sender ? sender.profile_picture : "";
+
+            // Add profile picture to notification
+            const notificationWithPicture = {
+              ...notification,
+              profile_picture
+            };
+
+            toastStore.info(notification.content);
+            notifications = [notificationWithPicture, ...notifications];
+          } catch (error) {
+            if (axios.isAxiosError(error)) {
+              const message = error.response?.data?.error || error.message;
+              toastStore.error(message);
+            } else if (error instanceof Error) {
+              toastStore.error(error.message);
+            } else {
+              toastStore.error("An unexpected error occurred!");
+            }
+          }
           break;
         }
 
