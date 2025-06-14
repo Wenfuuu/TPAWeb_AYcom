@@ -41,21 +41,81 @@
   let selectedUsers: string[] = [];
   let showConversationsList = true;
 
-  // Check if screen is mobile size
+  let showSearchMessages = false;
+  let messageSearchQuery = "";
+  let filteredMessages: Message[] = [];
+
   function checkMobile() {
     return window.innerWidth <= 768;
   }
 
   function handleConversationSelect(conversation: Conversation) {
     selectConversation(conversation);
-    // Hide conversations list on mobile when a conversation is selected
     if (checkMobile()) {
       showConversationsList = false;
     }
   }
-
   function showConversations() {
     showConversationsList = true;
+  }
+
+  function toggleMessageSearch() {
+    showSearchMessages = !showSearchMessages;
+    if (!showSearchMessages) {
+      messageSearchQuery = "";
+      filteredMessages = [];
+    }
+  }
+  function searchMessages() {
+    if (!messageSearchQuery.trim()) {
+      filteredMessages = [];
+      return;
+    }
+
+    filteredMessages = messages.filter((message) =>
+      message.content.toLowerCase().includes(messageSearchQuery.toLowerCase())
+    );
+  }
+  function clearMessageSearch() {
+    messageSearchQuery = "";
+    filteredMessages = [];
+    showSearchMessages = false;
+  }
+
+  // Safe text highlighting without XSS risk
+  function getHighlightedTextParts(
+    text: string,
+    searchQuery: string
+  ): Array<{ text: string; highlighted: boolean }> {
+    if (!searchQuery) return [{ text, highlighted: false }];
+
+    const parts = [];
+    const regex = new RegExp(
+      `(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+      "gi"
+    );
+    let lastIndex = 0;
+    let match;
+
+    while ((match = regex.exec(text)) !== null) {
+      // Add text before the match
+      if (match.index > lastIndex) {
+        parts.push({
+          text: text.substring(lastIndex, match.index),
+          highlighted: false,
+        });
+      }
+      // Add the highlighted match
+      parts.push({ text: match[0], highlighted: true });
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    if (lastIndex < text.length) {
+      parts.push({ text: text.substring(lastIndex), highlighted: false });
+    }
+
+    return parts;
   }
 
   function setupWebSocket(userId: string, conversationId: string) {
@@ -557,17 +617,63 @@
                 ←
               </button>
               <span class="chat-name">{currentConversation.name}</span>
-              <button
-                aria-label="icon button"
-                type="button"
-                class="icon-button"
-                on:click={() =>
-                  (showParticipantsDropdown = !showParticipantsDropdown)}
-              >
+              <div class="chat-header-actions">
+                <button
+                  aria-label="search messages"
+                  type="button"
+                  class="icon-button"
+                  on:click={toggleMessageSearch}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                  </svg>
+                </button>
+                <button
+                  aria-label="conversation info"
+                  type="button"
+                  class="icon-button"
+                  on:click={() =>
+                    (showParticipantsDropdown = !showParticipantsDropdown)}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 16v-4"></path>
+                    <path d="M12 8h.01"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message Search Bar -->
+          {#if showSearchMessages}
+            <div class="message-search-container">
+              <div class="message-search-input">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
+                  width="16"
+                  height="16"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -575,13 +681,49 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <path d="M12 16v-4"></path>
-                  <path d="M12 8h.01"></path>
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.3-4.3"></path>
                 </svg>
-              </button>
+                <input
+                  type="text"
+                  placeholder="Search messages..."
+                  bind:value={messageSearchQuery}
+                  on:input={searchMessages}
+                />
+                <button
+                  type="button"
+                  class="clear-search-button"
+                  on:click={clearMessageSearch}
+                  aria-label="Clear search"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+              {#if messageSearchQuery && filteredMessages.length > 0}
+                <div class="search-results-count">
+                  {filteredMessages.length} message{filteredMessages.length !==
+                  1
+                    ? "s"
+                    : ""} found
+                </div>
+              {:else if messageSearchQuery && filteredMessages.length === 0}
+                <div class="search-results-count">No messages found</div>
+              {/if}
             </div>
-          </div>
+          {/if}
 
           <div class="dropdown-container">
             {#if showParticipantsDropdown}
@@ -635,17 +777,22 @@
               })}
             </div>
           </div>
-
           <div class="messages-list">
-            {#if messages.length === 0}
+            {#if (messageSearchQuery ? filteredMessages : messages).length === 0}
               <div class="empty-messages">
-                <p>No messages yet</p>
-                <span>Start a conversation with {currentConversation.name}</span
-                >
+                {#if messageSearchQuery}
+                  <p>No messages found</p>
+                  <span>Try searching with different keywords</span>
+                {:else}
+                  <p>No messages yet</p>
+                  <span
+                    >Start a conversation with {currentConversation.name}</span
+                  >
+                {/if}
               </div>
             {:else}
-              {#each messages as message, i (message.id)}
-                {#if i === 0 || formatDate(messages[i - 1].created_at) !== formatDate(message.created_at)}
+              {#each messageSearchQuery ? filteredMessages : messages as message, i (message.id)}
+                {#if i === 0 || formatDate((messageSearchQuery ? filteredMessages : messages)[i - 1].created_at) !== formatDate(message.created_at)}
                   <div class="date-divider">
                     <span>{formatDate(message.created_at)}</span>
                   </div>
@@ -653,6 +800,10 @@
                 <div
                   class="message-item"
                   class:own-message={message.sender_id === user.id}
+                  class:search-highlight={messageSearchQuery &&
+                    message.content
+                      .toLowerCase()
+                      .includes(messageSearchQuery.toLowerCase())}
                 >
                   {#if message.sender_id !== user.id}
                     <div class="message-avatar">
@@ -666,7 +817,17 @@
                   <div class="message-content">
                     {#if message.media_type === "text"}
                       <div class="message-bubble">
-                        {message.content}
+                        {#if messageSearchQuery}
+                          {#each getHighlightedTextParts(message.content, messageSearchQuery) as part, index (index)}
+                            {#if part.highlighted}
+                              <span class="search-highlight">{part.text}</span>
+                            {:else}
+                              {part.text}
+                            {/if}
+                          {/each}
+                        {:else}
+                          {message.content}
+                        {/if}
                       </div>
                     {:else if message.media_type === "image"}
                       <div class="message-media">
@@ -1574,9 +1735,81 @@
     .message-input-container {
       padding: 12px;
     }
-
     .messages-list {
       max-height: calc(100vh - 180px);
     }
+  }
+
+  /* Message Search Styles */
+  .message-search-container {
+    background-color: var(--background);
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 16px;
+  }
+
+  .message-search-input {
+    display: flex;
+    align-items: center;
+    background-color: var(--hover-background);
+    border-radius: 9999px;
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .message-search-input svg {
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+  }
+
+  .message-search-input input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 15px;
+    outline: none;
+  }
+
+  .message-search-input input::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  .clear-search-button {
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+  }
+
+  .clear-search-button:hover {
+    background-color: var(--hover-background);
+    color: var(--text-primary);
+  }
+
+  .search-results-count {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--text-tertiary);
+    text-align: center;
+  }
+
+  .search-highlight {
+    background-color: rgba(255, 255, 0, 0.3);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 1px 2px;
+    border-radius: 2px;
+  }
+
+  .chat-header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
   }
 </style>
