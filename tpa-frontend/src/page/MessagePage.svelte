@@ -40,10 +40,18 @@
   let showUserDropdown = false;
   let selectedUsers: string[] = [];
   let showConversationsList = true;
-
   let showSearchMessages = false;
   let messageSearchQuery = "";
   let filteredMessages: Message[] = [];
+
+  // Reactive search - automatically update filtered messages when search query changes
+  $: {
+    if (messageSearchQuery.trim()) {
+      searchMessages();
+    } else {
+      filteredMessages = [];
+    }
+  }
 
   function checkMobile() {
     return window.innerWidth <= 768;
@@ -72,26 +80,54 @@
       return;
     }
 
-    filteredMessages = messages.filter((message) =>
-      message.content.toLowerCase().includes(messageSearchQuery.toLowerCase())
-    );
+    const searchTerm = messageSearchQuery.toLowerCase().trim();
+
+    filteredMessages = messages.filter((message) => {
+      // Check if message content exists and contains search term
+      const content = message.content || "";
+      const normalizedContent = content.toLowerCase().trim();
+
+      // Simple includes check
+      if (normalizedContent.includes(searchTerm)) {
+        return true;
+      }
+
+      // Split search term into words for partial matching
+      const searchWords = searchTerm
+        .split(/\s+/)
+        .filter((word) => word.length > 0);
+      if (searchWords.length > 1) {
+        // Check if all words are present in the content (not necessarily consecutive)
+        return searchWords.every((word) => normalizedContent.includes(word));
+      }
+
+      // Also search in media captions for non-text messages
+      if (message.media_type !== "text" && content) {
+        return normalizedContent.includes(searchTerm);
+      }
+
+      return false;
+    });
   }
   function clearMessageSearch() {
     messageSearchQuery = "";
     filteredMessages = [];
     showSearchMessages = false;
   }
-
   // Safe text highlighting without XSS risk
   function getHighlightedTextParts(
     text: string,
     searchQuery: string
   ): Array<{ text: string; highlighted: boolean }> {
-    if (!searchQuery) return [{ text, highlighted: false }];
+    if (!searchQuery || !text)
+      return [{ text: text || "", highlighted: false }];
 
     const parts = [];
+    const cleanSearchQuery = searchQuery.trim();
+    if (!cleanSearchQuery) return [{ text, highlighted: false }];
+
     const regex = new RegExp(
-      `(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+      `(${cleanSearchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
       "gi"
     );
     let lastIndex = 0;
@@ -115,7 +151,7 @@
       parts.push({ text: text.substring(lastIndex), highlighted: false });
     }
 
-    return parts;
+    return parts.length > 0 ? parts : [{ text, highlighted: false }];
   }
 
   function setupWebSocket(userId: string, conversationId: string) {
@@ -187,7 +223,6 @@
     toastStore.success("Success update participants!");
     await refreshData();
   }
-
   async function selectConversation(conversation: Conversation) {
     currentConversation = conversation;
     // console.log(currentConversation.participants);
@@ -199,6 +234,11 @@
     } else {
       selectedParticipants = [];
     }
+
+    // Clear search when switching conversations
+    showSearchMessages = false;
+    messageSearchQuery = "";
+    filteredMessages = [];
 
     await refreshData();
   }
@@ -688,7 +728,6 @@
                   type="text"
                   placeholder="Search messages..."
                   bind:value={messageSearchQuery}
-                  on:input={searchMessages}
                 />
                 <button
                   type="button"
