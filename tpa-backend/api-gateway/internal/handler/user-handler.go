@@ -249,7 +249,12 @@ func (h *UserHandler) GetUserByEmail(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		st, ok := status.FromError(err)
+		if ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": st.Message()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
+		}
 		return
 	}
 

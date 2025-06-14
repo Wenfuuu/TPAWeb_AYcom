@@ -46,7 +46,10 @@
 
     try {
         user = await fetchUserByEmail(email);
-        // console.log(user);
+        if(user.is_banned) {
+            toastStore.error("This account is banned");
+            return;
+        }
 
         questions = await fetchSecurityQuestions(user.id);
         // console.log(questions);
