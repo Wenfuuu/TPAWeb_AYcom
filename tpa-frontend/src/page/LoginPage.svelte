@@ -11,6 +11,7 @@
   import { checkGuest, login } from "../lib/utils/auth";
   import { onMount } from "svelte";
   import { toastStore } from "../lib/stores/toast";
+  import axios from "axios";
 
   let email = "";
   let password = "";
@@ -24,11 +25,12 @@
     try {
       await login(email, password, navigate);
       toastStore.success("Login success!");
-    } catch (error: unknown) {
-      if (error instanceof Error) {
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.error || error.message;
+        toastStore.error(message);
+      } else if (error instanceof Error) {
         toastStore.error(error.message);
-      } else {
-        toastStore.error("An unexpected error occurred!");
       }
     } finally {
       loading = false;

@@ -4,7 +4,7 @@ import { toastStore } from "../stores/toast";
 
 const BASE_API_URL = "http://localhost:8080/api/auth";
 
-type LoginResponse = {
+export type LoginResponse = {
     access_token: string
     refresh_token: string
     user: User

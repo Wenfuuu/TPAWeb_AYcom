@@ -59,7 +59,7 @@ func (h *AuthHandler) Login(ctx context.Context, req *authpb.AuthLoginRequest) (
 
 	// Verify password
 	if !utils.ComparePassword(userResp.User.Password, req.Password) {
-		return nil, status.Error(codes.Unauthenticated, "Invalid credentials")
+		return nil, status.Error(codes.Unauthenticated, "Invalid password")
 	}
 
 	// check activated
