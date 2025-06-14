@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+
 	// "fmt"
 	"log"
 	"math/rand"
@@ -20,31 +21,31 @@ import (
 )
 
 type AuthHandler struct {
-	userClient userpb.UserServiceClient
-	rdb *redis.Client
+	userClient    userpb.UserServiceClient
+	rdb           *redis.Client
 	rabbitChannel *amqp091.Channel
 }
 
 func NewAuthHandler(userClient userpb.UserServiceClient) *AuthHandler {
 	ch, err := utils.GetRabbitMQChannel()
-    if err != nil {
-        log.Fatalf("Failed to get RabbitMQ channel for AuthHandler: %v", err)
-    }
+	if err != nil {
+		log.Fatalf("Failed to get RabbitMQ channel for AuthHandler: %v", err)
+	}
 
 	exchangeName := "email_exchange"
-    err = ch.ExchangeDeclare(
-        exchangeName,     // name
-        "direct",         // type
-        true,             // durable
-        false,            // auto-deleted
-        false,            // internal
-        false,            // no-wait
-        nil,              // arguments
-    )
+	err = ch.ExchangeDeclare(
+		exchangeName, // name
+		"direct",     // type
+		true,         // durable
+		false,        // auto-deleted
+		false,        // internal
+		false,        // no-wait
+		nil,          // arguments
+	)
 
 	return &AuthHandler{
-		userClient: userClient,
-		rdb: createRedisClient(),
+		userClient:    userClient,
+		rdb:           createRedisClient(),
 		rabbitChannel: ch,
 	}
 }
@@ -78,9 +79,9 @@ func (h *AuthHandler) Login(ctx context.Context, req *authpb.AuthLoginRequest) (
 	}
 
 	return &authpb.AuthLoginResponse{
-		AccessToken: accessToken,
+		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		User: h.userToProto(userResp.User),
+		User:         h.userToProto(userResp.User),
 	}, nil
 }
 
@@ -90,21 +91,49 @@ func (h *AuthHandler) Register(ctx context.Context, req *authpb.AuthRegisterRequ
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Failed to hash password")
 	}
+	// Call User Service to create user
+	createResp, err := h.userClient.Register(ctx, &userpb.RegisterRequest{
+		Name:             req.Name,
+		Username:         req.Username,
+		Email:            req.Email,
+		Password:         hashedPassword,
+		Gender:           req.Gender,
+		ProfilePicture:   req.ProfilePicture,
+		Banner:           req.Banner,
+		DateOfBirth:      req.DateOfBirth,
+		IsActive:         req.IsActive,
+		IsBanned:         req.IsBanned,
+		Role:             req.Role,
+		SecurityQuestion: req.SecurityQuestion,
+		SecurityAnswer:   req.SecurityAnswer,
+		IsSubscribed:     req.IsSubscribed,
+		IsPremium:        req.IsPremium,
+		Bio:              req.Bio,
+	})
+	if err != nil {
+		// Check if this is a validation error or other gRPC error
+		if st, ok := status.FromError(err); ok {
+			// Propagate the specific error code and message from user service
+			return nil, status.Error(st.Code(), st.Message())
+		}
+		// Fallback for non-gRPC errors
+		return nil, status.Error(codes.Internal, "Failed to create user")
+	}
 
 	// Rabbitmq to email service to send success message
 	payload := messaging.EmailPayload{
 		Email: req.Email,
-		Word: "Successfully registered account for AY.com",
+		Word:  "Successfully registered account for AY.com",
 	}
 
 	body, err := json.Marshal(payload)
-    if err != nil {
-        log.Printf("Failed to marshal email payload: %v", err)
-        return nil, status.Error(codes.Internal, "Failed to process request (marshal)")
-    }
+	if err != nil {
+		log.Printf("Failed to marshal email payload: %v", err)
+		return nil, status.Error(codes.Internal, "Failed to process request (marshal)")
+	}
 
 	exchangeName := "email_exchange"
-    routingKey := "email"
+	routingKey := "email"
 	err = h.rabbitChannel.PublishWithContext(
 		context.Background(),
 		exchangeName,
@@ -112,39 +141,16 @@ func (h *AuthHandler) Register(ctx context.Context, req *authpb.AuthRegisterRequ
 		false,
 		false,
 		amqp091.Publishing{
-            ContentType: "application/json",
-            Body:        body,
-            DeliveryMode: amqp091.Transient,
-        },
+			ContentType:  "application/json",
+			Body:         body,
+			DeliveryMode: amqp091.Transient,
+		},
 	)
 	if err != nil {
-        log.Printf("Failed to publish email message: %v", err)
-        return nil, status.Error(codes.Internal, "Failed to queue email request")
-    }
-    log.Printf("Successfully published email request for %s", req.Email)
-
-	// Call User Service to create user
-	createResp, err := h.userClient.Register(ctx, &userpb.RegisterRequest{
-		Name:           	req.Name,
-		Username:       	req.Username,
-		Email:          	req.Email,
-		Password:       	hashedPassword,
-		Gender:         	req.Gender,
-		ProfilePicture: 	req.ProfilePicture,
-		Banner:         	req.Banner,
-		DateOfBirth:    	req.DateOfBirth,
-		IsActive:       	req.IsActive,
-		IsBanned:       	req.IsBanned,
-		Role:           	req.Role,
-		SecurityQuestion: 	req.SecurityQuestion,
-		SecurityAnswer: 	req.SecurityAnswer,
-		IsSubscribed: 		req.IsSubscribed,
-		IsPremium: 			req.IsPremium,
-		Bio: 				req.Bio,
-	})
-	if err != nil {
-		return nil, status.Error(codes.Internal, "Failed to create user")
+		log.Printf("Failed to publish email message: %v", err)
+		return nil, status.Error(codes.Internal, "Failed to queue email request")
 	}
+	log.Printf("Successfully published email request for %s", req.Email)
 
 	return &authpb.AuthRegisterResponse{
 		User: h.userToProto(createResp.User),
@@ -224,7 +230,7 @@ func (h *AuthHandler) GetAuthUser(ctx context.Context, req *authpb.GetAuthUserRe
 	}
 
 	return &authpb.AuthLoginResponse{
-		User:	h.userToProto(userResp.User),
+		User: h.userToProto(userResp.User),
 	}, nil
 }
 
@@ -269,17 +275,17 @@ func (h *AuthHandler) SendVerificationCode(ctx context.Context, req *authpb.Send
 	// rabbitmq logic here
 	payload := messaging.VerificationEmailPayload{
 		Email: req.Email,
-		Code: code,
+		Code:  code,
 	}
 
 	body, err := json.Marshal(payload)
-    if err != nil {
-        log.Printf("Failed to marshal verification email payload: %v", err)
-        return nil, status.Error(codes.Internal, "Failed to process request (marshal)")
-    }
+	if err != nil {
+		log.Printf("Failed to marshal verification email payload: %v", err)
+		return nil, status.Error(codes.Internal, "Failed to process request (marshal)")
+	}
 
 	exchangeName := "email_exchange"
-    routingKey := "verification_email"
+	routingKey := "verification_email"
 	err = h.rabbitChannel.PublishWithContext(
 		context.Background(),
 		exchangeName,
@@ -287,16 +293,16 @@ func (h *AuthHandler) SendVerificationCode(ctx context.Context, req *authpb.Send
 		false,
 		false,
 		amqp091.Publishing{
-            ContentType: "application/json",
-            Body:        body,
-            DeliveryMode: amqp091.Persistent, // Make message persistent (survive broker restart)
-        },
+			ContentType:  "application/json",
+			Body:         body,
+			DeliveryMode: amqp091.Persistent, // Make message persistent (survive broker restart)
+		},
 	)
 	if err != nil {
-        log.Printf("Failed to publish verification email message: %v", err)
-        return nil, status.Error(codes.Internal, "Failed to queue email request")
-    }
-    log.Printf("Successfully published verification email request for %s", req.Email)
+		log.Printf("Failed to publish verification email message: %v", err)
+		return nil, status.Error(codes.Internal, "Failed to queue email request")
+	}
+	log.Printf("Successfully published verification email request for %s", req.Email)
 
 	return &authpb.SendVerificationCodeResponse{
 		Success: true,
@@ -325,31 +331,31 @@ func (h *AuthHandler) VerifyCode(ctx context.Context, req *authpb.VerifyCodeRequ
 // Helper functions
 func (h *AuthHandler) userToProto(user *userpb.User) *authpb.AuthUser {
 	return &authpb.AuthUser{
-		Id:        		user.Id,
-		Name: 			user.Name,
-		Username: 		user.Username,
-		Email:     		user.Email,
-		Password:     	user.Password,
-		Gender: 		user.Gender,
+		Id:             user.Id,
+		Name:           user.Name,
+		Username:       user.Username,
+		Email:          user.Email,
+		Password:       user.Password,
+		Gender:         user.Gender,
 		ProfilePicture: user.ProfilePicture,
-		Banner: 		user.Banner,
-		DateOfBirth: 	user.DateOfBirth,
-		IsActive: 		user.IsActive,
-		IsBanned: 		user.IsBanned,
-		Role: 			user.Role,
-		IsSubscribed: 	user.IsSubscribed,
-		IsPremium: 		user.IsPremium,
-		Bio: 			user.Bio,
-		CreatedAt: 		user.CreatedAt,
+		Banner:         user.Banner,
+		DateOfBirth:    user.DateOfBirth,
+		IsActive:       user.IsActive,
+		IsBanned:       user.IsBanned,
+		Role:           user.Role,
+		IsSubscribed:   user.IsSubscribed,
+		IsPremium:      user.IsPremium,
+		Bio:            user.Bio,
+		CreatedAt:      user.CreatedAt,
 	}
 }
 
 func createRedisClient() *redis.Client {
 	redisAddr := utils.GetDotEnv("REDIS_ADDR")
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     redisAddr, 
-		Password: "",           
-		DB:       0,            
+		Addr:     redisAddr,
+		Password: "",
+		DB:       0,
 	})
 	return rdb
 }

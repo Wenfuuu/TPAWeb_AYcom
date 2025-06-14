@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -38,17 +39,17 @@ func NewUserHandler() *UserHandler {
 
 func (h *UserHandler) FollowUser(ctx context.Context, req *userpb.FollowUserRequest) (*userpb.Follow, error) {
 	followerID, err := uuid.Parse(req.FollowerId)
-    if err != nil {
-        return nil, fmt.Errorf("invalid user ID: %v", err)
-    }
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID: %v", err)
+	}
 
-    followingID, err := uuid.Parse(req.FollowingId)
-    if err != nil {
-        return nil, fmt.Errorf("invalid user ID: %v", err)
-    }
+	followingID, err := uuid.Parse(req.FollowingId)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID: %v", err)
+	}
 
 	follow := model.Follow{
-		FollowerID: followerID,
+		FollowerID:  followerID,
 		FollowingID: followingID,
 	}
 
@@ -218,7 +219,7 @@ func (h *UserHandler) RegisterPremium(ctx context.Context, req *userpb.RegisterP
 	request := model.PremiumRequest{
 		UserID:         uuid.MustParse(req.UserId),
 		IdentityNumber: hashedId,
-		Reason: 		req.Reason,
+		Reason:         req.Reason,
 		FacePicture:    req.FacePicture,
 	}
 
@@ -385,7 +386,7 @@ func (h *UserHandler) SetUserBanStatus(ctx context.Context, req *userpb.SetUserB
 		return nil, status.Error(codes.Internal, "Database error")
 	}
 
-	user.IsBanned = req.Banned;
+	user.IsBanned = req.Banned
 
 	if err := h.userRepo.Update(user); err != nil {
 		return nil, status.Error(codes.Internal, "Failed to update password")
@@ -573,11 +574,11 @@ func stringPtr(s string) *string {
 // Helper functions
 func (h *UserHandler) reportToProto(req *model.Report) *userpb.Report {
 	return &userpb.Report{
-		Id:             req.ID.String(),
-		UserId:         req.UserID.String(),
-		ReportedId: 	req.ReportedID.String(),
-		Reason:         req.Reason,
-		CreatedAt:      req.CreatedAt.Format(time.RFC3339),
+		Id:         req.ID.String(),
+		UserId:     req.UserID.String(),
+		ReportedId: req.ReportedID.String(),
+		Reason:     req.Reason,
+		CreatedAt:  req.CreatedAt.Format(time.RFC3339),
 	}
 }
 
@@ -621,8 +622,185 @@ func (h *UserHandler) userToResponse(user *model.User) *userpb.UserResponse {
 
 // Validation functions
 func validateRegisterRequest(req *userpb.RegisterRequest) error {
-	if req.Email == "" || req.Password == "" {
-		return status.Error(codes.InvalidArgument, "Missing required fields")
+	// Validate name
+	if err := validateName(req.Name); err != "" {
+		return status.Error(codes.InvalidArgument, err)
 	}
+
+	// Validate email
+	if err := validateEmail(req.Email); err != "" {
+		return status.Error(codes.InvalidArgument, err)
+	}
+
+	// Validate password
+	if err := validatePassword(req.Password); err != "" {
+		return status.Error(codes.InvalidArgument, err)
+	}
+
+	// Validate gender
+	if err := validateGender(req.Gender); err != "" {
+		return status.Error(codes.InvalidArgument, err)
+	}
+	// Validate date of birth
+	if err := validateDateOfBirth(req.DateOfBirth); err != "" {
+		return status.Error(codes.InvalidArgument, err)
+	}
+
+	// Validate security question and answer
+	if err := validateSecurityQuestion(req.SecurityQuestion, req.SecurityAnswer); err != "" {
+		return status.Error(codes.InvalidArgument, err)
+	}
+
 	return nil
+}
+
+// Individual validation functions
+func validateName(name string) string {
+	if len(name) < 4 {
+		return "Name must be at least 4 characters long"
+	}
+	
+	// Only letters and spaces allowed
+	nameRegex := regexp.MustCompile(`^[a-zA-Z\s]+$`)
+	if !nameRegex.MatchString(name) {
+		return "Name must contain only letters and spaces"
+	}
+	return ""
+}
+
+func validateEmail(email string) string {
+	if email == "" {
+		return "Email is required"
+	}
+	// Basic email regex validation
+	emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	if matched, _ := regexp.MatchString(emailRegex, email); !matched {
+		return "Please provide a valid email address"
+	}
+	if len(email) > 100 {
+		return "Email address is too long"
+	}
+	return ""
+}
+
+func validatePassword(password string) string {
+	if password == "" {
+		return "Password is required"
+	}
+	if len(password) < 8 {
+		return "Password must be at least 8 characters long"
+	}
+
+	// Check for required character types
+	hasUpper := false
+	hasLower := false
+	hasDigit := false
+	hasSpecial := false
+
+	for _, char := range password {
+		switch {
+		case char >= 'A' && char <= 'Z':
+			hasUpper = true
+		case char >= 'a' && char <= 'z':
+			hasLower = true
+		case char >= '0' && char <= '9':
+			hasDigit = true
+		case char == '!' || char == '@' || char == '#' || char == '$' ||
+			char == '%' || char == '^' || char == '&' || char == '*' ||
+			char == '(' || char == ')' || char == '-' || char == '_' ||
+			char == '=' || char == '+' || char == '[' || char == ']' ||
+			char == '{' || char == '}' || char == '|' || char == '\\' ||
+			char == ':' || char == ';' || char == '"' || char == '\'' ||
+			char == '<' || char == '>' || char == ',' || char == '.' ||
+			char == '?' || char == '/' || char == '~' || char == '`':
+			hasSpecial = true
+		}
+	}
+
+	if !hasUpper {
+		return "Password must contain at least one uppercase letter"
+	}
+	if !hasLower {
+		return "Password must contain at least one lowercase letter"
+	}
+	if !hasDigit {
+		return "Password must contain at least one number"
+	}
+	if !hasSpecial {
+		return "Password must contain at least one special character"
+	}
+
+	return ""
+}
+
+func validateGender(gender string) string {
+	if gender == "" {
+		return "Gender is required"
+	}
+	validGenders := []string{"male", "female"}
+	for _, validGender := range validGenders {
+		if strings.ToLower(gender) == validGender {
+			return ""
+		}
+	}
+	return "Gender must be one of: male, female, other, prefer-not-to-say"
+}
+
+func validateDateOfBirth(dateOfBirth string) string {
+	if dateOfBirth == "" {
+		return "Date of birth is required"
+	}
+
+	// Parse the date in YYYY-MM-DD format
+	birthDate, err := time.Parse("2006-01-02", dateOfBirth)
+	if err != nil {
+		return "Date of birth must be in YYYY-MM-DD format"
+	}
+
+	// Check if the date is not in the future
+	now := time.Now()
+	if birthDate.After(now) {
+		return "Date of birth cannot be in the future"
+	}
+
+	// Calculate age
+	age := now.Year() - birthDate.Year()
+	if now.YearDay() < birthDate.YearDay() {
+		age--
+	}
+	// Check minimum age requirement (13 years old)
+	if age < 13 {
+		return "You must be at least 13 years old to register"
+	}
+
+	return ""
+}
+
+func validateSecurityQuestion(question, answer string) string {
+	if question == "" {
+		return "Security question is required"
+	}
+	if answer == "" {
+		return "Security answer is required"
+	}
+	if len(answer) < 2 {
+		return "Security answer must be at least 2 characters long"
+	}
+	if len(answer) > 100 {
+		return "Security answer is too long"
+	}
+	// Validate question is one of the predefined options
+	validQuestions := []string{
+		"What was the name of your first pet?",
+		"What city were you born in?",
+		"What is your favorite video game?",
+		"What was the name of your first school?",
+		"What was your childhood nickname?",
+	}
+	for _, validQuestion := range validQuestions {
+		if question == validQuestion {
+			return ""
+		}
+	}
+	return "Please select a valid security question"
 }

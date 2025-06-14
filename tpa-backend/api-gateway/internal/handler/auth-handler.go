@@ -6,6 +6,7 @@ import (
 
 	authpb "github.com/Wenfuuu/tpa-web/pkg/proto/auth"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc/status"
 )
 
 type AuthHandler struct {
@@ -53,7 +54,12 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		st, ok := status.FromError(err)
+		if ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": st.Message()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
+		}
 		return
 	}
 
