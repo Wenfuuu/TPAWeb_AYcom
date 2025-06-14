@@ -845,12 +845,33 @@
                       .includes(messageSearchQuery.toLowerCase())}
                 >
                   {#if message.sender_id !== user.id}
-                    <div class="message-avatar">
-                      <img
-                        src={message.profile_picture ||
-                          "/placeholder.svg?height=32&width=32"}
-                        alt="User"
-                      />
+                    <div class="message-avatar-container">
+                      <div class="message-avatar">
+                        <img
+                          src={message.profile_picture ||
+                            "/placeholder.svg?height=32&width=32"}
+                          alt="User"
+                        />
+                      </div>
+                      <!-- {#if message.is_premium}
+                        <div class="premium-badge">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="premium-checkmark"
+                          >
+                            <path d="M9 12l2 2 4-4"></path>
+                            <circle cx="12" cy="12" r="10"></circle>
+                          </svg>
+                        </div>
+                      {/if} -->
                     </div>
                   {/if}
                   <div class="message-content">
@@ -908,6 +929,23 @@
                     {/if}
                     <div class="message-time">
                       {formatTime(message.created_at)}
+                      {#if message.is_premium}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="premium-checkmark"
+                        >
+                          <path d="M9 12l2 2 4-4"></path>
+                          <circle cx="12" cy="12" r="10"></circle>
+                        </svg>
+                      {/if}
                       {#if message.is_unsent}
                         <span class="unsent-indicator">Unsent</span>
                       {/if}
@@ -1369,7 +1407,6 @@
     align-self: flex-end;
     flex-direction: row-reverse;
   }
-
   .message-avatar {
     width: 32px;
     height: 32px;
@@ -1378,7 +1415,23 @@
     margin-right: 8px;
   }
 
+  .message-avatar-container {
+    position: relative;
+    margin-right: 8px;
+  }
+
+  .premium-checkmark {
+    color: #1da1f2;
+    width: 10px;
+    height: 10px;
+  }
+
   .own-message .message-avatar {
+    margin-right: 0;
+    margin-left: 8px;
+  }
+
+  .own-message .message-avatar-container {
     margin-right: 0;
     margin-left: 8px;
   }
@@ -1738,9 +1791,21 @@
       justify-content: flex-start;
       gap: 8px;
     }
-
     .chat-name {
       flex: 1;
+    }
+
+    /* Premium badge adjustments for mobile */
+    .premium-badge {
+      width: 14px;
+      height: 14px;
+      bottom: -1px;
+      right: -1px;
+    }
+
+    .premium-checkmark {
+      width: 8px;
+      height: 8px;
     }
   }
 

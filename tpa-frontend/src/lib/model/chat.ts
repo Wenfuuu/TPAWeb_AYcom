@@ -30,6 +30,7 @@ export type Message = {
   is_deleted: boolean;
   is_unsent: boolean;
   profile_picture: string;
+  is_premium: boolean;
 };
 
 const BASE_API_URL = "http://localhost:8080/api/chat";
@@ -70,10 +71,12 @@ export async function fetchMessageWithUser(conversation_id: string) {
     messages = allMessages.map(message => {
         const user = allUsers.find(u => u.id === message.sender_id);
         const profile_picture = user ? user.profile_picture : "";
+        const is_premium = user ? user.is_premium : false;
 
         return {
             ...message,
-            profile_picture
+            profile_picture,
+            is_premium
         };
     });
 
