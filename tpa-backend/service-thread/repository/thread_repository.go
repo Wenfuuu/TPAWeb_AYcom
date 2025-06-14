@@ -233,6 +233,7 @@ func (r *ThreadRepository) GetLikedThreads(userId string) ([]model.Thread, error
 	result := r.DB.
 		Joins("JOIN likes ON likes.thread_id = threads.id").
 		Where("likes.user_id = ?", userId).
+		Order("created_at DESC").
 		Find(&threads)
 
 	return threads, result.Error

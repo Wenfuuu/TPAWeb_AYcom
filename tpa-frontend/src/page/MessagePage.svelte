@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import {
-  createNewConversation,
+    createNewConversation,
     fetchMessageWithUser,
     fetchUserConversation,
     updateConversationParticipants,
@@ -37,9 +37,26 @@
   let socket: WebSocket;
   let showParticipantsDropdown = false;
   let selectedParticipants: string[] = [];
-
   let showUserDropdown = false;
   let selectedUsers: string[] = [];
+  let showConversationsList = true;
+
+  // Check if screen is mobile size
+  function checkMobile() {
+    return window.innerWidth <= 768;
+  }
+
+  function handleConversationSelect(conversation: Conversation) {
+    selectConversation(conversation);
+    // Hide conversations list on mobile when a conversation is selected
+    if (checkMobile()) {
+      showConversationsList = false;
+    }
+  }
+
+  function showConversations() {
+    showConversationsList = true;
+  }
 
   function setupWebSocket(userId: string, conversationId: string) {
     if (socket) {
@@ -51,29 +68,29 @@
     );
 
     socket.onmessage = (event) => {
-        const wsMessage = JSON.parse(event.data);
-        // console.log("received wsmssage: " + wsMessage);
-        switch (wsMessage.type) {
-            case "chat": {
-                // console.log("received a message");
-                // Handle chat message
-                const chatMessage = wsMessage.payload;
-                messages = [...messages, chatMessage];
-                // Your existing chat message handling code
-                break;
-            }
-
-            case "notification": {
-                // console.log("received notification");
-                // Handle notification
-                const notification = wsMessage.payload;
-                toastStore.info(notification.content);
-                break;
-            }
-
-            default:
-                // console.log("Unknown message type:", wsMessage.type);
+      const wsMessage = JSON.parse(event.data);
+      // console.log("received wsmssage: " + wsMessage);
+      switch (wsMessage.type) {
+        case "chat": {
+          // console.log("received a message");
+          // Handle chat message
+          const chatMessage = wsMessage.payload;
+          messages = [...messages, chatMessage];
+          // Your existing chat message handling code
+          break;
         }
+
+        case "notification": {
+          // console.log("received notification");
+          // Handle notification
+          const notification = wsMessage.payload;
+          toastStore.info(notification.content);
+          break;
+        }
+
+        default:
+        // console.log("Unknown message type:", wsMessage.type);
+      }
     };
 
     socket.onopen = () => {
@@ -100,9 +117,12 @@
   }
 
   async function updateParticipants() {
-    if(!currentConversation) return;
+    if (!currentConversation) return;
     // console.log(selectedParticipants);
-    await updateConversationParticipants(currentConversation.id, selectedParticipants);
+    await updateConversationParticipants(
+      currentConversation.id,
+      selectedParticipants
+    );
     showParticipantsDropdown = false;
     toastStore.success("Success update participants!");
     await refreshData();
@@ -113,7 +133,9 @@
     // console.log(currentConversation.participants);
 
     if (currentConversation && currentConversation.participants) {
-      selectedParticipants = currentConversation.participants.map(p => p.user_id);
+      selectedParticipants = currentConversation.participants.map(
+        (p) => p.user_id
+      );
     } else {
       selectedParticipants = [];
     }
@@ -229,33 +251,35 @@
     }
 
     const socketMessage = {
-        type: "chat",
-        payload: message
+      type: "chat",
+      payload: message,
     };
 
     socket.send(JSON.stringify(socketMessage));
 
     // test notification
-    const otherParticipants = currentConversation.participants?.filter(p => p.user_id !== user.id) || [];
+    const otherParticipants =
+      currentConversation.participants?.filter((p) => p.user_id !== user.id) ||
+      [];
     // each participant, send a notification
     for (const participant of otherParticipants) {
-        const email = await fetchUserEmailById(participant.user_id, user.id);
-        // console.log(email);
+      const email = await fetchUserEmailById(participant.user_id, user.id);
+      // console.log(email);
 
-        const notif = {
-            recipient_id: participant.user_id,
-            sender_id: user.id,
-            content: `New message from ${user.name} in ${currentConversation?.name}`,
-            category: "message",
-            email: email
-        };
+      const notif = {
+        recipient_id: participant.user_id,
+        sender_id: user.id,
+        content: `New message from ${user.name} in ${currentConversation?.name}`,
+        category: "message",
+        email: email,
+      };
 
-        const notifMessage = {
-            type: "notification",
-            payload: notif
-        };
+      const notifMessage = {
+        type: "notification",
+        payload: notif,
+      };
 
-        socket.send(JSON.stringify(notifMessage));
+      socket.send(JSON.stringify(notifMessage));
     }
 
     newMessage = "";
@@ -346,7 +370,6 @@
     }
     return "";
   }
-
   onMount(async () => {
     await checkAuth(navigate);
 
@@ -372,22 +395,44 @@
         prefersDark ? "dark" : "light"
       );
     }
-
     await refreshData();
+  });
+  onMount(() => {
+    // Set initial mobile state
+    if (checkMobile() && currentConversation) {
+      showConversationsList = false;
+    }
+
+    // Handle window resize to reset mobile state
+    const handleResize = () => {
+      if (!checkMobile()) {
+        showConversationsList = true;
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   });
 </script>
 
 {#if conversations || user}
   <div class="home-container">
     <LeftSidebar {toggleTheme} {isDarkMode} {user} {refreshData} />
-
     <div class="messages-container">
-      <div class="conversations-list">
+      <div class="conversations-list" class:hidden={!showConversationsList}>
         <div class="conversations-header">
           <h2>Messages</h2>
           <div class="header-actions">
-            <button type="button" aria-label="icon button" class="icon-button"
-            on:click={() => showUserDropdown = !showUserDropdown}>
+            <button
+              type="button"
+              aria-label="icon button"
+              class="icon-button"
+              on:click={() => (showUserDropdown = !showUserDropdown)}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -406,25 +451,36 @@
             </button>
 
             {#if showUserDropdown}
-            <div class="create-dropdown-menu">
+              <div class="create-dropdown-menu">
                 <div class="create-dropdown-header">Start New Conversation</div>
                 {#each allUsers as user (user.id)}
-                <label class="create-dropdown-item">
-                    <input type="checkbox" bind:group={selectedUsers} value={user.id} />
+                  <label class="create-dropdown-item">
+                    <input
+                      type="checkbox"
+                      bind:group={selectedUsers}
+                      value={user.id}
+                    />
                     <div class="participant-avatar">
-                    <img src={user.profile_picture || "/placeholder.svg"} alt={user.name} />
+                      <img
+                        src={user.profile_picture || "/placeholder.svg"}
+                        alt={user.name}
+                      />
                     </div>
                     <span>{user.name}</span>
-                </label>
+                  </label>
                 {/each}
                 {#if selectedUsers.length > 0}
-                <button type="button" class="create-convo-btn" on:click={async() => {
-                    await createConversation();
-                }}>
+                  <button
+                    type="button"
+                    class="create-convo-btn"
+                    on:click={async () => {
+                      await createConversation();
+                    }}
+                  >
                     Create Conversation
-                </button>
+                  </button>
                 {/if}
-            </div>
+              </div>
             {/if}
           </div>
         </div>
@@ -464,10 +520,10 @@
                 class="conversation-item"
                 class:active={currentConversation &&
                   currentConversation.id === conversation.id}
-                on:click={() => selectConversation(conversation)}
+                on:click={() => handleConversationSelect(conversation)}
                 on:keydown={(event) => {
                   if (event.key === "Enter" || event.key === " ") {
-                    selectConversation(conversation);
+                    handleConversationSelect(conversation);
                   }
                 }}
               >
@@ -492,30 +548,38 @@
         {#if currentConversation}
           <div class="chat-header">
             <div class="chat-header-info">
+              <button
+                type="button"
+                class="mobile-back-button"
+                on:click={showConversations}
+                aria-label="Back to conversations"
+              >
+                ←
+              </button>
               <span class="chat-name">{currentConversation.name}</span>
               <button
-              aria-label="icon button"
-              type="button"
-              class="icon-button"
-              on:click={() =>
-                (showParticipantsDropdown = !showParticipantsDropdown)}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                aria-label="icon button"
+                type="button"
+                class="icon-button"
+                on:click={() =>
+                  (showParticipantsDropdown = !showParticipantsDropdown)}
               >
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M12 16v-4"></path>
-                <path d="M12 8h.01"></path>
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 16v-4"></path>
+                  <path d="M12 8h.01"></path>
+                </svg>
+              </button>
             </div>
           </div>
 
@@ -524,33 +588,36 @@
               <div class="dropdown-menu">
                 <div class="dropdown-header">Participants</div>
                 {#each allUsers as user (user.id)}
-                <label class="dropdown-item">
+                  <label class="dropdown-item">
                     <input
-                    type="checkbox"
-                    bind:group={selectedParticipants}
-                    value={user.id}
-                    checked={currentConversation?.participants?.some(p => p.user_id === user.id)}
+                      type="checkbox"
+                      bind:group={selectedParticipants}
+                      value={user.id}
+                      checked={currentConversation?.participants?.some(
+                        (p) => p.user_id === user.id
+                      )}
                     />
                     <div class="participant-avatar">
-                    <img
-                        src={user.profile_picture || "/placeholder.svg?height=24&width=24"}
+                      <img
+                        src={user.profile_picture ||
+                          "/placeholder.svg?height=24&width=24"}
                         alt={user.name}
-                    />
+                      />
                     </div>
                     <span>{user.username}</span>
-                </label>
+                  </label>
                 {/each}
 
                 {#if selectedParticipants.length > 0}
-                <button
+                  <button
                     type="button"
                     class="add-participants-btn"
-                    on:click={async() => {
-                        await updateParticipants();
+                    on:click={async () => {
+                      await updateParticipants();
                     }}
-                >
+                  >
                     Update Participants
-                </button>
+                  </button>
                 {/if}
               </div>
             {/if}
@@ -841,45 +908,45 @@
   }
 
   .create-dropdown-menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background-color: var(--background, #fff);
-  border: 1px solid var(--border-color, #ddd);
-  border-radius: 8px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  padding: 12px;
-  min-width: 240px;
-  z-index: 100;
-  margin-top: 10px;
-}
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--background, #fff);
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    padding: 12px;
+    min-width: 240px;
+    z-index: 100;
+    margin-top: 10px;
+  }
 
-.create-dropdown-header {
-  font-weight: bold;
-  font-size: 14px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-color, #eee);
-  margin-bottom: 8px;
-}
+  .create-dropdown-header {
+    font-weight: bold;
+    font-size: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color, #eee);
+    margin-bottom: 8px;
+  }
 
-.create-dropdown-item {
-  display: flex;
-  align-items: center;
-  padding: 6px 0;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  font-size: 14px;
-}
+  .create-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 14px;
+  }
 
-.create-dropdown-item:hover {
-  background-color: var(--hover-background, #f6f6f6);
-  border-radius: 4px;
-}
+  .create-dropdown-item:hover {
+    background-color: var(--hover-background, #f6f6f6);
+    border-radius: 4px;
+  }
 
-.create-dropdown-item input[type="checkbox"] {
-  margin-right: 8px;
-  transform: scale(1.1);
-}
+  .create-dropdown-item input[type="checkbox"] {
+    margin-right: 8px;
+    transform: scale(1.1);
+  }
 
   .icon-button {
     background: none;
@@ -1007,12 +1074,29 @@
     padding: 12px 16px;
     border-bottom: 1px solid var(--border-color);
   }
-
   .chat-header-info {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
+  }
+
+  .mobile-back-button {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 4px 8px;
+    margin-right: 12px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+
+  .mobile-back-button:hover {
+    background-color: var(--hover-background);
   }
 
   .chat-name {
@@ -1314,98 +1398,185 @@
   }
 
   .dropdown-container {
-  position: relative;
-  display: inline-block;
-}
+    position: relative;
+    display: inline-block;
+  }
 
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background-color: var(--background, #fff);
-  border: 1px solid var(--border-color, #ddd);
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  padding: 8px 0;
-  min-width: 220px;
-  z-index: 100;
-  margin-top: 8px;
-  overflow: hidden;
-}
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--background, #fff);
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    padding: 8px 0;
+    min-width: 220px;
+    z-index: 100;
+    margin-top: 8px;
+    overflow: hidden;
+  }
 
-.dropdown-header {
-  font-weight: 600;
-  font-size: 13px;
-  color: #555;
-  padding: 8px 16px;
-  border-bottom: 1px solid var(--border-color, #eee);
-  background-color: var(--header-background, #f9f9f9);
-}
+  .dropdown-header {
+    font-weight: 600;
+    font-size: 13px;
+    color: #555;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-color, #eee);
+    background-color: var(--header-background, #f9f9f9);
+  }
 
-.dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-}
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+  }
 
-.dropdown-item:hover {
-  background-color: var(--hover-background, #f0f0f0);
-}
+  .dropdown-item:hover {
+    background-color: var(--hover-background, #f0f0f0);
+  }
 
-.participant-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #ddd;
-}
+  .participant-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ddd;
+  }
 
-.participant-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+  .participant-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-.dropdown-item input[type="checkbox"] {
-  accent-color: var(--accent-color, #007bff);
-  margin: 0;
-}
+  .dropdown-item input[type="checkbox"] {
+    accent-color: var(--accent-color, #007bff);
+    margin: 0;
+  }
 
-.add-participants-btn,
-.create-convo-btn {
-  width: calc(100% - 32px);
-  margin: 12px 16px 8px;
-  padding: 8px;
-  border: none;
-  border-radius: 8px;
-  background-color: var(--accent-color, #007bff);
-  color: #fff;
-  font-weight: 500;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
+  .add-participants-btn,
+  .create-convo-btn {
+    width: calc(100% - 32px);
+    margin: 12px 16px 8px;
+    padding: 8px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--accent-color, #007bff);
+    color: #fff;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
 
-.add-participants-btn:hover {
-  background-color: var(--accent-hover, #005fcc);
-}
-
+  .add-participants-btn:hover {
+    background-color: var(--accent-hover, #005fcc);
+  }
   @media (max-width: 768px) {
+    .messages-container {
+      position: relative;
+    }
+
     .conversations-list {
       width: 100%;
-      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      z-index: 10;
+      background-color: var(--background);
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .conversations-list.hidden {
+      transform: translateX(-100%);
     }
 
     .chat-detail {
       width: 100%;
+      height: 100%;
+    }
+
+    /* Show mobile back button */
+    .mobile-back-button {
+      display: inline-block;
+    }
+
+    /* Show conversations list when no conversation is selected */
+    .conversations-list:not(.hidden) + .chat-detail {
+      display: none;
+    }
+
+    /* Ensure message input is always visible */
+    .message-input-container {
+      position: sticky;
+      bottom: 8%;
+      background-color: var(--background);
+      z-index: 5;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* Adjust messages list height to account for sticky input */
+    .messages-list {
+      padding-bottom: 20px;
+      max-height: calc(100vh - 200px);
+      overflow-y: auto;
+    }
+
+    /* Adjust chat header layout for mobile */
+    .chat-header-info {
+      justify-content: flex-start;
+      gap: 8px;
+    }
+
+    .chat-name {
+      flex: 1;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .conversations-list {
+      width: 100%;
+    }
+
+    .message-item {
+      max-width: 90%;
+    }
+
+    .media-preview {
+      width: 100px;
+      height: 100px;
+    }
+
+    .message-media {
+      max-width: 250px;
+    }
+
+    .message-input-wrapper {
+      padding: 6px 10px;
+    }
+
+    textarea {
+      font-size: 14px;
+    }
+
+    /* Ensure input area is properly sized on very small screens */
+    .message-input-container {
+      padding: 12px;
+    }
+
+    .messages-list {
+      max-height: calc(100vh - 180px);
     }
   }
 </style>
