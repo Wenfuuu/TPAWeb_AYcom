@@ -29,10 +29,16 @@ service UserService {
   rpc GetPremiumRequests(GetPremiumRequestsRequest) returns (GetPremiumRequestsResponse);
   rpc AcceptPremiumRequest(PremiumRequestId) returns (ActionResponse);
   rpc RejectPremiumRequest(PremiumRequestId) returns (ActionResponse);
-
+  rpc ReportUser(ReportUserRequest) returns (ActionResponse);
   rpc GetReports(GetReportsRequest) returns (GetReportsResponse);
   rpc AcceptReport(AcceptReportRequest) returns (ActionResponse);
   rpc RejectReport(RejectReportRequest) returns (ActionResponse);
+}
+
+message ReportUserRequest {
+  string user_id = 1;
+  string reported_id = 2;
+  string reason = 3;
 }
 
 message RejectReportRequest {

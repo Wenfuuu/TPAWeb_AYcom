@@ -1,11 +1,17 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { Thread, ThreadMedia } from "../model/thread";
-  import { followUser, unfollowUser, type UserThread } from "../model/user";
+  import {
+    followUser,
+    unfollowUser,
+    reportUser,
+    type UserThread,
+  } from "../model/user";
   import type { User } from "../model/user";
   import { navigate } from "svelte-routing";
   import ThreadFeed from "./ThreadFeed.svelte";
   import { toastStore } from "../stores/toast";
+  import axios from "axios";
 
   export let user: User | null;
   export let userProfile: User | null;
@@ -16,10 +22,21 @@
   ) => Promise<void>;
   export let threadMedia: ThreadMedia[] = [];
   export let isUser = false;
-
   let activeTab: "posts" | "replies" | "likes" | "media" = "posts";
   let page = 1;
   let showProfileModal = false;
+  let showReportModal = false;
+  let reportReason = "";
+
+  function openReportModal() {
+    showReportModal = true;
+    reportReason = "";
+  }
+
+  function closeReportModal() {
+    showReportModal = false;
+    reportReason = "";
+  }
 
   function openProfileModal() {
     showProfileModal = true;
@@ -41,12 +58,14 @@
   }
 
   onMount(() => {
-    refreshData(page, activeTab);
-
-    // Add global keyboard listener for modal
+    refreshData(page, activeTab); // Add global keyboard listener for modal
     const handleGlobalKeydown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && showProfileModal) {
-        closeProfileModal();
+      if (event.key === "Escape") {
+        if (showReportModal) {
+          closeReportModal();
+        } else if (showProfileModal) {
+          closeProfileModal();
+        }
       }
     };
 
@@ -119,25 +138,64 @@
           </p>
         </div>
         {#if !isUser}
-          <button
-            type="button"
-            class="follow-button"
-            on:click={async () => {
-              if (!user) return;
-              if (!userProfile.is_followed) {
-                await followUser(user.id, userProfile.id);
-                toastStore.success("Success follow user!");
-              } else {
-                await unfollowUser(user.id, userProfile.id);
-                toastStore.success("Success unfollow user!");
-              }
+          <div class="action-buttons">
+            <button
+              type="button"
+              class="follow-button"
+              on:click={async () => {
+                if (!user) return;
+                if (!userProfile.is_followed) {
+                  await followUser(user.id, userProfile.id);
+                  toastStore.success("Success follow user!");
+                } else {
+                  await unfollowUser(user.id, userProfile.id);
+                  toastStore.success("Success unfollow user!");
+                }
 
-              await refreshData(page, activeTab);
-            }}
-            disabled={false}
-          >
-            {userProfile.is_followed ? "Unfollow" : "Follow"}
-          </button>
+                await refreshData(page, activeTab);
+              }}
+              disabled={false}
+            >
+              {userProfile.is_followed ? "Unfollow" : "Follow"}
+            </button>
+            <button
+              type="button"
+              class="report-button"
+              on:click={openReportModal}
+              aria-label="Report user"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 2L2 7V10C2 16 6 20.5 12 22C18 20.5 22 16 22 10V7L12 2Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M12 8V12"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M12 16H12.01"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              Report
+            </button>
+          </div>
         {/if}
       </div>
     </div>
@@ -291,6 +349,114 @@
       </div>
     </div>
   {/if}
+
+  <!-- Report User Modal -->
+  {#if showReportModal}
+    <div
+      class="modal-overlay"
+      on:click={(event) => {
+        if (event.target === event.currentTarget) {
+          closeReportModal();
+        }
+      }}
+      on:keydown={(event) => {
+        if (event.key === "Escape") {
+          closeReportModal();
+        }
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="report-modal-title"
+      tabindex="-1"
+    >
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="report-modal-title" class="modal-title">
+            Report @{userProfile?.username}
+          </h2>
+          <button
+            type="button"
+            class="modal-close-button"
+            on:click={closeReportModal}
+            aria-label="Close modal"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 6L6 18"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M6 6L18 18"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="report-form">
+          <p class="report-description">
+            Why are you reporting this user? Please provide a reason to help us
+            understand the issue.
+          </p>
+          <textarea
+            bind:value={reportReason}
+            placeholder="Please describe the reason for reporting this user..."
+            class="report-textarea"
+            rows="4"
+            maxlength="500"
+          ></textarea>
+          <div class="report-actions">
+            <button
+              type="button"
+              class="cancel-button"
+              on:click={closeReportModal}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="submit-report-button"
+              disabled={!reportReason.trim()}
+              on:click={async () => {
+                if (!user || !userProfile || !reportReason.trim()) return;
+
+                try {
+                  await reportUser(
+                    user.id,
+                    userProfile.id,
+                    reportReason.trim()
+                  );
+                  toastStore.success("User reported successfully!");
+                } catch (error) {
+                  if (axios.isAxiosError(error)) {
+                    const message = error.response?.data?.error || error.message;
+                    toastStore.error(message);
+                  } else if (error instanceof Error) {
+                      toastStore.error(error.message);
+                  }
+                } finally {
+                  closeReportModal();
+                }
+              }}
+            >
+              Submit Report
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
 {/if}
 
 <style>
@@ -383,7 +549,6 @@
     color: var(--text-secondary);
     margin: 0;
   }
-
   .follow-button {
     background-color: var(--button-primary);
     color: white;
@@ -394,6 +559,113 @@
     cursor: pointer;
     transition: background-color 0.2s;
     height: 30px;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .report-button {
+    background-color: var(--background-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 6px 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+  }
+
+  .report-button:hover {
+    background-color: var(--hover-background);
+    color: var(--text-primary);
+    border-color: var(--text-tertiary);
+  }
+
+  .report-form {
+    padding: 20px;
+  }
+
+  .report-description {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0 0 16px 0;
+    line-height: 1.4;
+  }
+
+  .report-textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    background-color: var(--background-primary);
+    color: var(--text-primary);
+    resize: vertical;
+    transition: border-color 0.2s;
+  }
+
+  .report-textarea:focus {
+    outline: none;
+    border-color: var(--button-primary);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  }
+
+  .report-textarea::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  .report-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+
+  .cancel-button {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .cancel-button:hover {
+    background-color: var(--hover-background);
+    color: var(--text-primary);
+  }
+
+  .submit-report-button {
+    background-color: var(--button-danger, #dc2626);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .submit-report-button:hover:not(:disabled) {
+    background-color: var(--button-danger-hover, #b91c1c);
+  }
+
+  .submit-report-button:disabled {
+    background-color: var(--text-tertiary);
+    cursor: not-allowed;
+    opacity: 0.6;
   }
 
   .tabs {
@@ -610,8 +882,12 @@
       margin-right: 0;
       margin-bottom: 12px;
     }
-
     .follow-button {
+      align-self: flex-end;
+      margin-top: 12px;
+    }
+
+    .action-buttons {
       align-self: flex-end;
       margin-top: 12px;
     }

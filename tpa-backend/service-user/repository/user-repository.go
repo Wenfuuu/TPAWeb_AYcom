@@ -116,6 +116,17 @@ func (r *UserRepository) GetPremiumRequests() ([]model.PremiumRequest, error) {
 	return requests, result.Error
 }
 
+func (r *UserRepository) ReportUser(report *model.Report) error {
+	// Check if the report already exists
+	var existingReport model.Report
+	if err := r.DB.Where("user_id = ? AND reported_id = ?", report.UserID, report.ReportedID).First(&existingReport).Error; err == nil {
+		return errors.New("report already exists")
+	}
+
+	// Create the new report
+	return r.DB.Create(report).Error
+}
+
 func (r *UserRepository) AcceptReport(reportID string) error {
 	var req model.Report
 

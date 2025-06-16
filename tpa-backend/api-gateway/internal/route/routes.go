@@ -20,43 +20,43 @@ import (
 const recaptchaSecret = "6Le5ySYrAAAAAKMMRBku5GFQxZnzfSjftwKO9yQS"
 
 type RecaptchaResponse struct {
-    Success     bool     `json:"success"`
-    ChallengeTS string   `json:"challenge_ts"`
-    Hostname    string   `json:"hostname"`
-    ErrorCodes  []string `json:"error-codes,omitempty"`
+	Success     bool     `json:"success"`
+	ChallengeTS string   `json:"challenge_ts"`
+	Hostname    string   `json:"hostname"`
+	ErrorCodes  []string `json:"error-codes,omitempty"`
 }
 
 func verifyRecaptcha(c *gin.Context) {
 	// Define a struct for expected JSON request body
-    type RequestBody struct {
-        Token string `json:"token"`
-    }
+	type RequestBody struct {
+		Token string `json:"token"`
+	}
 
-    var reqBody RequestBody
-    if err := c.ShouldBindJSON(&reqBody); err != nil || reqBody.Token == "" {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
-        return
-    }
+	var reqBody RequestBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil || reqBody.Token == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
 
-    // Post to Google's reCAPTCHA verification API using application/x-www-form-urlencoded
-    resp, err := http.PostForm("https://www.google.com/recaptcha/api/siteverify",
-        url.Values{
-            "secret":   {recaptchaSecret},
-            "response": {reqBody.Token},
-        })
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify reCAPTCHA"})
-        return
-    }
-    defer resp.Body.Close()
+	// Post to Google's reCAPTCHA verification API using application/x-www-form-urlencoded
+	resp, err := http.PostForm("https://www.google.com/recaptcha/api/siteverify",
+		url.Values{
+			"secret":   {recaptchaSecret},
+			"response": {reqBody.Token},
+		})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify reCAPTCHA"})
+		return
+	}
+	defer resp.Body.Close()
 
-    var recaptchaResp RecaptchaResponse
-    if err := json.NewDecoder(resp.Body).Decode(&recaptchaResp); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode reCAPTCHA response"})
-        return
-    }
+	var recaptchaResp RecaptchaResponse
+	if err := json.NewDecoder(resp.Body).Decode(&recaptchaResp); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode reCAPTCHA response"})
+		return
+	}
 
-    c.JSON(http.StatusOK, recaptchaResp)
+	c.JSON(http.StatusOK, recaptchaResp)
 }
 
 // transcribeAudio forwards audio data to AI service for transcription
@@ -113,7 +113,7 @@ func transcribeAudio(c *gin.Context) {
 }
 
 func InitRoutes(
-	r *gin.Engine, 
+	r *gin.Engine,
 	userClient userpb.UserServiceClient,
 	authClient authpb.AuthServiceClient,
 	threadClient threadpb.ThreadServiceClient,
@@ -170,6 +170,7 @@ func InitRoutes(
 			users.POST("/reject-premium", userHandler.RejectPremium)
 
 			users.GET("/reports", userHandler.GetReports)
+			users.POST("/report", userHandler.ReportUser)
 			users.POST("/accept-report", userHandler.AcceptReport)
 			users.POST("/reject-report", userHandler.RejectReport)
 		}

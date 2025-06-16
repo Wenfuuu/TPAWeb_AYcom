@@ -409,8 +409,49 @@ func (h *UserHandler) GetPremiumRequests(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
 	c.JSON(http.StatusOK, resp.PremiumRequests)
+}
+
+// ReportUser godoc
+// @Summary Report a user
+// @Description Report a user for inappropriate behavior
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param request body ReportUserRequest true "Report User Request"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /users/report [post]
+func (h *UserHandler) ReportUser(c *gin.Context) {
+	var requestBody struct {
+		UserID     string `json:"user_id" binding:"required"`
+		ReportedID string `json:"reported_id" binding:"required"`
+		Reason     string `json:"reason" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := h.Client.ReportUser(context.Background(), &userpb.ReportUserRequest{
+		UserId:     requestBody.UserID,
+		ReportedId: requestBody.ReportedID,
+		Reason:     requestBody.Reason,
+	})
+
+	if err != nil {
+		st, ok := status.FromError(err)
+		if ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": st.Message()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
 }
 
 // AcceptReport godoc

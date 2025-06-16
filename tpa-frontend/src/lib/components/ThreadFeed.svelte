@@ -146,22 +146,22 @@
     >
       <div class="post-avatar">
         <button
-          type="button"
-          class="profile-button"
-          on:click|stopPropagation={() =>
-            navigate(`/profile/${thread.userData?.user_id}`)}
-          on:keydown|stopPropagation={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              navigate(`/profile/${thread.userData?.user_id}`);
-            }
-          }}
-          aria-label={`View ${thread.userData?.name || "User"}'s profile`}
-        >
-          <img
-            src={thread.userData?.profile || "/placeholder.svg"}
-            alt={thread.userData?.name || "User"}
-          />
-        </button>
+        type="button"
+        class="profile-button"
+        on:click|stopPropagation={() =>
+          navigate(`/profile/${thread.userData?.user_id}`)}
+        on:keydown|stopPropagation={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            navigate(`/profile/${thread.userData?.user_id}`);
+          }
+        }}
+        aria-label={`View ${thread.userData?.name || "User"}'s profile`}
+      >
+        <img
+          src={thread.userData?.profile || "/placeholder.svg"}
+          alt={thread.userData?.name || "User"}
+        />
+      </button>
       </div>
       <div class="post-content">
         <div class="post-header">

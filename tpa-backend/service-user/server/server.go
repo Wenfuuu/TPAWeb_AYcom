@@ -40,6 +40,10 @@ func (s *UserServer) Register(ctx context.Context, req *userpb.RegisterRequest) 
 	return s.userHandler.Register(ctx, req)
 }
 
+func (s *UserServer) ReportUser(ctx context.Context, req *userpb.ReportUserRequest) (*userpb.ActionResponse, error) {
+	return s.userHandler.ReportUser(ctx, req)
+}
+
 func (s *UserServer) GetReports(ctx context.Context, req *userpb.GetReportsRequest) (*userpb.GetReportsResponse, error) {
 	return s.userHandler.GetReports(ctx, req)
 }
@@ -68,7 +72,7 @@ func (s *UserServer) RegisterPremium(ctx context.Context, req *userpb.RegisterPr
 	return s.userHandler.RegisterPremium(ctx, req)
 }
 
-func(s *UserServer) GetUserByEmail(ctx context.Context, req *userpb.GetUserByEmailRequest) (*userpb.UserResponse, error) {
+func (s *UserServer) GetUserByEmail(ctx context.Context, req *userpb.GetUserByEmailRequest) (*userpb.UserResponse, error) {
 	return s.userHandler.GetUserByEmail(ctx, req)
 }
 

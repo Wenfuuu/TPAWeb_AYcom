@@ -208,6 +208,57 @@ func (h *UserHandler) RejectReport(ctx context.Context, req *userpb.RejectReport
 	}, nil
 }
 
+func (h *UserHandler) ReportUser(ctx context.Context, req *userpb.ReportUserRequest) (*userpb.ActionResponse, error) {
+	h.logger.Info("ReportUser request received",
+		zap.String("user_id", req.UserId),
+		zap.String("reported_id", req.ReportedId),
+		zap.String("reason", req.Reason))
+
+	// Validate input
+	if req.UserId == "" || req.ReportedId == "" || req.Reason == "" {
+		return nil, status.Error(codes.InvalidArgument, "user_id, reported_id, and reason are required")
+	}
+
+	// Check if user is trying to report themselves
+	if req.UserId == req.ReportedId {
+		return nil, status.Error(codes.InvalidArgument, "Cannot report yourself")
+	}
+
+	// Parse UUIDs
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "Invalid user_id format")
+	}
+
+	reportedID, err := uuid.Parse(req.ReportedId)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "Invalid reported_id format")
+	}
+
+	report := model.Report{
+		UserID:     userID,
+		ReportedID: reportedID,
+		Reason:     req.Reason,
+	}
+
+	if err := h.userRepo.ReportUser(&report); err != nil {
+		h.logger.Error("Failed to create report",
+			zap.String("user_id", req.UserId),
+			zap.String("reported_id", req.ReportedId),
+			zap.Error(err))
+		return nil, status.Error(codes.Internal, "You already reported this user")
+	}
+
+	h.logger.Info("User reported successfully",
+		zap.String("user_id", req.UserId),
+		zap.String("reported_id", req.ReportedId),
+		zap.String("report_id", report.ID.String()))
+
+	return &userpb.ActionResponse{
+		Message: "User reported successfully",
+	}, nil
+}
+
 func (h *UserHandler) GetReports(ctx context.Context, req *userpb.GetReportsRequest) (*userpb.GetReportsResponse, error) {
 	modelRequests, err := h.userRepo.GetReports()
 	if err != nil {
