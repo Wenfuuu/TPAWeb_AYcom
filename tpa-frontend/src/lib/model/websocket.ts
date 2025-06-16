@@ -61,3 +61,24 @@ export function sendMessageNotif(socket: WebSocket,
 
     socket.send(JSON.stringify(notifMessage));
 }
+
+export function sendThreadNotif(socket: WebSocket,
+  recipient_id: string, sender_id: string, thread_id: string,
+  content: string, email: string) {
+
+  const notif = {
+      recipient_id,
+      sender_id,
+      thread_id,
+      content,
+      category: "message",
+      email,
+  };
+
+  const notifMessage = {
+      type: "notification",
+      payload: notif,
+  };
+
+  socket.send(JSON.stringify(notifMessage));
+}

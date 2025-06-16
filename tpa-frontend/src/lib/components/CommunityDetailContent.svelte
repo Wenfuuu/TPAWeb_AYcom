@@ -81,8 +81,8 @@
             }
           }
 
-          if(activeTab === "media") {
-            if(!newMedias) {
+          if (activeTab === "media") {
+            if (!newMedias) {
               hasMore = false;
               isLoading = false;
               return;
@@ -91,10 +91,11 @@
             communityMedia = [
               ...communityMedia,
               ...newMedias.filter(
-                (newMedia) => !newMedias.some((t: CommunityMedia) => t.id === newMedia.id)
-              )
+                (newMedia) =>
+                  !newMedias.some((t: CommunityMedia) => t.id === newMedia.id)
+              ),
             ];
-          }else{
+          } else {
             if (!newThreads) {
               hasMore = false;
               isLoading = false;
@@ -398,56 +399,132 @@
     {:else if activeTab === "media"}
       <div class="media-section">
         <h2 class="media-title">Media</h2>
-        <div class="media-grid">
-          {#each communityMedia as mediaItem (mediaItem.id)}
-            <div role="button"
-              class="media-item"
-              on:click={() => navigate(`/thread-detail/${mediaItem.thread_id}`)}
-              on:keydown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  navigate(`/thread-detail/${mediaItem.thread_id}`);
-                }
-              }}
-              tabindex="0"
-            >
-              {#if mediaItem.file.endsWith(".gif") || mediaItem.file.endsWith(".jpg") || mediaItem.file.endsWith(".png") || mediaItem.file.endsWith(".jpeg")}
-                <img
-                  src={mediaItem.file}
-                  alt="Media content"
-                  class="media-content"
-                />
-              {:else}
-                <video src={mediaItem.file} controls class="media-content">
-                  <track kind="captions" src="path_to_captions.vtt" srclang="en" label="English">
-                </video>
-              {/if}
-            </div>
-          {/each}
-        </div>
+        {#if communityMedia.length > 0}
+          <div class="media-grid">
+            {#each communityMedia as mediaItem (mediaItem.id)}
+              <div
+                role="button"
+                class="media-item"
+                on:click={() =>
+                  navigate(`/thread-detail/${mediaItem.thread_id}`)}
+                on:keydown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    navigate(`/thread-detail/${mediaItem.thread_id}`);
+                  }
+                }}
+                tabindex="0"
+              >
+                {#if mediaItem.file.endsWith(".gif") || mediaItem.file.endsWith(".jpg") || mediaItem.file.endsWith(".png") || mediaItem.file.endsWith(".jpeg")}
+                  <img
+                    src={mediaItem.file}
+                    alt="Media content"
+                    class="media-content"
+                    loading="lazy"
+                  />
+                {:else}
+                  <video
+                    src={mediaItem.file}
+                    class="media-content"
+                    preload="metadata"
+                  >
+                    <track
+                      kind="captions"
+                      src="path_to_captions.vtt"
+                      srclang="en"
+                      label="English"
+                    />
+                  </video>
+                  <div class="video-overlay">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="white"
+                    >
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        {:else}
+          <div class="empty-state">
+            <div class="empty-icon">📸</div>
+            <h3>No media yet</h3>
+            <p>
+              This community hasn't shared any photos or videos yet. Be the
+              first to post some media!
+            </p>
+          </div>
+        {/if}
         <div bind:this={sentinel} class="loading-sentinel">
           {#if isLoading}
-            <p>Loading more media...</p>
+            <div class="loading-spinner">
+              <div class="spinner"></div>
+              <p>Loading more media...</p>
+            </div>
+          {:else if !hasMore && communityMedia.length > 0}
+            <div class="end-message">
+              <span>✨ You've reached the end! ✨</span>
+            </div>
           {/if}
         </div>
       </div>
     {:else if activeTab === "about"}
       <div class="about-section">
         <h2>About {community.name}</h2>
-        <p><strong>Creator:</strong> {community.creator_name}</p>
-        <p>
-          <strong>Created on:</strong>
-          {new Date(community.created_at).toLocaleDateString()}
-        </p>
-        <h3>Community Rules</h3>
-        <p>
-          {community.rule}
-        </p>
-        <h3>Moderators</h3>
-        <ul>
-          {#each moderators as moderator (moderator.id)}
-            <li>{moderator.name} (@{moderator.username})</li>
-          {/each}
-        </ul>
+
+        <div class="about-grid">
+          <div class="about-card">
+            <div class="about-card-header">
+              <span class="about-icon">👤</span>
+              <h3>Creator</h3>
+            </div>
+            <p class="about-card-content">{community.creator_name}</p>
+          </div>
+
+          <div class="about-card">
+            <div class="about-card-header">
+              <span class="about-icon">📅</span>
+              <h3>Created</h3>
+            </div>
+            <p class="about-card-content">
+              {new Date(community.created_at).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
+          </div>
+        </div>
+
+        <div class="about-card rules-card">
+          <h3>Community Rules</h3>
+          <div class="rules-content">
+            <p>{community.rule}</p>
+          </div>
+        </div>
+
+        <div class="about-card moderators-card">
+          <h3>Moderators</h3>
+          <div class="moderators-list">
+            {#each moderators as moderator (moderator.id)}
+              <div class="moderator-item">
+                <img
+                  src={moderator.profile_picture || "/placeholder.svg"}
+                  alt={moderator.name}
+                  class="moderator-avatar"
+                />
+                <div class="moderator-info">
+                  <span class="moderator-name">{moderator.name}</span>
+                  <span class="moderator-username">@{moderator.username}</span>
+                </div>
+                <span class="moderator-badge">MOD</span>
+              </div>
+            {/each}
+          </div>
+        </div>
       </div>
     {:else if activeTab === "manage"}
       <div class="manage-section">
@@ -762,7 +839,7 @@
     font-size: 15px;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 2px;
+    margin-bottom: 4px;
   }
 
   .verified-badge {
@@ -773,8 +850,7 @@
 
   .follow-username {
     font-size: 14px;
-    color: var(--text-tertiary);
-    margin-bottom: 2px;
+    color: var(--text-secondary);
   }
 
   .follow-button {
@@ -784,20 +860,260 @@
     border-radius: 9999px;
     padding: 8px 16px;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
-    height: fit-content;
-    align-self: center;
     transition: background-color 0.2s;
   }
 
   .follow-button:hover {
     opacity: 0.9;
   }
-
+  /* Responsive Design */
   @media (max-width: 768px) {
     .content-area {
-      border-right: none; /* Remove border on mobile */
+      border-right: none;
+      width: 100%;
+      padding: 0;
+    }
+
+    .community-header {
+      margin: 0;
+    }
+
+    .banner-container {
+      height: 150px;
+    }
+
+    .community-info {
+      padding: 12px 16px;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .community-logo {
+      width: 60px;
+      height: 60px;
+      margin-top: -30px;
+      margin-right: 0;
+      margin-bottom: 12px;
+    }
+
+    .join-button {
+      align-self: flex-end;
+      margin-top: -40px;
+    }
+
+    .tabs {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-button {
+      flex: 0 0 auto;
+      min-width: 80px;
+      padding: 12px 16px;
+      font-size: 14px;
+    }
+
+    /* Media section mobile */
+    .media-section {
+      padding: 16px 12px;
+      margin: 8px;
+    }
+
+    .media-title {
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+
+    .media-grid {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+    } /* About section mobile */
+    .about-section {
+      padding: 16px;
+      margin: 8px;
+    }
+
+    .about-section h2 {
+      font-size: 20px;
+    }
+
+    .about-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .about-card {
+      padding: 16px;
+    }
+
+    .about-card h3 {
+      font-size: 15px;
+    }
+
+    .about-card-content {
+      font-size: 14px;
+    }
+
+    .about-icon {
+      font-size: 20px;
+    }
+
+    .moderator-item {
+      padding: 10px 12px;
+    }
+
+    .moderator-avatar {
+      width: 36px;
+      height: 36px;
+    }
+
+    .moderator-name {
+      font-size: 13px;
+    }
+
+    .moderator-username {
+      font-size: 12px;
+    }
+
+    /* Manage section mobile */
+    .manage-section {
+      padding: 16px;
+      margin: 8px;
+    }
+
+    .manage-title {
+      font-size: 20px;
+    }
+
+    .manage-list-item {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .request-info {
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .manage-actions {
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .accept-button,
+    .reject-button {
+      flex: 1;
+      min-width: 0;
+      padding: 12px 16px;
+    }
+
+    .top-members {
+      padding: 12px;
+      margin: 8px;
+    }
+
+    .follow-item {
+      padding: 8px;
+    }
+
+    .follow-avatar {
+      width: 40px;
+      height: 40px;
+    }
+
+    .follow-name {
+      font-size: 14px;
+    }
+
+    .follow-username {
+      font-size: 13px;
+    }
+
+    .follow-button {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .media-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .media-title {
+      font-size: 18px;
+    }
+
+    .about-section h2,
+    .manage-title {
+      font-size: 18px;
+    }
+
+    .manage-list-item {
+      padding: 12px;
+    }
+
+    .accept-button,
+    .reject-button {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    .community-name {
+      font-size: 18px;
+    }
+
+    .community-description {
+      font-size: 13px;
+    }
+  }
+
+  @media (max-width: 320px) {
+    .media-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .tabs {
+      font-size: 12px;
+    }
+
+    .tab-button {
+      min-width: 70px;
+      padding: 10px 12px;
+    }
+  }
+
+  /* Large screen optimizations */
+  @media (min-width: 1200px) {
+    .content-area {
+      max-width: 800px;
+    }
+
+    .media-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .about-section,
+    .manage-section {
+      padding: 32px;
+      margin: 20px;
+    }
+
+    .media-section {
+      padding: 32px;
+      margin: 20px;
     }
   }
 
@@ -904,28 +1220,98 @@
   .follow-button:hover {
     background-color: var(--button-primary-hover);
   }
-
+  /* About Section Styles */
   .about-section {
-    padding: 16px;
+    padding: 24px;
     background-color: var(--card-background);
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 16px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    margin: 16px;
+    border: 1px solid var(--border-color);
   }
 
+  .about-section h2 {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .about-section h2::before {
+    content: "ℹ️";
+    font-size: 20px;
+  }
+
+  .about-section h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 24px 0 12px 0;
+    border-bottom: 2px solid var(--button-primary);
+    padding-bottom: 4px;
+    display: inline-block;
+  }
+
+  .about-section p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 0 0 16px 0;
+  }
+
+  .about-section strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .about-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+  }
+
+  .about-section li {
+    background-color: var(--hover-background);
+    padding: 12px 16px;
+    margin: 8px 0;
+    border-radius: 12px;
+    border-left: 4px solid var(--button-primary);
+    font-size: 14px;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+  }
+
+  .about-section li:hover {
+    background-color: var(--search-background);
+    transform: translateX(4px);
+  }
+
+  /* Manage Section Styles */
   .manage-section {
-    padding: 16px;
+    padding: 24px;
     background-color: var(--card-background);
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 16px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    margin: 16px;
+    border: 1px solid var(--border-color);
   }
 
   .manage-title {
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 24px;
+    font-weight: 800;
     color: var(--text-primary);
-    margin-bottom: 12px;
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .manage-title::before {
+    content: "⚙️";
+    font-size: 20px;
   }
 
   .manage-list {
@@ -938,87 +1324,419 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px;
-    border-bottom: 1px solid var(--border-color);
+    padding: 16px 20px;
+    margin: 12px 0;
+    background-color: var(--hover-background);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+  }
+
+  .manage-list-item:hover {
+    background-color: var(--search-background);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow-color);
   }
 
   .request-info {
-    font-size: 14px;
-    color: var(--text-secondary);
+    font-size: 15px;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .request-info strong {
+    color: var(--button-primary);
+    font-weight: 600;
   }
 
   .manage-actions {
     display: flex;
-    gap: 8px;
+    gap: 12px;
   }
 
   .accept-button,
   .reject-button {
-    background-color: var(--button-primary);
-    color: white;
-    border: none;
-    border-radius: 9999px;
-    padding: 8px 16px;
+    padding: 10px 20px;
     font-size: 14px;
     font-weight: 600;
+    border: none;
+    border-radius: 25px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.3s ease;
+    min-width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
   }
 
-  .reject-button {
-    background-color: var(--text-primary);
-    color: var(--card-background);
+  .accept-button {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
   }
 
   .accept-button:hover {
-    background-color: var(--button-primary-hover);
+    background: linear-gradient(135deg, #218838, #1abc9c);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+  }
+
+  .accept-button::before {
+    content: "✓";
+    font-weight: bold;
+  }
+
+  .reject-button {
+    background: linear-gradient(135deg, #dc3545, #e74c3c);
+    color: white;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
   }
 
   .reject-button:hover {
-    opacity: 0.9;
+    background: linear-gradient(135deg, #c82333, #c0392b);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+  }
+
+  .reject-button::before {
+    content: "✗";
+    font-weight: bold;
   }
 
   .no-requests {
-    font-size: 14px;
-    color: var(--text-secondary);
+    font-size: 16px;
+    color: var(--text-tertiary);
     text-align: center;
-    margin-top: 16px;
+    padding: 40px;
+    background-color: var(--hover-background);
+    border-radius: 12px;
+    border: 2px dashed var(--border-color);
+    margin-top: 20px;
   }
 
+  .no-requests::before {
+    content: "📝";
+    display: block;
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+
+  /* Media Section Styles */
   .media-section {
-    padding: 16px;
-    background-color: var(--card-background);
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 16px;
+    padding: 24px;
+    margin: 16px;
   }
 
   .media-title {
-    font-size: 18px;
-    font-weight: 700;
+    font-size: 24px;
+    font-weight: 800;
     color: var(--text-primary);
-    margin-bottom: 12px;
+    margin: 0 0 24px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .media-title::before {
+    content: "🎬";
+    font-size: 20px;
   }
 
   .media-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
   }
 
   .media-item {
+    position: relative;
     cursor: pointer;
-    transition: transform 0.2s;
+    border-radius: 16px;
+    overflow: hidden;
+    background-color: var(--hover-background);
+    transition: all 0.3s ease;
+    aspect-ratio: 1;
+    border: 2px solid transparent;
   }
 
   .media-item:hover {
-    transform: scale(1.05);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 25px var(--shadow-color);
+    border-color: var(--button-primary);
+  }
+
+  .media-item::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(29, 155, 240, 0.1),
+      rgba(29, 155, 240, 0.3)
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .media-item:hover::after {
+    opacity: 1;
   }
 
   .media-content {
     width: 100%;
-    height: auto;
-    border-radius: 8px;
+    height: 100%;
     object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .media-item:hover .media-content {
+    transform: scale(1.1);
+  }
+
+  /* Video overlay for video thumbnails */
+  .video-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+  }
+
+  .media-item:hover .video-overlay {
+    background: rgba(29, 155, 240, 0.8);
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  /* Empty state styling */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: linear-gradient(
+      135deg,
+      var(--hover-background),
+      var(--search-background)
+    );
+    border-radius: 20px;
+    border: 2px dashed var(--border-color);
+    margin: 20px 0;
+  }
+
+  .empty-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  .empty-state h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 12px 0;
+  }
+
+  .empty-state p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  /* Loading spinner */
+  .loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+    gap: 16px;
+  }
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--spinner-border);
+    border-top: 3px solid var(--spinner-border-top);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .loading-spinner p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 0;
+  }
+
+  /* End message styling */
+  .end-message {
+    text-align: center;
+    padding: 24px;
+    background: linear-gradient(
+      135deg,
+      var(--button-primary),
+      var(--button-primary-hover)
+    );
+    border-radius: 20px;
+    margin: 20px 0;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    box-shadow: 0 4px 12px rgba(29, 155, 240, 0.3);
+  }
+
+  /* About section enhanced styling */
+  .about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .about-card {
+    background: linear-gradient(
+      135deg,
+      var(--card-background),
+      var(--hover-background)
+    );
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px var(--shadow-color);
+  }
+
+  .about-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px var(--shadow-color);
+    border-color: var(--button-primary);
+  }
+
+  .about-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .about-icon {
+    font-size: 24px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  }
+
+  .about-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .about-card-content {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .rules-card,
+  .moderators-card {
+    grid-column: 1 / -1;
+  }
+
+  .rules-content {
+    background-color: var(--search-background);
+    padding: 16px;
+    border-radius: 12px;
+    border-left: 4px solid var(--button-primary);
+    margin-top: 12px;
+  }
+
+  .rules-content p {
+    margin: 0;
+    line-height: 1.6;
+    color: var(--text-primary);
+  }
+
+  .moderators-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .moderator-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background-color: var(--search-background);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+  }
+
+  .moderator-item:hover {
+    background-color: var(--hover-background);
+    border-color: var(--button-primary);
+    transform: translateX(4px);
+  }
+
+  .moderator-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--button-primary);
+  }
+
+  .moderator-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .moderator-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+  }
+
+  .moderator-username {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .moderator-badge {
+    background: linear-gradient(
+      135deg,
+      var(--button-primary),
+      var(--button-primary-hover)
+    );
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
   }
 </style>

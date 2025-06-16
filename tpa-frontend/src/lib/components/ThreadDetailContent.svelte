@@ -15,7 +15,7 @@
   } from "../model/user";
   import { navigate } from "svelte-routing";
   import ComposeReply from "./ComposeReply.svelte";
-  import { sendMessageNotif, setupWS } from "../model/websocket";
+  import { sendThreadNotif, setupWS } from "../model/websocket";
 
   export let thread: Thread & { userData: UserThread };
   export let replies: (Thread & { userData: UserThread })[] = [];
@@ -152,10 +152,11 @@
       await likeThread(user.id, thread.id);
 
       const email = await fetchUserEmailById(thread.user_id, user.id);
-      sendMessageNotif(
+      sendThreadNotif(
         socket,
         thread.user_id,
         user.id,
+        thread.id,
         `You received a like from ${user.name}`,
         email
       );
@@ -174,10 +175,11 @@
       await likeThread(user.id, replyThread.id);
 
       const email = await fetchUserEmailById(replyThread.user_id, user.id);
-      sendMessageNotif(
+      sendThreadNotif(
         socket,
         replyThread.user_id,
         user.id,
+        thread.id,
         `You received a like from ${user.name}`,
         email
       );
@@ -200,10 +202,11 @@
       await bookmarkThread(user.id, thread.id);
 
       const email = await fetchUserEmailById(thread.user_id, user.id);
-      sendMessageNotif(
+      sendThreadNotif(
         socket,
         thread.user_id,
         user.id,
+        thread.id,
         `You received a bookmark from ${user.name}`,
         email
       );
@@ -221,10 +224,11 @@
       await bookmarkThread(user.id, replyThread.id);
 
       const email = await fetchUserEmailById(replyThread.user_id, user.id);
-      sendMessageNotif(
+      sendThreadNotif(
         socket,
-        replyThread.user_id,
+        thread.user_id,
         user.id,
+        thread.id,
         `You received a bookmark from ${user.name}`,
         email
       );

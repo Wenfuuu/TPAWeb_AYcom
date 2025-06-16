@@ -18,7 +18,7 @@
   } from "../model/user";
   import { onMount } from "svelte";
   import { fetchCommunity, type Community } from "../model/community";
-  import { sendMessageNotif, setupWS } from "../model/websocket";
+  import { sendThreadNotif, setupWS } from "../model/websocket";
 
   export let threads: (Thread & { userData: UserThread })[] = [];
   export let user: User | null;
@@ -39,10 +39,11 @@
         toggleLike(thread);
 
         const email = await fetchUserEmailById(thread.user_id, user.id);
-        sendMessageNotif(
+        sendThreadNotif(
           socket,
           thread.user_id,
           user.id,
+          thread.id,
           `You received a like from ${user.name}`,
           email
         );
@@ -70,10 +71,11 @@
         toggleRepost(thread);
 
         const email = await fetchUserEmailById(thread.user_id, user.id);
-        sendMessageNotif(
+        sendThreadNotif(
           socket,
           thread.user_id,
           user.id,
+          thread.id,
           `You received a repost from ${user.name}`,
           email
         );
@@ -101,10 +103,11 @@
         toggleBookmark(thread);
 
         const email = await fetchUserEmailById(thread.user_id, user.id);
-        sendMessageNotif(
+        sendThreadNotif(
           socket,
           thread.user_id,
           user.id,
+          thread.id,
           `You received a bookmark from ${user.name}`,
           email
         );
