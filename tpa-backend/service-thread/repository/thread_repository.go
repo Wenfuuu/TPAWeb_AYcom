@@ -32,15 +32,15 @@ func (r *ThreadRepository) AcceptJoinCommunity(req *model.CommunityMembers, user
 }
 
 func (r *ThreadRepository) RejectJoinCommunity(userid string, communityid string) error {
-    var joinRequest model.JoinCommunityRequest
-    if err := r.DB.Where("user_id = ? AND community_id = ?", userid, communityid).First(&joinRequest).Error; err != nil {
-        return err
-    }
+	var joinRequest model.JoinCommunityRequest
+	if err := r.DB.Where("user_id = ? AND community_id = ?", userid, communityid).First(&joinRequest).Error; err != nil {
+		return err
+	}
 
-    if err := r.DB.Delete(&joinRequest).Error; err != nil {
-        return err
-    }
-    return nil
+	if err := r.DB.Delete(&joinRequest).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *ThreadRepository) GetCreateCommunity() ([]model.CreateCommunityRequest, error) {
@@ -65,13 +65,13 @@ func (r *ThreadRepository) AcceptCreateCommunity(requestID string) error {
 	}
 
 	community := model.Community{
-		Name:        	req.Name,
-		Description: 	req.Description,
-		Logo:     		req.IconURL,
-		CategoryID:  	req.CategoryID,
-		Banner:   		req.BannerURL,
-		Rule:        	req.Rule,
-		CreatorID:      req.UserID,
+		Name:        req.Name,
+		Description: req.Description,
+		Logo:        req.IconURL,
+		CategoryID:  req.CategoryID,
+		Banner:      req.BannerURL,
+		Rule:        req.Rule,
+		CreatorID:   req.UserID,
 	}
 
 	if err := r.DB.Create(&community).Error; err != nil {
@@ -141,6 +141,25 @@ func (r *ThreadRepository) GetAllThreads(page int) ([]model.Thread, error) {
 	offset := (page - 1) * limit
 
 	result := r.DB.Where("reply_to_id IS NULL").Order("created_at DESC").Limit(limit).Offset(offset).Find(&threads)
+
+	// If no threads found and we're beyond the first page, wrap around cyclically
+	if len(threads) == 0 && page > 1 {
+		// Calculate how many full pages of content we have
+		var totalCount int64
+		r.DB.Model(&model.Thread{}).Where("reply_to_id IS NULL").Count(&totalCount)
+
+		if totalCount > 0 {
+			// Calculate total pages available
+			totalPages := int((totalCount + int64(limit) - 1) / int64(limit)) // Ceiling division
+
+			// Calculate which page we should wrap to (cycle through all pages)
+			wrappedPage := ((page - 1) % totalPages) + 1
+			offset = (wrappedPage - 1) * limit
+
+			result = r.DB.Where("reply_to_id IS NULL").Order("created_at DESC").Limit(limit).Offset(offset).Find(&threads)
+		}
+	}
+
 	return threads, result.Error
 }
 
@@ -197,6 +216,25 @@ func (r *ThreadRepository) GetFollowingThreads(page int, userIds []string) ([]mo
 	offset := (page - 1) * limit
 
 	result := r.DB.Where("user_id IN ?", userIds).Order("created_at DESC").Limit(limit).Offset(offset).Find(&threads)
+
+	// If no threads found and we're beyond the first page, wrap around cyclically
+	if len(threads) == 0 && page > 1 {
+		// Calculate how many threads we have from following users
+		var totalCount int64
+		r.DB.Model(&model.Thread{}).Where("user_id IN ?", userIds).Count(&totalCount)
+
+		if totalCount > 0 {
+			// Calculate total pages available
+			totalPages := int((totalCount + int64(limit) - 1) / int64(limit)) // Ceiling division
+
+			// Calculate which page we should wrap to (cycle through all pages)
+			wrappedPage := ((page - 1) % totalPages) + 1
+			offset = (wrappedPage - 1) * limit
+
+			result = r.DB.Where("user_id IN ?", userIds).Order("created_at DESC").Limit(limit).Offset(offset).Find(&threads)
+		}
+	}
+
 	return threads, result.Error
 }
 

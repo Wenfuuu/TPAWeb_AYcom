@@ -36,7 +36,7 @@
       hasMore = true;
 
       // console.log(currentActiveTab);
-      if(currentActiveTab === "for-you") refreshData(page);
+      if (currentActiveTab === "for-you") refreshData(page);
       else refreshFollowingData(page);
     }
   }
@@ -54,30 +54,35 @@
     observer = new IntersectionObserver(
       async (entries) => {
         // console.log(hasMore);
-        if (entries[0].isIntersecting && !isLoading && hasMore) {
+        if (entries[0].isIntersecting && !isLoading) {
           isLoading = true;
           // console.log("Loading more content, page:", page + 1);
 
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise((resolve) => setTimeout(resolve, 500));
 
           let newThreads;
-          if(user){
-            if(currentActiveTab === "for-you") {
-              newThreads = await fetchThreadWithUser(page+1, user.id);
-            }else{
-              newThreads = await fetchFollowingThread(page+1, user.id);
+          if (user) {
+            if (currentActiveTab === "for-you") {
+              newThreads = await fetchThreadWithUser(page + 1, user.id);
+            } else {
+              newThreads = await fetchFollowingThread(page + 1, user.id);
             }
           }
-
-          if(!newThreads){
-            hasMore = false;
+          if (!newThreads || newThreads.length === 0) {
+            // If no new threads, but we have existing threads, keep hasMore as true for infinite scroll
+            if (threads.length > 0) {
+              hasMore = true; // Keep trying - backend will handle wraparound
+            } else {
+              hasMore = false; // No threads at all
+            }
             isLoading = false;
             return;
           }
-          // console.log("Fetched new threads:", newThreads.length);
-          threads = [...threads, ...newThreads];
-          page += 1;
 
+          // Add all threads including duplicates for true infinite scroll
+          threads = [...threads, ...newThreads];
+
+          page += 1;
           isLoading = false;
         }
       },
@@ -102,7 +107,7 @@
 
   async function handlePostCreated() {
     hasMore = true;
-    if(currentActiveTab === "for-you") await refreshData(1);
+    if (currentActiveTab === "for-you") await refreshData(1);
     else refreshFollowingData(1);
   }
 
@@ -138,7 +143,6 @@
     <ComposePost {user} refreshData={handlePostCreated} />
 
     <ThreadFeed {threads} {user} />
-
     <div bind:this={sentinel} class="loading-sentinel">
       {#if isLoading}
         <div class="skeleton-loading">
@@ -166,8 +170,10 @@
             </div>
           {/each}
         </div>
-      {:else if !hasMore && threads.length > 0}
-        <p>No more thread available!</p>
+      {:else if !hasMore && threads.length === 0}
+        <p>No threads available!</p>
+      {:else if threads.length > 0}
+        <p class="scroll-hint">Scroll for more content...</p>
       {/if}
     </div>
   </main>
@@ -316,12 +322,16 @@
     justify-content: space-between;
     max-width: 425px;
   }
-
   .skeleton-action {
     height: 18px;
     width: 36px;
     background-color: var(--hover-background);
     border-radius: 4px;
+  }
+
+  .scroll-hint {
+    opacity: 0.5;
+    font-size: 14px;
   }
 
   @media (max-width: 768px) {
