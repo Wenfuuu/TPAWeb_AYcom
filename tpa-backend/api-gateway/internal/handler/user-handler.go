@@ -29,14 +29,14 @@ func NewUserHandler(userClient userpb.UserServiceClient) *UserHandler {
 // @Accept json
 // @Produce json
 // @Param request body FollowUserRequest true "Follow User Request"
-// @Success 200 {object} userpb.FollowUserResponse
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
 // @Router /users/follow [post]
 func (h *UserHandler) FollowUser(c *gin.Context) {
 	var requestBody struct {
-		FollowerID         	string `json:"follower_id" binding:"required"`
-		FollowingID 		string `json:"following_id" binding:"required"`
+		FollowerID  string `json:"follower_id" binding:"required"`
+		FollowingID string `json:"following_id" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&requestBody); err != nil {
@@ -45,7 +45,7 @@ func (h *UserHandler) FollowUser(c *gin.Context) {
 	}
 
 	resp, err := h.Client.FollowUser(context.Background(), &userpb.FollowUserRequest{
-		FollowerId: requestBody.FollowerID,
+		FollowerId:  requestBody.FollowerID,
 		FollowingId: requestBody.FollowingID,
 	})
 
@@ -64,15 +64,15 @@ func (h *UserHandler) FollowUser(c *gin.Context) {
 // @Produce json
 // @Param follower_id query string true "Follower ID"
 // @Param following_id query string true "Following ID"
-// @Success 200 {string} string
-// @Failure 500 {object} map[string]string
+// @Success 200 {object} MessageResponse
+// @Failure 500 {object} ErrorResponse
 // @Router /users/unfollow [delete]
 func (h *UserHandler) UnfollowUser(c *gin.Context) {
 	followerId := c.Query("follower_id")
 	followingId := c.Query("following_id")
 
 	resp, err := h.Client.UnfollowUser(context.Background(), &userpb.UnfollowUserRequest{
-		FollowerId: followerId,
+		FollowerId:  followerId,
 		FollowingId: followingId,
 	})
 
@@ -90,8 +90,8 @@ func (h *UserHandler) UnfollowUser(c *gin.Context) {
 // @Tags Users
 // @Produce json
 // @Param user_id query string true "User ID"
-// @Success 200 {array} userpb.Follow
-// @Failure 500 {object} map[string]string
+// @Success 200 {array} object
+// @Failure 500 {object} ErrorResponse
 // @Router /users/follower [get]
 func (h *UserHandler) GetFollower(c *gin.Context) {
 	user_id := c.Query("user_id")
@@ -114,8 +114,8 @@ func (h *UserHandler) GetFollower(c *gin.Context) {
 // @Tags Users
 // @Produce json
 // @Param user_id query string true "User ID"
-// @Success 200 {array} userpb.Follow
-// @Failure 500 {object} map[string]string
+// @Success 200 {array} object
+// @Failure 500 {object} ErrorResponse
 // @Router /users/following [get]
 func (h *UserHandler) GetFollowing(c *gin.Context) {
 	userId := c.Query("user_id")
@@ -137,8 +137,8 @@ func (h *UserHandler) GetFollowing(c *gin.Context) {
 // @Description Retrieve a list of all registered users
 // @Tags Users
 // @Produce json
-// @Success 200 {array} userpb.User
-// @Failure 500 {object} map[string]string
+// @Success 200 {array} object
+// @Failure 500 {object} ErrorResponse
 // @Router /users/user [get]
 func (h *UserHandler) GetAllUsers(c *gin.Context) {
 	resp, err := h.Client.GetAllUsers(context.Background(), &userpb.GetAllUsersRequest{})
@@ -157,8 +157,8 @@ func (h *UserHandler) GetAllUsers(c *gin.Context) {
 // @Tags Users
 // @Produce json
 // @Param id query string true "User ID"
-// @Success 200 {object} userpb.User
-// @Failure 500 {object} map[string]string
+// @Success 200 {object} object
+// @Failure 500 {object} ErrorResponse
 // @Router /users/user-profile [get]
 func (h *UserHandler) GetUser(c *gin.Context) {
 	userId := c.Query("id")
@@ -175,6 +175,17 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.User)
 }
 
+// SetUserBanStatus godoc
+// @Summary Set user ban status
+// @Description Update the ban status of a user (admin function)
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param request body SetUserBanStatusRequest true "Ban Status Request"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /users/ban [put]
 func (h *UserHandler) SetUserBanStatus(c *gin.Context) {
 	var req userpb.SetUserBanStatusRequest
 
@@ -197,6 +208,17 @@ func (h *UserHandler) SetUserBanStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
 }
 
+// ResetPassword godoc
+// @Summary Reset user password
+// @Description Reset a user's password using security question
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param request body ResetPasswordRequest true "Reset Password Request"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /users/reset-password [put]
 func (h *UserHandler) ResetPassword(c *gin.Context) {
 	var req userpb.ResetPasswordRequest
 
@@ -219,6 +241,16 @@ func (h *UserHandler) ResetPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
 }
 
+// GetSecurityQuestion godoc
+// @Summary Get user's security question
+// @Description Retrieve the security question for a user by user ID
+// @Tags Users
+// @Produce json
+// @Param user_id query string true "User ID"
+// @Success 200 {object} object
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /users/security-question [get]
 func (h *UserHandler) GetSecurityQuestion(c *gin.Context) {
 	userId := c.Query("user_id")
 
@@ -241,6 +273,16 @@ func (h *UserHandler) GetSecurityQuestion(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// GetUserByEmail godoc
+// @Summary Get user by email
+// @Description Retrieve a user by their email address
+// @Tags Users
+// @Produce json
+// @Param email query string true "User Email"
+// @Success 200 {object} object
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /users/user-email [get]
 func (h *UserHandler) GetUserByEmail(c *gin.Context) {
 	email := c.Query("email")
 
@@ -267,8 +309,8 @@ func (h *UserHandler) GetUserByEmail(c *gin.Context) {
 // @Tags Users
 // @Produce json
 // @Param user_id query string true "User ID"
-// @Success 200 {array} userpb.User
-// @Failure 500 {object} map[string]string
+// @Success 200 {array} object
+// @Failure 500 {object} ErrorResponse
 // @Router /users/who-to-follow [get]
 func (h *UserHandler) GetWhoToFollow(c *gin.Context) {
 	userId := c.Query("user_id")
@@ -286,6 +328,17 @@ func (h *UserHandler) GetWhoToFollow(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Users)
 }
 
+// AcceptPremium godoc
+// @Summary Accept premium account request
+// @Description Accept a user's premium account request (admin function)
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param request body PremiumRequestID true "Premium Request ID"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /users/accept-premium [post]
 func (h *UserHandler) AcceptPremium(c *gin.Context) {
 	var req userpb.PremiumRequestId
 
@@ -308,6 +361,17 @@ func (h *UserHandler) AcceptPremium(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
 }
 
+// RejectPremium godoc
+// @Summary Reject premium account request
+// @Description Reject a user's premium account request (admin function)
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param request body PremiumRequestID true "Premium Request ID"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /users/reject-premium [post]
 func (h *UserHandler) RejectPremium(c *gin.Context) {
 	var req userpb.PremiumRequestId
 
@@ -330,6 +394,14 @@ func (h *UserHandler) RejectPremium(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
 }
 
+// GetPremiumRequests godoc
+// @Summary Get all premium account requests
+// @Description Retrieve all pending premium account requests (admin function)
+// @Tags Users
+// @Produce json
+// @Success 200 {array} object
+// @Failure 500 {object} ErrorResponse
+// @Router /users/premium-request [get]
 func (h *UserHandler) GetPremiumRequests(c *gin.Context) {
 	resp, err := h.Client.GetPremiumRequests(context.Background(), &userpb.GetPremiumRequestsRequest{})
 
@@ -341,6 +413,17 @@ func (h *UserHandler) GetPremiumRequests(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.PremiumRequests)
 }
 
+// AcceptReport godoc
+// @Summary Accept a user report
+// @Description Accept a user report and take action (admin function)
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param request body AcceptReportRequest true "Accept Report Request"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /users/accept-report [post]
 func (h *UserHandler) AcceptReport(c *gin.Context) {
 	var req userpb.AcceptReportRequest
 
@@ -363,6 +446,17 @@ func (h *UserHandler) AcceptReport(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
 }
 
+// RejectReport godoc
+// @Summary Reject a user report
+// @Description Reject a user report (admin function)
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param request body RejectReportRequest true "Reject Report Request"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /users/reject-report [post]
 func (h *UserHandler) RejectReport(c *gin.Context) {
 	var req userpb.RejectReportRequest
 
@@ -385,6 +479,14 @@ func (h *UserHandler) RejectReport(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": resp.Message})
 }
 
+// GetReports godoc
+// @Summary Get all user reports
+// @Description Retrieve all user reports (admin function)
+// @Tags Users
+// @Produce json
+// @Success 200 {array} object
+// @Failure 500 {object} ErrorResponse
+// @Router /users/reports [get]
 func (h *UserHandler) GetReports(c *gin.Context) {
 	resp, err := h.Client.GetReports(context.Background(), &userpb.GetReportsRequest{})
 
@@ -442,6 +544,18 @@ func (h *UserHandler) RegisterPremium(c *gin.Context) {
 	})
 }
 
+// UploadImage godoc
+// @Summary Upload an image file
+// @Description Upload an image file and get the URL back
+// @Tags Users
+// @Accept multipart/form-data
+// @Produce json
+// @Param type path string true "Upload type" example:"profile"
+// @Param file formData file true "Image file to upload"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /users/upload/{type} [post]
 func (h *UserHandler) UploadImage(c *gin.Context) {
 	// Get file from request
 	file, err := c.FormFile("file")
@@ -486,6 +600,18 @@ func (h *UserHandler) UploadImage(c *gin.Context) {
 	})
 }
 
+// UploadVideo godoc
+// @Summary Upload a video file
+// @Description Upload a video file and get the URL back
+// @Tags Users
+// @Accept multipart/form-data
+// @Produce json
+// @Param type path string true "Upload type" example:"content"
+// @Param file formData file true "Video file to upload"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /users/upload-video/{type} [post]
 func (h *UserHandler) UploadVideo(c *gin.Context) {
 	// Get file from request
 	file, err := c.FormFile("file")
