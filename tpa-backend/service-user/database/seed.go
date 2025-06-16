@@ -101,20 +101,20 @@ func Seed(db *gorm.DB) {
 		}
 	}
 
-	logger.Debug("Seeding reports")
-	var reports = []model.Report{
-		{UserID: userId1, ReportedID: userId2, Reason: "Racist"},
-		{UserID: userId3, ReportedID: userId4, Reason: "Gay"},
-	}
+	// logger.Debug("Seeding reports")
+	// var reports = []model.Report{
+	// 	{UserID: userId1, ReportedID: userId2, Reason: "Racist"},
+	// 	{UserID: userId3, ReportedID: userId4, Reason: "Gay"},
+	// }
 
-	for _, element := range reports {
-		if err := db.Create(&element).Error; err != nil {
-			logger.Warn("Failed to create report",
-				zap.String("user_id", element.UserID.String()),
-				zap.String("reported_id", element.ReportedID.String()),
-				zap.Error(err))
-		}
-	}
+	// for _, element := range reports {
+	// 	if err := db.Create(&element).Error; err != nil {
+	// 		logger.Warn("Failed to create report",
+	// 			zap.String("user_id", element.UserID.String()),
+	// 			zap.String("reported_id", element.ReportedID.String()),
+	// 			zap.Error(err))
+	// 	}
+	// }
 
 	logger.Info("Database seeding completed successfully")
 }
