@@ -37,12 +37,11 @@
   let page = 1;
   let isLoading = false;
   let hasMore = true;
-
   let contentAreaElement: HTMLElement | null = null;
 
   let sentinel: HTMLDivElement | null = null;
+  let mediaSentinel: HTMLDivElement | null = null;
   let observer: IntersectionObserver | null = null;
-
   function observeScroll() {
     if (observer) {
       observer.disconnect();
@@ -56,7 +55,7 @@
     observer = new IntersectionObserver(
       async (entries) => {
         // console.log(hasMore);
-        if (entries[0].isIntersecting && !isLoading && hasMore) {
+        if (entries[0].isIntersecting && !isLoading) {
           isLoading = true;
           //   console.log("Loading more content, page:", page + 1);
           await new Promise((resolve) => setTimeout(resolve, 500));
@@ -66,35 +65,34 @@
           if (user) {
             if (activeTab === "latest") {
               newThreads = await fetchCommunityThreadWithUser(
-                page,
+                page + 1,
                 user.id,
                 community.id
               );
             } else if (activeTab === "top") {
               newThreads = await fetchTopCommunityThreadWithUser(
-                page,
+                page + 1,
                 user.id,
                 community.id
               );
             } else if (activeTab === "media") {
-              newMedias = await fetchCommunityMedia(page, community.id);
+              newMedias = await fetchCommunityMedia(page + 1, community.id);
             }
           }
 
           if (activeTab === "media") {
-            if (!newMedias) {
-              hasMore = false;
+            if (!newMedias || newMedias.length === 0) {
+              // For media tab with infinite scroll, never stop trying if we have content
+              if (communityMedia.length === 0) {
+                hasMore = false; // Only stop if no media exists at all
+              }
+              // Always keep hasMore = true if we have existing media for infinite scroll
               isLoading = false;
               return;
             }
 
-            communityMedia = [
-              ...communityMedia,
-              ...newMedias.filter(
-                (newMedia) =>
-                  !newMedias.some((t: CommunityMedia) => t.id === newMedia.id)
-              ),
-            ];
+            // Add all media including duplicates for true infinite scroll
+            communityMedia = [...communityMedia, ...newMedias];
           } else {
             if (!newThreads) {
               hasMore = false;
@@ -122,9 +120,16 @@
       }
     );
 
-    if (sentinel) {
-      observer.observe(sentinel);
+    // Observe the appropriate sentinel based on active tab
+    const currentSentinel = activeTab === "media" ? mediaSentinel : sentinel;
+    if (currentSentinel) {
+      observer.observe(currentSentinel);
     }
+  }
+
+  // Re-observe when tab changes
+  $: if (activeTab) {
+    setTimeout(() => observeScroll(), 100);
   }
 
   async function joinCommunity() {
@@ -137,16 +142,45 @@
     await acceptJoinRequest(userId, communityId);
     await refreshData(page, activeTab);
   }
-
   async function rejectRequest(userId: string, communityId: string) {
     // console.log("Rejecting request");
     await rejectJoinRequest(userId, communityId);
     await refreshData(page, activeTab);
   }
 
+  // Auto-load content if page doesn't have enough content to trigger scroll
+  async function autoLoadIfNeeded() {
+    if (!contentAreaElement || isLoading) return;
+
+    // Check if content area has scroll
+    const hasScroll =
+      contentAreaElement.scrollHeight > contentAreaElement.clientHeight;
+
+    if (!hasScroll && activeTab === "media" && communityMedia.length > 0) {
+      // Page doesn't have scroll but has some media, load more to enable infinite scroll
+      isLoading = true;
+      try {
+        const newMedias = await fetchCommunityMedia(page + 1, community.id);
+        if (newMedias && newMedias.length > 0) {
+          communityMedia = [...communityMedia, ...newMedias];
+          page += 1;
+
+          // Recursively check if we need more content
+          setTimeout(() => autoLoadIfNeeded(), 100);
+        }
+      } catch {
+        // Error auto-loading media
+      } finally {
+        isLoading = false;
+      }
+    }
+  }
+
   onMount(async () => {
     observeScroll();
     await refreshData(page, activeTab);
+    // Auto-load content if initial load doesn't fill the page
+    setTimeout(() => autoLoadIfNeeded(), 500);
   });
 </script>
 
@@ -262,6 +296,8 @@
           activeTab = "media";
           page = 1;
           refreshData(page, activeTab);
+          // Auto-load content after tab switch
+          setTimeout(() => autoLoadIfNeeded(), 500);
         }}
       >
         Media
@@ -401,7 +437,7 @@
         <h2 class="media-title">Media</h2>
         {#if communityMedia.length > 0}
           <div class="media-grid">
-            {#each communityMedia as mediaItem (mediaItem.id)}
+            {#each communityMedia as mediaItem, index (`${mediaItem.id}-${index}`)}
               <div
                 role="button"
                 class="media-item"
@@ -458,15 +494,11 @@
             </p>
           </div>
         {/if}
-        <div bind:this={sentinel} class="loading-sentinel">
+        <div bind:this={mediaSentinel} class="loading-sentinel">
           {#if isLoading}
             <div class="loading-spinner">
               <div class="spinner"></div>
               <p>Loading more media...</p>
-            </div>
-          {:else if !hasMore && communityMedia.length > 0}
-            <div class="end-message">
-              <span>✨ You've reached the end! ✨</span>
             </div>
           {/if}
         </div>
@@ -1353,55 +1385,30 @@
     display: flex;
     gap: 12px;
   }
-
   .accept-button,
   .reject-button {
-    padding: 10px 20px;
+    background-color: var(--button-primary);
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    padding: 8px 16px;
     font-size: 14px;
     font-weight: 600;
-    border: none;
-    border-radius: 25px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    min-width: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+    transition: background-color 0.2s;
   }
 
-  .accept-button {
-    background: linear-gradient(135deg, #28a745, #20c997);
-    color: white;
-    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+  .reject-button {
+    background-color: var(--text-primary);
+    color: var(--card-background);
   }
 
   .accept-button:hover {
-    background: linear-gradient(135deg, #218838, #1abc9c);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
-  }
-
-  .accept-button::before {
-    content: "✓";
-    font-weight: bold;
-  }
-
-  .reject-button {
-    background: linear-gradient(135deg, #dc3545, #e74c3c);
-    color: white;
-    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    background-color: var(--button-primary-hover);
   }
 
   .reject-button:hover {
-    background: linear-gradient(135deg, #c82333, #c0392b);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
-  }
-
-  .reject-button::before {
-    content: "✗";
-    font-weight: bold;
+    opacity: 0.9;
   }
 
   .no-requests {

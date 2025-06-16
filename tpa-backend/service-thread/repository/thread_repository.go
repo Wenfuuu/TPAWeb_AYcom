@@ -136,29 +136,28 @@ func (r *ThreadRepository) GetThreadById(id string) (*model.Thread, error) {
 func (r *ThreadRepository) GetAllThreads(page int) ([]model.Thread, error) {
 	var threads []model.Thread
 
-	// add offset here
 	limit := 5
-	offset := (page - 1) * limit
+
+	// First, get the total count to determine if we need wraparound
+	var totalCount int64
+	r.DB.Model(&model.Thread{}).Where("reply_to_id IS NULL").Count(&totalCount)
+
+	if totalCount == 0 {
+		return threads, nil
+	}
+
+	// Calculate total pages available
+	totalPages := int((totalCount + int64(limit) - 1) / int64(limit)) // Ceiling division
+
+	// If requesting a page beyond available pages, wrap around cyclically
+	actualPage := page
+	if page > totalPages {
+		actualPage = ((page - 1) % totalPages) + 1
+	}
+
+	offset := (actualPage - 1) * limit
 
 	result := r.DB.Where("reply_to_id IS NULL").Order("created_at DESC").Limit(limit).Offset(offset).Find(&threads)
-
-	// If no threads found and we're beyond the first page, wrap around cyclically
-	if len(threads) == 0 && page > 1 {
-		// Calculate how many full pages of content we have
-		var totalCount int64
-		r.DB.Model(&model.Thread{}).Where("reply_to_id IS NULL").Count(&totalCount)
-
-		if totalCount > 0 {
-			// Calculate total pages available
-			totalPages := int((totalCount + int64(limit) - 1) / int64(limit)) // Ceiling division
-
-			// Calculate which page we should wrap to (cycle through all pages)
-			wrappedPage := ((page - 1) % totalPages) + 1
-			offset = (wrappedPage - 1) * limit
-
-			result = r.DB.Where("reply_to_id IS NULL").Order("created_at DESC").Limit(limit).Offset(offset).Find(&threads)
-		}
-	}
 
 	return threads, result.Error
 }
@@ -211,29 +210,28 @@ func (r *ThreadRepository) GetCommunityThreads(page int, communityId string) ([]
 func (r *ThreadRepository) GetFollowingThreads(page int, userIds []string) ([]model.Thread, error) {
 	var threads []model.Thread
 
-	// add offset here
 	limit := 5
-	offset := (page - 1) * limit
+
+	// First, get the total count to determine if we need wraparound
+	var totalCount int64
+	r.DB.Model(&model.Thread{}).Where("user_id IN ?", userIds).Count(&totalCount)
+
+	if totalCount == 0 {
+		return threads, nil
+	}
+
+	// Calculate total pages available
+	totalPages := int((totalCount + int64(limit) - 1) / int64(limit)) // Ceiling division
+
+	// If requesting a page beyond available pages, wrap around cyclically
+	actualPage := page
+	if page > totalPages {
+		actualPage = ((page - 1) % totalPages) + 1
+	}
+
+	offset := (actualPage - 1) * limit
 
 	result := r.DB.Where("user_id IN ?", userIds).Order("created_at DESC").Limit(limit).Offset(offset).Find(&threads)
-
-	// If no threads found and we're beyond the first page, wrap around cyclically
-	if len(threads) == 0 && page > 1 {
-		// Calculate how many threads we have from following users
-		var totalCount int64
-		r.DB.Model(&model.Thread{}).Where("user_id IN ?", userIds).Count(&totalCount)
-
-		if totalCount > 0 {
-			// Calculate total pages available
-			totalPages := int((totalCount + int64(limit) - 1) / int64(limit)) // Ceiling division
-
-			// Calculate which page we should wrap to (cycle through all pages)
-			wrappedPage := ((page - 1) % totalPages) + 1
-			offset = (wrappedPage - 1) * limit
-
-			result = r.DB.Where("user_id IN ?", userIds).Order("created_at DESC").Limit(limit).Offset(offset).Find(&threads)
-		}
-	}
 
 	return threads, result.Error
 }
@@ -482,7 +480,28 @@ func (r *ThreadRepository) GetCommunityMedia(page int, community_id string) ([]m
 	var files []model.ThreadFiles
 
 	limit := 9
-	offset := (page - 1) * limit
+
+	// First, get the total count to determine if we need wraparound
+	var totalCount int64
+	r.DB.Table("thread_files").
+		Joins("JOIN threads ON threads.id = thread_files.thread_id").
+		Where("threads.community_id = ?", community_id).
+		Count(&totalCount)
+
+	if totalCount == 0 {
+		return files, nil
+	}
+
+	// Calculate total pages available
+	totalPages := int((totalCount + int64(limit) - 1) / int64(limit)) // Ceiling division
+
+	// If requesting a page beyond available pages, wrap around cyclically
+	actualPage := page
+	if page > totalPages {
+		actualPage = ((page - 1) % totalPages) + 1
+	}
+
+	offset := (actualPage - 1) * limit
 
 	result := r.DB.
 		Joins("JOIN threads ON threads.id = thread_files.thread_id").
