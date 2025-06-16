@@ -1,7 +1,21 @@
 <script lang="ts">
   import { navigate } from "svelte-routing";
-  import { bookmarkThread, fetchThreadCategory, likeThread, repostThread, unbookmarkThread, unlikeThread, unrepostThread, type Thread, type ThreadCategory } from "../model/thread";
-  import { fetchUserEmailById, type User, type UserThread } from "../model/user";
+  import {
+    bookmarkThread,
+    fetchThreadCategory,
+    likeThread,
+    repostThread,
+    unbookmarkThread,
+    unlikeThread,
+    unrepostThread,
+    type Thread,
+    type ThreadCategory,
+  } from "../model/thread";
+  import {
+    fetchUserEmailById,
+    type User,
+    type UserThread,
+  } from "../model/user";
   import { onMount } from "svelte";
   import { fetchCommunity, type Community } from "../model/community";
   import { sendMessageNotif, setupWS } from "../model/websocket";
@@ -18,18 +32,24 @@
   }
 
   async function handleLike(thread: Thread): Promise<void> {
-    if(!thread.isLiked){
+    if (!thread.isLiked) {
       //like thread
-      if(user){
+      if (user) {
         await likeThread(user.id, thread.id);
         toggleLike(thread);
 
         const email = await fetchUserEmailById(thread.user_id, user.id);
-        sendMessageNotif(socket, thread.user_id, user.id, `You received a like from ${user.name}`, email);
+        sendMessageNotif(
+          socket,
+          thread.user_id,
+          user.id,
+          `You received a like from ${user.name}`,
+          email
+        );
       }
-    }else{
+    } else {
       //unlike thread
-      if(user){
+      if (user) {
         await unlikeThread(user.id, thread.id);
         toggleLike(thread);
       }
@@ -43,18 +63,24 @@
   }
 
   async function handleRepost(thread: Thread): Promise<void> {
-    if(!thread.isReposted){
+    if (!thread.isReposted) {
       //repost thread
-      if(user){
+      if (user) {
         await repostThread(user.id, thread.id);
         toggleRepost(thread);
 
         const email = await fetchUserEmailById(thread.user_id, user.id);
-        sendMessageNotif(socket, thread.user_id, user.id, `You received a repost from ${user.name}`, email);
+        sendMessageNotif(
+          socket,
+          thread.user_id,
+          user.id,
+          `You received a repost from ${user.name}`,
+          email
+        );
       }
-    }else{
+    } else {
       //unrepost thread
-      if(user){
+      if (user) {
         await unrepostThread(user.id, thread.id);
         toggleRepost(thread);
       }
@@ -68,18 +94,24 @@
   }
 
   async function handleBookmark(thread: Thread): Promise<void> {
-    if(!thread.isBookmarked){
+    if (!thread.isBookmarked) {
       //bookmark thread
-      if(user){
+      if (user) {
         await bookmarkThread(user.id, thread.id);
         toggleBookmark(thread);
 
         const email = await fetchUserEmailById(thread.user_id, user.id);
-        sendMessageNotif(socket, thread.user_id, user.id, `You received a bookmark from ${user.name}`, email);
+        sendMessageNotif(
+          socket,
+          thread.user_id,
+          user.id,
+          `You received a bookmark from ${user.name}`,
+          email
+        );
       }
-    }else{
+    } else {
       //unbookmark thread
-      if(user){
+      if (user) {
         await unbookmarkThread(user.id, thread.id);
         toggleBookmark(thread);
       }
@@ -88,10 +120,10 @@
     threads = [...threads];
   }
 
-  onMount(async() => {
+  onMount(async () => {
     categories = await fetchThreadCategory();
     communities = await fetchCommunity();
-    if(!user) return;
+    if (!user) return;
     socket = setupWS(socket, user.id);
   });
 </script>
@@ -110,15 +142,30 @@
       }}
     >
       <div class="post-avatar">
+        <button
+        type="button"
+        class="profile-button"
+        on:click|stopPropagation={() =>
+          navigate(`/profile/${thread.userData?.user_id}`)}
+        on:keydown|stopPropagation={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            navigate(`/profile/${thread.userData?.user_id}`);
+          }
+        }}
+        aria-label={`View ${thread.userData?.name || "User"}'s profile`}
+      >
         <img
           src={thread.userData?.profile || "/placeholder.svg"}
           alt={thread.userData?.name || "User"}
         />
+      </button>
       </div>
       <div class="post-content">
         <div class="post-header">
           <div class="post-user-info">
-            <span class="post-user-name">{thread.userData?.name || "Unknown User"}</span>
+            <span class="post-user-name"
+              >{thread.userData?.name || "Unknown User"}</span
+            >
             {#if thread.userData?.isPremium}
               <span class="verified-badge">
                 <svg
@@ -133,7 +180,9 @@
                 </svg>
               </span>
             {/if}
-            <span class="post-username">@{thread.userData?.username || "unknown"}</span>
+            <span class="post-username"
+              >@{thread.userData?.username || "unknown"}</span
+            >
             <span class="post-date">· {thread.created_at}</span>
           </div>
           <button type="button" class="post-more" aria-label="Post More">
@@ -156,17 +205,15 @@
         </div>
 
         <div class="post-community">
-            Categories: {categories.find(
-            (c) => c.id === thread.category_id
-            )?.name || ""}
+          Categories: {categories.find((c) => c.id === thread.category_id)
+            ?.name || ""}
         </div>
 
         {#if thread.community_id != "00000000-0000-0000-0000-000000000000"}
-            <div class="post-community">
-            Community: {communities.find(
-                (c) => c.id === thread.community_id
-            )?.name || "Community"}
-            </div>
+          <div class="post-community">
+            Community: {communities.find((c) => c.id === thread.community_id)
+              ?.name || "Community"}
+          </div>
         {/if}
 
         {#if thread.content}
@@ -182,15 +229,19 @@
           >
             {#each thread.images as image, i (i)}
               <div class="image-container">
-                {#if image.endsWith(".png") || image.endsWith(".jpg")
-                 || image.endsWith(".jpeg") || image.endsWith(".gif")}
+                {#if image.endsWith(".png") || image.endsWith(".jpg") || image.endsWith(".jpeg") || image.endsWith(".gif")}
                   <img
                     src={image || "/placeholder.svg"}
                     alt="Post image {i + 1}"
                   />
                 {:else}
                   <video src={image} controls class="post-video">
-                    <track kind="captions" src="path_to_captions.vtt" srclang="en" label="English">
+                    <track
+                      kind="captions"
+                      src="path_to_captions.vtt"
+                      srclang="en"
+                      label="English"
+                    />
                   </video>
                 {/if}
               </div>
@@ -199,11 +250,7 @@
         {/if}
 
         <div class="post-actions">
-          <button
-            type="button"
-            class="post-action reply"
-            class:active={false}
-          >
+          <button type="button" class="post-action reply" class:active={false}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="18"
@@ -286,7 +333,8 @@
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"
+              ></path>
             </svg>
           </button>
         </div>
@@ -318,11 +366,35 @@
     flex-shrink: 0;
   }
 
+  .profile-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: opacity 0.2s;
+    display: block;
+  }
+
+  .profile-button:hover {
+    opacity: 0.8;
+  }
+
+  .profile-button:focus {
+    outline: 2px solid var(--button-primary);
+    outline-offset: 2px;
+  }
+
   .post-avatar img {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
+    display: block;
+  }
+
+  .post-avatar img:hover {
+    opacity: 0.8;
   }
 
   .post-content {

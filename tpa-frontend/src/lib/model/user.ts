@@ -21,6 +21,7 @@ export type User = {
 }
 
 export type UserThread = {
+    user_id: string;
     name: string;
     username: string;
     isPremium: boolean;
