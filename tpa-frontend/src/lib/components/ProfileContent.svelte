@@ -19,9 +19,42 @@
 
   let activeTab: "posts" | "replies" | "likes" | "media" = "posts";
   let page = 1;
+  let showProfileModal = false;
 
-  onMount(async () => {
-    await refreshData(page, activeTab);
+  function openProfileModal() {
+    showProfileModal = true;
+  }
+
+  function closeProfileModal() {
+    showProfileModal = false;
+  }
+
+  function handleModalClick(event: MouseEvent) {
+    if (event.target === event.currentTarget) {
+      closeProfileModal();
+    }
+  }
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === "Escape") {
+      closeProfileModal();
+    }
+  }
+
+  onMount(() => {
+    refreshData(page, activeTab);
+
+    // Add global keyboard listener for modal
+    const handleGlobalKeydown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && showProfileModal) {
+        closeProfileModal();
+      }
+    };
+
+    document.addEventListener("keydown", handleGlobalKeydown);
+
+    return () => {
+      document.removeEventListener("keydown", handleGlobalKeydown);
+    };
   });
 </script>
 
@@ -64,13 +97,19 @@
           </svg>
         </button>
       </div>
-
       <div class="profile-info">
-        <img
-          src={userProfile?.profile_picture}
-          alt="{userProfile?.name} profile picture"
-          class="profile-logo"
-        />
+        <button
+          type="button"
+          class="profile-logo-button"
+          on:click={openProfileModal}
+          aria-label="View profile picture"
+        >
+          <img
+            src={userProfile?.profile_picture}
+            alt="{userProfile?.name} profile picture"
+            class="profile-logo"
+          />
+        </button>
         <div class="profile-details">
           <h1 class="profile-name">{userProfile?.name}</h1>
           <span class="profile-username">@{userProfile?.username}</span>
@@ -80,25 +119,25 @@
           </p>
         </div>
         {#if !isUser}
-        <button
-          type="button"
-          class="follow-button"
-          on:click={async() => {
-            if(!user) return;
-            if(!userProfile.is_followed){
-              await followUser(user.id, userProfile.id);
-              toastStore.success("Success follow user!");
-            }else{
-              await unfollowUser(user.id, userProfile.id);
-              toastStore.success("Success unfollow user!");
-            }
+          <button
+            type="button"
+            class="follow-button"
+            on:click={async () => {
+              if (!user) return;
+              if (!userProfile.is_followed) {
+                await followUser(user.id, userProfile.id);
+                toastStore.success("Success follow user!");
+              } else {
+                await unfollowUser(user.id, userProfile.id);
+                toastStore.success("Success unfollow user!");
+              }
 
-            await refreshData(page, activeTab);
-          }}
-          disabled={false}
-        >
-          {userProfile.is_followed ? "Unfollow" : "Follow"}
-        </button>
+              await refreshData(page, activeTab);
+            }}
+            disabled={false}
+          >
+            {userProfile.is_followed ? "Unfollow" : "Follow"}
+          </button>
         {/if}
       </div>
     </div>
@@ -196,6 +235,62 @@
       <ThreadFeed {threads} {user} />
     {/if}
   </main>
+  <!-- Profile Picture Modal -->
+  {#if showProfileModal}
+    <div
+      class="modal-overlay"
+      on:click={handleModalClick}
+      on:keydown={handleKeydown}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="profile-modal-title"
+      tabindex="-1"
+    >
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="profile-modal-title" class="modal-title">
+            {userProfile?.name}'s Profile Picture
+          </h2>
+          <button
+            type="button"
+            class="modal-close-button"
+            on:click={closeProfileModal}
+            aria-label="Close modal"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 6L6 18"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M6 6L18 18"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-image-container">
+          <img
+            src={userProfile?.profile_picture}
+            alt="{userProfile?.name} profile picture"
+            class="modal-image"
+          />
+        </div>
+      </div>
+    </div>
+  {/if}
 {/if}
 
 <style>
@@ -364,11 +459,215 @@
   .media-item:hover {
     transform: scale(1.05);
   }
-
   .media-content {
     width: 100%;
     height: auto;
     border-radius: 8px;
     object-fit: cover;
+  }
+
+  .profile-logo-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.2s ease;
+  }
+
+  .profile-logo-button:hover {
+    transform: scale(1.02);
+  }
+
+  .profile-logo-button:focus {
+    outline: 2px solid var(--button-primary);
+    outline-offset: 2px;
+    border-radius: 16px;
+  }
+
+  /* Modal Styles */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease;
+  }
+
+  .modal-content {
+    background-color: var(--card-background);
+    border-radius: 12px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    animation: scaleIn 0.2s ease;
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--background-secondary);
+  }
+
+  .modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .modal-close-button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .modal-close-button:hover {
+    background-color: var(--hover-background);
+    color: var(--text-primary);
+  }
+
+  .modal-close-button:focus {
+    outline: 2px solid var(--button-primary);
+    outline-offset: 2px;
+  }
+
+  .modal-image-container {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--card-background);
+  }
+
+  .modal-image {
+    max-width: 100%;
+    max-height: 70vh;
+    width: auto;
+    height: auto;
+    border-radius: 12px;
+    object-fit: contain;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Mobile responsive styles */
+  @media (max-width: 768px) {
+    .content-area {
+      width: 100%;
+      height: 100vh;
+    }
+
+    .profile-info {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .profile-logo {
+      width: 60px;
+      height: 60px;
+      margin-top: -30px;
+      margin-right: 0;
+      margin-bottom: 12px;
+    }
+
+    .follow-button {
+      align-self: flex-end;
+      margin-top: 12px;
+    }
+
+    .media-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .modal-content {
+      max-width: 95vw;
+      max-height: 95vh;
+      margin: 16px;
+    }
+
+    .modal-header {
+      padding: 12px 16px;
+    }
+
+    .modal-title {
+      font-size: 16px;
+    }
+
+    .modal-image-container {
+      padding: 16px;
+    }
+
+    .modal-image {
+      max-height: 60vh;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .profile-info {
+      padding: 12px;
+    }
+
+    .tabs {
+      font-size: 14px;
+    }
+
+    .tab-button {
+      padding: 12px 8px;
+      font-size: 14px;
+    }
+
+    .media-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .modal-header {
+      padding: 10px 12px;
+    }
+
+    .modal-image-container {
+      padding: 12px;
+    }
   }
 </style>
