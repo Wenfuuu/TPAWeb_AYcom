@@ -2,17 +2,24 @@ package main
 
 import (
 	"github.com/Wenfuuu/tpa-web/service-user/database"
-	"github.com/Wenfuuu/tpa-web/service-user/utils"
 	"github.com/Wenfuuu/tpa-web/service-user/server"
+	"github.com/Wenfuuu/tpa-web/service-user/utils"
+
 	// pb "github.com/Wenfuuu/tpa-web/service-user/proto"
-	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
-	"google.golang.org/grpc"
 	"fmt"
-	"log"
 	"net"
+
+	userpb "github.com/Wenfuuu/tpa-web/pkg/proto/user"
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
 )
 
 func main() {
+	// Initialize logger
+	logger := utils.InitLogger()
+	defer logger.Sync() // Flush any buffered log entries
+
+	logger.Info("Starting user service")
 
 	db := database.InitDB()
 	database.Migrate(db)
@@ -22,18 +29,21 @@ func main() {
 	if port == "" {
 		port = "50051"
 	}
-	
+
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
 	if err != nil {
-		log.Fatalf("Failed to listen: %v", err)
+		logger.Fatal("Failed to listen", zap.Error(err), zap.String("port", port))
 	}
-	
+
 	grpcServer := grpc.NewServer()
 	userServer := server.NewUserServer()
 	userpb.RegisterUserServiceServer(grpcServer, userServer)
 
-	log.Printf("User service listening on port %s", port)
+	logger.Info("User service started",
+		zap.String("port", port),
+		zap.String("environment", utils.GetDotEnv("ENVIRONMENT")))
+
 	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("Failed to serve: %v", err)
+		logger.Fatal("Failed to serve", zap.Error(err))
 	}
 }

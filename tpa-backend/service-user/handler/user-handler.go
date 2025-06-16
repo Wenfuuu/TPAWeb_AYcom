@@ -22,6 +22,7 @@ import (
 	// "github.com/Wenfuuu/tpa-web/service-user/utils"
 	storage_go "github.com/supabase-community/storage-go"
 	supa "github.com/supabase-community/supabase-go"
+	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -29,22 +30,34 @@ import (
 
 type UserHandler struct {
 	userRepo *repository.UserRepository
+	logger   *zap.Logger
 }
 
 func NewUserHandler() *UserHandler {
 	return &UserHandler{
 		userRepo: repository.NewUserRepository(),
+		logger:   utils.GetLogger(),
 	}
 }
 
 func (h *UserHandler) FollowUser(ctx context.Context, req *userpb.FollowUserRequest) (*userpb.Follow, error) {
+	h.logger.Info("FollowUser request received",
+		zap.String("follower_id", req.FollowerId),
+		zap.String("following_id", req.FollowingId))
+
 	followerID, err := uuid.Parse(req.FollowerId)
 	if err != nil {
+		h.logger.Error("Invalid follower ID",
+			zap.String("follower_id", req.FollowerId),
+			zap.Error(err))
 		return nil, fmt.Errorf("invalid user ID: %v", err)
 	}
 
 	followingID, err := uuid.Parse(req.FollowingId)
 	if err != nil {
+		h.logger.Error("Invalid following ID",
+			zap.String("following_id", req.FollowingId),
+			zap.Error(err))
 		return nil, fmt.Errorf("invalid user ID: %v", err)
 	}
 
@@ -54,18 +67,38 @@ func (h *UserHandler) FollowUser(ctx context.Context, req *userpb.FollowUserRequ
 	}
 
 	if err := h.userRepo.FollowUser(&follow); err != nil {
+		h.logger.Error("Failed to follow user",
+			zap.String("follower_id", req.FollowerId),
+			zap.String("following_id", req.FollowingId),
+			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Failed to follow user")
 	}
+
+	h.logger.Info("User followed successfully",
+		zap.String("follower_id", req.FollowerId),
+		zap.String("following_id", req.FollowingId))
 
 	return h.followToProto(&follow), nil
 }
 
 func (h *UserHandler) UnfollowUser(ctx context.Context, req *userpb.UnfollowUserRequest) (*userpb.UnfollowUserResponse, error) {
+	h.logger.Info("UnfollowUser request received",
+		zap.String("follower_id", req.FollowerId),
+		zap.String("following_id", req.FollowingId))
+
 	err := h.userRepo.UnfollowUser(req.FollowerId, req.FollowingId)
 
 	if err != nil {
+		h.logger.Error("Failed to unfollow user",
+			zap.String("follower_id", req.FollowerId),
+			zap.String("following_id", req.FollowingId),
+			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Database error")
 	}
+
+	h.logger.Info("User unfollowed successfully",
+		zap.String("follower_id", req.FollowerId),
+		zap.String("following_id", req.FollowingId))
 
 	return &userpb.UnfollowUserResponse{
 		Message: "Success unfollow user!",
@@ -192,27 +225,43 @@ func (h *UserHandler) GetReports(ctx context.Context, req *userpb.GetReportsRequ
 }
 
 func (h *UserHandler) RegisterPremium(ctx context.Context, req *userpb.RegisterPremiumRequest) (*userpb.RegisterPremiumResponse, error) {
+	h.logger.Info("Premium registration request received",
+		zap.String("user_id", req.UserId))
+
 	// hash id
 	hashedId, err := utils.EncryptPassword(req.IdentityNumber)
 	if err != nil {
+		h.logger.Error("Failed to hash identity number",
+			zap.String("user_id", req.UserId),
+			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Failed to hash password")
 	}
 
 	// check already registered
 	exists, err := h.userRepo.AlreadyRegisteredPremium(req.UserId)
 	if err != nil {
+		h.logger.Error("Database error checking premium registration",
+			zap.String("user_id", req.UserId),
+			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Database error")
 	}
 	if exists {
+		h.logger.Warn("User already has pending premium request",
+			zap.String("user_id", req.UserId))
 		return nil, status.Error(codes.AlreadyExists, "User already requested a premium request")
 	}
 
 	// check already premium
 	exists, err = h.userRepo.AlreadyPremium(req.UserId)
 	if err != nil {
+		h.logger.Error("Database error checking premium status",
+			zap.String("user_id", req.UserId),
+			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Database error")
 	}
 	if exists {
+		h.logger.Warn("User already has premium status",
+			zap.String("user_id", req.UserId))
 		return nil, status.Error(codes.AlreadyExists, "User already premium")
 	}
 
@@ -224,8 +273,15 @@ func (h *UserHandler) RegisterPremium(ctx context.Context, req *userpb.RegisterP
 	}
 
 	if err := h.userRepo.RegisterPremium(&request); err != nil {
+		h.logger.Error("Failed to register premium request",
+			zap.String("user_id", req.UserId),
+			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Failed to register premium")
 	}
+
+	h.logger.Info("Premium request registered successfully",
+		zap.String("user_id", req.UserId),
+		zap.String("request_id", request.ID.String()))
 
 	return &userpb.RegisterPremiumResponse{
 		Message: "Success request premium",
@@ -233,26 +289,44 @@ func (h *UserHandler) RegisterPremium(ctx context.Context, req *userpb.RegisterP
 }
 
 func (h *UserHandler) Register(ctx context.Context, req *userpb.RegisterRequest) (*userpb.UserResponse, error) {
+	h.logger.Info("User registration request received",
+		zap.String("username", req.Username),
+		zap.String("email", req.Email))
+
 	// Validate input
 	if err := validateRegisterRequest(req); err != nil {
+		h.logger.Warn("Registration validation failed",
+			zap.String("username", req.Username),
+			zap.String("email", req.Email),
+			zap.Error(err))
 		return nil, err
 	}
 
 	// Check if username already exists
 	exists, err := h.userRepo.UsernameExists(req.Username)
 	if err != nil {
+		h.logger.Error("Database error checking username",
+			zap.String("username", req.Username),
+			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Database error")
 	}
 	if exists {
+		h.logger.Warn("Username already exists",
+			zap.String("username", req.Username))
 		return nil, status.Error(codes.AlreadyExists, "Username already registered")
 	}
 
 	// Check if email already exists
 	exists, err = h.userRepo.EmailExists(req.Email)
 	if err != nil {
+		h.logger.Error("Database error checking email",
+			zap.String("email", req.Email),
+			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Database error")
 	}
 	if exists {
+		h.logger.Warn("Email already exists",
+			zap.String("email", req.Email))
 		return nil, status.Error(codes.AlreadyExists, "Email already registered")
 	}
 
@@ -277,6 +351,10 @@ func (h *UserHandler) Register(ctx context.Context, req *userpb.RegisterRequest)
 	}
 
 	if err := h.userRepo.Create(&user); err != nil {
+		h.logger.Error("Failed to create user",
+			zap.String("username", req.Username),
+			zap.String("email", req.Email),
+			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Failed to create user")
 	}
 
@@ -288,32 +366,59 @@ func (h *UserHandler) Register(ctx context.Context, req *userpb.RegisterRequest)
 	}
 
 	if err := h.userRepo.CreateSecurityQuestion(&securityQuestion); err != nil {
+		h.logger.Error("Failed to save security question",
+			zap.String("user_id", user.ID.String()),
+			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Failed to save security question")
 	}
+
+	h.logger.Info("User registered successfully",
+		zap.String("user_id", user.ID.String()),
+		zap.String("username", req.Username),
+		zap.String("email", req.Email))
 
 	return h.userToResponse(&user), nil
 }
 
 func (h *UserHandler) GetUserByEmail(ctx context.Context, req *userpb.GetUserByEmailRequest) (*userpb.UserResponse, error) {
+	h.logger.Debug("GetUserByEmail request received",
+		zap.String("email", req.Email))
+
 	if req.Email == "" {
+		h.logger.Warn("GetUserByEmail called with empty email")
 		return nil, status.Error(codes.InvalidArgument, "Email is required")
 	}
 
 	user, err := h.userRepo.FindByEmail(req.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			h.logger.Warn("User not found",
+				zap.String("email", req.Email))
 			return nil, status.Error(codes.NotFound, "User not found")
 		}
+		h.logger.Error("Database error finding user by email",
+			zap.String("email", req.Email),
+			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Database error")
 	}
 
 	if !user.IsActive {
+		h.logger.Warn("Inactive user login attempt",
+			zap.String("email", req.Email),
+			zap.String("user_id", user.ID.String()))
 		return nil, status.Error(codes.PermissionDenied, "User account is inactive")
 	}
 
 	if user.IsBanned {
+		h.logger.Warn("Banned user login attempt",
+			zap.String("email", req.Email),
+			zap.String("user_id", user.ID.String()))
 		return nil, status.Error(codes.PermissionDenied, "User account is banned")
 	}
+
+	h.logger.Debug("User found by email",
+		zap.String("email", req.Email),
+		zap.String("user_id", user.ID.String()))
 
 	return h.userToResponse(user), nil
 }
@@ -378,19 +483,38 @@ func (h *UserHandler) DeleteUser(ctx context.Context, req *userpb.DeleteUserRequ
 }
 
 func (h *UserHandler) SetUserBanStatus(ctx context.Context, req *userpb.SetUserBanStatusRequest) (*userpb.SetUserBanStatusResponse, error) {
+	h.logger.Info("SetUserBanStatus request received",
+		zap.String("user_id", req.UserId),
+		zap.Bool("banned", req.Banned))
+
 	user, err := h.userRepo.FindByID(req.UserId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			h.logger.Warn("User not found for ban status update",
+				zap.String("user_id", req.UserId))
 			return nil, status.Error(codes.NotFound, "User not found")
 		}
+		h.logger.Error("Database error finding user for ban status",
+			zap.String("user_id", req.UserId),
+			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Database error")
 	}
 
+	previousStatus := user.IsBanned
 	user.IsBanned = req.Banned
 
 	if err := h.userRepo.Update(user); err != nil {
+		h.logger.Error("Failed to update user ban status",
+			zap.String("user_id", req.UserId),
+			zap.Bool("new_status", req.Banned),
+			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Failed to update password")
 	}
+
+	h.logger.Info("User ban status updated successfully",
+		zap.String("user_id", req.UserId),
+		zap.Bool("previous_status", previousStatus),
+		zap.Bool("new_status", req.Banned))
 
 	return &userpb.SetUserBanStatusResponse{
 		Message: "Success update user ban status",
@@ -472,12 +596,18 @@ func (h *UserHandler) GetAllUsers(ctx context.Context, req *userpb.GetAllUsersRe
 }
 
 func (h *UserHandler) UploadImage(ctx context.Context, req *userpb.UploadImageRequest) (*userpb.UploadImageResponse, error) {
+	h.logger.Info("Image upload request received",
+		zap.String("filename", req.Filename),
+		zap.Int("file_size", len(req.ImageData)))
+
 	supabaseURL := utils.GetDotEnv("SUPABASE_URL")
 	supabaseKey := utils.GetDotEnv("SUPABASE_KEY")
 	bucketName := utils.GetDotEnv("BUCKET_NAME")
 
 	supabase, err := supa.NewClient(supabaseURL, supabaseKey, nil)
 	if err != nil {
+		h.logger.Error("Failed to initialize supabase client",
+			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Failed to initialize supabase client")
 	}
 
@@ -501,6 +631,11 @@ func (h *UserHandler) UploadImage(ctx context.Context, req *userpb.UploadImageRe
 		contentType = "image/svg+xml"
 	}
 
+	h.logger.Debug("Uploading image to Supabase",
+		zap.String("original_filename", req.Filename),
+		zap.String("unique_filename", uniqueFilename),
+		zap.String("content_type", contentType))
+
 	// Upload to Supabase Storage
 	fileReader := bytes.NewReader(req.ImageData)
 	_, err = supabase.Storage.UploadFile(bucketName, uniqueFilename, fileReader, storage_go.FileOptions{
@@ -508,11 +643,19 @@ func (h *UserHandler) UploadImage(ctx context.Context, req *userpb.UploadImageRe
 		ContentType:  &contentType,
 	})
 	if err != nil {
+		h.logger.Error("Failed to upload image to Supabase",
+			zap.String("filename", uniqueFilename),
+			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Failed to upload image")
 	}
 
 	// Get public URL
 	publicURL := supabase.Storage.GetPublicUrl(bucketName, uniqueFilename).SignedURL
+
+	h.logger.Info("Image uploaded successfully",
+		zap.String("original_filename", req.Filename),
+		zap.String("unique_filename", uniqueFilename),
+		zap.String("public_url", publicURL))
 
 	return &userpb.UploadImageResponse{
 		ImageUrl: publicURL,
@@ -659,7 +802,7 @@ func validateName(name string) string {
 	if len(name) < 4 {
 		return "Name must be at least 4 characters long"
 	}
-	
+
 	// Only letters and spaces allowed
 	nameRegex := regexp.MustCompile(`^[a-zA-Z\s]+$`)
 	if !nameRegex.MatchString(name) {
