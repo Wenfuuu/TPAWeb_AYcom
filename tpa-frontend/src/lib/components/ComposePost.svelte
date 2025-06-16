@@ -22,16 +22,23 @@
   let videoSupabaseURL = "";
   let hasVideo = false;
 
-  // Variables for category and community selection
   let selectedCategoryId = "";
   let isPostingToCommunity = false;
   let selectedCommunityId = "";
   let showCategoryDropdown = false;
   let showCommunityDropdown = false;
-
   type ReplySettingType = "everyone" | "following" | "verified";
   let replySettings: ReplySettingType = "everyone";
   let showReplyOptions = false;
+
+  const MAX_CHARACTERS = 200;
+  let characterCount = 0;
+  let progressPercentage = 0;
+
+  $: {
+    characterCount = newPostText.length;
+    progressPercentage = Math.min((characterCount / MAX_CHARACTERS) * 100, 100);
+  }
 
   onMount(async () => {
     threadCategories = await fetchThreadCategory();
@@ -128,7 +135,9 @@
 
       if (file.type.startsWith("video/")) {
         if (hasVideo) {
-          alert("Only one video allowed. Please remove the existing video first.");
+          alert(
+            "Only one video allowed. Please remove the existing video first."
+          );
           continue;
         }
 
@@ -322,7 +331,12 @@
       <div class="video-preview">
         <div class="video-container">
           <video controls src={videoPreviewUrl}>
-            <track kind="captions" src="path_to_captions.vtt" srclang="en" label="English">
+            <track
+              kind="captions"
+              src="path_to_captions.vtt"
+              srclang="en"
+              label="English"
+            />
           </video>
           <button
             type="button"
@@ -620,7 +634,6 @@
         </div>
       {/if}
     </div>
-
     <div class="compose-actions">
       <div class="compose-tools">
         <label class="tool-button" for="image-upload">
@@ -686,14 +699,56 @@
         </button>
       </div>
 
-      <button
-        type="button"
-        class="post-button"
-        disabled={!newPostText.trim() && uploadedImages.length === 0}
-        on:click={handlePost}
-      >
-        Post
-      </button>
+      <div class="action-right">
+        <!-- Character Counter with Circular Progress -->
+        <div class="character-counter">
+          <svg class="progress-ring" width="32" height="32" viewBox="0 0 32 32">
+            <circle
+              class="progress-ring-background"
+              cx="16"
+              cy="16"
+              r="14"
+              fill="none"
+              stroke="var(--border-color)"
+              stroke-width="2"
+            />
+            <circle
+              class="progress-ring-progress"
+              cx="16"
+              cy="16"
+              r="14"
+              fill="none"
+              stroke={characterCount > MAX_CHARACTERS
+                ? "#ff4444"
+                : characterCount > MAX_CHARACTERS * 0.9
+                  ? "#ff9500"
+                  : "var(--button-primary)"}
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-dasharray="87.96"
+              stroke-dashoffset={87.96 - (progressPercentage / 100) * 87.96}
+            />
+          </svg>
+          <span
+            class="character-count"
+            class:warning={characterCount > MAX_CHARACTERS * 0.9}
+            class:error={characterCount > MAX_CHARACTERS}
+          >
+            {characterCount > MAX_CHARACTERS * 0.9
+              ? MAX_CHARACTERS - characterCount
+              : ""}
+          </span>
+        </div>
+        <button
+          type="button"
+          class="post-button"
+          disabled={(!newPostText.trim() && uploadedImages.length === 0) ||
+            characterCount > MAX_CHARACTERS}
+          on:click={handlePost}
+        >
+          Post
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -1020,7 +1075,6 @@
     font-size: 13px;
     color: var(--text-tertiary);
   }
-
   .compose-actions {
     display: flex;
     justify-content: space-between;
@@ -1028,6 +1082,51 @@
     margin-top: 12px;
     border-top: 1px solid var(--border-color);
     padding-top: 12px;
+  }
+
+  .action-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .character-counter {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+  }
+
+  .progress-ring {
+    transform: rotate(-90deg);
+  }
+
+  .progress-ring-background,
+  .progress-ring-progress {
+    transition:
+      stroke-dashoffset 0.2s ease-in-out,
+      stroke 0.2s ease-in-out;
+  }
+
+  .progress-ring-progress {
+    transform-origin: center;
+  }
+
+  .character-count {
+    position: absolute;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    pointer-events: none;
+  }
+
+  .character-count.warning {
+    color: #ff9500;
+  }
+
+  .character-count.error {
+    color: #ff4444;
   }
 
   .compose-tools {
