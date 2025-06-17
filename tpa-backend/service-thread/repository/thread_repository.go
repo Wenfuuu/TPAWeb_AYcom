@@ -243,11 +243,21 @@ func (r *ThreadRepository) GetBookmark(page int, userId string, search string) (
 	limit := 5
 	offset := (page - 1) * limit
 
+	// Input validation
+	if page < 1 {
+		page = 1
+		offset = 0
+	}
+	if userId == "" {
+		return []model.Thread{}, nil
+	}
+
 	// If no search query, return all bookmarks
 	if search == "" {
 		result := r.DB.
 			Joins("JOIN bookmarks ON bookmarks.thread_id = threads.id").
 			Where("bookmarks.user_id = ?", userId).
+			Order("bookmarks.created_at DESC").
 			Limit(limit).
 			Offset(offset).
 			Find(&threads)
@@ -259,34 +269,66 @@ func (r *ThreadRepository) GetBookmark(page int, userId string, search string) (
 	result := r.DB.
 		Joins("JOIN bookmarks ON bookmarks.thread_id = threads.id").
 		Where("bookmarks.user_id = ?", userId).
+		Order("bookmarks.created_at DESC").
 		Find(&allThreads)
 
 	if result.Error != nil {
 		return threads, result.Error
 	}
 
-	// Perform fuzzy search on thread contents
-	var threadContents []string
-	for _, thread := range allThreads {
-		threadContents = append(threadContents, thread.Content)
+	// If no threads found, return empty result
+	if len(allThreads) == 0 {
+		return []model.Thread{}, nil
 	}
 
-	// Use fuzzy search with a threshold of 0.3 (30% similarity)
-	fuzzyMatches := utils.PerformFuzzySearch(search, threadContents, 0.3)
-
-	// Create a map to track which threads matched and their scores
-	matchedIndices := make(map[int]float64)
-	for _, match := range fuzzyMatches {
-		matchedIndices[match.Index] = match.Score
-	}
-
-	// Filter threads based on fuzzy matches and apply pagination
+	// Perform fuzzy search on thread contents with error recovery
 	var filteredThreads []model.Thread
-	for i, thread := range allThreads {
-		if _, exists := matchedIndices[i]; exists {
-			filteredThreads = append(filteredThreads, thread)
+
+	// Use defer-recover to handle any panics in fuzzy search
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				// If fuzzy search panics, fall back to simple string matching
+				filteredThreads = []model.Thread{}
+				searchLower := strings.ToLower(strings.TrimSpace(search))
+				for _, thread := range allThreads {
+					if strings.Contains(strings.ToLower(thread.Content), searchLower) {
+						filteredThreads = append(filteredThreads, thread)
+					}
+				}
+			}
+		}()
+
+		// Prepare thread contents for fuzzy search
+		var threadContents []string
+		for _, thread := range allThreads {
+			// Ensure content is not empty to avoid issues
+			content := strings.TrimSpace(thread.Content)
+			if content == "" {
+				content = " " // Use space instead of empty string
+			}
+			threadContents = append(threadContents, content)
 		}
-	}
+
+		// Use fuzzy search with a threshold of 0.3 (30% similarity)
+		fuzzyMatches := utils.PerformFuzzySearch(search, threadContents, 0.3)
+
+		// Create a map to track which threads matched and their scores
+		matchedIndices := make(map[int]float64)
+		for _, match := range fuzzyMatches {
+			// Validate index bounds
+			if match.Index >= 0 && match.Index < len(allThreads) {
+				matchedIndices[match.Index] = match.Score
+			}
+		}
+
+		// Filter threads based on fuzzy matches
+		for i, thread := range allThreads {
+			if _, exists := matchedIndices[i]; exists {
+				filteredThreads = append(filteredThreads, thread)
+			}
+		}
+	}()
 
 	// Apply pagination to filtered results
 	startIndex := offset

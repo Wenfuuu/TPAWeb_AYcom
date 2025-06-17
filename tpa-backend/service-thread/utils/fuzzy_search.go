@@ -8,6 +8,17 @@ import (
 // DamerauLevenshteinDistance calculates the Damerau-Levenshtein distance between two strings
 // This includes insertions, deletions, substitutions, and transpositions
 func DamerauLevenshteinDistance(s1, s2 string) int {
+	// Handle edge cases
+	if s1 == s2 {
+		return 0
+	}
+	if s1 == "" {
+		return utf8.RuneCountInString(s2)
+	}
+	if s2 == "" {
+		return utf8.RuneCountInString(s1)
+	}
+
 	len1 := utf8.RuneCountInString(s1)
 	len2 := utf8.RuneCountInString(s2)
 
@@ -61,6 +72,9 @@ func DamerauLevenshteinDistance(s1, s2 string) int {
 
 // min returns the minimum of the given integers
 func min(values ...int) int {
+	if len(values) == 0 {
+		return 0
+	}
 	minVal := values[0]
 	for _, v := range values[1:] {
 		if v < minVal {
@@ -73,17 +87,34 @@ func min(values ...int) int {
 // FuzzyMatchScore calculates a similarity score between 0 and 1
 // Higher scores indicate better matches
 func FuzzyMatchScore(s1, s2 string) float64 {
+	// Handle edge cases
+	if s1 == "" && s2 == "" {
+		return 1.0
+	}
+	if s1 == "" || s2 == "" {
+		return 0.0
+	}
 	if s1 == s2 {
 		return 1.0
 	}
 
-	maxLen := float64(max(len(s1), len(s2)))
+	maxLen := float64(max(utf8.RuneCountInString(s1), utf8.RuneCountInString(s2)))
 	if maxLen == 0 {
 		return 1.0
 	}
 
 	distance := float64(DamerauLevenshteinDistance(s1, s2))
-	return 1.0 - (distance / maxLen)
+	similarity := 1.0 - (distance / maxLen)
+
+	// Ensure score is between 0 and 1
+	if similarity < 0 {
+		return 0.0
+	}
+	if similarity > 1 {
+		return 1.0
+	}
+
+	return similarity
 }
 
 // max returns the maximum of two integers
@@ -105,10 +136,22 @@ type FuzzyMatch struct {
 // PerformFuzzySearch searches for fuzzy matches in a slice of strings
 func PerformFuzzySearch(query string, texts []string, threshold float64) []FuzzyMatch {
 	var matches []FuzzyMatch
-	query = strings.ToLower(query)
+
+	// Input validation
+	if query == "" || len(texts) == 0 {
+		return matches
+	}
+
+	query = strings.ToLower(strings.TrimSpace(query))
 
 	for i, text := range texts {
+		if text == "" {
+			continue // Skip empty texts
+		}
+
 		textLower := strings.ToLower(text)
+		bestScore := 0.0
+		matched := false
 
 		// Check for exact substring match first (highest priority)
 		if strings.Contains(textLower, query) {
@@ -120,29 +163,33 @@ func PerformFuzzySearch(query string, texts []string, threshold float64) []Fuzzy
 			continue
 		}
 
-		// Check for fuzzy match
+		// Check for fuzzy match on full text
 		score := FuzzyMatchScore(query, textLower)
 		if score >= threshold {
-			matches = append(matches, FuzzyMatch{
-				Text:  text,
-				Score: score,
-				Index: i,
-			})
+			bestScore = score
+			matched = true
 		}
 
 		// Also check individual words in the text
 		words := strings.Fields(textLower)
 		for _, word := range words {
-			wordScore := FuzzyMatchScore(query, word)
-			if wordScore >= threshold && wordScore > score {
-				// Only update if this word gives a better score
-				score = wordScore
-				matches[len(matches)-1] = FuzzyMatch{
-					Text:  text,
-					Score: wordScore,
-					Index: i,
-				}
+			if len(word) < 2 { // Skip very short words
+				continue
 			}
+			wordScore := FuzzyMatchScore(query, word)
+			if wordScore >= threshold && wordScore > bestScore {
+				bestScore = wordScore
+				matched = true
+			}
+		}
+
+		// Add the match if we found one
+		if matched {
+			matches = append(matches, FuzzyMatch{
+				Text:  text,
+				Score: bestScore,
+				Index: i,
+			})
 		}
 	}
 
