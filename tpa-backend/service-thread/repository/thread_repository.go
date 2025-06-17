@@ -5,6 +5,7 @@ import (
 
 	"github.com/Wenfuuu/tpa-web/service-thread/database"
 	"github.com/Wenfuuu/tpa-web/service-thread/model"
+	"github.com/Wenfuuu/tpa-web/service-thread/utils"
 	"gorm.io/gorm"
 )
 
@@ -242,15 +243,63 @@ func (r *ThreadRepository) GetBookmark(page int, userId string, search string) (
 	limit := 5
 	offset := (page - 1) * limit
 
+	// If no search query, return all bookmarks
+	if search == "" {
+		result := r.DB.
+			Joins("JOIN bookmarks ON bookmarks.thread_id = threads.id").
+			Where("bookmarks.user_id = ?", userId).
+			Limit(limit).
+			Offset(offset).
+			Find(&threads)
+		return threads, result.Error
+	}
+
+	// First, get all bookmarked threads for this user (without pagination for fuzzy search)
+	var allThreads []model.Thread
 	result := r.DB.
 		Joins("JOIN bookmarks ON bookmarks.thread_id = threads.id").
 		Where("bookmarks.user_id = ?", userId).
-		Where("LOWER(threads.content) LIKE ?", "%"+strings.ToLower(search)+"%").
-		Limit(limit).
-		Offset(offset).
-		Find(&threads)
+		Find(&allThreads)
 
-	return threads, result.Error
+	if result.Error != nil {
+		return threads, result.Error
+	}
+
+	// Perform fuzzy search on thread contents
+	var threadContents []string
+	for _, thread := range allThreads {
+		threadContents = append(threadContents, thread.Content)
+	}
+
+	// Use fuzzy search with a threshold of 0.3 (30% similarity)
+	fuzzyMatches := utils.PerformFuzzySearch(search, threadContents, 0.3)
+
+	// Create a map to track which threads matched and their scores
+	matchedIndices := make(map[int]float64)
+	for _, match := range fuzzyMatches {
+		matchedIndices[match.Index] = match.Score
+	}
+
+	// Filter threads based on fuzzy matches and apply pagination
+	var filteredThreads []model.Thread
+	for i, thread := range allThreads {
+		if _, exists := matchedIndices[i]; exists {
+			filteredThreads = append(filteredThreads, thread)
+		}
+	}
+
+	// Apply pagination to filtered results
+	startIndex := offset
+	endIndex := offset + limit
+	if startIndex >= len(filteredThreads) {
+		return []model.Thread{}, nil
+	}
+	if endIndex > len(filteredThreads) {
+		endIndex = len(filteredThreads)
+	}
+
+	threads = filteredThreads[startIndex:endIndex]
+	return threads, nil
 }
 
 func (r *ThreadRepository) GetRepostThreads(userId string) ([]model.Thread, error) {
