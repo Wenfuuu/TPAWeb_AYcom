@@ -89,4 +89,4 @@ Uploaded images and videos go to Supabase Storage.
 
 ## Course Context
 
-This app was built for the Web Technical Path Assessment (TPA) at Software Laboratory Center, BINUS University.
+This app was built for the Web Test Progressive Assistant (TPA) at Software Laboratory Center, BINUS University.
